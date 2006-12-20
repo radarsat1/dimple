@@ -26,8 +26,10 @@ fi
 cd $WOscLib_DIR
 
 # The rest of this script is only for Linux.
-if ( $(uname)x != "Linux"x ); then
-	exit
+if [ "$(uname)"x != "Linux"x ]; then
+    echo Done.
+    echo Please compile $WOscLib_DIR manually.
+    exit
 fi
 
 echo Patching $WOscLib_DIR
@@ -54,3 +56,5 @@ if !(cd build/linux && make -f makefile-linux-a.mk); then
 	echo "Error compiling $WOscLib_DIR."
 	exit
 fi
+
+echo Done.
