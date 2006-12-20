@@ -4,14 +4,15 @@
 
 OBJECTS = osc_chai_glut.o
 
+DEBUG = -g -ggdb
 SOURCES = $(OBJECTS:.o=.cpp)
 INCLUDE = -Ichai3d/include 
 LOCALOBJS = $(notdir $(OBJECTS) )
 DEFS = -D_POSIX -D_MAX_PATH=260 -D_LINUX -DLINUX
 CC   = g++ -c $(DEFS)
-CFLAGS = -O3 $(INCLUDE)
+CFLAGS = -O3 $(INCLUDE) $(DEBUG)
 LD   = g++ -v -o 
-LIBS = -Lchai3d/lib/linux -lchai3d_linux -lGL -lglut -lGLU -ldhd -lpciscan -lpthread -lusb
+LIBS = -Lchai3d/lib/linux -lchai3d_linux -lGL -lglut -lGLU -ldhd -lpciscan -lpthread -lusb -llo
 
 all: osc_chai_glut
 
