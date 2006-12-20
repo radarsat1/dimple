@@ -27,18 +27,10 @@
 #include <string.h>
 #include <signal.h>
 
-// Different compilers like slightly different GLUT's 
-#ifdef _MSVC
-#include "../../../external/OpenGL/msvc6/glut.h"
-#else
-  #ifdef _POSIX
-    #include <GL/glut.h>
-  #else
-    #include "../../../external/OpenGL/bbcp6/glut.h"
-  #endif
-#endif
-
+#include <GL/glut.h>
+#ifdef USE_FREEGLUT
 #include <GL/freeglut_ext.h>
+#endif
 
 //---------------------------------------------------------------------------
 #include "CCamera.h"
@@ -355,8 +347,13 @@ int initOSC()
 
 void sighandler_quit(int sig)
 {
-	 if (glutStarted)
-		  glutLeaveMainLoop();
+	if (glutStarted) {
+#ifdef USE_FREEGLUT
+		glutLeaveMainLoop();
+#else
+		exit(0);
+#endif
+	}
 	 quit = 1;
 	 return;
 }
