@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 
 // Different compilers like slightly different GLUT's 
 #ifdef _MSVC
@@ -37,6 +38,8 @@
   #endif
 #endif
 
+#include <GL/freeglut_ext.h>
+
 //---------------------------------------------------------------------------
 #include "CCamera.h"
 #include "CLight.h"
@@ -45,14 +48,13 @@
 #include "CTriangle.h"
 #include "CVertex.h"
 #include "CMaterial.h"
-#include "CTexture2D.h"
 #include "CMatrix3d.h"
 #include "CVector3d.h"
 #include "CPrecisionClock.h"
 #include "CPrecisionTimer.h"
 #include "CMeta3dofPointer.h"
-#include "CShapeTorus.h"
-#include "CBitmap.h"
+//---------------------------------------------------------------------------
+#include "lo/lo.h"
 //---------------------------------------------------------------------------
 
 // the world in which we will create our environment
@@ -63,15 +65,6 @@ cCamera* camera;
 
 // a light source
 cLight *light;
-
-// a simple torus object
-cShapeTorus* object;
-
-// a little "chai3d" bitmap logo at the bottom of the screen
-cBitmap* logo;
-
-// rotational velocity of the torus
-cVector3d rotVelocity;
 
 // a 3D cursor which represents the haptic device
 cMeta3dofPointer* cursor;
@@ -89,6 +82,12 @@ int height  = 0;
 // menu options
 const int OPTION_FULLSCREEN     = 1;
 const int OPTION_WINDOWDISPLAY  = 2;
+
+// OSC handlers
+lo_server_thread st;
+
+int glutStarted = 0;
+int quit = 0;
 
 //---------------------------------------------------------------------------
 
@@ -143,10 +142,6 @@ void rezizeWindow(int w, int h)
     width = w;
     height = h;
     glViewport(0, 0, width, height);
-
-    // update the size of the "chai3d" logo
-    float scale = (float) w / 1500.0;
-    logo->setZoomHV(scale, scale);
 }
 
 //---------------------------------------------------------------------------
@@ -204,39 +199,12 @@ void hapticsLoop(void* a_pUserData)
 
     // get position of cursor in global coordinates
     cVector3d cursorPos = cursor->m_deviceGlobalPos;
-
-    // get position of torus in global coordinates
-    cVector3d objectPos = object->getGlobalPos();
-
-    // get the last force applied to the cursor in global coordinates
-    cVector3d cursorForce = cursor->m_lastComputedGlobalForce;
-
-    // update rotational velocity
-    rotVelocity.add( cMul(-10.0 * increment, cCross(cSub(cursorPos, objectPos), cursorForce)));
-    
-    // add some damping...
-    rotVelocity.mul(1.0 - increment);
-    
-    // compute the next rotation of the torus
-    if (rotVelocity.length() > CHAI_SMALL)
-    {
-        object->rotate(cNormalize(rotVelocity), increment * rotVelocity.length());
-    }
 }
 
 //---------------------------------------------------------------------------
 
-int main(int argc, char* argv[])
+int initWorld()
 {
-    // display pretty message
-    printf ("\n");
-    printf ("  ===================================\n");
-    printf ("  CHAI 3D\n");
-    printf ("  Reflections Demo\n");
-    printf ("  Copyright 2006\n");
-    printf ("  ===================================\n");
-    printf ("\n");
-
     // create a new world
     world = new cWorld();
 
@@ -247,26 +215,6 @@ int main(int argc, char* argv[])
     camera = new cCamera(world);
     world->addChild(camera);
 
-    // create a torus like shape
-    object = new cShapeTorus(0.09, 0.15);
-    world->addChild(object);
-
-    // orient this shape 90 degrees so that it points towards the operator
-    object->rotate(cVector3d(0,1,0), cDegToRad(90));
-
-    // set material stiffness of object
-    object->m_material.setStiffness(120.0);
-    
-    // let's create a some environment mapping
-    cTexture2D* texture = new cTexture2D();
-    texture->loadFromFile("./resources/images/spheremap.bmp");
-    texture->setEnvironmentMode(GL_DECAL);
-    texture->setSphericalMappingEnabled(true);
-    object->m_texture = texture;
-
-    // initialize the object's rotational velocity with a slight motion
-    rotVelocity.set(0.1, 0.5, 1.0);
-
     // position a camera
     camera->set( cVector3d (1.0, 0.0, 0.0),
                  cVector3d (0.0, 0.0, 0.0),
@@ -274,17 +222,6 @@ int main(int argc, char* argv[])
 
     // set the near and far clipping planes of the camera
     camera->setClippingPlanes(0.01, 10.0);
-
-    // load a little chai bitmap logo which will located at the bottom of the screen
-    logo = new cBitmap();
-    logo->m_image.loadFromFile("./resources/images/chai3d.bmp");
-    logo->setPos(10,10,0);
-    camera->m_front_2Dscene.addChild(logo);
-
-    // we replace the background color of the logo (black) with a transparent color.
-    // we also enable transparency
-    logo->m_image.replace(cColorb(0,0,0), cColorb(0,0,0,0));
-    logo->enableTransparency(true);
 
     // Create a light source and attach it to the camera
     light = new cLight(world);
@@ -304,17 +241,19 @@ int main(int argc, char* argv[])
 
     // set the diameter of the ball representing the cursor
     cursor->setRadius(0.01);
+}
 
+int initGlutWindow()
+{
     // initialize the GLUT windows
-    glutInit(&argc, argv);
     glutInitWindowSize(512, 512);
     glutInitWindowPosition(0, 0);
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
-    glutCreateWindow(argv[0]);
+    glutCreateWindow("DEFAULT WINDOW");
     glutDisplayFunc(draw);
     glutKeyboardFunc(key);
     glutReshapeFunc(rezizeWindow);
-    glutSetWindowTitle("CHAI 3D");
+    glutSetWindowTitle("OSC for Haptics");
 
     // create a mouse menu
     glutCreateMenu(setOther);
@@ -322,6 +261,12 @@ int main(int argc, char* argv[])
     glutAddMenuEntry("Window Display", OPTION_WINDOWDISPLAY);
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 
+    // update display
+    glutTimerFunc(30, updateDisplay, 0);
+}
+
+int startHaptics()
+{
     // set up the device
     cursor->initialize();
 
@@ -330,13 +275,102 @@ int main(int argc, char* argv[])
 
     // start haptic timer callback
     timer.set(0, hapticsLoop, NULL);
+}
 
-    // update display
-    glutTimerFunc(30, updateDisplay, 0);
+int stopHaptics()
+{
+	 cursor->stop();
+	 timer.stop();
+}
 
-    // start main graphic rendering loop
-    glutMainLoop();
-    return 0;
+int enableHaptics_handler(const char *path, const char *types, lo_arg **argv, int argc,
+						  void *data, void *user_data)
+{
+	printf("Starting haptics.\n");
+	printf("path:  %s\n", path);
+	printf("types: %s\n", types);
+	printf("argc: %d\n", argc);
+	printf("arg: %d\n", argv[0]->c);
+
+	if (argv[0]->c==0) {
+		 stopHaptics();
+	} else {
+		 startHaptics();
+	}
+}
+
+int enableGraphics_handler(const char *path, const char *types, lo_arg **argv, int argc,
+						   void *data, void *user_data)
+{
+	 if (argv[0]->c) {
+		  if (!glutStarted) {
+			   glutStarted = 1;
+		  }
+		  else {
+			   glutShowWindow();   
+		  }
+	 }
+	 else if (glutStarted) {
+		  glutHideWindow();
+	 }
+}
+
+void liblo_error(int num, const char *msg, const char *path)
+{
+    printf("liblo server error %d in path %s: %s\n", num, path, msg);
+    fflush(stdout);
+}
+
+int initOSC()
+{
+	 /* start a new server on port 7770 */
+	 printf("server thread...\n");
+	 st = lo_server_thread_new("7770", liblo_error);
+	 printf("server thread created\n");
+
+	 /* add methods for each message */
+	 lo_server_thread_add_method(st, "/enableHaptics", "i", enableHaptics_handler, NULL);
+	 lo_server_thread_add_method(st, "/enableGraphics", "i", enableGraphics_handler, NULL);
+
+	 lo_server_thread_start(st);
+
+	 printf("OSC server initialized on port 7770.\n");
+}
+
+void sighandler_quit(int sig)
+{
+	 if (glutStarted)
+		  glutLeaveMainLoop();
+	 quit = 1;
+	 return;
+}
+
+int main(int argc, char* argv[])
+{
+	 signal(SIGINT, sighandler_quit);
+	 initOSC();
+
+	 // display pretty message
+	 printf ("\n");
+	 printf ("  ========================================\n");
+	 printf ("  OSC for Haptics - CHAI 3D implementation\n");
+	 printf ("  Stephen Sinclair, IDMIL/CIRMMT 2006     \n");
+	 printf ("  ========================================\n");
+	 printf ("\n");
+
+	 initWorld();
+
+	 // start main graphic rendering loop
+	 glutInit(&argc, argv);
+	 while (!glutStarted && !quit) {
+		  sleep(1);
+	 }
+	 if (glutStarted && !quit) {
+		  initGlutWindow();
+		  glutMainLoop();
+	 }
+
+	 return 0;
 }
 
 //---------------------------------------------------------------------------
