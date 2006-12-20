@@ -53,6 +53,7 @@
 #include "CPrecisionClock.h"
 #include "CPrecisionTimer.h"
 #include "CMeta3dofPointer.h"
+#include "CShapeSphere.h"
 //---------------------------------------------------------------------------
 #include "lo/lo.h"
 //---------------------------------------------------------------------------
@@ -275,23 +276,19 @@ int startHaptics()
 
     // start haptic timer callback
     timer.set(0, hapticsLoop, NULL);
+	 printf("Haptics started.\n");
 }
 
 int stopHaptics()
 {
 	 cursor->stop();
 	 timer.stop();
+	 printf("Haptics stopped.\n");
 }
 
-int enableHaptics_handler(const char *path, const char *types, lo_arg **argv, int argc,
+int hapticsEnable_handler(const char *path, const char *types, lo_arg **argv, int argc,
 						  void *data, void *user_data)
 {
-	printf("Starting haptics.\n");
-	printf("path:  %s\n", path);
-	printf("types: %s\n", types);
-	printf("argc: %d\n", argc);
-	printf("arg: %d\n", argv[0]->c);
-
 	if (argv[0]->c==0) {
 		 stopHaptics();
 	} else {
@@ -299,7 +296,7 @@ int enableHaptics_handler(const char *path, const char *types, lo_arg **argv, in
 	}
 }
 
-int enableGraphics_handler(const char *path, const char *types, lo_arg **argv, int argc,
+int graphicsEnable_handler(const char *path, const char *types, lo_arg **argv, int argc,
 						   void *data, void *user_data)
 {
 	 if (argv[0]->c) {
@@ -313,6 +310,24 @@ int enableGraphics_handler(const char *path, const char *types, lo_arg **argv, i
 	 else if (glutStarted) {
 		  glutHideWindow();
 	 }
+}
+
+int sphereCreate_handler(const char *path, const char *types, lo_arg **argv, int argc,
+						 void *data, void *user_data)
+{
+	cShapeSphere *sphere = new cShapeSphere(0.05);
+	cVector3d pos;
+	if (argc>0)
+		 pos.x = argv[0]->f;
+	if (argc>1)
+		 pos.y = argv[1]->f;
+	if (argc>2)
+		 pos.z = argv[2]->f;
+
+	sphere->setPos(pos);
+
+	world->addChild(sphere);
+	printf("Sphere added at (%f, %f, %f).\n", pos.x, pos.y, pos.z);
 }
 
 void liblo_error(int num, const char *msg, const char *path)
@@ -329,8 +344,9 @@ int initOSC()
 	 printf("server thread created\n");
 
 	 /* add methods for each message */
-	 lo_server_thread_add_method(st, "/enableHaptics", "i", enableHaptics_handler, NULL);
-	 lo_server_thread_add_method(st, "/enableGraphics", "i", enableGraphics_handler, NULL);
+	 lo_server_thread_add_method(st, "/haptics/enable", "i", hapticsEnable_handler, NULL);
+	 lo_server_thread_add_method(st, "/graphics/enable", "i", graphicsEnable_handler, NULL);
+	 lo_server_thread_add_method(st, "/sphere/create", "fff", sphereCreate_handler, NULL);
 
 	 lo_server_thread_start(st);
 
@@ -347,16 +363,16 @@ void sighandler_quit(int sig)
 
 int main(int argc, char* argv[])
 {
-	 signal(SIGINT, sighandler_quit);
-	 initOSC();
-
 	 // display pretty message
 	 printf ("\n");
-	 printf ("  ========================================\n");
-	 printf ("  OSC for Haptics - CHAI 3D implementation\n");
+	 printf ("  =============================================\n");
+	 printf ("  OSC for Haptics - CHAI 3D/GLUT implementation\n");
 	 printf ("  Stephen Sinclair, IDMIL/CIRMMT 2006     \n");
-	 printf ("  ========================================\n");
+	 printf ("  =============================================\n");
 	 printf ("\n");
+
+	 signal(SIGINT, sighandler_quit);
+	 initOSC();
 
 	 initWorld();
 
