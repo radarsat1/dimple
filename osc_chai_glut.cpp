@@ -47,7 +47,7 @@
 #include "CMeta3dofPointer.h"
 #include "CShapeSphere.h"
 //---------------------------------------------------------------------------
-#include "lo/lo.h"
+#include "WOscServer.h"
 //---------------------------------------------------------------------------
 
 // the world in which we will create our environment
@@ -76,11 +76,10 @@ int height  = 0;
 const int OPTION_FULLSCREEN     = 1;
 const int OPTION_WINDOWDISPLAY  = 2;
 
-// OSC handlers
-lo_server_thread st;
-
 int glutStarted = 0;
 int quit = 0;
+
+WOscServer osc_server;
 
 //---------------------------------------------------------------------------
 
@@ -278,6 +277,7 @@ int stopHaptics()
 	 printf("Haptics stopped.\n");
 }
 
+/*
 int hapticsEnable_handler(const char *path, const char *types, lo_arg **argv, int argc,
 						  void *data, void *user_data)
 {
@@ -327,33 +327,68 @@ void liblo_error(int num, const char *msg, const char *path)
     printf("liblo server error %d in path %s: %s\n", num, path, msg);
     fflush(stdout);
 }
+*/
+
+class enableMethod : public WOscServerMethod
+{
+public:
+	 enableMethod(WOscContainer* parent, WOscServer* receiverContext)
+		  : WOscServerMethod(parent, receiverContext,
+							 "enable", "Method enables something.") {}
+	 
+	 void Method(
+		  const WOscMessage *message,
+		  const WOscTimeTag& when,
+		  const TheNetReturnAddress* networkReturnAddress)
+	 {
+		  printf("%s/enable received: %d\n",
+				 GetParent()->GetName().GetBuffer(),
+				 message->GetInt(0));
+	 }
+};
+
 
 int initOSC()
 {
 	 /* start a new server on port 7770 */
-	 printf("server thread...\n");
-	 st = lo_server_thread_new("7770", liblo_error);
-	 printf("server thread created\n");
+	 osc_server.NetworkInit(7770);
 
 	 /* add methods for each message */
+	 WOscContainerInfo hapticsInfo("haptics");
+	 WOscContainer *hapticsContainer = new WOscContainer(&hapticsInfo,
+														 osc_server.rootContainer,
+														 "haptics");
+	 new enableMethod(hapticsContainer, &osc_server);
+
+	 WOscContainerInfo graphicsInfo("graphics");
+	 WOscContainer *graphicsContainer = new WOscContainer(&graphicsInfo,
+														 osc_server.rootContainer,
+														 "graphics");
+	 new enableMethod(graphicsContainer, &osc_server);
+
+/*
 	 lo_server_thread_add_method(st, "/haptics/enable", "i", hapticsEnable_handler, NULL);
 	 lo_server_thread_add_method(st, "/graphics/enable", "i", graphicsEnable_handler, NULL);
 	 lo_server_thread_add_method(st, "/sphere/create", "fff", sphereCreate_handler, NULL);
 
 	 lo_server_thread_start(st);
+	 */
 
 	 printf("OSC server initialized on port 7770.\n");
 }
 
 void sighandler_quit(int sig)
 {
-	if (glutStarted) {
+	 osc_server.NetworkHalt();
+	 printf("OSC server halted.\n");
+
+	 if (glutStarted) {
 #ifdef USE_FREEGLUT
-		glutLeaveMainLoop();
+		  glutLeaveMainLoop();
 #else
-		exit(0);
+		  exit(0);
 #endif
-	}
+	 }
 	 quit = 1;
 	 return;
 }
@@ -376,6 +411,7 @@ int main(int argc, char* argv[])
 	 // start main graphic rendering loop
 	 glutInit(&argc, argv);
 	 while (!glutStarted && !quit) {
+		  osc_server.CheckForPackets();
 		  sleep(1);
 	 }
 	 if (glutStarted && !quit) {
