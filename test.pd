@@ -1,16 +1,20 @@
-#N canvas 680 219 450 300 10;
+#N canvas 680 128 450 300 10;
 #X obj 16 225 sendOSC;
 #X msg 16 177 connect localhost 7770;
-#X msg 16 46 send /enableHaptics \$1;
-#X obj 16 18 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
+#X obj 16 32 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
 ;
 #X msg 29 202 disconnect;
-#X obj 16 92 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
+#X obj 16 98 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
 ;
-#X msg 16 119 send /enableGraphics \$1;
+#X msg 206 208 send /sphere/create 0 -0.1 0;
+#X msg 206 232 send /sphere/create 0 0.1 0;
+#X msg 16 119 send /graphics/enable \$1;
+#X msg 16 52 send /haptics/enable \$1;
 #X connect 1 0 0 0;
-#X connect 2 0 0 0;
-#X connect 3 0 2 0;
-#X connect 4 0 0 0;
-#X connect 5 0 6 0;
+#X connect 2 0 8 0;
+#X connect 3 0 0 0;
+#X connect 4 0 7 0;
+#X connect 5 0 0 0;
 #X connect 6 0 0 0;
+#X connect 7 0 0 0;
+#X connect 8 0 0 0;
