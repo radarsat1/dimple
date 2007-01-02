@@ -19,6 +19,7 @@
 */
 //===========================================================================
 
+#define _WINSOCKAPI_
 //---------------------------------------------------------------------------
 #include <assert.h>
 #include <math.h>
@@ -47,8 +48,12 @@
 #include "CMeta3dofPointer.h"
 #include "CShapeSphere.h"
 //---------------------------------------------------------------------------
-#include "WOscServer.h"
+extern "C" {
+#include "lo/lo.h"
+}
 //---------------------------------------------------------------------------
+
+lo_address address_send = lo_address_new("132.206.14.230", "7770");
 
 // the world in which we will create our environment
 cWorld* world;
@@ -76,10 +81,17 @@ int height  = 0;
 const int OPTION_FULLSCREEN     = 1;
 const int OPTION_WINDOWDISPLAY  = 2;
 
+// OSC handlers
+lo_server_thread st;
+
 int glutStarted = 0;
+int hapticsStarted = 0;
+int requestHapticsStart = 0;
+int requestHapticsStop = 0;
+float globalForceMagnitude = 0;
 int quit = 0;
 
-WOscServer osc_server;
+void poll_requests();
 
 //---------------------------------------------------------------------------
 
@@ -102,6 +114,8 @@ void draw(void)
 
     // Swap buffers
     glutSwapBuffers();
+
+    poll_requests();
 }
 
 //---------------------------------------------------------------------------
@@ -191,11 +205,13 @@ void hapticsLoop(void* a_pUserData)
 
     // get position of cursor in global coordinates
     cVector3d cursorPos = cursor->m_deviceGlobalPos;
+
+	globalForceMagnitude = cursor->m_lastComputedGlobalForce.length();
 }
 
 //---------------------------------------------------------------------------
 
-int initWorld()
+void initWorld()
 {
     // create a new world
     world = new cWorld();
@@ -235,7 +251,7 @@ int initWorld()
     cursor->setRadius(0.01);
 }
 
-int initGlutWindow()
+void initGlutWindow()
 {
     // initialize the GLUT windows
     glutInitWindowSize(512, 512);
@@ -257,7 +273,7 @@ int initGlutWindow()
     glutTimerFunc(30, updateDisplay, 0);
 }
 
-int startHaptics()
+void startHaptics()
 {
     // set up the device
     cursor->initialize();
@@ -267,25 +283,30 @@ int startHaptics()
 
     // start haptic timer callback
     timer.set(0, hapticsLoop, NULL);
-	 printf("Haptics started.\n");
+
+	hapticsStarted = 1;
+	printf("Haptics started.\n");
 }
 
-int stopHaptics()
+void stopHaptics()
 {
+	if (hapticsStarted) {
 	 cursor->stop();
 	 timer.stop();
+
+	 hapticsStarted = 0;
 	 printf("Haptics stopped.\n");
+	}
 }
 
-/*
 int hapticsEnable_handler(const char *path, const char *types, lo_arg **argv, int argc,
 						  void *data, void *user_data)
 {
-	if (argv[0]->c==0) {
-		 stopHaptics();
-	} else {
-		 startHaptics();
-	}
+	if (argv[0]->c==0)
+		requestHapticsStop = 1;
+	else
+		requestHapticsStart = 1;
+	return 0;
 }
 
 int graphicsEnable_handler(const char *path, const char *types, lo_arg **argv, int argc,
@@ -302,12 +323,13 @@ int graphicsEnable_handler(const char *path, const char *types, lo_arg **argv, i
 	 else if (glutStarted) {
 		  glutHideWindow();
 	 }
+	 return 0;
 }
 
 int sphereCreate_handler(const char *path, const char *types, lo_arg **argv, int argc,
 						 void *data, void *user_data)
 {
-	cShapeSphere *sphere = new cShapeSphere(0.05);
+	float radius=0.05f;
 	cVector3d pos;
 	if (argc>0)
 		 pos.x = argv[0]->f;
@@ -315,11 +337,16 @@ int sphereCreate_handler(const char *path, const char *types, lo_arg **argv, int
 		 pos.y = argv[1]->f;
 	if (argc>2)
 		 pos.z = argv[2]->f;
+	if (argc>3)
+		 radius = argv[3]->f;
 
+	cShapeSphere *sphere = new cShapeSphere(radius);
 	sphere->setPos(pos);
 
 	world->addChild(sphere);
 	printf("Sphere added at (%f, %f, %f).\n", pos.x, pos.y, pos.z);
+
+	return 0;
 }
 
 void liblo_error(int num, const char *msg, const char *path)
@@ -327,70 +354,60 @@ void liblo_error(int num, const char *msg, const char *path)
     printf("liblo server error %d in path %s: %s\n", num, path, msg);
     fflush(stdout);
 }
-*/
 
-class enableMethod : public WOscServerMethod
-{
-public:
-	 enableMethod(WOscContainer* parent, WOscServer* receiverContext)
-		  : WOscServerMethod(parent, receiverContext,
-							 "enable", "Method enables something.") {}
-	 
-	 void Method(
-		  const WOscMessage *message,
-		  const WOscTimeTag& when,
-		  const TheNetReturnAddress* networkReturnAddress)
-	 {
-		  printf("%s/enable received: %d\n",
-				 GetParent()->GetName().GetBuffer(),
-				 message->GetInt(0));
-	 }
-};
-
-
-int initOSC()
+void initOSC()
 {
 	 /* start a new server on port 7770 */
-	 osc_server.NetworkInit(7770);
+	 st = lo_server_thread_new("7770", liblo_error);
 
 	 /* add methods for each message */
-	 WOscContainerInfo hapticsInfo("haptics");
-	 WOscContainer *hapticsContainer = new WOscContainer(&hapticsInfo,
-														 osc_server.rootContainer,
-														 "haptics");
-	 new enableMethod(hapticsContainer, &osc_server);
-
-	 WOscContainerInfo graphicsInfo("graphics");
-	 WOscContainer *graphicsContainer = new WOscContainer(&graphicsInfo,
-														 osc_server.rootContainer,
-														 "graphics");
-	 new enableMethod(graphicsContainer, &osc_server);
-
-/*
 	 lo_server_thread_add_method(st, "/haptics/enable", "i", hapticsEnable_handler, NULL);
 	 lo_server_thread_add_method(st, "/graphics/enable", "i", graphicsEnable_handler, NULL);
 	 lo_server_thread_add_method(st, "/sphere/create", "fff", sphereCreate_handler, NULL);
+	 lo_server_thread_add_method(st, "/sphere/create", "ffff", sphereCreate_handler, NULL);
 
 	 lo_server_thread_start(st);
-	 */
 
 	 printf("OSC server initialized on port 7770.\n");
 }
 
 void sighandler_quit(int sig)
 {
-	 osc_server.NetworkHalt();
-	 printf("OSC server halted.\n");
-
-	 if (glutStarted) {
+	requestHapticsStop = 1;
+	if (glutStarted) {
 #ifdef USE_FREEGLUT
-		  glutLeaveMainLoop();
+		glutLeaveMainLoop();
 #else
-		  exit(0);
+		exit(0);
 #endif
-	 }
+	}
 	 quit = 1;
 	 return;
+}
+
+// poll waiting requests on the main thread
+void poll_requests()
+{
+	if (requestHapticsStart) {
+		if (!hapticsStarted)
+			startHaptics();
+		hapticsStarted = 1;
+		requestHapticsStart = 0;
+		printf("Haptics started.\n");
+	}
+
+	if (requestHapticsStop) {
+		if (hapticsStarted)
+			stopHaptics();
+		hapticsStarted = 0;
+		requestHapticsStop = 0;
+		printf("Haptics stopped.\n");
+	}
+
+	if (globalForceMagnitude!=0) {
+		lo_send(address_send, "/force/magnitude", "f", globalForceMagnitude);
+		globalForceMagnitude = 0;
+	}
 }
 
 int main(int argc, char* argv[])
@@ -408,16 +425,21 @@ int main(int argc, char* argv[])
 
 	 initWorld();
 
-	 // start main graphic rendering loop
+	 // initially loop just waiting for messages
 	 glutInit(&argc, argv);
 	 while (!glutStarted && !quit) {
-		  osc_server.CheckForPackets();
-		  sleep(1);
+		  Sleep(100);
+		  poll_requests();
 	 }
+
+	 // when graphics start, fall through to initialize GLUT stuff
 	 if (glutStarted && !quit) {
 		  initGlutWindow();
 		  glutMainLoop();
 	 }
+
+	 requestHapticsStop = 1;
+	 poll_requests();
 
 	 return 0;
 }

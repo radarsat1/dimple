@@ -1,60 +1,58 @@
-# This script will download the FFTW library,
-# compile it, and then install it to a folder
-# called "local".
+# This script will download the LibLo library,
+# and patch it so it can be compiled using
+# Visual Studio 2003 (MSVC7).
 
-WOscLib_URL=http://easynews.dl.sourceforge.net/sourceforge/wosclib/WOscLib-00.05.zip
-WOscLib_TAR=WOscLib-00.05.zip
-WOscLib_DIR=WOscLib
-WOscLib_MD5=2218191f2f3f335ae80b4ebd616d77ac
+# For Windows, this script is intended to be run using Cygwin.
+# Required packages: tar, patch, coreutils
 
-if [ $(md5sum $WOscLib_TAR | sed "s,.*= *\(.*\),\1,g")x != ${WOscLib_MD5}x ]; then
-	echo Downloading $WOscLib_TAR ...
-	rm -v $WOscLib_TAR
-	wget -O $WOscLib_TAR $WOscLib_URL
-fi
-
-if [ $(md5sum $WOscLib_TAR | sed "s,.*= *\(.*\),\1,g")x != ${WOscLib_MD5}x ]; then
-	echo "Error in MD5 checksum for $WOscLib_TAR"
-	exit
-fi
-
-echo Extracting $WOscLib_TAR ...
-if !(unzip -o $WOscLib_TAR); then
-	echo "Error in archive.";
-fi
-
-cd $WOscLib_DIR
-
-# The rest of this script is only for Linux.
-if [ "$(uname)"x != "Linux"x ]; then
-    echo Done.
-    echo Please compile $WOscLib_DIR manually.
+# Check that we are using Cygwin.
+echo This script bootstraps required libraries for selected environments.
+case $(uname) in
+    CYGWIN*)
+    ;;
+    Linux*)
+    echo For Linux, please get package \"liblo\" from your distribution.
+    echo Ubuntu and Debian: sudo apt-get install liblo0-dev
     exit
+    ;;
+    *)
+    echo Your system is not supported by this script.
+    echo Please acquire the \"liblo\" package manually.
+    exit
+    ;;
+esac
+
+
+liblo_URL=http://easynews.dl.sourceforge.net/sourceforge/liblo/liblo-0.23.tar.gz
+liblo_TAR=liblo-0.23.tar.gz
+liblo_DIR=liblo-0.23
+liblo_MD5=e14c9f4fae7ed8d9622d126f6fb9c1d7
+liblo_PATCH=liblo-0.23-msvc7.patch
+
+if [ $(md5sum $liblo_TAR | cut -d" " -f1)x != ${liblo_MD5}x ]; then
+	echo Downloading $liblo_TAR ...
+	rm -v $liblo_TAR
+	wget -O $liblo_TAR $liblo_URL
 fi
 
-echo Patching $WOscLib_DIR
-if !(patch -p1 <<EOF
-diff -ru WOscLib/WOscContainer.h WOscLib-new/WOscContainer.h
---- WOscLib/WOscContainer.h	2006-05-16 23:21:42.000000000 -0400
-+++ WOscLib-new/WOscContainer.h	2006-12-20 12:01:09.000000000 -0500
-@@ -64,6 +64,7 @@
- /*  -----------------------------------------------------------------------  */
- 
- class WOscCallbackList;
-+class WOscMethod;
- 
- /** OSC Address-space node.
-  * An OSC-address space consists of a tree of containers with methods as leaves.
-EOF
-); then
-	echo "Error applying Linux patch."
+if [ $(md5sum $liblo_TAR | cut -d" " -f1)x != ${liblo_MD5}x ]; then
+	echo "Error in MD5 checksum for $liblo_TAR"
 	exit
 fi
 
-echo Compiling $WOscLib_DIR ...
-if !(cd build/linux && make -f makefile-linux-a.mk); then
-	echo "Error compiling $WOscLib_DIR."
+echo Extracting $liblo_TAR ...
+if !(tar -xzf $liblo_TAR); then
+	echo "Error in archive.";
+	exit
+fi
+
+echo Patching $liblo_DIR
+if !(cd $liblo_DIR && patch -p1 <../$liblo_PATCH); then
+	echo "Error applying MSVC7 patch."
 	exit
 fi
 
 echo Done.
+echo Now open solution file "$(cygpath -w $liblo_DIR/LibLo.sln)" in \
+    Visual Studio 2003 and Build All.
+explorer "$(cygpath -w $liblo_DIR)"
