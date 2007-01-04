@@ -93,6 +93,10 @@ int quit = 0;
 
 void poll_requests();
 
+#ifdef _POSIX
+#define Sleep usleep
+#endif
+
 //---------------------------------------------------------------------------
 
 void draw(void)
@@ -130,10 +134,8 @@ void key(unsigned char key, int x, int y)
         // stop the tool
         cursor->stop();
 
-#ifndef _POSIX
         // wait for the simulation timer to close
         Sleep(100);
-#endif
 
         // exit application
         exit(0);

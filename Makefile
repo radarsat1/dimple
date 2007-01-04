@@ -2,17 +2,17 @@
 #
 # If you don't have the SensAble libraries installed, take out -lHD and -lHDU from the LIBS line
 
-OBJECTS = osc_chai_glut.o WOscServer.o
+OBJECTS = osc_chai_glut.o
 
 DEBUG = -g -ggdb
 SOURCES = $(OBJECTS:.o=.cpp)
 INCLUDE = -Ichai3d/include -I.
 LOCALOBJS = $(notdir $(OBJECTS) )
-DEFS = -D_POSIX -D_MAX_PATH=260 -D_LINUX -DLINUX -D__LINUX__ -DUSE_FREEGLUT
+DEFS = -D_POSIX -D_MAX_PATH=260 -D_LINUX -DLINUX -D__LINUX__ -D_POSIX -DUSE_FREEGLUT
 CC   = g++ -c $(DEFS)
 CFLAGS = -O3 $(INCLUDE) $(DEBUG)
 LD   = g++ -o 
-LIBS = -Lchai3d/lib/linux -lchai3d_linux -lGL -lglut -lGLU -ldhd -lpciscan -lpthread -lusb -LWOscLib/build/linux/ -lwosclib
+LIBS = -Lchai3d/lib/linux -lchai3d_linux -lGL -lglut -lGLU -ldhd -lpciscan -lpthread -lusb -llo
 
 all: osc_chai_glut
 
