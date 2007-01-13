@@ -25,7 +25,6 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <signal.h>
 
 #include <GL/glut.h>
@@ -51,9 +50,11 @@
 extern "C" {
 #include "lo/lo.h"
 }
+#include "CODEMesh.h"
+#include "CODEProxy.h"
 //---------------------------------------------------------------------------
 
-lo_address address_send = lo_address_new("132.206.14.230", "7770");
+lo_address address_send = lo_address_new("132.206.14.230", "7771");
 
 // the world in which we will create our environment
 cWorld* world;
@@ -72,6 +73,12 @@ cPrecisionClock g_clock;
 
 // haptic timer callback
 cPrecisionTimer timer;
+
+// world objects
+std::map<std::string,cODEMesh*> objects;
+
+// Proxy object
+cODEProxy *proxy=NULL;
 
 // width and height of the current viewport display
 int width   = 0;
@@ -92,6 +99,13 @@ float globalForceMagnitude = 0;
 int quit = 0;
 
 void poll_requests();
+
+#define TIMESTEP 0.001
+
+// ODE objects
+dWorldID ode_world;
+double ode_step = TIMESTEP;
+dSpaceID ode_space;
 
 #ifdef _POSIX
 #define Sleep usleep
@@ -242,6 +256,12 @@ void initWorld()
 
     // create a cursor and add it to the world.
     cursor = new cMeta3dofPointer(world, 0);
+
+	// replace the cursor's proxy object with an ODE proxy
+	cProxyPointForceAlgo* old_proxy = (cProxyPointForceAlgo*)(cursor->m_pointForceAlgos[0]);
+	cursor->m_pointForceAlgos[0] = new cODEProxy(old_proxy);
+	delete old_proxy;
+
     world->addChild(cursor);
     cursor->setPos(0.0, 0.0, 0.0);
 
@@ -273,6 +293,14 @@ void initGlutWindow()
 
     // update display
     glutTimerFunc(30, updateDisplay, 0);
+}
+
+void initODE()
+{
+	 ode_world = dWorldCreate();
+	 dWorldSetGravity (ode_world,0,0,-5);
+	 ode_step = TIMESTEP;
+	 ode_space = dSimpleSpaceCreate(0);
 }
 
 void startHaptics()
@@ -423,9 +451,14 @@ int main(int argc, char* argv[])
 	 printf ("\n");
 
 	 signal(SIGINT, sighandler_quit);
-	 initOSC();
 
+	 initOSC();
 	 initWorld();
+	 initODE();
+
+	 objects["test"] = new cODEMesh(world, ode_world, ode_space);
+	 objects["test"]->initDynamic(SPHERE);
+	 objects["test"]->setMass(0.2);
 
 	 // initially loop just waiting for messages
 	 glutInit(&argc, argv);
