@@ -2,7 +2,7 @@
 #
 # If you don't have the SensAble libraries installed, take out -lHD and -lHDU from the LIBS line
 
-OBJECTS = osc_chai_glut.o CODEMesh.o
+OBJECTS = osc_chai_glut.o CODEPrimitive.o
 
 DEBUG = -g -ggdb
 SOURCES = $(OBJECTS:.o=.cpp)
@@ -18,7 +18,7 @@ all: osc_chai_glut
 
 %.o: %.cpp 
 	$(CC) $(CFLAGS) $<
-  
+
 # Actual target and dependencies
 osc_chai_glut: $(OBJECTS)
 	$(LD) osc_chai_glut $(LOCALOBJS) $(LIBS)
