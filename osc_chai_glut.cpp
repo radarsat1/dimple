@@ -76,8 +76,8 @@ cPrecisionClock g_clock;
 cPrecisionTimer timer;
 
 // world objects
-std::map<std::string,cODEMesh*> objects;
-typedef std::map<std::string,cODEMesh*>::iterator objects_iter;
+std::map<std::string,cODEPrimitive*> objects;
+typedef std::map<std::string,cODEPrimitive*>::iterator objects_iter;
 
 // Proxy object
 cODEProxy *proxy=NULL;
@@ -286,7 +286,7 @@ void ode_hapticsLoop(void* a_pUserData)
 	 objects_iter it;
 	 for (it=objects.begin(); it!=objects.end(); it++)
 	 {
-		 cODEMesh *o = objects[(*it).first];
+		 cODEPrimitive *o = objects[(*it).first];
 		 o->syncPose();
 	 }
 
@@ -452,14 +452,6 @@ int hapticsEnable_handler(const char *path, const char *types, lo_arg **argv, in
 		requestHapticsStop = 1;
 	else
 		requestHapticsStart = 1;
-
-	if (objects["test"]) {
-	 dBodySetPosition(objects["test"]->m_odeBody, 0, 0, 0);
-	 dBodySetLinearVel(objects["test"]->m_odeBody, 0, 0, 0);
-	 dBodySetAngularVel(objects["test"]->m_odeBody, 0, 0, 0);
-	 if (blah++ > 0)
-		 objects["test"]->setMass(2000000);
-	}
 	return 0;
 }
 
@@ -580,10 +572,19 @@ int main(int argc, char* argv[])
 	 initWorld();
 	 initODE();
 
-	 objects["test"] = new cODEPrism(world, ode_world, ode_space, cVector3d(0.1,0.1,0.1));
-	 world->addChild(objects["test"]);
-	 objects["test"]->setMass(20);
-	 objects["test"]->setPos(0,0,0.2);
+	 cODEMesh *o1 = new cODEPrism(world, ode_world, ode_space, cVector3d(0.1,0.1,0.1));
+	 objects["test1"] = o1;
+	 world->addChild(o1);
+	 dBodySetPosition(o1->m_odeBody, 0, 0.05, 0);
+	 o1->setMass(2);
+
+	 cODEMesh *o2 = new cODEPrism(world, ode_world, ode_space, cVector3d(0.1,0.1,0.1));
+	 objects["test2"] = o2;
+	 world->addChild(o2);
+	 dBodySetPosition(o2->m_odeBody, 0, -0.05, 0);
+	 o2->setMass(2);
+
+	 o1->hingeLink("testlink", o2, cVector3d(0, 0, 0.5), cVector3d(0.1, 0, 0.5));
 
 	 // initially loop just waiting for messages
 	 glutInit(&argc, argv);
