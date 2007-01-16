@@ -25,7 +25,7 @@ if [ $(md5sum $liblo_TAR | cut -d" " -f1)x != ${liblo_MD5}x ]; then
 	exit
 fi
 
-if ! [ -d $liblo_DIR]; then
+if ! [ -d $liblo_DIR ]; then
 echo Extracting $liblo_TAR ...
 if !(tar -xzf $liblo_TAR); then
 	echo "Error in archive.";
