@@ -41,7 +41,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="atls.lib winmm.lib opengl32.lib chai3d_complete.lib glu32.lib odbc32.lib odbccp32.lib liblo-0.23\Release\liblo.lib wsock32.lib pthreadVC2.lib"
+				AdditionalDependencies="atls.lib winmm.lib opengl32.lib chai3d_complete.lib glu32.lib odbc32.lib odbccp32.lib liblo-0.23\Release\liblo.lib wsock32.lib pthreadVC2.lib ode.lib"
 				OutputFile="osc_chai_glut.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -103,7 +103,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="atls.lib winmm.lib opengl32.lib chai3d_complete.lib glu32.lib odbc32.lib odbccp32.lib liblo-0.23\Debug\liblo.lib wsock32.lib pthreadVC2.lib"
+				AdditionalDependencies="atls.lib winmm.lib opengl32.lib chai3d_complete.lib glu32.lib odbc32.lib odbccp32.lib liblo-0.23\Debug\liblo.lib wsock32.lib pthreadVC2.lib oded.lib"
 				OutputFile="osc_chai_glut_d.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -145,6 +145,15 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
+				RelativePath=".\CODEMesh.cpp">
+			</File>
+			<File
+				RelativePath=".\CODEPrimitive.cpp">
+			</File>
+			<File
+				RelativePath=".\CODEPrism.cpp">
+			</File>
+			<File
 				RelativePath="osc_chai_glut.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -168,6 +177,18 @@
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
+			<File
+				RelativePath=".\CODEMesh.h">
+			</File>
+			<File
+				RelativePath=".\CODEPrimitive.h">
+			</File>
+			<File
+				RelativePath=".\CODEPrism.h">
+			</File>
+			<File
+				RelativePath=".\CODEProxy.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"

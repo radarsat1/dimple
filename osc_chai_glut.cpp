@@ -52,9 +52,10 @@ extern "C" {
 }
 #include "CODEMesh.h"
 #include "CODEProxy.h"
+#include "CODEPrism.h"
 //---------------------------------------------------------------------------
 
-lo_address address_send = lo_address_new("132.206.14.230", "7771");
+lo_address address_send = lo_address_new("localhost", "7771");
 
 // the world in which we will create our environment
 cWorld* world;
@@ -440,6 +441,7 @@ void poll_requests()
 	}
 }
 
+
 int main(int argc, char* argv[])
 {
 	 // display pretty message
@@ -456,8 +458,8 @@ int main(int argc, char* argv[])
 	 initWorld();
 	 initODE();
 
-	 objects["test"] = new cODEMesh(world, ode_world, ode_space);
-	 objects["test"]->initDynamic(SPHERE);
+	 objects["test"] = new cODEPrism(world, ode_world, ode_space, cVector3d(0.1,0.2,0.3));
+	 world->addChild(objects["test"]);
 	 objects["test"]->setMass(0.2);
 
 	 // initially loop just waiting for messages

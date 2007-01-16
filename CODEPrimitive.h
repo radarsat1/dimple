@@ -71,19 +71,20 @@ class cODEWorld;
 	              object.
 */
 //===========================================================================
-class cODEPrimitive : public cGenericObject
+class cODEPrimitive
 {
   public:
     // CONSTRUCTOR & DESTRUCTOR:
     //! Constructor of cODEPrimitive.
-    cODEPrimitive(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpace);
+    cODEPrimitive(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpace, cGenericObject &chaiObj);
     //! Destructor of cODEPrimitive.
     ~cODEPrimitive();
 
     // METHODS:
 	  //! Initialize the dynamic object.
-	  void initDynamic(geomType a_type = TRIMESH,objectType a_objType = DYNAMIC_OBJECT,float a_x = 0.0, 
-					   float a_y = 0.0, float a_z = 0.0, float a_density = 1.0) {};
+	  virtual void initDynamic(geomType a_type = TRIMESH,objectType a_objType = DYNAMIC_OBJECT,
+								float a_x = 0.0, float a_y = 0.0, float a_z = 0.0,
+								float a_density = 1.0) {};
 	  //! Update the position of the dynamic object.
 	  void updateDynamicPosition();
 	  //! Set the position of the dynamic object.
@@ -128,17 +129,13 @@ class cODEPrimitive : public cGenericObject
 	  dWorldID m_odeWorld;
 	  //! ODE space.
 	  dSpaceID m_odeSpace;
-	
-	  //! Inertia tensor.
-	  float			cgx, cgy, cgz;
-	  float			I11, I22, I33;
-	  float			I12, I13, I23;
 	  //! Mass.
 	  float			m_Mass;
 	  //! Object type.
 	  objectType		m_objType;
-	
   private:
+	  //! CHAI object
+	  cGenericObject m_chaiObj;
 };
 
 //---------------------------------------------------------------------------

@@ -23,7 +23,8 @@
 //---------------------------------------------------------------------------
 
 #ifdef _MSVC
-#include "stdafx.h"
+#pragma warning(disable:4244 4305)  // for VC++, no precision loss complaints
+#include <windows.h>
 #include <conio.h>
 #pragma warning (disable : 4786)
 #pragma comment(lib,"oded.lib")
@@ -58,7 +59,8 @@
     \param    a_parent  Pointer to parent world.
 */
 //===========================================================================
-cODEPrimitive::cODEPrimitive(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpace) : cGenericObject(a_parent)
+cODEPrimitive::cODEPrimitive(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpace,
+							 cGenericObject &chaiObj)
 {
     m_odeVertex = NULL;
     m_odeIndices = NULL;
@@ -67,7 +69,8 @@ cODEPrimitive::cODEPrimitive(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_o
     m_odeBody   = NULL;
     m_odeWorld = a_odeWorld;
     m_odeSpace = a_odeSpace;
-    m_lastRot.identity();
+	m_chaiObj = chaiObj;
+    m_chaiObj.m_lastRot.identity();
 }
 
 
@@ -119,10 +122,10 @@ void cODEPrimitive::updateDynamicPosition()
         odeRotation[4],odeRotation[5],odeRotation[6],
         odeRotation[8],odeRotation[9],odeRotation[10]);
     
-    setRot(chaiRotation);
-    setPos(odePosition[0],odePosition[1],odePosition[2]);
+    m_chaiObj.setRot(chaiRotation);
+    m_chaiObj.setPos(odePosition[0],odePosition[1],odePosition[2]);
     
-    computeGlobalPositions(1);    
+    m_chaiObj.computeGlobalPositions(1);    
 }
 
 
@@ -136,9 +139,8 @@ Set the dynamic position of the cODEPrimitive to the given value.
 void cODEPrimitive::setDynamicPosition(cVector3d &a_pos)
 {
     dGeomSetPosition(m_odeGeom, a_pos.x, a_pos.y, a_pos.z);
-    setPos(a_pos.x,a_pos.y,a_pos.z);
-    m_lastPos = m_localPos;
-    computeGlobalPositions(1);    
+    m_chaiObj.setPos(a_pos.x,a_pos.y,a_pos.z);
+    m_chaiObj.computeGlobalPositions(1);    
     
     if (m_objType == DYNAMIC_OBJECT)
     {

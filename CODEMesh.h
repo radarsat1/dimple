@@ -24,6 +24,8 @@
 #ifndef CODEMeshH
 #define CODEMeshH
 
+#pragma warning(disable:4244 4305)  // for VC++, no precision loss complaints
+
 //---------------------------------------------------------------------------
 #include "CGenericObject.h"
 #include "CMaterial.h"
@@ -40,22 +42,7 @@
 #include <string>
 #include <map>
 //---------------------------------------------------------------------------
-
-
-//Geometry type to use for the mesh.
-enum geomType{
-	TRIMESH,
-	BOX,
-	SPHERE
-};
-
-enum objectType {
-	STATIC_OBJECT,
-	DYNAMIC_OBJECT
-};
-
-typedef int odeVector3[3];
-//---------------------------------------------------------------------------
+#include "CODEPrimitive.h"
 
 //---------------------------------------------------------------------------
 class cWorld;
@@ -72,7 +59,7 @@ class cODEWorld;
 	              object.
 */
 //===========================================================================
-class cODEMesh : public cMesh
+class cODEMesh : public cMesh, public cODEPrimitive
 {
   public:
     // CONSTRUCTOR & DESTRUCTOR:
@@ -83,62 +70,13 @@ class cODEMesh : public cMesh
 
     // METHODS:
 	  //! Initialize the dynamic object.
-	  void initDynamic(geomType a_type = TRIMESH,objectType a_objType = DYNAMIC_OBJECT,float a_x = 0.0, 
-		                 float a_y = 0.0, float a_z = 0.0, float a_density = 1.0);
-	  //! Update the position of the dynamic object.
-	  void updateDynamicPosition();
-	  //! Set the position of the dynamic object.
-	  void setDynamicPosition(cVector3d &a_pos);
-	  //! Set the mass of the dynamic object.
-	  void setMass(float a_mass);
-  
- 	  //! List of names of the joints.
-	  std::map<std::string ,dJointID> m_Joint;
-	  //! Create a ball linkage.
-	  void ballLink     (string id,cODEMesh *meshLinked, cVector3d &anchor);
-	  //! Created a hinged linkage.
-	  void hingeLink    (string id,cODEMesh *meshLinked, cVector3d &anchor, cVector3d &axis);
-	  //! Create a double hinged linkage.
-	  void hinge2Link   (string id,cODEMesh *meshLinked, cVector3d &anchor, cVector3d &axis1, cVector3d &axis2);
-	  //! Create a slider linkage.
-	  void sliderLink   (string id,cODEMesh *meshLinked, cVector3d &anchor, cVector3d &axis);
-	  //! Create a universal linkage.
-	  void universalLink(string id,cODEMesh *meshLinked, cVector3d &anchor, cVector3d &axis1, cVector3d &axis2);
-	  //! Create a fixed linkage.
-	  void fixedLink    (string id,cODEMesh *meshLinked);
-    //! Destroy a joint.
-	  bool destroyJoint(string id);
-	  //! Get one of the body's joints.
-	  bool getJoint(string id,dJointID* &pJoint);
-
-    // MEMBERS:
-	  //! List of vertices for ODE.
-	  float	*m_odeVertex;
-	  //! List of vertex indices for ODE.
-	  odeVector3 *m_odeIndices;
-	
-	  //! Geometry for ODE.
-	  dGeomID m_odeGeom;
-	  //! TriMesh data for ODE.
-	  dTriMeshDataID  m_odeTriMeshData;
-	  //! Body id for ODE.
-	  dBodyID	m_odeBody;
-	  //! Mass for ODE.
-	  dMass	m_odeMass;
-    //! Pointer to ODE world in which this mesh lives.
-	  dWorldID m_odeWorld;
-	  //! ODE space.
-	  dSpaceID m_odeSpace;
-	
+	  virtual void initDynamic(geomType a_type = TRIMESH,objectType a_objType = DYNAMIC_OBJECT,
+								float a_x = 0.0, float a_y = 0.0, float a_z = 0.0,
+								float a_density = 1.0);
 	  //! Inertia tensor.
 	  float			cgx, cgy, cgz;
 	  float			I11, I22, I33;
 	  float			I12, I13, I23;
-	  //! Mass.
-	  float			m_Mass;
-	  //! Object type.
-	  objectType		m_objType;
-	
   private:
 	  // METHODS:
 	  //! Convert CHAI mesh to ODE mesh.	  

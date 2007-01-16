@@ -23,11 +23,7 @@
 //---------------------------------------------------------------------------
 
 #ifdef _MSVC
-#include "stdafx.h"
-#include <conio.h>
-#pragma warning (disable : 4786)
-#pragma comment(lib,"oded.lib")
-#pragma comment(lib,"opcode_d.lib")
+#pragma warning(disable:4244 4305)  // for VC++, no precision loss complaints
 #endif
 
 #include "CODEMesh.h"
@@ -58,18 +54,10 @@
     \param    a_parent  Pointer to parent world.
 */
 //===========================================================================
-cODEMesh::cODEMesh(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpace) : cMesh(a_parent)
+cODEMesh::cODEMesh(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpace)
+	: cMesh(a_parent), cODEPrimitive(a_parent, a_odeWorld, a_odeSpace, *this)
 {
-    m_odeVertex = NULL;
-    m_odeIndices = NULL;
-    m_odeGeom = NULL;
-    m_odeTriMeshData = NULL;
-    m_odeBody   = NULL;
-    m_odeWorld = a_odeWorld;
-    m_odeSpace = a_odeSpace;
-    m_lastRot.identity();
 }
-
 
 //===========================================================================
 /*!
@@ -247,61 +235,6 @@ void cODEMesh::cODEMeshToODE(unsigned int &a_vertexcount,unsigned int &a_indexco
 }
 
 
-//===========================================================================
-/*!
-    Update the position and rotation of the cODEMesh to the body value.
-
-    \fn     cODEMesh::updateDynamicPosition()
-*/
-//===========================================================================
-void cODEMesh::updateDynamicPosition()
-{
-    
-    const float *odePosition;
-    const float *odeRotation;
-    cMatrix3d   chaiRotation;
-    
-    if (m_objType == DYNAMIC_OBJECT)
-    {
-        odePosition =  dBodyGetPosition(m_odeBody);
-        odeRotation =  dBodyGetRotation(m_odeBody);
-    }
-    else {
-        
-        odePosition =  dGeomGetPosition(m_odeGeom);
-        odeRotation =  dGeomGetRotation(m_odeGeom);
-    }
-    
-    chaiRotation.set(odeRotation[0],odeRotation[1],odeRotation[2],
-        odeRotation[4],odeRotation[5],odeRotation[6],
-        odeRotation[8],odeRotation[9],odeRotation[10]);
-    
-    setRot(chaiRotation);
-    setPos(odePosition[0],odePosition[1],odePosition[2]);
-    
-    computeGlobalPositions(1);    
-}
-
-
-//===========================================================================
-/*!
-Set the dynamic position of the cODEMesh to the given value.
-
-  \fn     cODEMesh::setDynamicPosition(cVector3d &pos)
-*/
-//===========================================================================
-void cODEMesh::setDynamicPosition(cVector3d &a_pos)
-{
-    dGeomSetPosition(m_odeGeom, a_pos.x, a_pos.y, a_pos.z);
-    setPos(a_pos.x,a_pos.y,a_pos.z);
-    m_lastPos = m_localPos;
-    computeGlobalPositions(1);    
-    
-    if (m_objType == DYNAMIC_OBJECT)
-    {
-        dBodySetPosition(m_odeBody, a_pos.x, a_pos.y, a_pos.z);
-    }
-}
 
 
 //===========================================================================
@@ -544,169 +477,6 @@ void cODEMesh::calculateInertiaTensor(float density, float &mass,
     I33 = J[Z][Z];
     
 }
-
-
-//===========================================================================
-/*!
-    Set a custom mass for the body.
-
-    \fn     cODEMesh::setMass(dReal mass)
-*/
-//===========================================================================
-void cODEMesh::setMass(float a_mass)
-{
-  dMassAdjust(&m_odeMass, a_mass);
-  dBodySetMass(m_odeBody,&m_odeMass);
-}
-
-  
-//===========================================================================
-/*!
-    Create a ball linkage for the body.
-
-    \fn     cODEMesh::ballLink(string id,cODEMesh *meshLinked, cVector3d &anchor)
-*/
-//===========================================================================
-void cODEMesh::ballLink     (string id,cODEMesh *meshLinked, cVector3d &anchor)
-{
-    m_Joint[id] = dJointCreateBall(m_odeWorld,0);
-    dJointAttach(m_Joint[id],m_odeBody,meshLinked->m_odeBody);
-    dJointSetBallAnchor(m_Joint[id],anchor.x, anchor.y, anchor.z);
-}
-
-
-//===========================================================================
-/*!
-    Create a hinged linkage for the body.
-
-    \fn     cODEMesh::hingeLink(string id,cODEMesh *meshLinked, cVector3d &anchor, 
-    cVector3d &axis)
-*/
-//===========================================================================
-void cODEMesh::hingeLink(string id,cODEMesh *meshLinked, cVector3d &anchor, 
-  cVector3d &axis)
-{
-    m_Joint[id] = dJointCreateHinge(m_odeWorld,0);
-    dJointAttach(m_Joint[id],m_odeBody,meshLinked->m_odeBody);
-    dJointSetHingeAnchor(m_Joint[id],anchor.x, anchor.y, anchor.z);
-    dJointSetHingeAxis(m_Joint[id],axis.x, axis.y, axis.z);
-}
-
-
-//===========================================================================
-/*!
-    Create a hinged linkage for the body.
-
-    \fn     cODEMesh::hinge2Link   (string id,cODEMesh *meshLinked, cVector3d &anchor, 
-    cVector3d &axis1, cVector3d &axis2)
-*/
-//===========================================================================
-void cODEMesh::hinge2Link   (string id,cODEMesh *meshLinked, cVector3d &anchor, 
-  cVector3d &axis1, cVector3d &axis2)
-{
-    m_Joint[id] = dJointCreateHinge2(m_odeWorld,0);
-    dJointAttach(m_Joint[id],m_odeBody,meshLinked->m_odeBody);
-    dJointSetHinge2Anchor(m_Joint[id],anchor.x, anchor.y, anchor.z);
-    dJointSetHinge2Axis1(m_Joint[id],axis1.x, axis1.y, axis1.z);
-    dJointSetHinge2Axis2(m_Joint[id],axis2.x, axis2.y, axis2.z);
-}
-
-
-//===========================================================================
-/*!
-    Create a slider linkage for the body.
-
-    \fn     cODEMesh::sliderLink(string id,cODEMesh *meshLinked, 
-    cVector3d &anchor, cVector3d &axis)
-*/
-//===========================================================================
-void cODEMesh::sliderLink(string id,cODEMesh *meshLinked, cVector3d &anchor, 
-  cVector3d &axis)
-{
-    m_Joint[id] = dJointCreateSlider(m_odeWorld,0);
-    dJointAttach(m_Joint[id],m_odeBody,meshLinked->m_odeBody);
-    dJointSetSliderAxis(m_Joint[id],axis.x, axis.y, axis.z);
-}
-
-
-//===========================================================================
-/*!
-    Create a universal linkage for the body.
-
-    \fn     cODEMesh::universalLink(string id,cODEMesh *meshLinked, 
-    cVector3d &anchor, cVector3d &axis1, cVector3d &axis2)
-*/
-//===========================================================================
-void cODEMesh::universalLink(string id,cODEMesh *meshLinked, cVector3d &anchor, 
-  cVector3d &axis1, cVector3d &axis2)
-{
-    m_Joint[id] = dJointCreateUniversal(m_odeWorld,0);
-    dJointAttach(m_Joint[id],m_odeBody,meshLinked->m_odeBody);
-    dJointSetUniversalAnchor(m_Joint[id],anchor.x, anchor.y, anchor.z);
-    dJointSetUniversalAxis1(m_Joint[id],axis1.x, axis1.y, axis1.z);
-    dJointSetUniversalAxis2(m_Joint[id],axis2.x, axis2.y, axis2.z);
-}
-
-
-//===========================================================================
-/*!
-    Create a fixed linkage for the body.
-
-    \fn     ccODEMesh::fixedLink    (string id,cODEMesh *meshLinked)
-*/
-//===========================================================================
-void cODEMesh::fixedLink    (string id,cODEMesh *meshLinked)
-{
-    m_Joint[id] = dJointCreateFixed(m_odeWorld,0);
-    dJointAttach(m_Joint[id],m_odeBody,meshLinked->m_odeBody);
-    dJointSetFixed(m_Joint[id]);
-}
-
-
-//===========================================================================
-/*!
-    Destroy a joint in the body.
-
-    \fn     cODEMesh::destroyJoint(string id)
-*/
-//===========================================================================
-bool cODEMesh::destroyJoint(string id)
-{  
-    std::map<string,dJointID>::iterator cur = m_Joint.find(id);
-
-    if (cur == m_Joint.end()) 
-      return false;
-    else {
-      dJointDestroy(m_Joint[(*cur).first]);
-      m_Joint.erase(cur);
-      return true;
-    }
-}
-
-
-//===========================================================================
-/*!
-    Get one of the body's joints.
-
-    \fn     cODEMesh::getJoint(string id, dJointID* &pJoint)
-*/
-//===========================================================================
-bool cODEMesh::getJoint(string id, dJointID* &pJoint)
-{  
-    std::map<string,dJointID>::iterator cur = m_Joint.find(id);
-    pJoint = NULL;
-
-    if (cur == m_Joint.end())
-    {
-      return false;
-    }
-    else
-    {
-      pJoint = &m_Joint[(*cur).first];
-      return true;
-    }
-}
-
 
 //===========================================================================
 /*!
