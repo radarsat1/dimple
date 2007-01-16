@@ -37,7 +37,7 @@ void cODEPrism::create(bool openbox)
     cVertex* curVertex = getVertex(n);
     curVertex->setTexCoord(
       (curVertex->getPos().y + m_size.x/2) / (2.0 * m_size.z/2),
-      (curVertex->getPos().z + m_size.y/2) / (2.0 * m_size.x/2)
+      (curVertex->getPos().z + m_size.x/2) / (2.0 * m_size.y/2)
       );
     curVertex->setNormal(1,0,0);
   }

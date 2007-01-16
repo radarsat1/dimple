@@ -61,6 +61,7 @@
 //===========================================================================
 cODEPrimitive::cODEPrimitive(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpace,
 							 cGenericObject &chaiObj)
+							 : m_chaiObj(chaiObj)
 {
     m_odeVertex = NULL;
     m_odeIndices = NULL;
@@ -69,7 +70,6 @@ cODEPrimitive::cODEPrimitive(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_o
     m_odeBody   = NULL;
     m_odeWorld = a_odeWorld;
     m_odeSpace = a_odeSpace;
-	m_chaiObj = chaiObj;
     m_chaiObj.m_lastRot.identity();
 }
 
@@ -125,7 +125,7 @@ void cODEPrimitive::updateDynamicPosition()
     m_chaiObj.setRot(chaiRotation);
     m_chaiObj.setPos(odePosition[0],odePosition[1],odePosition[2]);
     
-    m_chaiObj.computeGlobalPositions(1);    
+    m_chaiObj.computeGlobalPositions(1);
 }
 
 
@@ -161,7 +161,29 @@ void cODEPrimitive::setMass(float a_mass)
   dBodySetMass(m_odeBody,&m_odeMass);
 }
 
-  
+//===========================================================================
+/*!
+    Synchronize the pose of the CHAI object with the pose of the ODE body.
+
+    \fn     cODEPrimitive::syncPose()
+*/
+//===========================================================================
+void cODEPrimitive::syncPose()
+{
+	const dReal* odePosition = dGeomGetPosition(m_odeGeom);
+	const dReal* odeRotation = dGeomGetRotation(m_odeGeom);
+
+	cMatrix3d   chaiRotation;
+	chaiRotation.set(odeRotation[0],odeRotation[1],odeRotation[2],
+		odeRotation[4],odeRotation[5],odeRotation[6],
+		odeRotation[8],odeRotation[9],odeRotation[10]);
+
+	m_chaiObj.setRot(chaiRotation);
+	m_chaiObj.setPos(odePosition[0],odePosition[1],odePosition[2]);
+
+	m_chaiObj.computeGlobalPositions(1);
+}
+
 //===========================================================================
 /*!
     Create a ball linkage for the body.
