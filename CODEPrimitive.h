@@ -91,6 +91,8 @@ class cODEPrimitive
 	  void setDynamicPosition(cVector3d &a_pos);
 	  //! Set the mass of the dynamic object.
 	  void setMass(float a_mass);
+	  //! Sync the pose of the ODE object with the pose of the CHAI object
+	  void syncPose();
   
  	  //! List of names of the joints.
 	  std::map<std::string ,dJointID> m_Joint;
@@ -135,7 +137,7 @@ class cODEPrimitive
 	  objectType		m_objType;
   private:
 	  //! CHAI object
-	  cGenericObject m_chaiObj;
+	  cGenericObject &m_chaiObj;
 };
 
 //---------------------------------------------------------------------------

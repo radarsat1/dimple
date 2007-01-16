@@ -130,7 +130,7 @@ void cODEMesh::initDynamic(geomType a_type, objectType a_objType, float a_x,
         m_odeGeom = dCreateTriMesh(m_odeSpace, m_odeTriMeshData, 0, 0, 0);
         break;
     }
-        
+
     case BOX    : {
         // Create a box that wraps the mesh.
         m_odeGeom = dCreateBox(m_odeSpace,l[0] ,l[1], l[2]);

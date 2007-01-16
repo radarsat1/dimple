@@ -102,18 +102,30 @@ int quit = 0;
 
 void poll_requests();
 
-#define TIMESTEP 0.001
-#define MAXCONTACTS 30
+#define MAX_CONTACTS 30
+#define FPS 30
+#define GLUT_TIMESTEP_MS   (int)((1.0/FPS)*1000.0)
+#define ODE_TIMESTEP_MS    GLUT_TIMESTEP_MS
+#define HAPTIC_TIMESTEP_MS 1
 
 // ODE objects
 dWorldID ode_world;
-double ode_step = TIMESTEP;
+double ode_step = 0;
 dSpaceID ode_space;
 dJointGroupID ode_contact_group;
+
+cODEPrimitive *contactObject=NULL;
+cVector3d lastForce;
+cVector3d lastContactPoint;
+double force_scale = 0.1;
 
 #ifdef _POSIX
 #define Sleep usleep
 #endif
+
+//---------------------------------------------------------------------------
+
+void ode_simStep();
 
 //---------------------------------------------------------------------------
 
@@ -178,7 +190,10 @@ void updateDisplay(int val)
     draw();
 
     // update the GLUT timer for the next rendering call
-    glutTimerFunc(30, updateDisplay, 0);
+    glutTimerFunc(FPS, updateDisplay, 0);
+
+	// update ODE
+	ode_simStep();
 }
 
 //---------------------------------------------------------------------------
@@ -229,127 +244,96 @@ void hapticsLoop(void* a_pUserData)
 	globalForceMagnitude = cursor->m_lastComputedGlobalForce.length();
 }
 
+//---------------------------------------------------------------------------
 // callback function for ODE
 void ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
 {
-	 int i;
-	 dBodyID b1 = dGeomGetBody(o1);
-	 dBodyID b2 = dGeomGetBody(o2);
+    int i;
+    // if (o1->body && o2->body) return;
 
-	 dContact contact[MAXCONTACTS];
-	 for (i=0; i<MAXCONTACTS; i++) {
-		  contact[i].surface.mode = dContactApprox1 | dContactBounce;
-		  contact[i].surface.mu = 0.2;
-		  contact[i].surface.bounce = 0.2;
-		  contact[i].surface.bounce_vel = 0.2;
-	 }
-	 if (int numc = dCollide (o1,o2,MAXCONTACTS,&contact[0].geom,sizeof(dContact))) {
-		  for (i=0; i<numc; i++) {
-			   dJointID c = dJointCreateContact (ode_world, ode_contact_group,contact+i);
-			   dJointAttach (c,b1,b2);
-		  }
-	 }
+    // exit without doing anything if the two bodies are connected by a joint
+    dBodyID b1 = dGeomGetBody(o1);
+    dBodyID b2 = dGeomGetBody(o2);
+    if (b1 && b2 && dAreConnectedExcluding (b1,b2,dJointTypeContact)) return;
+
+    dContact contact[MAX_CONTACTS];   // up to MAX_CONTACTS contacts per box-box
+    for (i=0; i<MAX_CONTACTS; i++) {
+        contact[i].surface.mode = dContactBounce | dContactSoftCFM;
+        contact[i].surface.mu = dInfinity;
+        contact[i].surface.mu2 = 0;
+        contact[i].surface.bounce = 0.1;
+        contact[i].surface.bounce_vel = 0.1;
+        contact[i].surface.soft_cfm = 0.01;
+    }
+
+	if (int numc = dCollide (o1,o2,MAX_CONTACTS,&contact[0].geom,sizeof(dContact)))
+	{
+		dMatrix3 RI;
+		dRSetIdentity (RI);
+		const dReal ss[3] = {0.02,0.02,0.02};
+		for (i=0; i<numc; i++) {
+			dJointID c = dJointCreateContact (ode_world,ode_contact_group,contact+i);
+			dJointAttach (c,b1,b2);
+		}
+	}
 }
 
 void ode_hapticsLoop(void* a_pUserData)
 {
 	 bool cursor_ready = true;
 
-	 // set it up so that wherever your tool is in the real world when
-	 // you enable forces, it will be at (1,0,3) in the virtual world, so
-	 // that it is in side the virtual "room" and not penetrating
-	 // anything
-
-	 // update the tool's pose and compute and apply forces
-	 cursor->updatePose();
-	 
-	 if (!cursor_ready)
-	 {
-		  // Turn off haptic collision detection for the objects in the world 
-		  for (unsigned int i=0; i<world->getNumChildren(); i++)
-			   world->getChild(i)->setHapticEnabled(0, 1);
-
-/*
-		  if ( (cursor->m_deviceGlobalPos.x > BACK_WALL_OFFSET+WALL_SIZE/2+0.2) &&  
-			   (cursor->m_deviceGlobalPos.x < FRONT_WALL_OFFSET-WALL_SIZE/2-0.2) && 
-			   (cursor->m_deviceGlobalPos.y > LEFT_WALL_OFFSET+WALL_SIZE/2+0.2) &&
-			   (cursor->m_deviceGlobalPos.y < RIGHT_WALL_OFFSET-WALL_SIZE/2-0.2) &&
-			   (cursor->m_deviceGlobalPos.z > BOTTOM_WALL_OFFSET+WALL_SIZE/2+0.2)) 
-			   cursor_ready = 1;
-*/
-	 }
-	 else 
-	 {
-		  // Turn on haptic collision detection for the objects in the world
-		  for (unsigned int i=0; i<world->getNumChildren(); i++)
-			   world->getChild(i)->setHapticEnabled(1, 1);
-	 }
-	 
-	 cursor->computeForces();
-	 if (cursor_ready)
-		  cursor->applyForces();
-
-  // code to get forces from CHAI and apply them to the appropriate
-  // meshes, calling ODE functions to calculate the dynamics
-
-  /*
-  if (app->ode_clock->on()) 
-  {  
-  if ( (app->ode_clock->timeoutOccurred()) && app->ready) 
-	{
-      app->ready = false;
-  */
-
-	 if (cursor)
-	 {
-		  cProxyPointForceAlgo *proxy   = dynamic_cast<cProxyPointForceAlgo*>(cursor->getProxy());
-		  
-		  if (proxy && proxy->getContactObject() != NULL) 
-		  {
-			   float x =  proxy->getContactPoint().x;
-			   float y =  proxy->getContactPoint().y;
-			   float z =  proxy->getContactPoint().z;
-			   
-			   float fx = -cursor->m_lastComputedGlobalForce.x ;
-			   float fy = -cursor->m_lastComputedGlobalForce.y ;
-			   float fz = -cursor->m_lastComputedGlobalForce.z ;
-			   
-			   cGenericObject* cur_object = proxy->getContactObject();
-			   bool found = false;
-			   cODEMesh* mesh = 0;
-			   while (cur_object && !found)
-			   {
-					mesh = dynamic_cast<cODEMesh*>(cur_object);
-					if (mesh) found = true;
-					cur_object = cur_object->getParent();
-			   }
-			   
-			   if ((found) && (mesh) && (mesh->m_objType == DYNAMIC_OBJECT)) 
-					dBodyAddForceAtPos(mesh->m_odeBody,fx,fy,fz,x,y,z);
-		  }
-	 }
-   
-	 dSpaceCollide (ode_space, NULL, ode_nearCallback);
-	 dWorldStep(ode_world, ode_step);
-	 dJointGroupEmpty(ode_contact_group);
-	 
+	 // Synchronize CHAI & ODE
 	 objects_iter it;
 	 for (it=objects.begin(); it!=objects.end(); it++)
 	 {
-		  cODEMesh *o = objects[(*it).first];
-		  o->updateDynamicPosition();
-		  o->m_historyValid = true;
+		 cODEMesh *o = objects[(*it).first];
+		 o->syncPose();
 	 }
-	 
-	 if (cursor)
-		  cursor->computeGlobalPositions(1);
 
-/*
-app->ode_clock->initialize();
-app->ready = true;
+	 cursor->computeGlobalPositions(1);
+
+	 // update the tool's pose and compute and apply forces
+	 cursor->updatePose();	 
+	 cursor->computeForces();
+	 cursor->applyForces();
+
+    contactObject = NULL;
+    for (unsigned int i=0; i<cursor->m_pointForceAlgos.size(); i++)
+    {
+        cProxyPointForceAlgo* cur_proxy = dynamic_cast<cProxyPointForceAlgo*>(cursor->m_pointForceAlgos[i]);
+        if ((cur_proxy != NULL) && (cur_proxy->getContactObject() != NULL)) 
+        {      
+            lastContactPoint = cur_proxy->getContactPoint();
+            lastForce = cursor->m_lastComputedGlobalForce;
+            contactObject = dynamic_cast<cODEMesh*> (cur_proxy->getContactObject());
+            break;
+        }
+    }
 }
-}
-*/
+
+//---------------------------------------------------------------------------
+
+void ode_simStep()
+{
+	if (contactObject) 
+	{
+		float x =  lastContactPoint.x;
+		float y =  lastContactPoint.y;
+		float z =  lastContactPoint.z;
+
+		float fx = -force_scale*lastForce.x ;
+		float fy = -force_scale*lastForce.y ;
+		float fz = -force_scale*lastForce.z ;
+
+		dBodyAddForceAtPos(contactObject->m_odeBody,fx,fy,fz,x,y,z);
+	}
+
+	dSpaceCollide (ode_space,0,&ode_nearCallback);
+	dWorldStepFast1 (ode_world, ode_step, 5);
+	for (int j = 0; j < dSpaceGetNumGeoms(ode_space); j++){
+		dSpaceGetGeom(ode_space, j);
+	}
+	dJointGroupEmpty (ode_contact_group);
 }
 
 //---------------------------------------------------------------------------
@@ -386,7 +370,9 @@ void initWorld()
 
 	// replace the cursor's proxy object with an ODE proxy
 	cProxyPointForceAlgo* old_proxy = (cProxyPointForceAlgo*)(cursor->m_pointForceAlgos[0]);
-	cursor->m_pointForceAlgos[0] = new cODEProxy(old_proxy);
+	cODEProxy *new_proxy = new cODEProxy(old_proxy);
+	new_proxy->enableDynamicProxy(true);
+	cursor->m_pointForceAlgos[0] = new_proxy;
 	delete old_proxy;
 
     world->addChild(cursor);
@@ -419,14 +405,15 @@ void initGlutWindow()
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 
     // update display
-    glutTimerFunc(30, updateDisplay, 0);
+    glutTimerFunc(GLUT_TIMESTEP_MS, updateDisplay, 0);
 }
 
 void initODE()
 {
 	 ode_world = dWorldCreate();
-	 dWorldSetGravity (ode_world,0,0,-5);
-	 ode_step = TIMESTEP;
+	 //dWorldSetGravity (ode_world,0,0,-5);
+	 dWorldSetGravity (ode_world,0,0,0);
+	 ode_step = ODE_TIMESTEP_MS/1000.0;
 	 ode_space = dSimpleSpaceCreate(0);
 	 ode_contact_group = dJointGroupCreate(0);
 }
@@ -440,7 +427,7 @@ void startHaptics()
     cursor->start();
 
     // start haptic timer callback
-    timer.set(0, ode_hapticsLoop, NULL);
+    timer.set(HAPTIC_TIMESTEP_MS, ode_hapticsLoop, NULL);
 
 	hapticsStarted = 1;
 	printf("Haptics started.\n");
@@ -457,6 +444,7 @@ void stopHaptics()
 	}
 }
 
+int blah=0;
 int hapticsEnable_handler(const char *path, const char *types, lo_arg **argv, int argc,
 						  void *data, void *user_data)
 {
@@ -464,6 +452,14 @@ int hapticsEnable_handler(const char *path, const char *types, lo_arg **argv, in
 		requestHapticsStop = 1;
 	else
 		requestHapticsStart = 1;
+
+	if (objects["test"]) {
+	 dBodySetPosition(objects["test"]->m_odeBody, 0, 0, 0);
+	 dBodySetLinearVel(objects["test"]->m_odeBody, 0, 0, 0);
+	 dBodySetAngularVel(objects["test"]->m_odeBody, 0, 0, 0);
+	 if (blah++ > 0)
+		 objects["test"]->setMass(2000000);
+	}
 	return 0;
 }
 
@@ -475,7 +471,7 @@ int graphicsEnable_handler(const char *path, const char *types, lo_arg **argv, i
 			   glutStarted = 1;
 		  }
 		  else {
-			   glutShowWindow();   
+			   glutShowWindow(); 
 		  }
 	 }
 	 else if (glutStarted) {
@@ -551,7 +547,6 @@ void poll_requests()
 			startHaptics();
 		hapticsStarted = 1;
 		requestHapticsStart = 0;
-		printf("Haptics started.\n");
 	}
 
 	if (requestHapticsStop) {
@@ -587,7 +582,7 @@ int main(int argc, char* argv[])
 
 	 objects["test"] = new cODEPrism(world, ode_world, ode_space, cVector3d(0.1,0.1,0.1));
 	 world->addChild(objects["test"]);
-	 objects["test"]->setMass(0.2);
+	 objects["test"]->setMass(20);
 	 objects["test"]->setPos(0,0,0.2);
 
 	 // initially loop just waiting for messages
