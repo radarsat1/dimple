@@ -67,6 +67,9 @@ class cODESphere : public cShapeSphere, public cODEPrimitive
     //! Destructor of cODESphere.
     ~cODESphere();
 
+    //! Set radius of sphere
+    virtual void setRadius (double a_radius);
+
   protected:
     // METHODS:
     //! Initialize the dynamic object.

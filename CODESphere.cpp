@@ -53,6 +53,7 @@ cODESphere::cODESphere(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpac
 	: cShapeSphere(radius),
 	  cODEPrimitive(a_parent, a_odeWorld, a_odeSpace, *this)
 {
+    m_objClass = CLASS_SPHERE;
 	initDynamic();
 }
 
@@ -110,4 +111,10 @@ void cODESphere::initDynamic(objectType a_objType, float a_x,
         
         dBodySetPosition(m_odeBody, a_x, a_y, a_z);
     }
+}
+
+void cODESphere::setRadius (double a_radius)
+{
+    cShapeSphere::setRadius(a_radius);
+    dGeomSphereSetRadius(m_odeGeom, a_radius);
 }
