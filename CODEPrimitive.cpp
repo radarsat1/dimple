@@ -59,8 +59,8 @@
     \param    a_parent  Pointer to parent world.
 */
 //===========================================================================
-cODEPrimitive::cODEPrimitive(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpace,
-							 cGenericObject &chaiObj)
+cODEPrimitive::cODEPrimitive(cWorld* a_parent, dWorldID a_odeWorld,
+                             dSpaceID a_odeSpace, cGenericObject &chaiObj)
 							 : m_chaiObj(chaiObj)
 {
     m_odeVertex = NULL;
