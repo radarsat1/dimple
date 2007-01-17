@@ -53,6 +53,7 @@ extern "C" {
 #include "CODEMesh.h"
 #include "CODEProxy.h"
 #include "CODEPrism.h"
+#include "CODESphere.h"
 //---------------------------------------------------------------------------
 
 lo_address address_send = lo_address_new("localhost", "7771");
@@ -280,23 +281,23 @@ void ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
 
 void ode_hapticsLoop(void* a_pUserData)
 {
-	 bool cursor_ready = true;
-
-	 // Synchronize CHAI & ODE
-	 objects_iter it;
-	 for (it=objects.begin(); it!=objects.end(); it++)
-	 {
-		 cODEPrimitive *o = objects[(*it).first];
-		 o->syncPose();
-	 }
-
-	 cursor->computeGlobalPositions(1);
-
-	 // update the tool's pose and compute and apply forces
-	 cursor->updatePose();	 
-	 cursor->computeForces();
-	 cursor->applyForces();
-
+    bool cursor_ready = true;
+    
+    // Synchronize CHAI & ODE
+    objects_iter it;
+    for (it=objects.begin(); it!=objects.end(); it++)
+    {
+        cODEPrimitive *o = objects[(*it).first];
+        o->syncPose();
+    }
+    
+    cursor->computeGlobalPositions(1);
+    
+    // update the tool's pose and compute and apply forces
+    cursor->updatePose();	 
+    cursor->computeForces();
+    cursor->applyForces();
+    
     contactObject = NULL;
     for (unsigned int i=0; i<cursor->m_pointForceAlgos.size(); i++)
     {
@@ -320,20 +321,28 @@ void ode_simStep()
 		float x =  lastContactPoint.x;
 		float y =  lastContactPoint.y;
 		float z =  lastContactPoint.z;
-
+        
 		float fx = -force_scale*lastForce.x ;
 		float fy = -force_scale*lastForce.y ;
 		float fz = -force_scale*lastForce.z ;
-
+        
 		dBodyAddForceAtPos(contactObject->m_odeBody,fx,fy,fz,x,y,z);
 	}
-
+    
 	dSpaceCollide (ode_space,0,&ode_nearCallback);
 	dWorldStepFast1 (ode_world, ode_step, 5);
 	for (int j = 0; j < dSpaceGetNumGeoms(ode_space); j++){
 		dSpaceGetGeom(ode_space, j);
 	}
 	dJointGroupEmpty (ode_contact_group);
+    
+    // Synchronize CHAI & ODE
+    objects_iter it;
+    for (it=objects.begin(); it!=objects.end(); it++)
+    {
+        cODEPrimitive *o = objects[(*it).first];
+        o->syncPose();
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -342,10 +351,10 @@ void initWorld()
 {
     // create a new world
     world = new cWorld();
-
+    
     // set background color
     world->setBackgroundColor(0.0f,0.0f,0.0f);
-
+    
     // create a camera
     camera = new cCamera(world);
     world->addChild(camera);
@@ -410,12 +419,12 @@ void initGlutWindow()
 
 void initODE()
 {
-	 ode_world = dWorldCreate();
-	 //dWorldSetGravity (ode_world,0,0,-5);
-	 dWorldSetGravity (ode_world,0,0,0);
-	 ode_step = ODE_TIMESTEP_MS/1000.0;
-	 ode_space = dSimpleSpaceCreate(0);
-	 ode_contact_group = dJointGroupCreate(0);
+    ode_world = dWorldCreate();
+    //dWorldSetGravity (ode_world,0,0,-5);
+    dWorldSetGravity (ode_world,0,0,0);
+    ode_step = ODE_TIMESTEP_MS/1000.0;
+    ode_space = dSimpleSpaceCreate(0);
+    ode_contact_group = dJointGroupCreate(0);
 }
 
 void startHaptics()
@@ -436,17 +445,16 @@ void startHaptics()
 void stopHaptics()
 {
 	if (hapticsStarted) {
-	 cursor->stop();
-	 timer.stop();
-
-	 hapticsStarted = 0;
-	 printf("Haptics stopped.\n");
+        cursor->stop();
+        timer.stop();
+        
+        hapticsStarted = 0;
+        printf("Haptics stopped.\n");
 	}
 }
 
-int blah=0;
-int hapticsEnable_handler(const char *path, const char *types, lo_arg **argv, int argc,
-						  void *data, void *user_data)
+int hapticsEnable_handler(const char *path, const char *types, lo_arg **argv,
+                          int argc, void *data, void *user_data)
 {
 	if (argv[0]->c==0)
 		requestHapticsStop = 1;
@@ -455,8 +463,8 @@ int hapticsEnable_handler(const char *path, const char *types, lo_arg **argv, in
 	return 0;
 }
 
-int graphicsEnable_handler(const char *path, const char *types, lo_arg **argv, int argc,
-						   void *data, void *user_data)
+int graphicsEnable_handler(const char *path, const char *types, lo_arg **argv,
+                           int argc, void *data, void *user_data)
 {
 	 if (argv[0]->c) {
 		  if (!glutStarted) {
@@ -472,8 +480,8 @@ int graphicsEnable_handler(const char *path, const char *types, lo_arg **argv, i
 	 return 0;
 }
 
-int sphereCreate_handler(const char *path, const char *types, lo_arg **argv, int argc,
-						 void *data, void *user_data)
+int sphereCreate_handler(const char *path, const char *types, lo_arg **argv,
+                         int argc, void *data, void *user_data)
 {
 	float radius=0.05f;
 	cVector3d pos;
@@ -575,16 +583,28 @@ int main(int argc, char* argv[])
 	 cODEMesh *o1 = new cODEPrism(world, ode_world, ode_space, cVector3d(0.1,0.1,0.1));
 	 objects["test1"] = o1;
 	 world->addChild(o1);
-	 dBodySetPosition(o1->m_odeBody, 0, 0.05, 0);
+     cVector3d pos(0,0.05,0);
+     o1->setDynamicPosition(pos);
 	 o1->setMass(2);
 
 	 cODEMesh *o2 = new cODEPrism(world, ode_world, ode_space, cVector3d(0.1,0.1,0.1));
 	 objects["test2"] = o2;
 	 world->addChild(o2);
-	 dBodySetPosition(o2->m_odeBody, 0, -0.05, 0);
+     pos.set(0,-0.05,0);
+     o2->setDynamicPosition(pos);
 	 o2->setMass(2);
 
-	 o1->hingeLink("testlink", o2, cVector3d(0, 0, 0.5), cVector3d(0.1, 0, 0.5));
+	 cVector3d pt(0, 0, 0.5);
+	 cVector3d axis(1, 0, 0.5);
+	 //o1->hingeLink("testlink", o2, pt, axis);
+
+	 cODESphere *o3 = new cODESphere(world, ode_world, ode_space, 0.04);
+	 objects["sphere"] = o3;
+	 world->addChild(o3);
+     pos.set(0,0,0.1);
+     o3->setDynamicPosition(pos);
+	 o3->setMass(2);
+     dBodySetLinearVel(o3->m_odeBody, 0, 0, -0.05);
 
 	 // initially loop just waiting for messages
 	 glutInit(&argc, argv);
