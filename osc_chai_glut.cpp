@@ -480,25 +480,77 @@ int graphicsEnable_handler(const char *path, const char *types, lo_arg **argv,
 	 return 0;
 }
 
-int sphereCreate_handler(const char *path, const char *types, lo_arg **argv,
+int objectCreate_handler(const char *path, const char *types, lo_arg **argv,
                          int argc, void *data, void *user_data)
 {
-	float radius=0.05f;
 	cVector3d pos;
-	if (argc>0)
-		 pos.x = argv[0]->f;
-	if (argc>1)
-		 pos.y = argv[1]->f;
 	if (argc>2)
-		 pos.z = argv[2]->f;
+		 pos.x = argv[2]->f;
 	if (argc>3)
-		 radius = argv[3]->f;
+		 pos.y = argv[3]->f;
+	if (argc>4)
+		 pos.z = argv[4]->f;
 
-	cShapeSphere *sphere = new cShapeSphere(radius);
-	sphere->setPos(pos);
+    cODEPrimitive *ob=NULL;
+    if (std::string(&argv[1]->s)=="sphere") {
+        cODESphere *sp = new cODESphere(world,ode_world,ode_space,0.01);
+        ob = (cODEPrimitive*)sp;
+        world->addChild(sp);
+        printf("Sphere added at (%f, %f, %f).\n", pos.x, pos.y, pos.z);
+    }
 
-	world->addChild(sphere);
-	printf("Sphere added at (%f, %f, %f).\n", pos.x, pos.y, pos.z);
+    else if (std::string(&argv[1]->s)=="prism") {
+        cVector3d size(0.01,0.01,0.01);
+        cODEPrism *pr = new cODEPrism(world,ode_world,ode_space,size);
+        ob = (cODEPrimitive*)pr;
+        world->addChild(pr);
+        printf("Prism added at (%f, %f, %f).\n", pos.x, pos.y, pos.z);
+    }
+
+    else if (std::string(&argv[1]->s)=="cube") {
+        cVector3d size(0.01,0.01,0.01);
+        cODEPrism *pr = new cODEPrism(world,ode_world,ode_space,size);
+        ob = (cODEPrimitive*)pr;
+        world->addChild(pr);
+        printf("Cube added at (%f, %f, %f).\n", pos.x, pos.y, pos.z);
+    }
+
+    if (ob) {
+        ob->setDynamicPosition(pos);
+        objects[&argv[0]->s] = ob;
+    }
+    
+	return 0;
+}
+
+int objectRadius_handler(const char *path, const char *types, lo_arg **argv,
+                         int argc, void *data, void *user_data)
+{
+    if (argc!=2)
+        return 0;
+
+    cODEPrimitive *ob = objects[&argv[0]->s];
+    if (ob && ob->m_objClass==cODEPrimitive::CLASS_SPHERE)
+        ((cODESphere*)ob)->setRadius(argv[1]->f);
+
+	return 0;
+}
+
+int objectSize_handler(const char *path, const char *types, lo_arg **argv,
+                       int argc, void *data, void *user_data)
+{
+    if (argc!=4)
+        return 0;
+
+    cODEPrimitive *ob = objects[&argv[0]->s];
+    if (ob && ob->m_objClass==cODEPrimitive::CLASS_PRISM)
+    {
+        cVector3d size;
+        size.x = argv[1]->f;
+        size.y = argv[2]->f;
+        size.z = argv[3]->f;
+        ((cODEPrism*)ob)->setSize(size);
+    }
 
 	return 0;
 }
@@ -517,8 +569,9 @@ void initOSC()
 	 /* add methods for each message */
 	 lo_server_thread_add_method(st, "/haptics/enable", "i", hapticsEnable_handler, NULL);
 	 lo_server_thread_add_method(st, "/graphics/enable", "i", graphicsEnable_handler, NULL);
-	 lo_server_thread_add_method(st, "/sphere/create", "fff", sphereCreate_handler, NULL);
-	 lo_server_thread_add_method(st, "/sphere/create", "ffff", sphereCreate_handler, NULL);
+	 lo_server_thread_add_method(st, "/object/create", "ssfff", objectCreate_handler, NULL);
+     lo_server_thread_add_method(st, "/object/radius", "sf", objectRadius_handler, NULL);
+     lo_server_thread_add_method(st, "/object/size", "sfff", objectCreate_handler, NULL);
 
 	 lo_server_thread_start(st);
 

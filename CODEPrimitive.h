@@ -135,6 +135,13 @@ class cODEPrimitive
 	  float			m_Mass;
 	  //! Object type.
 	  objectType		m_objType;
+
+      //!This is specific to the OSC-Haptics application
+      enum objectClass {
+          CLASS_SPHERE,
+          CLASS_PRISM,
+          CLASS_MESH
+      } m_objClass;
   private:
 	  //! CHAI object
 	  cGenericObject &m_chaiObj;

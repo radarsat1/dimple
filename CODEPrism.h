@@ -13,6 +13,8 @@ public:
     cODEPrism(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpace, const cVector3d& a_size);
     //! Destructor of cODEPrism.
     ~cODEPrism();
+    //! Change the dimensions of the prism
+    void setSize(cVector3d& size);
 
 protected:
 	//! Hold the size of each dimension

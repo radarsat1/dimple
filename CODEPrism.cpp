@@ -5,6 +5,7 @@ cODEPrism::cODEPrism(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpace,
 	: cODEMesh(a_parent, a_odeWorld, a_odeSpace)
 {
 	m_size = a_size;
+    m_objClass = CLASS_PRISM;
 	create(false);
 	initDynamic(BOX);
 }
@@ -198,3 +199,10 @@ void cODEPrism::create(bool openbox)
   
 }
 
+void cODEPrism::setSize(cVector3d& a_size)
+{
+    // For now, just re-create it at the given size
+    m_size = a_size;
+	create(false);
+	initDynamic(BOX);
+}
