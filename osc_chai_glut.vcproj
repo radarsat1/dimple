@@ -148,10 +148,16 @@
 				RelativePath=".\CODEMesh.cpp">
 			</File>
 			<File
+				RelativePath=".\CODEPotentialProxy.cpp">
+			</File>
+			<File
 				RelativePath=".\CODEPrimitive.cpp">
 			</File>
 			<File
 				RelativePath=".\CODEPrism.cpp">
+			</File>
+			<File
+				RelativePath=".\CODESphere.cpp">
 			</File>
 			<File
 				RelativePath="osc_chai_glut.cpp">
@@ -181,6 +187,9 @@
 				RelativePath=".\CODEMesh.h">
 			</File>
 			<File
+				RelativePath=".\CODEPotentialProxy.h">
+			</File>
+			<File
 				RelativePath=".\CODEPrimitive.h">
 			</File>
 			<File
@@ -188,6 +197,9 @@
 			</File>
 			<File
 				RelativePath=".\CODEProxy.h">
+			</File>
+			<File
+				RelativePath=".\CODESphere.h">
 			</File>
 		</Filter>
 		<Filter
