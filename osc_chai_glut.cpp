@@ -54,6 +54,7 @@ extern "C" {
 #include "CODEProxy.h"
 #include "CODEPrism.h"
 #include "CODESphere.h"
+#include "CODEPotentialProxy.h"
 //---------------------------------------------------------------------------
 
 lo_address address_send = lo_address_new("localhost", "7771");
@@ -79,9 +80,6 @@ cPrecisionTimer timer;
 // world objects
 std::map<std::string,cODEPrimitive*> objects;
 typedef std::map<std::string,cODEPrimitive*>::iterator objects_iter;
-
-// Proxy object
-cODEProxy *proxy=NULL;
 
 // width and height of the current viewport display
 int width   = 0;
@@ -301,12 +299,21 @@ void ode_hapticsLoop(void* a_pUserData)
     contactObject = NULL;
     for (unsigned int i=0; i<cursor->m_pointForceAlgos.size(); i++)
     {
-        cProxyPointForceAlgo* cur_proxy = dynamic_cast<cProxyPointForceAlgo*>(cursor->m_pointForceAlgos[i]);
-        if ((cur_proxy != NULL) && (cur_proxy->getContactObject() != NULL)) 
-        {      
-            lastContactPoint = cur_proxy->getContactPoint();
+        cProxyPointForceAlgo* pointforce_proxy = dynamic_cast<cProxyPointForceAlgo*>(cursor->m_pointForceAlgos[i]);
+        if ((pointforce_proxy != NULL) && (pointforce_proxy->getContactObject() != NULL)) 
+        {
+            lastContactPoint = pointforce_proxy->getContactPoint();
             lastForce = cursor->m_lastComputedGlobalForce;
-            contactObject = dynamic_cast<cODEMesh*> (cur_proxy->getContactObject());
+            contactObject = dynamic_cast<cODEPrimitive*> (pointforce_proxy->getContactObject());
+            break;
+        }
+
+        cODEPotentialProxy* potential_proxy = dynamic_cast<cODEPotentialProxy*>(cursor->m_pointForceAlgos[i]);
+        if ((potential_proxy != NULL) && (potential_proxy->getContactObject() != NULL)) 
+        {
+            lastContactPoint = potential_proxy->getContactPoint();
+            lastForce = cursor->m_lastComputedGlobalForce;
+            contactObject = dynamic_cast<cODEPrimitive*> (potential_proxy->getContactObject());
             break;
         }
     }
@@ -377,11 +384,15 @@ void initWorld()
     // create a cursor and add it to the world.
     cursor = new cMeta3dofPointer(world, 0);
 
-	// replace the cursor's proxy object with an ODE proxy
-	cProxyPointForceAlgo* old_proxy = (cProxyPointForceAlgo*)(cursor->m_pointForceAlgos[0]);
-	cODEProxy *new_proxy = new cODEProxy(old_proxy);
+	// replace the cursor's proxy objects with an ODE equivalent
+	cGenericPointForceAlgo* old_proxy = cursor->m_pointForceAlgos[0];
+	cODEProxy *new_proxy = new cODEProxy(dynamic_cast<cProxyPointForceAlgo*>(old_proxy));
 	new_proxy->enableDynamicProxy(true);
 	cursor->m_pointForceAlgos[0] = new_proxy;
+	delete old_proxy;
+
+	old_proxy = (cPotentialFieldForceAlgo*)(cursor->m_pointForceAlgos[1]);
+	cursor->m_pointForceAlgos[1] = new cODEPotentialProxy(dynamic_cast<cPotentialFieldForceAlgo*>(old_proxy));
 	delete old_proxy;
 
     world->addChild(cursor);
@@ -508,7 +519,7 @@ int objectCreate_handler(const char *path, const char *types, lo_arg **argv,
     }
 
     else if (std::string(&argv[1]->s)=="cube") {
-        cVector3d size(0.01,0.01,0.01);
+        cVector3d size(0.1,0.1,0.1);
         cODEPrism *pr = new cODEPrism(world,ode_world,ode_space,size);
         ob = (cODEPrimitive*)pr;
         world->addChild(pr);
@@ -517,6 +528,7 @@ int objectCreate_handler(const char *path, const char *types, lo_arg **argv,
 
     if (ob) {
         ob->setDynamicPosition(pos);
+        ob->setMass(0.2);
         objects[&argv[0]->s] = ob;
     }
     
@@ -529,9 +541,9 @@ int objectRadius_handler(const char *path, const char *types, lo_arg **argv,
     if (argc!=2)
         return 0;
 
-    cODEPrimitive *ob = objects[&argv[0]->s];
-    if (ob && ob->m_objClass==cODEPrimitive::CLASS_SPHERE)
-        ((cODESphere*)ob)->setRadius(argv[1]->f);
+	cODESphere *sphere = dynamic_cast<cODESphere*>( objects[&argv[0]->s] );
+    if (sphere)
+        sphere->setRadius(argv[1]->f);
 
 	return 0;
 }
@@ -542,14 +554,14 @@ int objectSize_handler(const char *path, const char *types, lo_arg **argv,
     if (argc!=4)
         return 0;
 
-    cODEPrimitive *ob = objects[&argv[0]->s];
-    if (ob && ob->m_objClass==cODEPrimitive::CLASS_PRISM)
+	cODEPrism *prism = dynamic_cast<cODEPrism*>( objects[&argv[0]->s] );
+    if (prism)
     {
         cVector3d size;
         size.x = argv[1]->f;
         size.y = argv[2]->f;
         size.z = argv[3]->f;
-        ((cODEPrism*)ob)->setSize(size);
+        prism->setSize(size);
     }
 
 	return 0;
@@ -571,7 +583,7 @@ void initOSC()
 	 lo_server_thread_add_method(st, "/graphics/enable", "i", graphicsEnable_handler, NULL);
 	 lo_server_thread_add_method(st, "/object/create", "ssfff", objectCreate_handler, NULL);
      lo_server_thread_add_method(st, "/object/radius", "sf", objectRadius_handler, NULL);
-     lo_server_thread_add_method(st, "/object/size", "sfff", objectCreate_handler, NULL);
+     lo_server_thread_add_method(st, "/object/size", "sfff", objectSize_handler, NULL);
 
 	 lo_server_thread_start(st);
 
@@ -633,6 +645,7 @@ int main(int argc, char* argv[])
 	 initWorld();
 	 initODE();
 
+//	 /*
 	 cODEMesh *o1 = new cODEPrism(world, ode_world, ode_space, cVector3d(0.1,0.1,0.1));
 	 objects["test1"] = o1;
 	 world->addChild(o1);
@@ -658,6 +671,7 @@ int main(int argc, char* argv[])
      o3->setDynamicPosition(pos);
 	 o3->setMass(2);
      dBodySetLinearVel(o3->m_odeBody, 0, 0, -0.05);
+//	 */
 
 	 // initially loop just waiting for messages
 	 glutInit(&argc, argv);
