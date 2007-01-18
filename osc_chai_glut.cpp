@@ -660,9 +660,8 @@ int main(int argc, char* argv[])
      o2->setDynamicPosition(pos);
 	 o2->setMass(2);
 
-	 cVector3d pt(0, 0, 0.5);
-	 cVector3d axis(1, 0, 0.5);
-	 //o1->hingeLink("testlink", o2, pt, axis);
+	 cVector3d pt(0, 0, 0);
+	 o1->ballLink("testlink", NULL, pt);
 
 	 cODESphere *o3 = new cODESphere(world, ode_world, ode_space, 0.04);
 	 objects["sphere"] = o3;

@@ -113,7 +113,6 @@ void cODEPrimitive::updateDynamicPosition()
         odeRotation =  dBodyGetRotation(m_odeBody);
     }
     else {
-        
         odePosition =  dGeomGetPosition(m_odeGeom);
         odeRotation =  dGeomGetRotation(m_odeGeom);
     }
@@ -194,7 +193,7 @@ void cODEPrimitive::syncPose()
 void cODEPrimitive::ballLink     (string id,cODEPrimitive *meshLinked, cVector3d &anchor)
 {
     m_Joint[id] = dJointCreateBall(m_odeWorld,0);
-    dJointAttach(m_Joint[id],m_odeBody,meshLinked->m_odeBody);
+    dJointAttach(m_Joint[id],m_odeBody,meshLinked?(meshLinked->m_odeBody):0);
     dJointSetBallAnchor(m_Joint[id],anchor.x, anchor.y, anchor.z);
 }
 
@@ -211,7 +210,7 @@ void cODEPrimitive::hingeLink(string id,cODEPrimitive *meshLinked, cVector3d &an
   cVector3d &axis)
 {
     m_Joint[id] = dJointCreateHinge(m_odeWorld,0);
-    dJointAttach(m_Joint[id],m_odeBody,meshLinked->m_odeBody);
+    dJointAttach(m_Joint[id],m_odeBody,meshLinked?(meshLinked->m_odeBody):0);
     dJointSetHingeAnchor(m_Joint[id],anchor.x, anchor.y, anchor.z);
     dJointSetHingeAxis(m_Joint[id],axis.x, axis.y, axis.z);
 }
@@ -229,7 +228,7 @@ void cODEPrimitive::hinge2Link   (string id,cODEPrimitive *meshLinked, cVector3d
   cVector3d &axis1, cVector3d &axis2)
 {
     m_Joint[id] = dJointCreateHinge2(m_odeWorld,0);
-    dJointAttach(m_Joint[id],m_odeBody,meshLinked->m_odeBody);
+    dJointAttach(m_Joint[id],m_odeBody,meshLinked?(meshLinked->m_odeBody):0);
     dJointSetHinge2Anchor(m_Joint[id],anchor.x, anchor.y, anchor.z);
     dJointSetHinge2Axis1(m_Joint[id],axis1.x, axis1.y, axis1.z);
     dJointSetHinge2Axis2(m_Joint[id],axis2.x, axis2.y, axis2.z);
@@ -248,7 +247,7 @@ void cODEPrimitive::sliderLink(string id,cODEPrimitive *meshLinked, cVector3d &a
   cVector3d &axis)
 {
     m_Joint[id] = dJointCreateSlider(m_odeWorld,0);
-    dJointAttach(m_Joint[id],m_odeBody,meshLinked->m_odeBody);
+    dJointAttach(m_Joint[id],m_odeBody,meshLinked?(meshLinked->m_odeBody):0);
     dJointSetSliderAxis(m_Joint[id],axis.x, axis.y, axis.z);
 }
 
@@ -265,7 +264,7 @@ void cODEPrimitive::universalLink(string id,cODEPrimitive *meshLinked, cVector3d
   cVector3d &axis1, cVector3d &axis2)
 {
     m_Joint[id] = dJointCreateUniversal(m_odeWorld,0);
-    dJointAttach(m_Joint[id],m_odeBody,meshLinked->m_odeBody);
+    dJointAttach(m_Joint[id],m_odeBody,meshLinked?(meshLinked->m_odeBody):0);
     dJointSetUniversalAnchor(m_Joint[id],anchor.x, anchor.y, anchor.z);
     dJointSetUniversalAxis1(m_Joint[id],axis1.x, axis1.y, axis1.z);
     dJointSetUniversalAxis2(m_Joint[id],axis2.x, axis2.y, axis2.z);
@@ -282,7 +281,7 @@ void cODEPrimitive::universalLink(string id,cODEPrimitive *meshLinked, cVector3d
 void cODEPrimitive::fixedLink    (string id,cODEPrimitive *meshLinked)
 {
     m_Joint[id] = dJointCreateFixed(m_odeWorld,0);
-    dJointAttach(m_Joint[id],m_odeBody,meshLinked->m_odeBody);
+    dJointAttach(m_Joint[id],m_odeBody,meshLinked?(meshLinked->m_odeBody):0);
     dJointSetFixed(m_Joint[id]);
 }
 
