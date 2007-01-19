@@ -68,12 +68,6 @@ cODEMesh::cODEMesh(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpace)
 //===========================================================================
 cODEMesh::~cODEMesh()
 {
-    if (m_odeVertex  != NULL)           delete []m_odeVertex;
-    if (m_odeIndices != NULL)           delete []m_odeIndices;
-    if (m_odeGeom != NULL)          dGeomDestroy(m_odeGeom);
-    if (m_odeTriMeshData != NULL)       dGeomTriMeshDataDestroy(m_odeTriMeshData);
-    if (m_odeBody != NULL)          dBodyDestroy(m_odeBody);
-    
     m_Joint.clear();
 }
 

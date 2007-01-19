@@ -66,9 +66,6 @@ cODESphere::cODESphere(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpac
 //===========================================================================
 cODESphere::~cODESphere()
 {
-    if (m_odeGeom != NULL)          dGeomDestroy(m_odeGeom);
-    if (m_odeBody != NULL)          dBodyDestroy(m_odeBody);
-    
     m_Joint.clear();
 }
 

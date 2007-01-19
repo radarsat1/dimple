@@ -14,6 +14,40 @@ cODEPrism::~cODEPrism()
 {
 }
 
+
+void cODEPrism::setSize(cVector3d& a_size)
+{
+    // calculate the ratio between the two sizes
+    cVector3d ratio;
+    ratio.x = a_size[0] / m_size[0];
+    ratio.y = a_size[1] / m_size[1];
+    ratio.z = a_size[2] / m_size[2];
+
+    // assign new size
+    m_size = a_size;
+
+    // remember original mass
+    dMass mass;
+    dReal m;
+    dBodyGetMass(m_odeBody, &mass);
+    m = mass.mass;
+
+    // reposition vertices
+    int i,n;
+    n = getNumVertices();
+    for (i=0; i<n; i++) {
+        cVector3d pos = getVertex(i)->getPos();
+        pos.elementMul(ratio);
+        getVertex(i)->setPos(pos);
+    }
+
+    // resize ODE geom
+    dGeomBoxSetLengths (m_odeGeom, m_size[0], m_size[1], m_size[2]);
+
+    // scale the mass accordingly
+    setMass(m*ratio.x*ratio.y*ratio.z);
+}
+
 // This function stolen from dynamic_ode...
 void cODEPrism::create(bool openbox)
 {
@@ -197,12 +231,4 @@ void cODEPrism::create(bool openbox)
     material.setShininess(100);
     m_material = material;
 
-}
-
-void cODEPrism::setSize(cVector3d& a_size)
-{
-    // For now, just re-create it at the given size
-    m_size = a_size;
-    create(false);
-    initDynamic(BOX);
 }
