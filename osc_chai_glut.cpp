@@ -518,6 +518,27 @@ int worldClear_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
+int worldGravity1_handler(const char *path, const char *types, lo_arg **argv,
+                         int argc, void *data, void *user_data)
+{
+    dWorldSetGravity(ode_world, 0, 0, argv[0]->f);
+    return 0;
+}
+
+int worldGravity3_handler(const char *path, const char *types, lo_arg **argv,
+                         int argc, void *data, void *user_data)
+{
+    dWorldSetGravity(ode_world, argv[0]->f, argv[1]->f, argv[2]->f);
+    return 0;
+}
+
+int world_handler(const char *path, const char *types, lo_arg **argv,
+                         int argc, void *data, void *user_data)
+{
+    printf("here.\n");
+    return 0;
+}
+
 int objectCreate_handler(const char *path, const char *types, lo_arg **argv,
                          int argc, void *data, void *user_data)
 {
@@ -594,6 +615,85 @@ int objectSize_handler(const char *path, const char *types, lo_arg **argv,
 	return 0;
 }
 
+// Simple reg-exp function for OSC pattern matching
+// Note: supports only * and ? for now
+int osc_matcher(const char *matchpath, const char *path)
+{
+    const char *m = matchpath;
+    const char *p = path;
+
+    while (*p) {
+
+        if (*m!=*p)
+            return 0;
+
+        m++;
+        p++;
+
+        enum {
+            NORMAL,
+            ANY,
+            WILDCARD
+        } state = NORMAL;
+
+        while (*m && *p && *m!='/' && *p!='/') {
+            switch (state) {
+            case NORMAL:
+                if (*m == '?') {
+                    state = ANY;
+                    continue;
+                }
+                if (*m == '*') {
+                    state = WILDCARD;
+                    continue;
+                }
+                if (*m!=*p)
+                    return 0;
+                m++;
+                p++;
+                break;
+            case ANY:
+                m++;
+                p++;
+                state = NORMAL;
+                break;
+            case WILDCARD:
+                p++;
+                break;
+            }
+        }
+
+        if (state==WILDCARD) {
+            m++;
+            state = NORMAL;
+        }
+
+    }
+    
+    return 1;
+}
+
+int osc_handler(const char *path, const char *types, lo_arg **argv,
+                       int argc, void *data, void *user_data)
+{
+    printf("OSC message: %s, %d args\n", path, argc);
+
+    char str[1024];
+    strcpy(str, path);
+    char *s = strtok(str, "/");
+    int n=0;
+    while (s) {
+        if (osc_matcher("/wor?d/*", path))
+            printf("World message.\n");
+        else if (osc_matcher("/object/*/test", path))
+            printf("Object message.\n");
+        s = strtok(NULL, "/");
+        n++;
+    }
+
+    return 0;
+}
+
 void liblo_error(int num, const char *msg, const char *path)
 {
     printf("liblo server error %d in path %s: %s\n", num, path, msg);
@@ -612,6 +712,9 @@ void initOSC()
      lo_server_thread_add_method(st, "/object/radius", "sf", objectRadius_handler, NULL);
      lo_server_thread_add_method(st, "/object/size", "sfff", objectSize_handler, NULL);
      lo_server_thread_add_method(st, "/world/clear", "", worldClear_handler, NULL);
+     lo_server_thread_add_method(st, "/world/gravity", "f", worldGravity1_handler, NULL);
+     lo_server_thread_add_method(st, "/world/gravity", "fff", worldGravity3_handler, NULL);
+     lo_server_thread_add_method(st, NULL, NULL, osc_handler, NULL);
 
 	 lo_server_thread_start(st);
 
