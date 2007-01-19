@@ -1,4 +1,4 @@
-#N canvas 363 474 813 367 10;
+#N canvas 363 474 817 371 10;
 #X obj 16 225 sendOSC;
 #X obj 16 32 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
 ;
@@ -38,6 +38,7 @@
 #X msg 115 255 send /object/create one sphere 0 0.1 0;
 #X msg 269 208 send /world/clear;
 #X msg 115 329 send /object/size two 0.11 0.11 0.02;
+#X msg 271 182 send /world/gravity 0;
 #X connect 1 0 5 0;
 #X connect 2 0 0 0;
 #X connect 3 0 4 0;
@@ -77,3 +78,4 @@
 #X connect 31 0 0 0;
 #X connect 32 0 0 0;
 #X connect 33 0 0 0;
+#X connect 34 0 0 0;
