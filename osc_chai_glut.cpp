@@ -104,8 +104,9 @@ void poll_requests();
 #define MAX_CONTACTS 30
 #define FPS 30
 #define GLUT_TIMESTEP_MS   (int)((1.0/FPS)*1000.0)
-#define ODE_TIMESTEP_MS    GLUT_TIMESTEP_MS
 #define HAPTIC_TIMESTEP_MS 1
+#define ODE_TIMESTEP_MS    GLUT_TIMESTEP_MS
+//#define ODE_TIMESTEP_MS    HAPTIC_TIMESTEP_MS
 
 // ODE objects
 dWorldID ode_world;
@@ -117,6 +118,8 @@ cODEPrimitive *contactObject=NULL;
 cVector3d lastForce;
 cVector3d lastContactPoint;
 double force_scale = 0.1;
+
+bool clearFlag = false;
 
 #ifdef _POSIX
 #define Sleep usleep
@@ -280,14 +283,31 @@ void ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
 void ode_hapticsLoop(void* a_pUserData)
 {
     bool cursor_ready = true;
-    
+
+    if (clearFlag) {
+        objects_iter it;
+        for (it=objects.begin(); it!=objects.end(); it++)
+        {
+            cGenericObject *o = dynamic_cast<cGenericObject*>(objects[(*it).first]);
+            if (o) world->deleteChild(o);
+        }
+
+        objects.clear();
+        clearFlag = false;
+    }
+
+    // update ODE
+	//ode_simStep();
+
     // Synchronize CHAI & ODE
+    /*
     objects_iter it;
     for (it=objects.begin(); it!=objects.end(); it++)
     {
         cODEPrimitive *o = objects[(*it).first];
         o->syncPose();
     }
+    */
     
     cursor->computeGlobalPositions(1);
     
@@ -491,6 +511,13 @@ int graphicsEnable_handler(const char *path, const char *types, lo_arg **argv,
 	 return 0;
 }
 
+int worldClear_handler(const char *path, const char *types, lo_arg **argv,
+                         int argc, void *data, void *user_data)
+{
+    clearFlag = true;
+    return 0;
+}
+
 int objectCreate_handler(const char *path, const char *types, lo_arg **argv,
                          int argc, void *data, void *user_data)
 {
@@ -528,7 +555,7 @@ int objectCreate_handler(const char *path, const char *types, lo_arg **argv,
 
     if (ob) {
         ob->setDynamicPosition(pos);
-        ob->setMass(0.2);
+        ob->setMass(0.5);
         objects[&argv[0]->s] = ob;
     }
     
@@ -584,6 +611,7 @@ void initOSC()
 	 lo_server_thread_add_method(st, "/object/create", "ssfff", objectCreate_handler, NULL);
      lo_server_thread_add_method(st, "/object/radius", "sf", objectRadius_handler, NULL);
      lo_server_thread_add_method(st, "/object/size", "sfff", objectSize_handler, NULL);
+     lo_server_thread_add_method(st, "/world/clear", "", worldClear_handler, NULL);
 
 	 lo_server_thread_start(st);
 
@@ -645,7 +673,7 @@ int main(int argc, char* argv[])
 	 initWorld();
 	 initODE();
 
-//	 /*
+	 /*
 	 cODEMesh *o1 = new cODEPrism(world, ode_world, ode_space, cVector3d(0.1,0.1,0.1));
 	 objects["test1"] = o1;
 	 world->addChild(o1);
@@ -660,8 +688,7 @@ int main(int argc, char* argv[])
      o2->setDynamicPosition(pos);
 	 o2->setMass(2);
 
-	 cVector3d pt(0, 0, 0);
-	 o1->ballLink("testlink", NULL, pt);
+	 o1->fixedLink("testlink", NULL);
 
 	 cODESphere *o3 = new cODESphere(world, ode_world, ode_space, 0.04);
 	 objects["sphere"] = o3;
@@ -670,7 +697,7 @@ int main(int argc, char* argv[])
      o3->setDynamicPosition(pos);
 	 o3->setMass(2);
      dBodySetLinearVel(o3->m_odeBody, 0, 0, -0.05);
-//	 */
+	 */
 
 	 // initially loop just waiting for messages
 	 glutInit(&argc, argv);
