@@ -2,7 +2,12 @@
 #
 # If you don't have the SensAble libraries installed, take out -lHD and -lHDU from the LIBS line
 
-OBJECTS = osc_chai_glut.o CODEPrimitive.o CODEMesh.o CODEPrism.o CODESphere.o
+OBJECTS = osc_chai_glut.o \
+	CODEPrimitive.o \
+	CODEMesh.o \
+	CODEPrism.o \
+	CODESphere.o \
+	CODEPotentialProxy.o
 
 DEBUG = -g -ggdb
 SOURCES = $(OBJECTS:.o=.cpp)
