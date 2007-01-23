@@ -1,4 +1,12 @@
 
+//===========================================================================
+/*
+    This file is part of a proof-of-concept implementation for using
+    Open SoundControl to interact with a haptic virtual environment.
+
+    stephen.sinclair@mail.mcgill.ca
+*/
+//===========================================================================
 
 #ifndef CODEPrismH
 #define CODEPrismH
