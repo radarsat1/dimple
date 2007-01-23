@@ -1,22 +1,10 @@
 
 //===========================================================================
 /*
-    This file is part of the CHAI 3D visualization and haptics libraries.
-    Copyright (C) 2003-2004 by CHAI 3D. All rights reserved.
+    This file is part of a proof-of-concept implementation for using
+    Open SoundControl to interact with a haptic virtual environment.
 
-    This library is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License("GPL") version 2
-    as published by the Free Software Foundation.
-
-    For using the CHAI 3D libraries with software that can not be combined
-    with the GNU GPL, and for taking advantage of the additional benefits
-    of our support services, please contact CHAI 3D about acquiring a
-    Professional Edition License.
-
-    \author:    <http://www.chai3d.org>
-    \author:    Chris Sewell
-    \version    1.0
-    \date       03/2005
+    stephen.sinclair@mail.mcgill.ca
 */
 //===========================================================================
 
@@ -60,8 +48,7 @@
 */
 //===========================================================================
 cODEPrimitive::cODEPrimitive(cWorld* a_parent, dWorldID a_odeWorld,
-                             dSpaceID a_odeSpace, cGenericObject &chaiObj)
-							 : m_chaiObj(chaiObj)
+                             dSpaceID a_odeSpace)
 {
     m_odeVertex = NULL;
     m_odeIndices = NULL;
@@ -70,7 +57,8 @@ cODEPrimitive::cODEPrimitive(cWorld* a_parent, dWorldID a_odeWorld,
     m_odeBody   = NULL;
     m_odeWorld = a_odeWorld;
     m_odeSpace = a_odeSpace;
-    m_chaiObj.m_lastRot.identity();
+    cGenericObject *o = dynamic_cast<cGenericObject*>(this);
+    if (o) o->m_lastRot.identity();
 }
 
 
@@ -121,10 +109,12 @@ void cODEPrimitive::updateDynamicPosition()
         odeRotation[4],odeRotation[5],odeRotation[6],
         odeRotation[8],odeRotation[9],odeRotation[10]);
     
-    m_chaiObj.setRot(chaiRotation);
-    m_chaiObj.setPos(odePosition[0],odePosition[1],odePosition[2]);
-    
-    m_chaiObj.computeGlobalPositions(1);
+    cGenericObject *o = dynamic_cast<cGenericObject*>(this);
+    if (o) {
+        o->setRot(chaiRotation);
+        o->setPos(odePosition[0],odePosition[1],odePosition[2]);    
+        o->computeGlobalPositions(1);
+    }
 }
 
 
@@ -138,8 +128,11 @@ Set the dynamic position of the cODEPrimitive to the given value.
 void cODEPrimitive::setDynamicPosition(cVector3d &a_pos)
 {
     dGeomSetPosition(m_odeGeom, a_pos.x, a_pos.y, a_pos.z);
-    m_chaiObj.setPos(a_pos.x,a_pos.y,a_pos.z);
-    m_chaiObj.computeGlobalPositions(1);    
+    cGenericObject *o = dynamic_cast<cGenericObject*>(this);
+    if (o) {
+        o->setPos(a_pos.x,a_pos.y,a_pos.z);
+        o->computeGlobalPositions(1);
+    }
     
     if (m_objType == DYNAMIC_OBJECT)
     {
@@ -177,10 +170,12 @@ void cODEPrimitive::syncPose()
 		odeRotation[4],odeRotation[5],odeRotation[6],
 		odeRotation[8],odeRotation[9],odeRotation[10]);
 
-	m_chaiObj.setRot(chaiRotation);
-	m_chaiObj.setPos(odePosition[0],odePosition[1],odePosition[2]);
-
-	m_chaiObj.computeGlobalPositions(1);
+    cGenericObject *o = dynamic_cast<cGenericObject*>(this);
+    if (o) {
+        o->setRot(chaiRotation);
+        o->setPos(odePosition[0],odePosition[1],odePosition[2]);
+        o->computeGlobalPositions(1);
+    }
 }
 
 //===========================================================================

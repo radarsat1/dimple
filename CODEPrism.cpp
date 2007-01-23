@@ -1,4 +1,13 @@
 
+//===========================================================================
+/*
+    This file is part of a proof-of-concept implementation for using
+    Open SoundControl to interact with a haptic virtual environment.
+
+    stephen.sinclair@mail.mcgill.ca
+*/
+//===========================================================================
+
 #include "CODEPrism.h"
 
 cODEPrism::cODEPrism(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpace, const cVector3d& a_size)
