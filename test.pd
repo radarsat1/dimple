@@ -1,4 +1,4 @@
-#N canvas 403 296 821 375 10;
+#N canvas 403 296 825 379 10;
 #X obj 16 225 sendOSC;
 #X obj 16 32 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
 ;
@@ -32,13 +32,15 @@
 #X msg 517 213 0 100;
 #X obj 115 213 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
 -1;
-#X obj 115 233 t b b b b;
 #X msg 269 208 send /world/clear;
 #X msg 271 182 send /world/gravity 0;
-#X msg 115 329 send /object/two/size 0.11 0.11 0.02;
-#X msg 115 307 send /object/prism/create two 0 -0.1 0;
+#X msg 115 325 send /object/two/size 0.11 0.11 0.02;
+#X msg 115 303 send /object/prism/create two 0 -0.1 0;
 #X msg 115 258 send /object/sphere/create one 0 0.1 0;
 #X msg 115 280 send /object/one/radius 0.04;
+#X obj 115 233 t b b b b b;
+#X msg 376 326 send /constraint/ball/create c1 one world 0 0 0;
+#X msg 109 349 send /object/one/force 5 -1 0.2;
 #X connect 1 0 5 0;
 #X connect 2 0 0 0;
 #X connect 3 0 4 0;
@@ -68,14 +70,18 @@
 #X connect 25 0 11 1;
 #X connect 25 0 11 0;
 #X connect 26 0 18 0;
-#X connect 27 0 28 0;
-#X connect 28 0 31 0;
-#X connect 28 1 32 0;
-#X connect 28 2 34 0;
-#X connect 28 3 33 0;
+#X connect 27 0 34 0;
+#X connect 28 0 0 0;
 #X connect 29 0 0 0;
 #X connect 30 0 0 0;
 #X connect 31 0 0 0;
 #X connect 32 0 0 0;
 #X connect 33 0 0 0;
-#X connect 34 0 0 0;
+#X connect 34 0 36 0;
+#X connect 34 1 30 0;
+#X connect 34 2 31 0;
+#X connect 34 3 33 0;
+#X connect 34 3 35 0;
+#X connect 34 4 32 0;
+#X connect 35 0 0 0;
+#X connect 36 0 0 0;

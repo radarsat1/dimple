@@ -16,7 +16,7 @@ extern std::map<std::string,OscObject*> world_objects;
 typedef std::map<std::string,OscObject*>::iterator objects_iter;
 
 // world constraints
-extern std::map<std::string,OscConstraint*> world_contraints;
+extern std::map<std::string,OscConstraint*> world_constraints;
 typedef std::map<std::string,OscConstraint*>::iterator constraints_iter;
 
 #endif // _OSC_CHAI_GLUT_H_

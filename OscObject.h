@@ -17,6 +17,8 @@ public:
     OscBase(const char *name, const char *classname);
     virtual ~OscBase();
 
+    const char* name() { return m_name.c_str(); }
+
 protected:
     virtual void addHandler(const char *methodname, const char* type, lo_method_handler h);
     std::string m_name;
@@ -47,30 +49,15 @@ class OscObject : public OscBase
 
   protected:
 	cGenericObject* m_objChai;
-};
 
-//! The OscConstraint class keeps track of ODE constraints between two
-//! objects in the world, or between one object and some point in the
-//! coordinate space.
-class OscConstraint : public OscBase
-{
-public:
-    OscConstraint(const char *name, OscObject *object1, OscObject *object2);
-    ~OscConstraint() {}
-
-    OscObject *object1() { return m_object1; }
-    OscObject *object2() { return m_object2; }
-
-  protected:
-      OscObject *m_object1;
-      OscObject *m_object2;
+    static int force_handler(const char *path, const char *types, lo_arg **argv,
+                             int argc, void *data, void *user_data);
 };
 
 class OscPrism : public OscObject
 {
   public:
 	OscPrism(cGenericObject* p, const char *name);
-    virtual ~OscPrism();
 
 	virtual cODEPrism* odePrimitive() { return dynamic_cast<cODEPrism*>(m_objChai); }
 	virtual cMesh*     chaiObject()   { return dynamic_cast<cMesh*>(m_objChai); }
@@ -84,7 +71,6 @@ class OscSphere : public OscObject
 {
   public:
 	OscSphere(cGenericObject* p, const char *name);
-    virtual ~OscSphere();
 
 	virtual cODESphere*   odePrimitive() { return dynamic_cast<cODESphere*>(m_objChai); }
 	virtual cShapeSphere* chaiObject()   { return dynamic_cast<cShapeSphere*>(m_objChai); }
@@ -92,6 +78,30 @@ class OscSphere : public OscObject
   protected:
     static int radius_handler(const char *path, const char *types, lo_arg **argv,
                               int argc, void *data, void *user_data);
+};
+
+//! The OscConstraint class keeps track of ODE constraints between two
+//! objects in the world, or between one object and some point in the
+//! coordinate space.
+class OscConstraint : public OscBase
+{
+public:
+    OscConstraint(const char *name, OscObject *object1, OscObject *object2);
+    ~OscConstraint();
+
+    OscObject *object1() { return m_object1; }
+    OscObject *object2() { return m_object2; }
+
+  protected:
+      OscObject *m_object1;
+      OscObject *m_object2;
+};
+
+class OscBallJoint : public OscConstraint
+{
+public:
+    OscBallJoint(const char *name, OscObject *object1, OscObject *object2,
+                 double x, double y, double z);
 };
 
 #endif // _OSC_OBJECT_H_

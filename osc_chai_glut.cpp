@@ -65,7 +65,7 @@ cPrecisionTimer timer;
 
 // world objects & constraints
 std::map<std::string,OscObject*> world_objects;
-std::map<std::string,OscConstraint*> world_contraints;
+std::map<std::string,OscConstraint*> world_constraints;
 
 // width and height of the current viewport display
 int width   = 0;
@@ -603,36 +603,37 @@ int objectSphereCreate_handler(const char *path, const char *types, lo_arg **arg
     return 0;
 }
 
-int objectRadius_handler(const char *path, const char *types, lo_arg **argv,
-                         int argc, void *data, void *user_data)
+int constraintBallCreate_handler(const char *path, const char *types, lo_arg **argv,
+                               int argc, void *data, void *user_data)
 {
-    if (argc!=2)
+    if (argc!=6) return 0;
+
+    if (world_constraints[&argv[0]->s])
         return 0;
 
-	cODESphere *sphere = dynamic_cast<cODESphere*>( world_objects[&argv[0]->s]->odePrimitive() );
-    if (sphere)
-        sphere->setRadius(argv[1]->f);
-
-	return 0;
-}
-
-int objectSize_handler(const char *path, const char *types, lo_arg **argv,
-                       int argc, void *data, void *user_data)
-{
-    if (argc!=4)
+    // Find associated objects
+    OscObject *ob1 = world_objects[&argv[1]->s];
+    if (ob1==NULL) {
+        printf("Object %s doesn't exist.\n", &argv[1]->s);
         return 0;
-
-	cODEPrism *prism = dynamic_cast<cODEPrism*>( world_objects[&argv[0]->s]->odePrimitive() );
-    if (prism)
-    {
-        cVector3d size;
-        size.x = argv[1]->f;
-        size.y = argv[2]->f;
-        size.z = argv[3]->f;
-        prism->setSize(size);
     }
 
-	return 0;
+    // String "world" indicates a constraint with a fixed point in space
+    OscObject *ob2 = NULL;
+    if (std::string("world")!=&argv[2]->s) {
+        ob2 = world_objects[&argv[2]->s];
+        if (ob2==NULL) {
+            printf("Object %s doesn't exist.\n", &argv[2]->s);
+            return 0;
+        }
+    }
+
+    // Track the OSC object
+    OscBallJoint *cons=NULL;
+    cons = new OscBallJoint(&argv[0]->s, ob1, ob2, argv[3]->f, argv[4]->f, argv[5]->f);
+    world_constraints[&argv[0]->s] = cons;
+
+    return 0;
 }
 
 int unknown_handler(const char *path, const char *types, lo_arg **argv,
@@ -664,6 +665,7 @@ void initOSC()
 	 lo_server_thread_add_method(loserver, "/object/prism/create", "s", objectPrismCreate_handler, NULL);
 	 lo_server_thread_add_method(loserver, "/object/sphere/create", "sfff", objectSphereCreate_handler, NULL);
 	 lo_server_thread_add_method(loserver, "/object/sphere/create", "s", objectSphereCreate_handler, NULL);
+	 lo_server_thread_add_method(loserver, "/constraint/ball/create", "sssfff", constraintBallCreate_handler, NULL);
      lo_server_thread_add_method(loserver, "/world/clear", "", worldClear_handler, NULL);
      lo_server_thread_add_method(loserver, "/world/gravity", "f", worldGravity1_handler, NULL);
      lo_server_thread_add_method(loserver, "/world/gravity", "fff", worldGravity3_handler, NULL);
