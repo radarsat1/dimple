@@ -6,8 +6,37 @@
 #include <string>
 #include "CODEPrism.h"
 #include "CODESphere.h"
+#include <vector>
 
-class OscObject
+//! The OscBase class handles basic OSC functions for dealing with LibLo.
+//! It keeps a record of the object's name and classname which becomes
+//! part of all OSC methods for this object.
+class OscBase
+{
+public:
+    OscBase(const char *name, const char *classname);
+    virtual ~OscBase();
+
+protected:
+    virtual void addHandler(const char *methodname, const char* type, lo_method_handler h);
+    std::string m_name;
+    std::string m_classname;
+
+    struct method_t {
+        std::string name;
+        std::string type;
+    };
+    std::vector <method_t> m_methods;
+
+    static int destroy_handler(const char *path, const char *types, lo_arg **argv,
+                               int argc, void *data, void *user_data);
+};
+
+//! The OscObject class keeps track of an object in the world. The object
+//! is some cGenericObject and some cODEPrimitve -- in other words, an
+//! OscObject consists of an object in the CHAI world and an object in the
+//! ODE world which are kept synchronized.
+class OscObject : public OscBase
 {
   public:
 	OscObject(cGenericObject* p, const char *name);
@@ -18,12 +47,23 @@ class OscObject
 
   protected:
 	cGenericObject* m_objChai;
-    std::string m_name;
 };
 
-class OscConstraint
+//! The OscConstraint class keeps track of ODE constraints between two
+//! objects in the world, or between one object and some point in the
+//! coordinate space.
+class OscConstraint : public OscBase
 {
-  public:
+public:
+    OscConstraint(const char *name, OscObject *object1, OscObject *object2);
+    ~OscConstraint() {}
+
+    OscObject *object1() { return m_object1; }
+    OscObject *object2() { return m_object2; }
+
+  protected:
+      OscObject *m_object1;
+      OscObject *m_object2;
 };
 
 class OscPrism : public OscObject
