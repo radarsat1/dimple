@@ -179,6 +179,9 @@
 						BasicRuntimeChecks="3"/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\OscObject.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -200,6 +203,12 @@
 			</File>
 			<File
 				RelativePath=".\CODESphere.h">
+			</File>
+			<File
+				RelativePath=".\osc_chai_glut.h">
+			</File>
+			<File
+				RelativePath=".\OscObject.h">
 			</File>
 		</Filter>
 		<Filter

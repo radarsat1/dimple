@@ -35,15 +35,12 @@
 #include "CMeta3dofPointer.h"
 #include "CShapeSphere.h"
 //---------------------------------------------------------------------------
-extern "C" {
-#include "lo/lo.h"
-}
+#include "osc_chai_glut.h"
 #include "CODEMesh.h"
 #include "CODEProxy.h"
 #include "CODEPrism.h"
 #include "CODESphere.h"
 #include "CODEPotentialProxy.h"
-#include "OscObject.h"
 //---------------------------------------------------------------------------
 
 lo_address address_send = lo_address_new("localhost", "7771");
@@ -66,19 +63,9 @@ cPrecisionClock g_clock;
 // haptic timer callback
 cPrecisionTimer timer;
 
-// world objects
-std::map<std::string,OscObject*> objects;
-typedef std::map<std::string,OscObject*>::iterator objects_iter;
-
-class constraint
-{
-    int m_type;
-    cODEPrimitive* m_pObject1;
-    cODEPrimitive* m_pObject2;
-};
-
-std::map<std::string,constraint*> contraints;
-typedef std::map<std::string,constraint*>::iterator constraints_iter;
+// world objects & constraints
+std::map<std::string,OscObject*> world_objects;
+std::map<std::string,OscConstraint*> world_contraints;
 
 // width and height of the current viewport display
 int width   = 0;
@@ -285,13 +272,13 @@ void ode_hapticsLoop(void* a_pUserData)
 
     if (clearFlag) {
         objects_iter it;
-        for (it=objects.begin(); it!=objects.end(); it++)
+        for (it=world_objects.begin(); it!=world_objects.end(); it++)
         {
-            OscObject *o = objects[(*it).first];
+            OscObject *o = world_objects[(*it).first];
             if (o) delete o;
         }
 
-        objects.clear();
+        world_objects.clear();
         clearFlag = false;
     }
 
@@ -364,9 +351,9 @@ void ode_simStep()
     
     // Synchronize CHAI & ODE
     objects_iter it;
-    for (it=objects.begin(); it!=objects.end(); it++)
+    for (it=world_objects.begin(); it!=world_objects.end(); it++)
     {
-        cODEPrimitive *o = objects[(*it).first]->odePrimitive();
+        cODEPrimitive *o = world_objects[(*it).first]->odePrimitive();
         o->syncPose();
     }
 }
@@ -523,14 +510,13 @@ int worldClear_handler(const char *path, const char *types, lo_arg **argv,
         clearFlag = true;
     else {
         objects_iter it;
-        for (it=objects.begin(); it!=objects.end(); it++)
+        for (it=world_objects.begin(); it!=world_objects.end(); it++)
         {
-            OscObject *o = objects[(*it).first];
+            OscObject *o = world_objects[(*it).first];
             if (o) delete o;
-            // TODO: look up how destructors are inherited in C++
         }
 
-        objects.clear();
+        world_objects.clear();
         clearFlag = false;
     }
     return 0;
@@ -553,7 +539,7 @@ int worldGravity3_handler(const char *path, const char *types, lo_arg **argv,
 int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv,
                               int argc, void *data, void *user_data)
 {
-    if (objects[&argv[0]->s])
+    if (world_objects[&argv[0]->s])
         return 0;
 
     // Optional position, default (0,0,0)
@@ -576,7 +562,7 @@ int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv
     // Track the OSC object
     OscObject *ob=NULL;
     ob = new OscPrism(static_cast<cGenericObject*>(pr), &argv[0]->s);
-    objects[&argv[0]->s] = ob;
+    world_objects[&argv[0]->s] = ob;
 
     // Add to CHAI world
     world->addChild(pr);
@@ -588,7 +574,7 @@ int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv
 int objectSphereCreate_handler(const char *path, const char *types, lo_arg **argv,
                                int argc, void *data, void *user_data)
 {
-    if (objects[&argv[0]->s])
+    if (world_objects[&argv[0]->s])
         return 0;
 
     // Optional position, default (0,0,0)
@@ -608,7 +594,7 @@ int objectSphereCreate_handler(const char *path, const char *types, lo_arg **arg
     // Track the OSC object
     OscObject *ob=NULL;
     ob = new OscSphere(static_cast<cGenericObject*>(sp), &argv[0]->s);
-    objects[&argv[0]->s] = ob;
+    world_objects[&argv[0]->s] = ob;
 
     // Add to CHAI world
     world->addChild(sp);
@@ -623,7 +609,7 @@ int objectRadius_handler(const char *path, const char *types, lo_arg **argv,
     if (argc!=2)
         return 0;
 
-	cODESphere *sphere = dynamic_cast<cODESphere*>( objects[&argv[0]->s]->odePrimitive() );
+	cODESphere *sphere = dynamic_cast<cODESphere*>( world_objects[&argv[0]->s]->odePrimitive() );
     if (sphere)
         sphere->setRadius(argv[1]->f);
 
@@ -636,7 +622,7 @@ int objectSize_handler(const char *path, const char *types, lo_arg **argv,
     if (argc!=4)
         return 0;
 
-	cODEPrism *prism = dynamic_cast<cODEPrism*>( objects[&argv[0]->s]->odePrimitive() );
+	cODEPrism *prism = dynamic_cast<cODEPrism*>( world_objects[&argv[0]->s]->odePrimitive() );
     if (prism)
     {
         cVector3d size;
@@ -653,6 +639,7 @@ int unknown_handler(const char *path, const char *types, lo_arg **argv,
                     int argc, void *data, void *user_data)
 {
     printf("Unknown message %s, %d args.\n", path, argc);
+    return 0;
 }
 
 void liblo_error(int num, const char *msg, const char *path)
@@ -697,12 +684,12 @@ void sighandler_quit(int sig)
 
     // delete all objects
     objects_iter it;
-    for (it=objects.begin(); it!=objects.end(); it++)
+    for (it=world_objects.begin(); it!=world_objects.end(); it++)
     {
-        OscObject *o = objects[(*it).first];
+        OscObject *o = world_objects[(*it).first];
         if (o) delete o;
     }
-    objects.clear();
+    world_objects.clear();
 
     // quit the program
 	if (glutStarted) {
