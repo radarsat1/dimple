@@ -43,7 +43,7 @@ extern "C" {
 #include "CODEPrism.h"
 #include "CODESphere.h"
 #include "CODEPotentialProxy.h"
-#include "OscPrism.h"
+#include "OscObject.h"
 //---------------------------------------------------------------------------
 
 lo_address address_send = lo_address_new("localhost", "7771");
@@ -69,6 +69,16 @@ cPrecisionTimer timer;
 // world objects
 std::map<std::string,OscObject*> objects;
 typedef std::map<std::string,OscObject*>::iterator objects_iter;
+
+class constraint
+{
+    int m_type;
+    cODEPrimitive* m_pObject1;
+    cODEPrimitive* m_pObject2;
+};
+
+std::map<std::string,constraint*> contraints;
+typedef std::map<std::string,constraint*>::iterator constraints_iter;
 
 // width and height of the current viewport display
 int width   = 0;

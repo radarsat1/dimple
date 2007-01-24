@@ -1,6 +1,6 @@
 
-#ifndef _OSC_PRISM_H_
-#define _OSC_PRISM_H_
+#ifndef _OSC_OBJECT_H_
+#define _OSC_OBJECT_H_
 
 #include "CODEMesh.h"
 
@@ -39,4 +39,4 @@ class OscSphere : public OscObject
 	virtual cShapeSphere* chaiObject()   { return dynamic_cast<cShapeSphere*>(m_objChai); }
 };
 
-#endif // _OSC_PRISM_H_
+#endif // _OSC_OBJECT_H_
