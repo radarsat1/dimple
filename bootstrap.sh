@@ -85,7 +85,7 @@ if !(cd $ode_DIR && ./configure --disable-shared); then
 fi
 
 # Seems to make the shared version anyway.. ?
-rm $ode_DIR/ode/src/libode.so
+rm -v $ode_DIR/ode/src/libode.so
 
 echo Compiling $ode_DIR
 if !(cd $ode_DIR && make); then
