@@ -1,9 +1,9 @@
-#N canvas 363 474 821 375 10;
+#N canvas 403 296 821 375 10;
 #X obj 16 225 sendOSC;
-#X obj 16 32 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
+#X obj 16 32 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
 ;
 #X msg 29 202 disconnect;
-#X obj 16 98 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
+#X obj 16 98 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
 ;
 #X msg 16 119 send /graphics/enable \$1;
 #X msg 16 52 send /haptics/enable \$1;
@@ -30,16 +30,15 @@
 #X obj 517 166 delay 10;
 #X obj 487 264 hip~ 5;
 #X msg 517 213 0 100;
-#X msg 115 305 send /object/create two prism 0 -0.1 0;
-#X msg 115 280 send /object/radius one 0.04;
 #X obj 115 213 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
 -1;
 #X obj 115 233 t b b b b;
-#X msg 115 255 send /object/create one sphere 0 0.1 0;
 #X msg 269 208 send /world/clear;
-#X msg 115 329 send /object/size two 0.11 0.11 0.02;
 #X msg 271 182 send /world/gravity 0;
-#X msg 208 65 send /object/prism/create stick;
+#X msg 115 329 send /object/two/size 0.11 0.11 0.02;
+#X msg 115 307 send /object/prism/create two 0 -0.1 0;
+#X msg 115 258 send /object/sphere/create one 0 0.1 0;
+#X msg 115 280 send /object/one/radius 0.04;
 #X connect 1 0 5 0;
 #X connect 2 0 0 0;
 #X connect 3 0 4 0;
@@ -69,15 +68,14 @@
 #X connect 25 0 11 1;
 #X connect 25 0 11 0;
 #X connect 26 0 18 0;
-#X connect 27 0 0 0;
-#X connect 28 0 0 0;
-#X connect 29 0 30 0;
-#X connect 30 0 33 0;
-#X connect 30 1 27 0;
-#X connect 30 2 28 0;
-#X connect 30 3 31 0;
+#X connect 27 0 28 0;
+#X connect 28 0 31 0;
+#X connect 28 1 32 0;
+#X connect 28 2 34 0;
+#X connect 28 3 33 0;
+#X connect 29 0 0 0;
+#X connect 30 0 0 0;
 #X connect 31 0 0 0;
 #X connect 32 0 0 0;
 #X connect 33 0 0 0;
 #X connect 34 0 0 0;
-#X connect 35 0 0 0;
