@@ -7,7 +7,8 @@ OBJECTS = osc_chai_glut.o \
 	CODEMesh.o \
 	CODEPrism.o \
 	CODESphere.o \
-	CODEPotentialProxy.o
+	CODEPotentialProxy.o \
+	OscObject.o
 
 DEBUG = -g -ggdb
 SOURCES = $(OBJECTS:.o=.cpp)

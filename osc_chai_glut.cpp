@@ -89,7 +89,7 @@ const int OPTION_FULLSCREEN     = 1;
 const int OPTION_WINDOWDISPLAY  = 2;
 
 // OSC handlers
-lo_server_thread st;
+lo_server_thread loserver;
 
 int glutStarted = 0;
 int hapticsStarted = 0;
@@ -287,8 +287,8 @@ void ode_hapticsLoop(void* a_pUserData)
         objects_iter it;
         for (it=objects.begin(); it!=objects.end(); it++)
         {
-			 cGenericObject *o = objects[(*it).first]->chaiObject();
-			 if (o) world->deleteChild(o);
+            OscObject *o = objects[(*it).first];
+            if (o) delete o;
         }
 
         objects.clear();
@@ -460,10 +460,16 @@ void initODE()
 void startHaptics()
 {
     // set up the device
-    cursor->initialize();
+    if (cursor->initialize()) {
+        printf("Could not initialize haptics.\n");
+        return;
+    }
 
     // open communication to the device
-    cursor->start();
+    if (cursor->start()) {
+        printf("Could not start haptics.\n");
+        return;
+    }
 
     // start haptic timer callback
     timer.set(HAPTIC_TIMESTEP_MS, ode_hapticsLoop, NULL);
@@ -513,7 +519,20 @@ int graphicsEnable_handler(const char *path, const char *types, lo_arg **argv,
 int worldClear_handler(const char *path, const char *types, lo_arg **argv,
                          int argc, void *data, void *user_data)
 {
-    clearFlag = true;
+    if (hapticsStarted)
+        clearFlag = true;
+    else {
+        objects_iter it;
+        for (it=objects.begin(); it!=objects.end(); it++)
+        {
+            OscObject *o = objects[(*it).first];
+            if (o) delete (OscSphere*)o;
+            // TODO: look up how destructors are inherited in C++
+        }
+
+        objects.clear();
+        clearFlag = false;
+    }
     return 0;
 }
 
@@ -531,55 +550,65 @@ int worldGravity3_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
-int world_handler(const char *path, const char *types, lo_arg **argv,
-                         int argc, void *data, void *user_data)
+int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv,
+                              int argc, void *data, void *user_data)
 {
-    printf("here.\n");
+    // Optional position, default (0,0,0)
+	cVector3d pos;
+	if (argc>0)
+		 pos.x = argv[1]->f;
+	if (argc>1)
+		 pos.y = argv[2]->f;
+	if (argc>2)
+		 pos.z = argv[3]->f;
+
+    // Default size
+    cVector3d size(0.01,0.01,0.01);
+
+    // Create object
+    cODEPrism *pr = new cODEPrism(world,ode_world,ode_space,size);
+    pr->setDynamicPosition(pos);
+    pr->setMass(0.5);
+
+    // Track the OSC object
+    OscObject *ob=NULL;
+    ob = new OscPrism(static_cast<cGenericObject*>(pr), &argv[0]->s);
+    objects[&argv[0]->s] = ob;
+
+    // Add to CHAI world
+    world->addChild(pr);
+
+    printf("Prism added at (%f, %f, %f).\n", pos.x, pos.y, pos.z);
     return 0;
 }
 
-int objectCreate_handler(const char *path, const char *types, lo_arg **argv,
-                         int argc, void *data, void *user_data)
+int objectSphereCreate_handler(const char *path, const char *types, lo_arg **argv,
+                               int argc, void *data, void *user_data)
 {
+    // Optional position, default (0,0,0)
 	cVector3d pos;
+	if (argc>0)
+		 pos.x = argv[1]->f;
+	if (argc>1)
+		 pos.y = argv[2]->f;
 	if (argc>2)
-		 pos.x = argv[2]->f;
-	if (argc>3)
-		 pos.y = argv[3]->f;
-	if (argc>4)
-		 pos.z = argv[4]->f;
+		 pos.z = argv[3]->f;
 
-    OscObject *ob=NULL;
-    if (std::string(&argv[1]->s)=="sphere") {
-        cODESphere *sp = new cODESphere(world,ode_world,ode_space,0.01);
-        ob = new OscSphere(static_cast<cGenericObject*>(sp));
-        world->addChild(sp);
-        printf("Sphere added at (%f, %f, %f).\n", pos.x, pos.y, pos.z);
-    }
-
-    else if (std::string(&argv[1]->s)=="prism") {
-        cVector3d size(0.01,0.01,0.01);
-        cODEPrism *pr = new cODEPrism(world,ode_world,ode_space,size);
-        ob = new OscPrism(static_cast<cGenericObject*>(pr));
-        world->addChild(pr);
-        printf("Prism added at (%f, %f, %f).\n", pos.x, pos.y, pos.z);
-    }
-
-    else if (std::string(&argv[1]->s)=="cube") {
-        cVector3d size(0.1,0.1,0.1);
-        cODEPrism *pr = new cODEPrism(world,ode_world,ode_space,size);
-        ob = new OscPrism(static_cast<cGenericObject*>(pr));
-        world->addChild(pr);
-        printf("Cube added at (%f, %f, %f).\n", pos.x, pos.y, pos.z);
-    }
-
-    if (ob) {
-        ob->odePrimitive()->setDynamicPosition(pos);
-        ob->odePrimitive()->setMass(0.5);
-        objects[&argv[0]->s] = ob;
-    }
+    // Create object
+    cODESphere *sp = new cODESphere(world,ode_world,ode_space,0.01);
+    sp->setDynamicPosition(pos);
+    sp->setMass(0.5);
     
-	return 0;
+    // Track the OSC object
+    OscObject *ob=NULL;
+    ob = new OscSphere(static_cast<cGenericObject*>(sp), &argv[0]->s);
+    objects[&argv[0]->s] = ob;
+
+    // Add to CHAI world
+    world->addChild(sp);
+
+    printf("Sphere added at (%f, %f, %f).\n", pos.x, pos.y, pos.z);
+    return 0;
 }
 
 int objectRadius_handler(const char *path, const char *types, lo_arg **argv,
@@ -614,85 +643,6 @@ int objectSize_handler(const char *path, const char *types, lo_arg **argv,
 	return 0;
 }
 
-// Simple reg-exp function for OSC pattern matching
-// Note: supports only * and ? for now
-int osc_matcher(const char *matchpath, const char *path)
-{
-    const char *m = matchpath;
-    const char *p = path;
-
-    while (*p) {
-
-        if (*m!=*p)
-            return 0;
-
-        m++;
-        p++;
-
-        enum {
-            NORMAL,
-            ANY,
-            WILDCARD
-        } state = NORMAL;
-
-        while (*m && *p && *m!='/' && *p!='/') {
-            switch (state) {
-            case NORMAL:
-                if (*m == '?') {
-                    state = ANY;
-                    continue;
-                }
-                if (*m == '*') {
-                    state = WILDCARD;
-                    continue;
-                }
-                if (*m!=*p)
-                    return 0;
-                m++;
-                p++;
-                break;
-            case ANY:
-                m++;
-                p++;
-                state = NORMAL;
-                break;
-            case WILDCARD:
-                p++;
-                break;
-            }
-        }
-
-        if (state==WILDCARD) {
-            m++;
-            state = NORMAL;
-        }
-
-    }
-    
-    return 1;
-}
-
-int osc_handler(const char *path, const char *types, lo_arg **argv,
-                       int argc, void *data, void *user_data)
-{
-    printf("OSC message: %s, %d args\n", path, argc);
-
-    char str[1024];
-    strcpy(str, path);
-    char *s = strtok(str, "/");
-    int n=0;
-    while (s) {
-        if (osc_matcher("/wor?d/*", path))
-            printf("World message.\n");
-        else if (osc_matcher("/object/*/test", path))
-            printf("Object message.\n");
-        s = strtok(NULL, "/");
-        n++;
-    }
-
-    return 0;
-}
-
 void liblo_error(int num, const char *msg, const char *path)
 {
     printf("liblo server error %d in path %s: %s\n", num, path, msg);
@@ -702,21 +652,24 @@ void liblo_error(int num, const char *msg, const char *path)
 void initOSC()
 {
 	 /* start a new server on port 7770 */
-	 st = lo_server_thread_new("7770", liblo_error);
+	 loserver = lo_server_thread_new("7770", liblo_error);
+     if (!loserver) {
+         printf("Error starting OSC server on port 7770.\n");
+         exit(1);
+     }
 
 	 /* add methods for each message */
-	 lo_server_thread_add_method(st, "/haptics/enable", "i", hapticsEnable_handler, NULL);
-	 lo_server_thread_add_method(st, "/graphics/enable", "i", graphicsEnable_handler, NULL);
-	 lo_server_thread_add_method(st, "/object/create", "ssfff", objectCreate_handler, NULL);
-// TODO:	 lo_server_thread_add_method(st, "/object/prism/create", "ssfff", objectCreate_handler, NULL);
-     lo_server_thread_add_method(st, "/object/radius", "sf", objectRadius_handler, NULL);
-     lo_server_thread_add_method(st, "/object/size", "sfff", objectSize_handler, NULL);
-     lo_server_thread_add_method(st, "/world/clear", "", worldClear_handler, NULL);
-     lo_server_thread_add_method(st, "/world/gravity", "f", worldGravity1_handler, NULL);
-     lo_server_thread_add_method(st, "/world/gravity", "fff", worldGravity3_handler, NULL);
-     lo_server_thread_add_method(st, NULL, NULL, osc_handler, NULL);
+	 lo_server_thread_add_method(loserver, "/haptics/enable", "i", hapticsEnable_handler, NULL);
+	 lo_server_thread_add_method(loserver, "/graphics/enable", "i", graphicsEnable_handler, NULL);
+	 lo_server_thread_add_method(loserver, "/object/prism/create", "sfff", objectPrismCreate_handler, NULL);
+	 lo_server_thread_add_method(loserver, "/object/prism/create", "s", objectPrismCreate_handler, NULL);
+	 lo_server_thread_add_method(loserver, "/object/sphere/create", "sfff", objectSphereCreate_handler, NULL);
+	 lo_server_thread_add_method(loserver, "/object/sphere/create", "s", objectSphereCreate_handler, NULL);
+     lo_server_thread_add_method(loserver, "/world/clear", "", worldClear_handler, NULL);
+     lo_server_thread_add_method(loserver, "/world/gravity", "f", worldGravity1_handler, NULL);
+     lo_server_thread_add_method(loserver, "/world/gravity", "fff", worldGravity3_handler, NULL);
 
-	 lo_server_thread_start(st);
+	 lo_server_thread_start(loserver);
 
 	 printf("OSC server initialized on port 7770.\n");
 }
@@ -724,6 +677,19 @@ void initOSC()
 void sighandler_quit(int sig)
 {
 	requestHapticsStop = 1;
+
+// TODO: wait for haptics to stop
+
+    // delete all objects
+    objects_iter it;
+    for (it=objects.begin(); it!=objects.end(); it++)
+    {
+        OscObject *o = objects[(*it).first];
+        if (o) delete o;
+    }
+    objects.clear();
+
+    // quit the program
 	if (glutStarted) {
 #ifdef USE_FREEGLUT
 		glutLeaveMainLoop();
@@ -741,14 +707,12 @@ void poll_requests()
 	if (requestHapticsStart) {
 		if (!hapticsStarted)
 			startHaptics();
-		hapticsStarted = 1;
 		requestHapticsStart = 0;
 	}
 
 	if (requestHapticsStop) {
 		if (hapticsStarted)
 			stopHaptics();
-		hapticsStarted = 0;
 		requestHapticsStop = 0;
 		printf("Haptics stopped.\n");
 	}
