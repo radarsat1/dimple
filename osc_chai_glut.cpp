@@ -43,6 +43,7 @@ extern "C" {
 #include "CODEPrism.h"
 #include "CODESphere.h"
 #include "CODEPotentialProxy.h"
+#include "OscPrism.h"
 //---------------------------------------------------------------------------
 
 lo_address address_send = lo_address_new("localhost", "7771");
@@ -66,8 +67,8 @@ cPrecisionClock g_clock;
 cPrecisionTimer timer;
 
 // world objects
-std::map<std::string,cODEPrimitive*> objects;
-typedef std::map<std::string,cODEPrimitive*>::iterator objects_iter;
+std::map<std::string,OscObject*> objects;
+typedef std::map<std::string,OscObject*>::iterator objects_iter;
 
 // width and height of the current viewport display
 int width   = 0;
@@ -276,8 +277,8 @@ void ode_hapticsLoop(void* a_pUserData)
         objects_iter it;
         for (it=objects.begin(); it!=objects.end(); it++)
         {
-            cGenericObject *o = dynamic_cast<cGenericObject*>(objects[(*it).first]);
-            if (o) world->deleteChild(o);
+			 cGenericObject *o = objects[(*it).first]->chaiObject();
+			 if (o) world->deleteChild(o);
         }
 
         objects.clear();
@@ -355,7 +356,7 @@ void ode_simStep()
     objects_iter it;
     for (it=objects.begin(); it!=objects.end(); it++)
     {
-        cODEPrimitive *o = objects[(*it).first];
+        cODEPrimitive *o = objects[(*it).first]->odePrimitive();
         o->syncPose();
     }
 }
@@ -538,10 +539,10 @@ int objectCreate_handler(const char *path, const char *types, lo_arg **argv,
 	if (argc>4)
 		 pos.z = argv[4]->f;
 
-    cODEPrimitive *ob=NULL;
+    OscObject *ob=NULL;
     if (std::string(&argv[1]->s)=="sphere") {
         cODESphere *sp = new cODESphere(world,ode_world,ode_space,0.01);
-        ob = (cODEPrimitive*)sp;
+        ob = new OscSphere(static_cast<cGenericObject*>(sp));
         world->addChild(sp);
         printf("Sphere added at (%f, %f, %f).\n", pos.x, pos.y, pos.z);
     }
@@ -549,7 +550,7 @@ int objectCreate_handler(const char *path, const char *types, lo_arg **argv,
     else if (std::string(&argv[1]->s)=="prism") {
         cVector3d size(0.01,0.01,0.01);
         cODEPrism *pr = new cODEPrism(world,ode_world,ode_space,size);
-        ob = (cODEPrimitive*)pr;
+        ob = new OscPrism(static_cast<cGenericObject*>(pr));
         world->addChild(pr);
         printf("Prism added at (%f, %f, %f).\n", pos.x, pos.y, pos.z);
     }
@@ -557,14 +558,14 @@ int objectCreate_handler(const char *path, const char *types, lo_arg **argv,
     else if (std::string(&argv[1]->s)=="cube") {
         cVector3d size(0.1,0.1,0.1);
         cODEPrism *pr = new cODEPrism(world,ode_world,ode_space,size);
-        ob = (cODEPrimitive*)pr;
+        ob = new OscPrism(static_cast<cGenericObject*>(pr));
         world->addChild(pr);
         printf("Cube added at (%f, %f, %f).\n", pos.x, pos.y, pos.z);
     }
 
     if (ob) {
-        ob->setDynamicPosition(pos);
-        ob->setMass(0.5);
+        ob->odePrimitive()->setDynamicPosition(pos);
+        ob->odePrimitive()->setMass(0.5);
         objects[&argv[0]->s] = ob;
     }
     
@@ -577,7 +578,7 @@ int objectRadius_handler(const char *path, const char *types, lo_arg **argv,
     if (argc!=2)
         return 0;
 
-	cODESphere *sphere = dynamic_cast<cODESphere*>( objects[&argv[0]->s] );
+	cODESphere *sphere = dynamic_cast<cODESphere*>( objects[&argv[0]->s]->odePrimitive() );
     if (sphere)
         sphere->setRadius(argv[1]->f);
 
@@ -590,7 +591,7 @@ int objectSize_handler(const char *path, const char *types, lo_arg **argv,
     if (argc!=4)
         return 0;
 
-	cODEPrism *prism = dynamic_cast<cODEPrism*>( objects[&argv[0]->s] );
+	cODEPrism *prism = dynamic_cast<cODEPrism*>( objects[&argv[0]->s]->odePrimitive() );
     if (prism)
     {
         cVector3d size;
@@ -697,6 +698,7 @@ void initOSC()
 	 lo_server_thread_add_method(st, "/haptics/enable", "i", hapticsEnable_handler, NULL);
 	 lo_server_thread_add_method(st, "/graphics/enable", "i", graphicsEnable_handler, NULL);
 	 lo_server_thread_add_method(st, "/object/create", "ssfff", objectCreate_handler, NULL);
+// TODO:	 lo_server_thread_add_method(st, "/object/prism/create", "ssfff", objectCreate_handler, NULL);
      lo_server_thread_add_method(st, "/object/radius", "sf", objectRadius_handler, NULL);
      lo_server_thread_add_method(st, "/object/size", "sfff", objectSize_handler, NULL);
      lo_server_thread_add_method(st, "/world/clear", "", worldClear_handler, NULL);
