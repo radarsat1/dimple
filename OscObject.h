@@ -3,20 +3,22 @@
 #define _OSC_OBJECT_H_
 
 #include <lo/lo.h>
+#include <string>
 #include "CODEPrism.h"
 #include "CODESphere.h"
 
 class OscObject
 {
   public:
-	OscObject(cGenericObject* p) { m_objChai = p; }
-    ~OscObject();
+	OscObject(cGenericObject* p, const char *name);
+    virtual ~OscObject();
 
 	virtual cODEPrimitive*  odePrimitive() { return dynamic_cast<cODEPrimitive*>(m_objChai); }
 	virtual cGenericObject* chaiObject()   { return m_objChai; }
 
   protected:
 	cGenericObject* m_objChai;
+    std::string m_name;
 };
 
 class OscConstraint
@@ -28,21 +30,26 @@ class OscPrism : public OscObject
 {
   public:
 	OscPrism(cGenericObject* p, const char *name);
-    ~OscPrism();
+    virtual ~OscPrism();
 
 	virtual cODEPrism* odePrimitive() { return dynamic_cast<cODEPrism*>(m_objChai); }
 	virtual cMesh*     chaiObject()   { return dynamic_cast<cMesh*>(m_objChai); }
+
+  protected:
+    static int size_handler(const char *path, const char *types, lo_arg **argv,
+                            int argc, void *data, void *user_data);
 };
 
 class OscSphere : public OscObject
 {
   public:
 	OscSphere(cGenericObject* p, const char *name);
-    ~OscSphere();
+    virtual ~OscSphere();
 
 	virtual cODESphere*   odePrimitive() { return dynamic_cast<cODESphere*>(m_objChai); }
 	virtual cShapeSphere* chaiObject()   { return dynamic_cast<cShapeSphere*>(m_objChai); }
 
+  protected:
     static int radius_handler(const char *path, const char *types, lo_arg **argv,
                               int argc, void *data, void *user_data);
 };

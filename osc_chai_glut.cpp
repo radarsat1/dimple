@@ -526,7 +526,7 @@ int worldClear_handler(const char *path, const char *types, lo_arg **argv,
         for (it=objects.begin(); it!=objects.end(); it++)
         {
             OscObject *o = objects[(*it).first];
-            if (o) delete (OscSphere*)o;
+            if (o) delete o;
             // TODO: look up how destructors are inherited in C++
         }
 
@@ -553,6 +553,9 @@ int worldGravity3_handler(const char *path, const char *types, lo_arg **argv,
 int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv,
                               int argc, void *data, void *user_data)
 {
+    if (objects[&argv[0]->s])
+        return 0;
+
     // Optional position, default (0,0,0)
 	cVector3d pos;
 	if (argc>0)
@@ -585,6 +588,9 @@ int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv
 int objectSphereCreate_handler(const char *path, const char *types, lo_arg **argv,
                                int argc, void *data, void *user_data)
 {
+    if (objects[&argv[0]->s])
+        return 0;
+
     // Optional position, default (0,0,0)
 	cVector3d pos;
 	if (argc>0)
@@ -643,6 +649,12 @@ int objectSize_handler(const char *path, const char *types, lo_arg **argv,
 	return 0;
 }
 
+int unknown_handler(const char *path, const char *types, lo_arg **argv,
+                    int argc, void *data, void *user_data)
+{
+    printf("Unknown message %s, %d args.\n", path, argc);
+}
+
 void liblo_error(int num, const char *msg, const char *path)
 {
     printf("liblo server error %d in path %s: %s\n", num, path, msg);
@@ -668,6 +680,9 @@ void initOSC()
      lo_server_thread_add_method(loserver, "/world/clear", "", worldClear_handler, NULL);
      lo_server_thread_add_method(loserver, "/world/gravity", "f", worldGravity1_handler, NULL);
      lo_server_thread_add_method(loserver, "/world/gravity", "fff", worldGravity3_handler, NULL);
+
+     // TODO: this seems to get messages even when it is handled by another function (bug?)
+     //lo_server_thread_add_method(loserver, NULL, NULL, unknown_handler, NULL);
 
 	 lo_server_thread_start(loserver);
 
