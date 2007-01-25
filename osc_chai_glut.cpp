@@ -87,12 +87,18 @@ int quit = 0;
 
 void poll_requests();
 
+#define ODE_IN_HAPTICS_LOOP
+
 #define MAX_CONTACTS 30
 #define FPS 30
 #define GLUT_TIMESTEP_MS   (int)((1.0/FPS)*1000.0)
 #define HAPTIC_TIMESTEP_MS 1
+
+#ifdef ODE_IN_HAPTICS_LOOP
+#define ODE_TIMESTEP_MS    HAPTIC_TIMESTEP_MS
+#else
 #define ODE_TIMESTEP_MS    GLUT_TIMESTEP_MS
-//#define ODE_TIMESTEP_MS    HAPTIC_TIMESTEP_MS
+#endif
 
 // ODE objects
 dWorldID ode_world;
@@ -180,8 +186,10 @@ void updateDisplay(int val)
     // update the GLUT timer for the next rendering call
     glutTimerFunc(FPS, updateDisplay, 0);
 
+#ifndef ODE_IN_HAPTICS_LOOP
 	// update ODE
 	ode_simStep();
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -282,18 +290,10 @@ void ode_hapticsLoop(void* a_pUserData)
         clearFlag = false;
     }
 
+#ifdef ODE_IN_HAPTICS_LOOP
     // update ODE
-	//ode_simStep();
-
-    // Synchronize CHAI & ODE
-    /*
-    objects_iter it;
-    for (it=objects.begin(); it!=objects.end(); it++)
-    {
-        cODEPrimitive *o = objects[(*it).first];
-        o->syncPose();
-    }
-    */
+	ode_simStep();
+#endif
     
     cursor->computeGlobalPositions(1);
     
@@ -437,7 +437,6 @@ void initGlutWindow()
 void initODE()
 {
     ode_world = dWorldCreate();
-    //dWorldSetGravity (ode_world,0,0,-5);
     dWorldSetGravity (ode_world,0,0,0);
     ode_step = ODE_TIMESTEP_MS/1000.0;
     ode_space = dSimpleSpaceCreate(0);
@@ -640,6 +639,43 @@ int constraintBallCreate_handler(const char *path, const char *types, lo_arg **a
     return 0;
 }
 
+int constraintHingeCreate_handler(const char *path, const char *types, lo_arg **argv,
+                                  int argc, void *data, void *user_data)
+{
+    if (argc!=9) return 0;
+
+    if (world_constraints.find(&argv[0]->s)!=world_constraints.end())
+        return 0;
+
+
+    // Find first associated object
+	OscObject *ob1 = NULL;
+	objects_iter it = world_objects.find(&argv[1]->s);
+	if (it==world_objects.end() || !(ob1 = world_objects[&argv[1]->s])) {
+		 printf("Object %s doesn't exist.\n", &argv[1]->s);
+		 return 0;
+	}
+
+    // Find second associated object.
+    // String "world" indicates a constraint with a fixed point in space,
+    // in which case ob2=NULL.
+	OscObject *ob2 = NULL;
+	if (std::string("world")!=&argv[2]->s) {
+		 it = world_objects.find(&argv[2]->s);
+		 if (it==world_objects.end() || !(ob2 = world_objects[&argv[2]->s])) {
+			  printf("Object %s doesn't exist.\n", &argv[2]->s);
+			  return 0;
+		 }
+    }
+
+    // Track the OSC object
+    OscHinge *cons=NULL;
+    cons = new OscHinge(&argv[0]->s, ob1, ob2, argv[3]->f, argv[4]->f, argv[5]->f, argv[6]->f, argv[7]->f, argv[8]->f);
+    world_constraints[&argv[0]->s] = cons;
+
+    return 0;
+}
+
 int unknown_handler(const char *path, const char *types, lo_arg **argv,
                     int argc, void *data, void *user_data)
 {
@@ -670,6 +706,7 @@ void initOSC()
 	 lo_server_thread_add_method(loserver, "/object/sphere/create", "sfff", objectSphereCreate_handler, NULL);
 	 lo_server_thread_add_method(loserver, "/object/sphere/create", "s", objectSphereCreate_handler, NULL);
 	 lo_server_thread_add_method(loserver, "/constraint/ball/create", "sssfff", constraintBallCreate_handler, NULL);
+	 lo_server_thread_add_method(loserver, "/constraint/hinge/create", "sssffffff", constraintHingeCreate_handler, NULL);
      lo_server_thread_add_method(loserver, "/world/clear", "", worldClear_handler, NULL);
      lo_server_thread_add_method(loserver, "/world/gravity", "f", worldGravity1_handler, NULL);
      lo_server_thread_add_method(loserver, "/world/gravity", "fff", worldGravity3_handler, NULL);
@@ -744,6 +781,7 @@ int main(int argc, char* argv[])
 
 	 signal(SIGINT, sighandler_quit);
 
+     // initialize all subsystems
 	 initOSC();
 	 initWorld();
 	 initODE();
