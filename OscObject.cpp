@@ -191,10 +191,15 @@ OscConstraint::OscConstraint(const char *name, OscObject *object1, OscObject *ob
     m_object1 = object1;
     m_object2 = object2;
 
+    m_stiffness = 0;
+    m_damping = 0;
+
 	// inform object2 that it is in use in a constraint
 	if (object2) object2->linkConstraint(m_name);
 
     addHandler("destroy", "", OscConstraint::destroy_handler);
+    addHandler("response/linear", "f", OscConstraint::responseLinear_handler);
+    addHandler("response/spring", "ff", OscConstraint::responseSpring_handler);
 }
 
 OscConstraint::~OscConstraint()
@@ -215,6 +220,26 @@ int OscConstraint::destroy_handler(const char *path, const char *types, lo_arg *
         delete me;
     }
     return 0;
+}
+
+int OscConstraint::responseLinear_handler(const char *path, const char *types, lo_arg **argv,
+                                          int argc, void *data, void *user_data)
+{
+    if (argc!=1) return 0;
+
+    OscConstraint *me = (OscConstraint*)user_data;
+    me->m_stiffness = argv[0]->f;
+    me->m_damping = 0;
+}
+
+int OscConstraint::responseSpring_handler(const char *path, const char *types, lo_arg **argv,
+                                          int argc, void *data, void *user_data)
+{
+    if (argc!=2) return 0;
+
+    OscConstraint *me = (OscConstraint*)user_data;
+    me->m_stiffness = argv[0]->f;
+    me->m_damping = argv[1]->f;
 }
 
 // ----------------------------------------------------------------------------------
@@ -243,5 +268,93 @@ OscHinge::OscHinge(const char *name, OscObject *object1, OscObject *object2,
     cVector3d axis(ax,ay,az);
     object1->odePrimitive()->hingeLink(name, object2?object2->odePrimitive():NULL, anchor, axis);
 
-    printf("hinge created between %s and %s at (%f,%f,%f) (%f,%f,%f)\n", object1->name(), object2?object2->name():"world", x,y,z,ax,ay,az);
+    printf("Hinge joint created between %s and %s at anchor (%f,%f,%f), axis (%f,%f,%f)\n",
+        object1->name(), object2?object2->name():"world", x,y,z,ax,ay,az);
+}
+
+//! This function is called once per simulation step, allowing the
+//! constraint to be "motorized" according to some response.
+//! It runs in the haptics thread.
+void OscHinge::simulationCallback()
+{
+    dJointID *id;
+    if (!m_object1->odePrimitive()->getJoint(m_name, id))
+        return;
+
+    dReal angle = dJointGetHingeAngle(*id);
+    dReal rate = dJointGetHingeAngleRate(*id);
+    dJointAddHingeTorque(*id, -m_stiffness*angle - m_damping*rate);
+}
+
+// ----------------------------------------------------------------------------------
+
+//! A hinge requires a fixed anchor point and an axis
+OscHinge2::OscHinge2(const char *name, OscObject *object1, OscObject *object2,
+                     double x, double y, double z,
+                     double ax, double ay, double az,
+                     double bx, double by, double bz)
+    : OscConstraint(name, object1, object2)
+{
+	// create the constraint for object1
+    cVector3d anchor(x,y,z);
+    cVector3d axis1(ax,ay,az);
+    cVector3d axis2(bx,by,bz);
+    object1->odePrimitive()->hinge2Link(name, object2?object2->odePrimitive():NULL, anchor, axis1, axis2);
+
+    printf("Hinge2 joint created between %s and %s at anchor (%f,%f,%f), axis1 (%f,%f,%f), axis2 (%f,%f,%f)\n",
+        object1->name(), object2?object2->name():"world", x,y,z,ax,ay,az,bx,by,bz);
+}
+
+//! This function is called once per simulation step, allowing the
+//! constraint to be "motorized" according to some response.
+//! It runs in the haptics thread.
+void OscHinge2::simulationCallback()
+{
+    dJointID *id;
+    if (!m_object1->odePrimitive()->getJoint(m_name, id))
+        return;
+
+    // TODO: This will present difficulties until dJointGetHinge2Angle2 is defined in ODE
+    dReal angle = dJointGetHinge2Angle1(*id);
+    dReal rate = dJointGetHinge2Angle1Rate(*id);
+    dJointAddHinge2Torques(*id, m_stiffness*angle - m_damping*rate, 0);
+}
+
+// ----------------------------------------------------------------------------------
+
+//! A hinge requires a fixed anchor point and an axis
+OscUniversal::OscUniversal(const char *name, OscObject *object1, OscObject *object2,
+                           double x, double y, double z,
+                           double ax, double ay, double az,
+                           double bx, double by, double bz)
+    : OscConstraint(name, object1, object2)
+{
+	// create the constraint for object1
+    cVector3d anchor(x,y,z);
+    cVector3d axis1(ax,ay,az);
+    cVector3d axis2(bx,by,bz);
+    object1->odePrimitive()->universalLink(name, object2?object2->odePrimitive():NULL, anchor, axis1, axis2);
+
+    printf("Universal joint created between %s and %s at anchor (%f,%f,%f), axis1 (%f,%f,%f), axis2 (%f,%f,%f)\n",
+        object1->name(), object2?object2->name():"world", x,y,z,ax,ay,az,bx,by,bz);
+}
+
+//! This function is called once per simulation step, allowing the
+//! constraint to be "motorized" according to some response.
+//! It runs in the haptics thread.
+void OscUniversal::simulationCallback()
+{
+    dJointID *id;
+    if (!m_object1->odePrimitive()->getJoint(m_name, id))
+        return;
+
+    // TODO: This will present difficulties until dJointGetHinge2Angle2 is defined in ODE
+    dReal angle1 = dJointGetUniversalAngle1(*id);
+    dReal angle2 = dJointGetUniversalAngle2(*id);
+    dReal rate1 = dJointGetUniversalAngle1Rate(*id);
+    dReal rate2 = dJointGetUniversalAngle2Rate(*id);
+
+    dJointAddUniversalTorques(*id,
+        -m_stiffness*angle1 - m_damping*rate1,
+        -m_stiffness*angle2 - m_damping*rate2);
 }

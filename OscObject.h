@@ -97,12 +97,26 @@ public:
     OscObject *object1() { return m_object1; }
     OscObject *object2() { return m_object2; }
 
+    //! This function is called once per simulation step, allowing the
+    //! constraint to be "motorized" according to some response.
+    virtual void simulationCallback() {};
+
   protected:
       OscObject *m_object1;
       OscObject *m_object2;
 
+      // hooke's law response coefficients
+      double m_stiffness;
+      double m_damping;
+
 	  static int destroy_handler(const char *path, const char *types, lo_arg **argv,
 								 int argc, void *data, void *user_data);
+
+	  static int responseLinear_handler(const char *path, const char *types, lo_arg **argv,
+								        int argc, void *data, void *user_data);
+
+      static int responseSpring_handler(const char *path, const char *types, lo_arg **argv,
+								        int argc, void *data, void *user_data);
 };
 
 class OscBallJoint : public OscConstraint
@@ -117,6 +131,30 @@ class OscHinge : public OscConstraint
 public:
     OscHinge(const char *name, OscObject *object1, OscObject *object2,
              double x, double y, double z, double ax, double ay, double az);
+
+    virtual void simulationCallback();
+};
+
+class OscHinge2 : public OscConstraint
+{
+public:
+    OscHinge2(const char *name, OscObject *object1, OscObject *object2,
+              double x, double y, double z,
+              double ax, double ay, double az,
+              double bx, double by, double bz);
+
+    virtual void simulationCallback();
+};
+
+class OscUniversal : public OscConstraint
+{
+public:
+    OscUniversal(const char *name, OscObject *object1, OscObject *object2,
+                 double x, double y, double z,
+                 double ax, double ay, double az,
+                 double bx, double by, double bz);
+
+    virtual void simulationCallback();
 };
 
 #endif // _OSC_OBJECT_H_
