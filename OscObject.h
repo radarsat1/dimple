@@ -29,9 +29,6 @@ protected:
         std::string type;
     };
     std::vector <method_t> m_methods;
-
-    static int destroy_handler(const char *path, const char *types, lo_arg **argv,
-                               int argc, void *data, void *user_data);
 };
 
 //! The OscObject class keeps track of an object in the world. The object
@@ -47,9 +44,15 @@ class OscObject : public OscBase
 	virtual cODEPrimitive*  odePrimitive() { return dynamic_cast<cODEPrimitive*>(m_objChai); }
 	virtual cGenericObject* chaiObject()   { return m_objChai; }
 
+	void linkConstraint(std::string &name);
+	void unlinkConstraint(std::string &name);
+
   protected:
 	cGenericObject* m_objChai;
+	std::vector<std::string> m_constraintLinks;
 
+    static int destroy_handler(const char *path, const char *types, lo_arg **argv,
+                               int argc, void *data, void *user_data);
     static int force_handler(const char *path, const char *types, lo_arg **argv,
                              int argc, void *data, void *user_data);
 };
@@ -95,6 +98,9 @@ public:
   protected:
       OscObject *m_object1;
       OscObject *m_object2;
+
+	  static int destroy_handler(const char *path, const char *types, lo_arg **argv,
+								 int argc, void *data, void *user_data);
 };
 
 class OscBallJoint : public OscConstraint

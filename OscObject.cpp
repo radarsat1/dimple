@@ -7,9 +7,9 @@
 OscBase::OscBase(const char *name, const char *classname)
     : m_name(name), m_classname(classname)
 {
-    addHandler("destroy", "", destroy_handler);
 }
 
+//! Add a handler for some OSC method
 void OscBase::addHandler(const char *methodname, const char* type, lo_method_handler h)
 {
     // build OSC method name
@@ -38,8 +38,50 @@ OscBase::~OscBase()
     }
 }
 
-int OscBase::destroy_handler(const char *path, const char *types, lo_arg **argv,
-                             int argc, void *data, void *user_data)
+// ----------------------------------------------------------------------------------
+
+//! OscObject has a CHAI/ODE object associated with it. Class name = "object"
+OscObject::OscObject(cGenericObject* p, const char *name)
+    : OscBase(name, "object")
+{
+    m_objChai = p;
+    addHandler("destroy", "", OscObject::destroy_handler);
+    addHandler("force", "fff", OscObject::force_handler);
+}
+
+//! OscObject destructor is responsible for deleting the object from the CHAI world.
+//! ODE removal is taken care of in the cODEPrimitive destructor.
+//! Any constraints associated with the object are destroyed as well.
+OscObject::~OscObject()
+{
+	 // Destroy any constraints associated with the object
+	 while (odePrimitive()->m_Joint.size() > 0) {
+		  std::string jointname = odePrimitive()->m_Joint.begin()->first;
+		  if (world_constraints.find(jointname)!=world_constraints.end())
+			   delete world_constraints[jointname];
+		  world_constraints.erase(jointname);
+		  printf("Deleted constraint %s\n", jointname.c_str());
+	 }
+
+	 // Destroy any constraints to which this object is linked
+	 while (m_constraintLinks.size() > 0)
+	 {
+		  std::string jointname = m_constraintLinks.back();
+		  m_constraintLinks.pop_back();
+
+		  if (world_constraints.find(jointname)!=world_constraints.end())
+			   delete world_constraints[jointname];
+		  world_constraints.erase(jointname);
+		  printf("Deleted constraint %s\n", jointname.c_str());
+	 }
+ 
+	 // Remove object from CHAI world
+    cGenericObject *p = m_objChai->getParent();
+    p->deleteChild(m_objChai);
+}
+
+int OscObject::destroy_handler(const char *path, const char *types, lo_arg **argv,
+							   int argc, void *data, void *user_data)
 {
     OscObject *me = (OscObject*)user_data;
 
@@ -48,24 +90,6 @@ int OscBase::destroy_handler(const char *path, const char *types, lo_arg **argv,
         delete me;
     }
     return 0;
-}
-
-// ----------------------------------------------------------------------------------
-
-//! OscObject has a CHAI/ODE object associated with it. Class name = "object"
-OscObject::OscObject(cGenericObject* p, const char *name)
-    : OscBase(name, "object")
-{
-    m_objChai = p;
-    addHandler("force", "fff", force_handler);
-}
-
-//! OscObject destructor is responsible for deleting the object from the CHAI world.
-//! ODE removal is taken care of in the cODEPrimitive destructor.
-OscObject::~OscObject()
-{
-    cGenericObject *p = m_objChai->getParent();
-    p->deleteChild(m_objChai);
 }
 
 //! Add an instantaneous force to an object
@@ -78,6 +102,22 @@ int OscObject::force_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
+//! This function must be called if the object becomes linked to another object's constraint
+//! so that the constraint can be destroyed if this object is destroyed.
+void OscObject::linkConstraint(std::string &name)
+{
+	 m_constraintLinks.push_back(name);
+}
+
+//! If a linked constraint is destroyed, it must be removed from this object's linked
+//! constraints list by calling this function.
+void OscObject::unlinkConstraint(std::string &name)
+{
+	 std::vector<std::string>::iterator it=m_constraintLinks.begin();
+	 for (; it<m_constraintLinks.end(); it++)
+		  if ((*it)==name) m_constraintLinks.erase(it);
+}
+
 // ----------------------------------------------------------------------------------
 
 OscPrism::OscPrism(cGenericObject* p, const char *name)
@@ -86,6 +126,7 @@ OscPrism::OscPrism(cGenericObject* p, const char *name)
     addHandler("size", "fff", OscPrism::size_handler);
 }
 
+//! Resize the prism to the given dimensions.
 int OscPrism::size_handler(const char *path, const char *types, lo_arg **argv,
                            int argc, void *data, void *user_data)
 {
@@ -114,6 +155,7 @@ OscSphere::OscSphere(cGenericObject* p, const char *name)
     addHandler("radius", "f", OscSphere::radius_handler);
 }
 
+//! Change the sphere's radius to the given size.
 int OscSphere::radius_handler(const char *path, const char *types, lo_arg **argv,
                               int argc, void *data, void *user_data)
 {
@@ -133,15 +175,34 @@ int OscSphere::radius_handler(const char *path, const char *types, lo_arg **argv
 OscConstraint::OscConstraint(const char *name, OscObject *object1, OscObject *object2)
     : OscBase(name, "constraint")
 {
-    assert(m_object1);
+    assert(object1);
     m_object1 = object1;
     m_object2 = object2;
+
+	// inform object2 that it is in use in a constraint
+	if (object2) object2->linkConstraint(m_name);
+
+    addHandler("destroy", "", OscConstraint::destroy_handler);
 }
 
 OscConstraint::~OscConstraint()
 {
     if (!m_object1) return;
     m_object1->odePrimitive()->destroyJoint(m_name);
+	if (m_object2) m_object2->unlinkConstraint(m_name);
+	printf("Constraint %s destroyed.\n", m_name.c_str());
+}
+
+int OscConstraint::destroy_handler(const char *path, const char *types, lo_arg **argv,
+							   int argc, void *data, void *user_data)
+{
+    OscConstraint *me = (OscConstraint*)user_data;
+
+    if (me) {
+        world_constraints.erase(me->m_name);
+        delete me;
+    }
+    return 0;
 }
 
 // ----------------------------------------------------------------------------------
@@ -151,8 +212,7 @@ OscBallJoint::OscBallJoint(const char *name, OscObject *object1, OscObject *obje
                            double x, double y, double z)
     : OscConstraint(name, object1, object2)
 {
-    if (!object1) return;
-
+	// create the constraint for object1
     cVector3d anchor(x,y,z);
     object1->odePrimitive()->ballLink(name, object2?object2->odePrimitive():NULL, anchor);
 
