@@ -45,8 +45,9 @@ OscObject::OscObject(cGenericObject* p, const char *name)
     : OscBase(name, "object")
 {
     m_objChai = p;
-    addHandler("destroy", "", OscObject::destroy_handler);
-    addHandler("force", "fff", OscObject::force_handler);
+    addHandler("destroy", ""   , OscObject::destroy_handler);
+    addHandler("mass"   , "f"  , OscObject::mass_handler);
+    addHandler("force"  , "fff", OscObject::force_handler);
 }
 
 //! OscObject destructor is responsible for deleting the object from the CHAI world.
@@ -80,28 +81,6 @@ OscObject::~OscObject()
     p->deleteChild(m_objChai);
 }
 
-int OscObject::destroy_handler(const char *path, const char *types, lo_arg **argv,
-							   int argc, void *data, void *user_data)
-{
-    OscObject *me = (OscObject*)user_data;
-
-    if (me) {
-        world_objects.erase(me->m_name);
-        delete me;
-    }
-    return 0;
-}
-
-//! Add an instantaneous force to an object
-int OscObject::force_handler(const char *path, const char *types, lo_arg **argv,
-                             int argc, void *data, void *user_data)
-{
-    if (argc!=3) return 0;
-    OscObject *me = (OscObject*)user_data;
-    dBodySetForce(me->odePrimitive()->m_odeBody, argv[0]->f, argv[1]->f, argv[2]->f);
-    return 0;
-}
-
 //! This function must be called if the object becomes linked to another object's constraint
 //! so that the constraint can be destroyed if this object is destroyed.
 void OscObject::linkConstraint(std::string &name)
@@ -116,6 +95,39 @@ void OscObject::unlinkConstraint(std::string &name)
 	 std::vector<std::string>::iterator it=m_constraintLinks.begin();
 	 for (; it<m_constraintLinks.end(); it++)
 		  if ((*it)==name) m_constraintLinks.erase(it);
+}
+
+//! Destroy the object
+int OscObject::destroy_handler(const char *path, const char *types, lo_arg **argv,
+							   int argc, void *data, void *user_data)
+{
+    OscObject *me = (OscObject*)user_data;
+
+    if (me) {
+        world_objects.erase(me->m_name);
+        delete me;
+    }
+    return 0;
+}
+
+//! Set the object's mass
+int OscObject::mass_handler(const char *path, const char *types, lo_arg **argv,
+                             int argc, void *data, void *user_data)
+{
+    if (argc!=1) return 0;
+    OscObject *me = (OscObject*)user_data;
+    me->odePrimitive()->setMass(argv[0]->f);
+    return 0;
+}
+
+//! Add an instantaneous force to an object
+int OscObject::force_handler(const char *path, const char *types, lo_arg **argv,
+                             int argc, void *data, void *user_data)
+{
+    if (argc!=3) return 0;
+    OscObject *me = (OscObject*)user_data;
+    dBodySetForce(me->odePrimitive()->m_odeBody, argv[0]->f, argv[1]->f, argv[2]->f);
+    return 0;
 }
 
 // ----------------------------------------------------------------------------------
@@ -217,4 +229,19 @@ OscBallJoint::OscBallJoint(const char *name, OscObject *object1, OscObject *obje
     object1->odePrimitive()->ballLink(name, object2?object2->odePrimitive():NULL, anchor);
 
     printf("ball link created between %s and %s at (%f,%f,%f)\n", object1->name(), object2?object2->name():"world", x,y,z);
+}
+
+// ----------------------------------------------------------------------------------
+
+//! A hinge requires a fixed anchor point and an axis
+OscHinge::OscHinge(const char *name, OscObject *object1, OscObject *object2,
+                   double x, double y, double z, double ax, double ay, double az)
+    : OscConstraint(name, object1, object2)
+{
+	// create the constraint for object1
+    cVector3d anchor(x,y,z);
+    cVector3d axis(ax,ay,az);
+    object1->odePrimitive()->hingeLink(name, object2?object2->odePrimitive():NULL, anchor, axis);
+
+    printf("hinge created between %s and %s at (%f,%f,%f) (%f,%f,%f)\n", object1->name(), object2?object2->name():"world", x,y,z,ax,ay,az);
 }

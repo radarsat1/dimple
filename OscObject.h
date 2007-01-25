@@ -53,6 +53,8 @@ class OscObject : public OscBase
 
     static int destroy_handler(const char *path, const char *types, lo_arg **argv,
                                int argc, void *data, void *user_data);
+    static int mass_handler(const char *path, const char *types, lo_arg **argv,
+                            int argc, void *data, void *user_data);
     static int force_handler(const char *path, const char *types, lo_arg **argv,
                              int argc, void *data, void *user_data);
 };
@@ -108,6 +110,13 @@ class OscBallJoint : public OscConstraint
 public:
     OscBallJoint(const char *name, OscObject *object1, OscObject *object2,
                  double x, double y, double z);
+};
+
+class OscHinge : public OscConstraint
+{
+public:
+    OscHinge(const char *name, OscObject *object1, OscObject *object2,
+             double x, double y, double z, double ax, double ay, double az);
 };
 
 #endif // _OSC_OBJECT_H_

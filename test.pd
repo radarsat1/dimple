@@ -1,49 +1,54 @@
-#N canvas 345 66 825 490 10;
-#X obj 16 225 sendOSC;
+#N canvas 493 159 717 494 10;
+#X obj 16 209 sendOSC;
 #X obj 16 32 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
 ;
-#X msg 29 202 disconnect;
-#X obj 16 98 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
+#X msg 60 181 disconnect;
+#X obj 16 82 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
 ;
-#X msg 16 119 send /graphics/enable \$1;
+#X msg 16 103 send /graphics/enable \$1;
 #X msg 16 52 send /haptics/enable \$1;
-#X msg 16 173 connect 132.206.14.212 7770;
-#X msg 16 152 connect localhost 7770;
-#X obj 453 113 * 100;
-#X obj 452 206 osc~;
-#X obj 487 233 *~;
-#X obj 486 298 dac~;
-#X obj 599 62 print;
-#X obj 500 62 OSCroute /force;
-#X obj 500 88 OSCroute /magnitude;
-#X obj 453 137 + 100;
-#X obj 500 35 dumpOSC 7771;
+#X msg 16 157 connect 132.206.14.212 7770;
+#X msg 16 136 connect localhost 7770;
+#X obj 447 108 * 100;
+#X obj 446 201 osc~;
+#X obj 481 228 *~;
+#X obj 480 293 dac~;
+#X obj 593 57 print;
+#X obj 494 57 OSCroute /force;
+#X obj 494 83 OSCroute /magnitude;
+#X obj 447 132 + 100;
+#X obj 494 30 dumpOSC 7771;
 #X msg 16 10 1;
-#X obj 453 183 vline~;
-#X msg 453 159 \$1 100;
-#X obj 517 143 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
+#X obj 447 178 vline~;
+#X msg 447 154 \$1 100;
+#X obj 511 138 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
 -1;
-#X msg 542 142 stop;
-#X obj 517 190 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
+#X msg 536 137 stop;
+#X obj 511 185 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
 -1;
-#X obj 517 118 t b b;
-#X obj 517 166 delay 10;
-#X obj 487 264 hip~ 5;
-#X msg 517 213 0 100;
-#X obj 115 213 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
+#X obj 511 113 t b b;
+#X obj 511 161 delay 10;
+#X obj 481 259 hip~ 5;
+#X msg 511 208 0 100;
+#X obj 20 284 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
 -1;
-#X msg 269 208 send /world/clear;
-#X msg 271 182 send /world/gravity 0;
-#X msg 115 325 send /object/two/size 0.11 0.11 0.02;
-#X msg 115 302 send /object/prism/create two 0 -0.1 0;
-#X msg 115 258 send /object/sphere/create one 0 0.1 0;
-#X msg 115 280 send /object/one/radius 0.04;
-#X obj 115 233 t b b b b b;
-#X msg 69 415 send /object/one/destroy;
-#X msg 69 393 send /object/two/destroy;
-#X msg 270 382 send /constraint/ball/create c2 one two 0 0 0;
-#X msg 270 404 send /constraint/c2/destroy;
-#X msg 115 349 send /object/one/force 0 -4 0.2;
+#X msg 221 57 send /world/clear;
+#X msg 436 389 send /object/sphere/create one 0 0.1 0;
+#X msg 436 411 send /object/one/radius 0.04;
+#X msg 436 367 send /object/one/force 0 -4 0.2;
+#X msg 20 391 send /object/stick/mass 2;
+#X msg 20 370 send /constraint/hinge/create c1 stick world 0 0 0 0
+1 0;
+#X msg 20 347 send /object/stick/size 0.02 0.1 0.3;
+#X msg 221 33 send /world/gravity -5;
+#X obj 20 412 s osc;
+#X obj 23 181 r osc;
+#X obj 221 82 s osc;
+#X text 220 13 world;
+#X text 48 4 turn on graphics and haptics;
+#X text 18 264 Force Stick;
+#X obj 20 303 t b b b b b;
+#X msg 20 324 send /object/prism/create stick 0 0 0.15;
 #X connect 1 0 5 0;
 #X connect 2 0 0 0;
 #X connect 3 0 4 0;
@@ -73,20 +78,15 @@
 #X connect 25 0 11 1;
 #X connect 25 0 11 0;
 #X connect 26 0 18 0;
-#X connect 27 0 34 0;
-#X connect 28 0 0 0;
-#X connect 29 0 0 0;
-#X connect 30 0 0 0;
-#X connect 31 0 0 0;
-#X connect 32 0 0 0;
-#X connect 33 0 0 0;
-#X connect 34 0 39 0;
-#X connect 34 1 30 0;
-#X connect 34 2 31 0;
-#X connect 34 3 33 0;
-#X connect 34 4 32 0;
-#X connect 35 0 0 0;
-#X connect 36 0 0 0;
+#X connect 27 0 42 0;
+#X connect 28 0 38 0;
+#X connect 32 0 36 0;
+#X connect 33 0 36 0;
+#X connect 34 0 36 0;
+#X connect 35 0 38 0;
 #X connect 37 0 0 0;
-#X connect 38 0 0 0;
-#X connect 39 0 0 0;
+#X connect 42 1 32 0;
+#X connect 42 2 33 0;
+#X connect 42 3 34 0;
+#X connect 42 4 43 0;
+#X connect 43 0 36 0;
