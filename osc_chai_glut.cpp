@@ -539,7 +539,7 @@ int worldGravity3_handler(const char *path, const char *types, lo_arg **argv,
 int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv,
                               int argc, void *data, void *user_data)
 {
-    if (world_objects[&argv[0]->s])
+    if (world_objects.find(&argv[0]->s)!=world_objects.end())
         return 0;
 
     // Optional position, default (0,0,0)
@@ -574,7 +574,7 @@ int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv
 int objectSphereCreate_handler(const char *path, const char *types, lo_arg **argv,
                                int argc, void *data, void *user_data)
 {
-    if (world_objects[&argv[0]->s])
+    if (world_objects.find(&argv[0]->s)!=world_objects.end())
         return 0;
 
     // Optional position, default (0,0,0)
@@ -608,24 +608,28 @@ int constraintBallCreate_handler(const char *path, const char *types, lo_arg **a
 {
     if (argc!=6) return 0;
 
-    if (world_constraints[&argv[0]->s])
+    if (world_constraints.find(&argv[0]->s)!=world_constraints.end())
         return 0;
 
-    // Find associated objects
-    OscObject *ob1 = world_objects[&argv[1]->s];
-    if (ob1==NULL) {
-        printf("Object %s doesn't exist.\n", &argv[1]->s);
-        return 0;
-    }
 
-    // String "world" indicates a constraint with a fixed point in space
-    OscObject *ob2 = NULL;
-    if (std::string("world")!=&argv[2]->s) {
-        ob2 = world_objects[&argv[2]->s];
-        if (ob2==NULL) {
-            printf("Object %s doesn't exist.\n", &argv[2]->s);
-            return 0;
-        }
+    // Find first associated object
+	OscObject *ob1 = NULL;
+	objects_iter it = world_objects.find(&argv[1]->s);
+	if (it==world_objects.end() || !(ob1 = world_objects[&argv[1]->s])) {
+		 printf("Object %s doesn't exist.\n", &argv[1]->s);
+		 return 0;
+	}
+
+    // Find second associated object.
+    // String "world" indicates a constraint with a fixed point in space,
+    // in which case ob2=NULL.
+	OscObject *ob2 = NULL;
+	if (std::string("world")!=&argv[2]->s) {
+		 it = world_objects.find(&argv[2]->s);
+		 if (it==world_objects.end() || !(ob2 = world_objects[&argv[2]->s])) {
+			  printf("Object %s doesn't exist.\n", &argv[2]->s);
+			  return 0;
+		 }
     }
 
     // Track the OSC object
