@@ -48,6 +48,26 @@ OscObject::OscObject(cGenericObject* p, const char *name)
     addHandler("destroy", ""   , OscObject::destroy_handler);
     addHandler("mass"   , "f"  , OscObject::mass_handler);
     addHandler("force"  , "fff", OscObject::force_handler);
+
+    // If the new object is supposed to be a part of a
+    // composite object, find it and join.
+    char *s;
+    if (s=strchr(name, '/')) {
+        char firstname[256];
+        int len = (s-name<255)?(s-name):255;
+        strncpy(firstname, name, len);
+        firstname[len]=0;
+        
+        OscObject *obj = findObject(firstname);
+        OscComposite *parent = dynamic_cast<OscComposite*>(obj);
+        if (!parent) {
+            if (obj) return; // error, parent is not a composite object
+            parent = new OscComposite(firstname);
+            world_objects[firstname] = parent;
+        }
+
+        parent->addChild(this);
+    }
 }
 
 //! OscObject destructor is responsible for deleting the object from the CHAI world.
@@ -128,6 +148,39 @@ int OscObject::force_handler(const char *path, const char *types, lo_arg **argv,
     OscObject *me = (OscObject*)user_data;
     dBodySetForce(me->odePrimitive()->m_odeBody, argv[0]->f, argv[1]->f, argv[2]->f);
     return 0;
+}
+
+// ----------------------------------------------------------------------------------
+
+class cEmptyODEObject : public cGenericObject, public cODEPrimitive
+{
+public:
+    cEmptyODEObject(cWorld *world, dWorldID ode_world, dSpaceID ode_space)
+        : cODEPrimitive(world, ode_world, ode_space) {}
+};
+
+OscComposite::OscComposite(const char *name)
+    : OscObject(NULL, name)
+{
+    m_objChai = new cEmptyODEObject(world, ode_world, ode_space);
+    printf("m_objChai: %#x\n", m_objChai);
+    printf("chaiObject: %#x\n", dynamic_cast<cGenericObject*>(m_objChai));
+    printf("odePrimitive(): %#x\n", dynamic_cast<cODEPrimitive*>(m_objChai));
+
+    odePrimitive()->m_objType = DYNAMIC_OBJECT;
+    odePrimitive()->m_odeBody = dBodyCreate(ode_world);
+}
+
+void OscComposite::addChild(OscObject *o)
+{
+    m_children.push_back(o);
+    
+    // add this child to the composite ODE body
+    dBodyDestroy(o->odePrimitive()->m_odeBody);
+    o->odePrimitive()->m_odeBody = odePrimitive()->m_odeBody;
+    dGeomSetBody(o->odePrimitive()->m_odeGeom, odePrimitive()->m_odeBody);
+
+    printf("%s added to %s\n", o->name(), name());
 }
 
 // ----------------------------------------------------------------------------------
@@ -357,4 +410,17 @@ void OscUniversal::simulationCallback()
     dJointAddUniversalTorques(*id,
         -m_stiffness*angle1 - m_damping*rate1,
         -m_stiffness*angle2 - m_damping*rate2);
+}
+
+// ----------------------------------------------------------------------------------
+
+//! A fixed joint requires only an anchor point
+OscFixed::OscFixed(const char *name, OscObject *object1, OscObject *object2)
+    : OscConstraint(name, object1, object2)
+{
+	// create the constraint for object1
+    object1->odePrimitive()->fixedLink(name, object2?object2->odePrimitive():NULL);
+
+    printf("Fixed joint created between %s and %s\n",
+           object1->name(), object2?object2->name():"world");
 }

@@ -22,7 +22,7 @@ LIBS = -Lchai3d/lib/linux -lchai3d_linux -lGL -lglut -lGLU -ldhd -lpciscan -lpth
 
 all: osc_chai_glut
 
-%.o: %.cpp 
+%.o: %.cpp  $(wildcard *.h)
 	$(CC) $(CFLAGS) $<
 
 # Actual target and dependencies

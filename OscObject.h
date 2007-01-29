@@ -42,7 +42,7 @@ class OscObject : public OscBase
     virtual ~OscObject();
 
 	virtual cODEPrimitive*  odePrimitive() { return dynamic_cast<cODEPrimitive*>(m_objChai); }
-	virtual cGenericObject* chaiObject()   { return m_objChai; }
+	virtual cGenericObject* chaiObject()   { return dynamic_cast<cGenericObject*>(m_objChai); }
 
 	void linkConstraint(std::string &name);
 	void unlinkConstraint(std::string &name);
@@ -57,6 +57,18 @@ class OscObject : public OscBase
                             int argc, void *data, void *user_data);
     static int force_handler(const char *path, const char *types, lo_arg **argv,
                              int argc, void *data, void *user_data);
+};
+
+class OscComposite : public OscObject
+{
+  public:
+    OscComposite(const char *name);
+
+    void addChild(OscObject *o);
+    
+  protected:
+    std::vector<OscObject*> m_children;
+    dBodyID m_odeBody;
 };
 
 class OscPrism : public OscObject
@@ -155,6 +167,12 @@ public:
                  double bx, double by, double bz);
 
     virtual void simulationCallback();
+};
+
+class OscFixed : public OscConstraint
+{
+public:
+    OscFixed(const char *name, OscObject *object1, OscObject *object2);
 };
 
 #endif // _OSC_OBJECT_H_

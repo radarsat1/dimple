@@ -19,4 +19,10 @@ typedef std::map<std::string,OscObject*>::iterator objects_iter;
 extern std::map<std::string,OscConstraint*> world_constraints;
 typedef std::map<std::string,OscConstraint*>::iterator constraints_iter;
 
+OscObject *findObject(const char *name);
+
+extern cWorld* world;
+extern dWorldID ode_world;
+extern dSpaceID ode_space;
+
 #endif // _OSC_CHAI_GLUT_H_
