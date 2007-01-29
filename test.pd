@@ -1,4 +1,4 @@
-#N canvas 493 159 717 494 10;
+#N canvas 172 48 1055 609 10;
 #X obj 16 209 sendOSC;
 #X obj 16 32 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
 ;
@@ -33,11 +33,9 @@
 #X obj 20 284 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
 -1;
 #X msg 221 57 send /world/clear;
-#X msg 436 389 send /object/sphere/create one 0 0.1 0;
-#X msg 436 411 send /object/one/radius 0.04;
-#X msg 436 367 send /object/one/force 0 -4 0.2;
+#X msg 668 90 send /object/one/radius 0.04;
+#X msg 668 46 send /object/one/force 0 -4 0.2;
 #X msg 20 373 send /object/stick/mass 2;
-#X msg 221 33 send /world/gravity -5;
 #X obj 20 459 s osc;
 #X obj 23 181 r osc;
 #X obj 221 80 s osc;
@@ -50,6 +48,34 @@
 #X msg 20 435 send /constraint/c1/response/spring 0.2 0.1;
 #X msg 20 398 send /constraint/universal/create c1 stick world 0 0
 0 1 0 0 0 1 0;
+#X obj 602 581 s osc;
+#X obj 603 289 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X text 605 267 PebbleBox;
+#X obj 602 313 t b b b b b b b b b b;
+#X obj 673 133 s osc;
+#X obj 809 289 s osc;
+#X floatatom 801 212 5 0 0 0 - - -;
+#X msg 221 33 send /world/gravity -1;
+#X msg 802 256 send /object/sphere/create s\$1 0 0 1;
+#X msg 668 68 send /object/sphere/create one 0 0 0.1;
+#X msg 602 341 send /object/prism/create box/bottom 0 0 0.005;
+#X msg 602 362 send /object/box/bottom/size 0.3 0.3 0.01;
+#X msg 615 384 send /object/prism/create box/leftside 0 -0.145 0.05
+;
+#X msg 617 404 send /object/box/leftside/size 0.3 0.01 0.1;
+#X msg 615 425 send /object/prism/create box/rightside 0 0.145 0.05
+;
+#X msg 615 445 send /object/box/rightside/size 0.3 0.01 0.1;
+#X msg 614 465 send /object/prism/create box/backside -0.145 0 0.05
+;
+#X msg 616 485 send /object/box/backside/size 0.01 0.3 0.1;
+#X msg 618 508 send /object/prism/create box/frontside 0.145 0 0.05
+;
+#X msg 620 524 send /object/box/frontside/size 0.01 0.3 0.1;
+#X msg 631 545 send /constraint/universal/create boxhinge box world
+0 0 0 0 1 0 1 0 0;
+#X msg 185 545 send /constraint/fixed/create boxhinge box world;
 #X connect 1 0 5 0;
 #X connect 2 0 0 0;
 #X connect 3 0 4 0;
@@ -79,17 +105,44 @@
 #X connect 25 0 11 1;
 #X connect 25 0 11 0;
 #X connect 26 0 18 0;
-#X connect 27 0 40 0;
-#X connect 28 0 36 0;
-#X connect 32 0 34 0;
-#X connect 33 0 36 0;
-#X connect 35 0 0 0;
-#X connect 40 0 43 0;
-#X connect 40 1 44 0;
-#X connect 40 2 32 0;
-#X connect 40 3 42 0;
-#X connect 40 4 41 0;
-#X connect 41 0 34 0;
-#X connect 42 0 34 0;
-#X connect 43 0 34 0;
-#X connect 44 0 34 0;
+#X connect 27 0 38 0;
+#X connect 28 0 34 0;
+#X connect 31 0 32 0;
+#X connect 33 0 0 0;
+#X connect 38 0 41 0;
+#X connect 38 1 42 0;
+#X connect 38 2 31 0;
+#X connect 38 3 40 0;
+#X connect 38 4 39 0;
+#X connect 39 0 32 0;
+#X connect 40 0 32 0;
+#X connect 41 0 32 0;
+#X connect 42 0 32 0;
+#X connect 44 0 46 0;
+#X connect 46 0 54 0;
+#X connect 46 0 62 0;
+#X connect 46 1 61 0;
+#X connect 46 2 60 0;
+#X connect 46 3 59 0;
+#X connect 46 4 58 0;
+#X connect 46 5 57 0;
+#X connect 46 6 56 0;
+#X connect 46 7 55 0;
+#X connect 46 8 54 0;
+#X connect 46 9 53 0;
+#X connect 49 0 51 0;
+#X connect 50 0 34 0;
+#X connect 51 0 48 0;
+#X connect 52 0 47 0;
+#X connect 53 0 43 0;
+#X connect 54 0 43 0;
+#X connect 55 0 43 0;
+#X connect 56 0 43 0;
+#X connect 57 0 43 0;
+#X connect 58 0 43 0;
+#X connect 59 0 43 0;
+#X connect 60 0 43 0;
+#X connect 61 0 43 0;
+#X connect 62 0 43 0;
+#X connect 63 0 43 0;
+#X connect 64 0 43 0;

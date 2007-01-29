@@ -87,7 +87,7 @@ int quit = 0;
 
 void poll_requests();
 
-#define ODE_IN_HAPTICS_LOOP
+//#define ODE_IN_HAPTICS_LOOP
 
 #define MAX_CONTACTS 30
 #define FPS 30
@@ -572,10 +572,21 @@ int worldGravity3_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
+OscObject *findObject(const char *name)
+{
+    if (name==NULL || name[0]==0) return NULL;
+
+    objects_iter it = world_objects.find(name);
+    if (it!=world_objects.end())
+        return world_objects[(*it).first];
+
+    return NULL;
+}
+
 int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv,
                               int argc, void *data, void *user_data)
 {
-    if (world_objects.find(&argv[0]->s)!=world_objects.end())
+    if (findObject(&argv[0]->s))
         return 0;
 
     // Optional position, default (0,0,0)
@@ -610,7 +621,7 @@ int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv
 int objectSphereCreate_handler(const char *path, const char *types, lo_arg **argv,
                                int argc, void *data, void *user_data)
 {
-    if (world_objects.find(&argv[0]->s)!=world_objects.end())
+    if (findObject(&argv[0]->s))
         return 0;
 
     // Optional position, default (0,0,0)
@@ -753,7 +764,6 @@ int constraintHinge2Create_handler(const char *path, const char *types, lo_arg *
     return 0;
 }
 
-
 int constraintUniversalCreate_handler(const char *path, const char *types, lo_arg **argv,
                                       int argc, void *data, void *user_data)
 {
@@ -794,6 +804,43 @@ int constraintUniversalCreate_handler(const char *path, const char *types, lo_ar
     return 0;
 }
 
+int constraintFixedCreate_handler(const char *path, const char *types, lo_arg **argv,
+                                  int argc, void *data, void *user_data)
+{
+    if (argc!=3) return 0;
+
+    if (world_constraints.find(&argv[0]->s)!=world_constraints.end())
+        return 0;
+
+
+    // Find first associated object
+	OscObject *ob1 = NULL;
+	objects_iter it = world_objects.find(&argv[1]->s);
+	if (it==world_objects.end() || !(ob1 = world_objects[&argv[1]->s])) {
+		 printf("Object %s doesn't exist.\n", &argv[1]->s);
+		 return 0;
+	}
+
+    // Find second associated object.
+    // String "world" indicates a constraint with a fixed point in space,
+    // in which case ob2=NULL.
+	OscObject *ob2 = NULL;
+	if (std::string("world")!=&argv[2]->s) {
+		 it = world_objects.find(&argv[2]->s);
+		 if (it==world_objects.end() || !(ob2 = world_objects[&argv[2]->s])) {
+			  printf("Object %s doesn't exist.\n", &argv[2]->s);
+			  return 0;
+		 }
+    }
+
+    // Track the OSC object
+    OscFixed *cons=NULL;
+    cons = new OscFixed(&argv[0]->s, ob1, ob2);
+    world_constraints[&argv[0]->s] = cons;
+
+    return 0;
+}
+
 int unknown_handler(const char *path, const char *types, lo_arg **argv,
                     int argc, void *data, void *user_data)
 {
@@ -827,6 +874,7 @@ void initOSC()
 	 lo_server_thread_add_method(loserver, "/constraint/hinge/create", "sssffffff", constraintHingeCreate_handler, NULL);
 	 lo_server_thread_add_method(loserver, "/constraint/hinge2/create", "sssfffffffff", constraintHinge2Create_handler, NULL);
 	 lo_server_thread_add_method(loserver, "/constraint/universal/create", "sssfffffffff", constraintUniversalCreate_handler, NULL);
+	 lo_server_thread_add_method(loserver, "/constraint/fixed/create", "sss", constraintFixedCreate_handler, NULL);
      lo_server_thread_add_method(loserver, "/world/clear", "", worldClear_handler, NULL);
      lo_server_thread_add_method(loserver, "/world/gravity", "f", worldGravity1_handler, NULL);
      lo_server_thread_add_method(loserver, "/world/gravity", "fff", worldGravity3_handler, NULL);

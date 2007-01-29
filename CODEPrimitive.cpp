@@ -89,8 +89,7 @@ cODEPrimitive::~cODEPrimitive()
 */
 //===========================================================================
 void cODEPrimitive::updateDynamicPosition()
-{
-    
+{    
     const float *odePosition;
     const float *odeRotation;
     cMatrix3d   chaiRotation;
@@ -101,6 +100,7 @@ void cODEPrimitive::updateDynamicPosition()
         odeRotation =  dBodyGetRotation(m_odeBody);
     }
     else {
+        if (!m_odeGeom) return;
         odePosition =  dGeomGetPosition(m_odeGeom);
         odeRotation =  dGeomGetRotation(m_odeGeom);
     }
@@ -127,6 +127,7 @@ Set the dynamic position of the cODEPrimitive to the given value.
 //===========================================================================
 void cODEPrimitive::setDynamicPosition(cVector3d &a_pos)
 {
+    if (!m_odeGeom) return;
     dGeomSetPosition(m_odeGeom, a_pos.x, a_pos.y, a_pos.z);
     cGenericObject *o = dynamic_cast<cGenericObject*>(this);
     if (o) {
@@ -162,6 +163,8 @@ void cODEPrimitive::setMass(float a_mass)
 //===========================================================================
 void cODEPrimitive::syncPose()
 {
+    if (!m_odeGeom) return;
+
 	const dReal* odePosition = dGeomGetPosition(m_odeGeom);
 	const dReal* odeRotation = dGeomGetRotation(m_odeGeom);
 
