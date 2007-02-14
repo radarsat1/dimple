@@ -10,6 +10,7 @@ extern "C" {
 
 // LibLo server
 extern lo_server_thread loserver;
+extern lo_address address_send;
 
 // world objects
 extern std::map<std::string,OscObject*> world_objects;

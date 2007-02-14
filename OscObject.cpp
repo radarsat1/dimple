@@ -297,6 +297,7 @@ int OscConstraint::responseLinear_handler(const char *path, const char *types, l
     OscConstraint *me = (OscConstraint*)user_data;
     me->m_stiffness = argv[0]->f;
     me->m_damping = 0;
+    return 0;
 }
 
 int OscConstraint::responseSpring_handler(const char *path, const char *types, lo_arg **argv,
@@ -307,6 +308,7 @@ int OscConstraint::responseSpring_handler(const char *path, const char *types, l
     OscConstraint *me = (OscConstraint*)user_data;
     me->m_stiffness = argv[0]->f;
     me->m_damping = argv[1]->f;
+    return 0;
 }
 
 // ----------------------------------------------------------------------------------
@@ -335,6 +337,9 @@ OscHinge::OscHinge(const char *name, OscObject *object1, OscObject *object2,
     cVector3d axis(ax,ay,az);
     object1->odePrimitive()->hingeLink(name, object2?object2->odePrimitive():NULL, anchor, axis);
 
+    addHandler("force/magnitude/get", "i", OscHinge::forceMagnitudeGet_handler);
+    addHandler("force/magnitude/get", "", OscHinge::forceMagnitudeGet_handler);
+
     printf("Hinge joint created between %s and %s at anchor (%f,%f,%f), axis (%f,%f,%f)\n",
         object1->name(), object2?object2->name():"world", x,y,z,ax,ay,az);
 }
@@ -350,7 +355,26 @@ void OscHinge::simulationCallback()
 
     dReal angle = dJointGetHingeAngle(*id);
     dReal rate = dJointGetHingeAngleRate(*id);
-    dJointAddHingeTorque(*id, -m_stiffness*angle - m_damping*rate);
+    m_torque = -m_stiffness*angle - m_damping*rate;
+    dJointAddHingeTorque(*id, m_torque);
+}
+
+int OscHinge::forceMagnitudeGet_handler(const char *path, const char *types, lo_arg **argv,
+                                        int argc, void *data, void *user_data)
+{
+    bool once=true;
+    int interval=0;
+    if (argc>0) {
+        interval = argv[0]->i;
+        once=false;
+    }
+
+    OscHinge *me = (OscHinge*)user_data;
+    if (once) {
+        lo_send(address_send, ("/constraint/"+me->m_name+"/force/magnitude").c_str(), "f", me->m_torque);
+    }
+
+    return 0;
 }
 
 // ----------------------------------------------------------------------------------

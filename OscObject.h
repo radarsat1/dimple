@@ -145,6 +145,12 @@ public:
              double x, double y, double z, double ax, double ay, double az);
 
     virtual void simulationCallback();
+
+    static int forceMagnitudeGet_handler(const char *path, const char *types, lo_arg **argv,
+                                         int argc, void *data, void *user_data);
+
+protected:
+    float m_torque;
 };
 
 class OscHinge2 : public OscConstraint

@@ -15,8 +15,8 @@
 #include <windows.h>
 #include <conio.h>
 #pragma warning (disable : 4786)
-#pragma comment(lib,"oded.lib")
-#pragma comment(lib,"opcode_d.lib")
+//#pragma comment(lib,"oded.lib")
+//#pragma comment(lib,"opcode_d.lib")
 #endif
 
 #include "CODEPrimitive.h"
