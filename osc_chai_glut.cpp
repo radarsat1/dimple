@@ -89,7 +89,7 @@ int lock_world = 0;
 
 void poll_requests();
 
-//#define ODE_IN_HAPTICS_LOOP
+#define ODE_IN_HAPTICS_LOOP
 
 #define MAX_CONTACTS 30
 #define FPS 30
@@ -215,7 +215,8 @@ void updateDisplay(int val)
 
 #ifndef ODE_IN_HAPTICS_LOOP
 	// update ODE
-	ode_simStep();
+    if (!WORLD_LOCKED())
+    	ode_simStep();
 #endif
 }
 
@@ -314,9 +315,9 @@ void ode_hapticsLoop(void* a_pUserData)
             OscObject *o = world_objects[(*it).first];
             if (o) delete o;
         }
-        UNLOCK_WORLD();
 
         world_objects.clear();
+        UNLOCK_WORLD();
         clearFlag = false;
     }
     
