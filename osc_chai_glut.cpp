@@ -1,3 +1,4 @@
+
 //===========================================================================
 /*
     This file is part of a proof-of-concept implementation for using
@@ -84,6 +85,7 @@ int requestHapticsStart = 0;
 int requestHapticsStop = 0;
 float globalForceMagnitude = 0;
 int quit = 0;
+int lock_world = 0;
 
 void poll_requests();
 
@@ -238,6 +240,7 @@ void setOther(int value)
 
 //---------------------------------------------------------------------------
 
+// TODO: remove this
 void hapticsLoop(void* a_pUserData)
 {
     // read position from haptic device
@@ -304,16 +307,23 @@ void ode_hapticsLoop(void* a_pUserData)
     bool cursor_ready = true;
 
     if (clearFlag) {
+        LOCK_WORLD();
         objects_iter it;
         for (it=world_objects.begin(); it!=world_objects.end(); it++)
         {
             OscObject *o = world_objects[(*it).first];
             if (o) delete o;
         }
+        UNLOCK_WORLD();
 
         world_objects.clear();
         clearFlag = false;
     }
+    
+    // Skip this timestep if world is being modified
+    // TODO: improve this to avoid haptic glitches
+    if (WORLD_LOCKED())
+        return;
 
 #ifdef ODE_IN_HAPTICS_LOOP
     // update ODE
@@ -540,11 +550,12 @@ int graphicsEnable_handler(const char *path, const char *types, lo_arg **argv,
 }
 
 int worldClear_handler(const char *path, const char *types, lo_arg **argv,
-                         int argc, void *data, void *user_data)
+                       int argc, void *data, void *user_data)
 {
     if (hapticsStarted)
         clearFlag = true;
     else {
+        LOCK_WORLD();
         objects_iter it;
         for (it=world_objects.begin(); it!=world_objects.end(); it++)
         {
@@ -554,6 +565,7 @@ int worldClear_handler(const char *path, const char *types, lo_arg **argv,
 
         world_objects.clear();
         clearFlag = false;
+        UNLOCK_WORLD();
     }
     return 0;
 }
@@ -561,14 +573,18 @@ int worldClear_handler(const char *path, const char *types, lo_arg **argv,
 int worldGravity1_handler(const char *path, const char *types, lo_arg **argv,
                          int argc, void *data, void *user_data)
 {
+    LOCK_WORLD();
     dWorldSetGravity(ode_world, 0, 0, argv[0]->f);
+    UNLOCK_WORLD();
     return 0;
 }
 
 int worldGravity3_handler(const char *path, const char *types, lo_arg **argv,
                          int argc, void *data, void *user_data)
 {
+    LOCK_WORLD();
     dWorldSetGravity(ode_world, argv[0]->f, argv[1]->f, argv[2]->f);
+    UNLOCK_WORLD();
     return 0;
 }
 
@@ -602,6 +618,7 @@ int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv
     cVector3d size(0.01,0.01,0.01);
 
     // Create object
+    LOCK_WORLD();
     cODEPrism *pr = new cODEPrism(world,ode_world,ode_space,size);
     pr->setDynamicPosition(pos);
     pr->setMass(0.5);
@@ -613,6 +630,7 @@ int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv
 
     // Add to CHAI world
     world->addChild(pr);
+    UNLOCK_WORLD();
 
     printf("Prism added at (%f, %f, %f).\n", pos.x, pos.y, pos.z);
     return 0;
@@ -634,6 +652,7 @@ int objectSphereCreate_handler(const char *path, const char *types, lo_arg **arg
 		 pos.z = argv[3]->f;
 
     // Create object
+    LOCK_WORLD();
     cODESphere *sp = new cODESphere(world,ode_world,ode_space,0.01);
     sp->setDynamicPosition(pos);
     sp->setMass(0.5);
@@ -645,6 +664,7 @@ int objectSphereCreate_handler(const char *path, const char *types, lo_arg **arg
 
     // Add to CHAI world
     world->addChild(sp);
+    UNLOCK_WORLD();
 
     printf("Sphere added at (%f, %f, %f).\n", pos.x, pos.y, pos.z);
     return 0;
@@ -680,9 +700,11 @@ int constraintBallCreate_handler(const char *path, const char *types, lo_arg **a
     }
 
     // Track the OSC object
+    LOCK_WORLD();
     OscBallJoint *cons=NULL;
     cons = new OscBallJoint(&argv[0]->s, ob1, ob2, argv[3]->f, argv[4]->f, argv[5]->f);
     world_constraints[&argv[0]->s] = cons;
+    UNLOCK_WORLD();
 
     return 0;
 }
@@ -717,9 +739,11 @@ int constraintHingeCreate_handler(const char *path, const char *types, lo_arg **
     }
 
     // Track the OSC object
+    LOCK_WORLD();
     OscHinge *cons=NULL;
     cons = new OscHinge(&argv[0]->s, ob1, ob2, argv[3]->f, argv[4]->f, argv[5]->f, argv[6]->f, argv[7]->f, argv[8]->f);
     world_constraints[&argv[0]->s] = cons;
+    UNLOCK_WORLD();
 
     return 0;
 }
@@ -754,12 +778,14 @@ int constraintHinge2Create_handler(const char *path, const char *types, lo_arg *
     }
 
     // Track the OSC object
+    LOCK_WORLD();
     OscHinge2 *cons=NULL;
     cons = new OscHinge2(&argv[0]->s, ob1, ob2,
                          argv[3]->f, argv[ 4]->f, argv[ 5]->f,
                          argv[6]->f, argv[ 7]->f, argv[ 8]->f,
                          argv[9]->f, argv[10]->f, argv[11]->f);
     world_constraints[&argv[0]->s] = cons;
+    UNLOCK_WORLD();
 
     return 0;
 }
@@ -794,12 +820,14 @@ int constraintUniversalCreate_handler(const char *path, const char *types, lo_ar
     }
 
     // Track the OSC object
+    LOCK_WORLD();
     OscUniversal *cons=NULL;
     cons = new OscUniversal(&argv[0]->s, ob1, ob2,
                             argv[3]->f, argv[ 4]->f, argv[ 5]->f,
                             argv[6]->f, argv[ 7]->f, argv[ 8]->f,
                             argv[9]->f, argv[10]->f, argv[11]->f);
     world_constraints[&argv[0]->s] = cons;
+    UNLOCK_WORLD();
 
     return 0;
 }
@@ -834,9 +862,11 @@ int constraintFixedCreate_handler(const char *path, const char *types, lo_arg **
     }
 
     // Track the OSC object
+    LOCK_WORLD();
     OscFixed *cons=NULL;
     cons = new OscFixed(&argv[0]->s, ob1, ob2);
     world_constraints[&argv[0]->s] = cons;
+    UNLOCK_WORLD();
 
     return 0;
 }
@@ -894,6 +924,7 @@ void sighandler_quit(int sig)
 // TODO: wait for haptics to stop
 
     // delete all objects
+    LOCK_WORLD();
     objects_iter it;
     for (it=world_objects.begin(); it!=world_objects.end(); it++)
     {
@@ -901,6 +932,7 @@ void sighandler_quit(int sig)
         if (o) delete o;
     }
     world_objects.clear();
+    UNLOCK_WORLD();
 
     // quit the program
 	if (glutStarted) {
