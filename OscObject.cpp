@@ -75,28 +75,29 @@ OscObject::OscObject(cGenericObject* p, const char *name)
 //! Any constraints associated with the object are destroyed as well.
 OscObject::~OscObject()
 {
-	 // Destroy any constraints associated with the object
-	 while (odePrimitive()->m_Joint.size() > 0) {
-		  std::string jointname = odePrimitive()->m_Joint.begin()->first;
-		  if (world_constraints.find(jointname)!=world_constraints.end())
-			   delete world_constraints[jointname];
-		  world_constraints.erase(jointname);
-		  printf("Deleted constraint %s\n", jointname.c_str());
-	 }
-
-	 // Destroy any constraints to which this object is linked
-	 while (m_constraintLinks.size() > 0)
-	 {
-		  std::string jointname = m_constraintLinks.back();
-		  m_constraintLinks.pop_back();
-
-		  if (world_constraints.find(jointname)!=world_constraints.end())
-			   delete world_constraints[jointname];
-		  world_constraints.erase(jointname);
-		  printf("Deleted constraint %s\n", jointname.c_str());
-	 }
- 
-	 // Remove object from CHAI world
+    printf("destroying %s: is locked = %d\n", m_name.c_str(), WORLD_LOCKED());
+    // Destroy any constraints associated with the object
+    while (odePrimitive()->m_Joint.size() > 0) {
+        std::string jointname = odePrimitive()->m_Joint.begin()->first;
+        if (world_constraints.find(jointname)!=world_constraints.end())
+            delete world_constraints[jointname];
+        world_constraints.erase(jointname);
+        printf("Deleted constraint %s\n", jointname.c_str());
+    }
+    
+    // Destroy any constraints to which this object is linked
+    while (m_constraintLinks.size() > 0)
+    {
+        std::string jointname = m_constraintLinks.back();
+        m_constraintLinks.pop_back();
+        
+        if (world_constraints.find(jointname)!=world_constraints.end())
+            delete world_constraints[jointname];
+        world_constraints.erase(jointname);
+        printf("Deleted constraint %s\n", jointname.c_str());
+    }
+    
+    // Remove object from CHAI world
     cGenericObject *p = m_objChai->getParent();
     p->deleteChild(m_objChai);
 }
@@ -124,8 +125,10 @@ int OscObject::destroy_handler(const char *path, const char *types, lo_arg **arg
     OscObject *me = (OscObject*)user_data;
 
     if (me) {
+        LOCK_WORLD();
         world_objects.erase(me->m_name);
         delete me;
+        UNLOCK_WORLD();
     }
     return 0;
 }
@@ -135,8 +138,10 @@ int OscObject::mass_handler(const char *path, const char *types, lo_arg **argv,
                              int argc, void *data, void *user_data)
 {
     if (argc!=1) return 0;
+    LOCK_WORLD();
     OscObject *me = (OscObject*)user_data;
     me->odePrimitive()->setMass(argv[0]->f);
+    UNLOCK_WORLD();
     return 0;
 }
 
@@ -145,8 +150,10 @@ int OscObject::force_handler(const char *path, const char *types, lo_arg **argv,
                              int argc, void *data, void *user_data)
 {
     if (argc!=3) return 0;
+    LOCK_WORLD();
     OscObject *me = (OscObject*)user_data;
     dBodySetForce(me->odePrimitive()->m_odeBody, argv[0]->f, argv[1]->f, argv[2]->f);
+    UNLOCK_WORLD();
     return 0;
 }
 
@@ -206,7 +213,9 @@ int OscPrism::size_handler(const char *path, const char *types, lo_arg **argv,
         size.x = argv[0]->f;
         size.y = argv[1]->f;
         size.z = argv[2]->f;
+        LOCK_WORLD();
         prism->setSize(size);
+        UNLOCK_WORLD();
     }
 
 	return 0;
@@ -229,8 +238,11 @@ int OscSphere::radius_handler(const char *path, const char *types, lo_arg **argv
 
     OscSphere* me = (OscSphere*)user_data;
 	cODESphere *sphere = me->odePrimitive();
-    if (sphere)
+    if (sphere) {
+        LOCK_WORLD();
         sphere->setRadius(argv[0]->f);
+        UNLOCK_WORLD();
+    }
     return 0;
 }
 
@@ -269,8 +281,10 @@ int OscConstraint::destroy_handler(const char *path, const char *types, lo_arg *
     OscConstraint *me = (OscConstraint*)user_data;
 
     if (me) {
+        LOCK_WORLD();
         world_constraints.erase(me->m_name);
         delete me;
+        UNLOCK_WORLD();
     }
     return 0;
 }

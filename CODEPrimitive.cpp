@@ -93,7 +93,7 @@ void cODEPrimitive::updateDynamicPosition()
     const float *odePosition;
     const float *odeRotation;
     cMatrix3d   chaiRotation;
-    
+
     if (m_objType == DYNAMIC_OBJECT)
     {
         odePosition =  dBodyGetPosition(m_odeBody);
