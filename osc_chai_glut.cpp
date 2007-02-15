@@ -623,6 +623,9 @@ int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv
     cODEPrism *pr = new cODEPrism(world,ode_world,ode_space,size);
     pr->setDynamicPosition(pos);
     pr->setMass(0.5);
+    pr->m_material.setStaticFriction(1);
+    pr->m_material.setDynamicFriction(0.5);
+    pr->useMaterial(true);
 
     // Track the OSC object
     OscObject *ob=NULL;
@@ -657,6 +660,8 @@ int objectSphereCreate_handler(const char *path, const char *types, lo_arg **arg
     cODESphere *sp = new cODESphere(world,ode_world,ode_space,0.01);
     sp->setDynamicPosition(pos);
     sp->setMass(0.5);
+    sp->m_material.setStaticFriction(1);
+    sp->m_material.setDynamicFriction(0.5);
     
     // Track the OSC object
     OscObject *ob=NULL;
