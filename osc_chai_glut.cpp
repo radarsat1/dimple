@@ -96,12 +96,6 @@ void poll_requests();
 #define GLUT_TIMESTEP_MS   (int)((1.0/FPS)*1000.0)
 #define HAPTIC_TIMESTEP_MS 1
 
-#ifdef ODE_IN_HAPTICS_LOOP
-#define ODE_TIMESTEP_MS    HAPTIC_TIMESTEP_MS
-#else
-#define ODE_TIMESTEP_MS    GLUT_TIMESTEP_MS
-#endif
-
 // ODE objects
 dWorldID ode_world;
 double ode_step = 0;
@@ -213,7 +207,11 @@ void updateDisplay(int val)
     // update the GLUT timer for the next rendering call
     glutTimerFunc(FPS, updateDisplay, 0);
 
-#ifndef ODE_IN_HAPTICS_LOOP
+#ifdef ODE_IN_HAPTICS_LOOP
+	// update ODE
+    if (!WORLD_LOCKED() && !hapticsStarted)
+    	ode_simStep();
+#else
 	// update ODE
     if (!WORLD_LOCKED())
     	ode_simStep();
@@ -486,7 +484,7 @@ void initODE()
 {
     ode_world = dWorldCreate();
     dWorldSetGravity (ode_world,0,0,0);
-    ode_step = ODE_TIMESTEP_MS/1000.0;
+    ode_step = GLUT_TIMESTEP_MS/1000.0; // will be changed when haptics starts
     ode_space = dSimpleSpaceCreate(0);
     ode_contact_group = dJointGroupCreate(0);
 }
@@ -510,6 +508,10 @@ void startHaptics()
 
 	hapticsStarted = 1;
 	printf("Haptics started.\n");
+
+#ifdef ODE_IN_HAPTICS_LOOP
+        ode_step = HAPTIC_TIMESTEP_MS / 1000.0;
+#endif
 }
 
 void stopHaptics()
@@ -521,6 +523,10 @@ void stopHaptics()
         hapticsStarted = 0;
         printf("Haptics stopped.\n");
 	}
+
+#ifdef ODE_IN_HAPTICS_LOOP
+        ode_step = GLUT_TIMESTEP_MS / 1000.0;
+#endif
 }
 
 int hapticsEnable_handler(const char *path, const char *types, lo_arg **argv,
@@ -965,7 +971,6 @@ void poll_requests()
 		if (hapticsStarted)
 			stopHaptics();
 		requestHapticsStop = 0;
-		printf("Haptics stopped.\n");
 	}
 
 	if (globalForceMagnitude!=0) {
