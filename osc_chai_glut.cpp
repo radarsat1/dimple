@@ -381,6 +381,9 @@ void ode_hapticsLoop(void* a_pUserData)
     // update ODE
 	ode_simStep();
 #endif
+
+    // process any waiting Chai messages
+    while (poll_chai_requests());
     
     cursor->computeGlobalPositions(1);
     
@@ -416,6 +419,9 @@ void ode_hapticsLoop(void* a_pUserData)
 
 void ode_simStep()
 {
+    // process any waiting ODE messages
+    while (poll_ode_requests());
+
     // Add forces to an object in contact with the proxy
 	if (contactObject) 
 	{
@@ -447,6 +453,9 @@ void ode_simStep()
 	dJointGroupEmpty (ode_contact_group);
     
     // Synchronize CHAI & ODE
+    // TODO: this should be done in haptics thread
+    //       (check a flag to see if an ODE simstep has run,
+    //       then synchronize without blocking)
     objects_iter oit;
     for (oit=world_objects.begin(); oit!=world_objects.end(); oit++)
     {
@@ -583,123 +592,112 @@ void stopHaptics()
 }
 
 // called from OSC thread, non-blocking
-ode_request_class* post_ode_request(ode_request_t req, cODEPrimitive *ob)
+ode_request_class* post_ode_request(ode_callback *callback, cODEPrimitive *ob)
 {
     if (ode_queue.writelocked())
         return 0;
 
     ode_request_class r, *ret;
-    r.req = req;
+    r.callback = callback;
     r.ob = ob;
 
     ode_queue.lock_write();
     ode_queue.push(r);
     ret = (ode_request_class*)&ode_queue.back();
-    printf("Added [%#x] to ODE queue: %s, %d\n",
-           ret, ret->req==ODE_OBJECT_ADD?"ODE_OBJECT_ADD":(req==ODE_OBJECT_REMOVE?"ODE_OBJECT_REMOVE":"UNKNOWN"),
-           ret->ob);
     ode_queue.unlock_write();
     return ret;
 }
 
-chai_request_class* post_chai_request(chai_request_t req, cGenericObject *ob)
+chai_request_class* post_chai_request(chai_callback *callback, cGenericObject *ob)
 {
     if (chai_queue.writelocked())
         return 0;
 
     chai_request_class r, *ret;
-    r.req = req;
+    r.callback = callback;
     r.ob = ob;
 
     chai_queue.lock_write();
     chai_queue.push(r);
     ret = (chai_request_class*)&chai_queue.back();
-    printf("Added [%#x] to CHAI queue: %s, %d\n",
-           ret, ret->req==CHAI_OBJECT_ADD?"CHAI_OBJECT_ADD":(req==CHAI_OBJECT_REMOVE?"CHAI_OBJECT_REMOVE":"UNKNOWN"),
-           ret->ob);
     chai_queue.unlock_write();
     return ret;
 }
 
 // called from OSC thread
-void wait_ode_request(ode_request_t req, cODEPrimitive *ob)
+void wait_ode_request(ode_callback *callback, cODEPrimitive *ob)
 {
-    request *r=0;
-    while (!(r=post_ode_request(req, ob)))
+    ode_request_class *r=0;
+    while (!(r=post_ode_request(callback, ob)))
         usleep(1);
-    while (!r->handled)
-        usleep(1);
+
+    // Take care of it right away if graphics isn't running
+    // TODO: change this when ODE is on its own thread!
+    if (!glutStarted)
+        poll_ode_requests();
+
+    ode_queue.wait(r);
 }
 
-void wait_chai_request(chai_request_t req, cGenericObject *ob)
+void wait_chai_request(chai_callback *callback, cGenericObject *ob)
 {
-    request *r=0;
-    while (!(r=post_chai_request(req, ob)))
+    chai_request_class *r=0;
+    while (!(r=post_chai_request(callback, ob)))
         usleep(1);
-    while (!r->handled)
-        usleep(1);
+
+    // Take care of it right away if haptics isn't running
+    if (!hapticsStarted)
+        poll_chai_requests();
+
+    chai_queue.wait(r);
 }
 
 // called from respective ODE or CHAI thread
 // return non-zero if requests remain in the queue
 // handled events are flagged but not removed from the queue
 // (to avoid memory de-allocation in real-time threads)
-int ode_poll_requests()
+
+// TODO: only handles the first request, until it is taken
+//       off the queue by another thread -- not ideal!
+//       find better way to handle the memory de-allocation
+//       problem, possibly a vector<> or list<> is a better
+//       structure here.
+int poll_ode_requests()
 {
+    bool handled = false;
     if (ode_queue.readlocked())
         return 0;
     ode_queue.lock_read();
     if (ode_queue.size()>0 && !ode_queue.front().handled) {
         ode_request_class *req = (ode_request_class*)&ode_queue.front();
         ode_queue.unlock_read();
-        //...
-        switch (req->req) {
-        case ODE_OBJECT_ADD:
-            printf("ODE_OBJECT_ADD: %d\n", req->ob);
-            break;
-        case ODE_OBJECT_REMOVE:
-            printf("ODE_OBJECT_REMOVE: %d\n", req->ob);
-            break;
-        default:
-            printf("UNKNOWN on ODE queue: %#x.\n", req->req);
-            break;
-        }
-        //...
+        if (req->callback) req->callback(req->ob);
         req->handled = true;
+        handled = true;
     }
     else
         ode_queue.unlock_read();
 
-    return ode_queue.size()-1;
+    return (int)handled;
 }
 
-int chai_poll_requests()
+int poll_chai_requests()
 {
+    bool handled = false;
     if (chai_queue.readlocked())
         return 0;
     chai_queue.lock_read();
     if (chai_queue.size()>0 && !chai_queue.front().handled) {
         chai_request_class *req = (chai_request_class*)&chai_queue.front();
         chai_queue.unlock_read();
-        //...
-        switch (req->req) {
-        case CHAI_OBJECT_ADD:
-            printf("CHAI_OBJECT_ADD: %d\n", req->ob);
-            break;
-        case CHAI_OBJECT_REMOVE:
-            printf("CHAI_OBJECT_REMOVE: %d\n", req->ob);
-            break;
-        default:
-            printf("UNKNOWN on CHAI queue: %#x.\n", req->req);
-            break;
-        }
-        //...
+        if (req->callback) req->callback(req->ob);
         req->handled = true;
+        handled = true;
     }
     else
         chai_queue.unlock_read();
 
-    return chai_queue.size()-1;
+    return (int)handled;
 }
 
 int hapticsEnable_handler(const char *path, const char *types, lo_arg **argv,

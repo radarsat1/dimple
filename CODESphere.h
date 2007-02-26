@@ -64,6 +64,9 @@ class cODESphere : public cShapeSphere, public cODEPrimitive
     virtual void initDynamic(objectType a_objType = DYNAMIC_OBJECT,
                              float a_x = 0.0, float a_y = 0.0, float a_z = 0.0,
                              float a_density = 1.0);
+
+
+    static void initCallbackDefaults(cODEPrimitive *self);
 };
 
 //---------------------------------------------------------------------------

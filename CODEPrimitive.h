@@ -68,6 +68,9 @@ class cODEPrimitive
     //! Destructor of cODEPrimitive.
     ~cODEPrimitive();
 
+    //! Called by destructor in ODE thread
+    static void destroyCallback(cODEPrimitive *self);
+
     // METHODS:
 	  //! Initialize the dynamic object.
 	  virtual void initDynamic(geomType a_type = TRIMESH,objectType a_objType = DYNAMIC_OBJECT,

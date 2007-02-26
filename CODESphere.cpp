@@ -14,6 +14,7 @@
 #pragma warning(disable:4244 4305)  // for VC++, no precision loss complaints
 #endif
 
+#include "osc_chai_glut.h"
 #include "CODESphere.h"
 #include <algorithm>
 
@@ -42,7 +43,7 @@ cODESphere::cODESphere(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpac
 	  cODEPrimitive(a_parent, a_odeWorld, a_odeSpace)
 {
     m_objClass = CLASS_SPHERE;
-	initDynamic();
+    wait_ode_request(initCallbackDefaults, this);
 }
 
 //===========================================================================
@@ -64,6 +65,11 @@ cODESphere::~cODESphere()
     \fn     cODESphere::initDynamic()
 */
 //===========================================================================
+void cODESphere::initCallbackDefaults(cODEPrimitive *self)
+{
+    (static_cast<cODESphere*>(self))->initDynamic();
+}
+
 void cODESphere::initDynamic(objectType a_objType, float a_x, 
                              float a_y, float a_z, float a_density) 
 {
@@ -75,7 +81,7 @@ void cODESphere::initDynamic(objectType a_objType, float a_x,
     
     m_lastPos = m_localPos;
     // computeGlobalCurrentObjectOnly(true);
-    computeGlobalPositions(1);    
+    computeGlobalPositions(1);
     
     m_objType = a_objType;
     if (a_objType == DYNAMIC_OBJECT) 
