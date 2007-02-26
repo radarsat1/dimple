@@ -28,6 +28,8 @@
 #include "CCollisionSpheres.h"
 #include <algorithm>
 
+#include "osc_chai_glut.h"
+
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -71,15 +73,19 @@ cODEPrimitive::cODEPrimitive(cWorld* a_parent, dWorldID a_odeWorld,
 //===========================================================================
 cODEPrimitive::~cODEPrimitive()
 {
-    if (m_odeVertex  != NULL)           delete []m_odeVertex;
-    if (m_odeIndices != NULL)           delete []m_odeIndices;
-    if (m_odeGeom != NULL)              dGeomDestroy(m_odeGeom);
-    if (m_odeTriMeshData != NULL)       dGeomTriMeshDataDestroy(m_odeTriMeshData);
-    if (m_odeBody != NULL)              dBodyDestroy(m_odeBody);
-    
-    m_Joint.clear();
+    wait_ode_request(destroyCallback, this);
 }
 
+void cODEPrimitive::destroyCallback(cODEPrimitive *self)
+{
+    if (self->m_odeVertex  != NULL)      delete []self->m_odeVertex;
+    if (self->m_odeIndices != NULL)      delete []self->m_odeIndices;
+    if (self->m_odeGeom != NULL)         dGeomDestroy(self->m_odeGeom);
+    if (self->m_odeTriMeshData != NULL)  dGeomTriMeshDataDestroy(self->m_odeTriMeshData);
+    if (self->m_odeBody != NULL)         dBodyDestroy(self->m_odeBody);
+    
+    self->m_Joint.clear();
+}
 
 //===========================================================================
 /*!

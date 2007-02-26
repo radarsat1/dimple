@@ -9,20 +9,26 @@
 //===========================================================================
 
 #include "CODEPrism.h"
+#include "osc_chai_glut.h"
 
 cODEPrism::cODEPrism(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpace, const cVector3d& a_size)
 	: cODEMesh(a_parent, a_odeWorld, a_odeSpace)
 {
 	m_size = a_size;
     m_objClass = CLASS_PRISM;
-	create(false);
-	initDynamic(BOX);
+    
+    wait_ode_request(initCallbackDefaults, this);
 }
 
 cODEPrism::~cODEPrism()
 {
 }
 
+void cODEPrism::initCallbackDefaults(cODEPrimitive *self)
+{
+    (static_cast<cODEPrism*>(self))->create(false);
+    (static_cast<cODEPrism*>(self))->initDynamic(BOX);
+}
 
 void cODEPrism::setSize(cVector3d& a_size)
 {
