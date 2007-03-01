@@ -145,7 +145,7 @@ template<typename T> void request_queue<T>::clean()
 {
     // remove any handled requests from queue
     while (writelocked())
-        usleep(1);
+        Sleep(1);
     lock_write();
     while (   (std::queue<T>::size() > 0)
            && (std::queue<T>::front().handled))
@@ -158,7 +158,7 @@ template<typename T> void request_queue<T>::wait(T* req)
 {
     // assuming the given req is on this queue...
     while (!req->handled)
-        usleep(1);
+        Sleep(1);
 
     // may as well do some clean-up since we're blocking anyway and
     // the previous request was handled.
@@ -547,6 +547,7 @@ void initODE()
     ode_world = dWorldCreate();
     dWorldSetGravity (ode_world,0,0,0);
     ode_step = GLUT_TIMESTEP_MS/1000.0; // will be changed when haptics starts
+    printf("ode_step = %f\n", ode_step);
     ode_space = dSimpleSpaceCreate(0);
     ode_contact_group = dJointGroupCreate(0);
 }
@@ -573,6 +574,7 @@ void startHaptics()
 
 #ifdef ODE_IN_HAPTICS_LOOP
         ode_step = HAPTIC_TIMESTEP_MS / 1000.0;
+    printf("ode_step = %f\n", ode_step);
 #endif
 }
 
@@ -588,6 +590,7 @@ void stopHaptics()
 
 #ifdef ODE_IN_HAPTICS_LOOP
         ode_step = GLUT_TIMESTEP_MS / 1000.0;
+    printf("ode_step = %f\n", ode_step);
 #endif
 }
 
@@ -629,7 +632,11 @@ void wait_ode_request(ode_callback *callback, cODEPrimitive *ob)
 {
     ode_request_class *r=0;
     while (!(r=post_ode_request(callback, ob)))
+#ifdef WIN32
+        Sleep(1);
+#else
         usleep(1);
+#endif
 
     // Take care of it right away if graphics isn't running
     // TODO: change this when ODE is on its own thread!
@@ -643,7 +650,11 @@ void wait_chai_request(chai_callback *callback, cGenericObject *ob)
 {
     chai_request_class *r=0;
     while (!(r=post_chai_request(callback, ob)))
+#ifdef WIN32
+        Sleep(1);
+#else
         usleep(1);
+#endif
 
     // Take care of it right away if haptics isn't running
     if (!hapticsStarted)

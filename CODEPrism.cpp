@@ -8,8 +8,8 @@
 */
 //===========================================================================
 
-#include "CODEPrism.h"
 #include "osc_chai_glut.h"
+#include "CODEPrism.h"
 
 cODEPrism::cODEPrism(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpace, const cVector3d& a_size)
 	: cODEMesh(a_parent, a_odeWorld, a_odeSpace)

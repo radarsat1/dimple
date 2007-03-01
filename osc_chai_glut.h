@@ -2,6 +2,10 @@
 #ifndef _OSC_CHAI_GLUT_H_
 #define _OSC_CHAI_GLUT_H_
 
+#ifdef WIN32
+#include <winsock2.h>
+#endif
+#define _WINSOCK2API_
 extern "C" {
 #include "lo/lo.h"
 }
