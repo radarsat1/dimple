@@ -10,6 +10,8 @@
 
 //---------------------------------------------------------------------------
 
+#include "osc_chai_glut.h"
+
 #ifdef _MSVC
 #pragma warning(disable:4244 4305)  // for VC++, no precision loss complaints
 #include <windows.h>
@@ -27,8 +29,6 @@
 #include "CCollisionAABB.h"
 #include "CCollisionSpheres.h"
 #include <algorithm>
-
-#include "osc_chai_glut.h"
 
 //---------------------------------------------------------------------------
 
