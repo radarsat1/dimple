@@ -43,8 +43,8 @@ extern int lock_world;
 #define WORLD_LOCKED() (lock_world!=0)
 //#define LOCK_WORLD() printf("Locking.\n");(lock_world=1)
 //#define UNLOCK_WORLD() printf("Unlocking.\n");(lock_world=0)
-//#define LOCK_WORLD() (lock_world=1)
-#define LOCK_WORLD() (lock_world=0)
+#define LOCK_WORLD() (lock_world=1)
+//#define LOCK_WORLD() (lock_world=0)
 #define UNLOCK_WORLD() (lock_world=0)
 
 // Request structure

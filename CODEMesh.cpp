@@ -155,8 +155,6 @@ void cODEMesh::initDynamic(geomType a_type, objectType a_objType, float a_x,
         
         dBodySetPosition(m_odeBody, a_x, a_y, a_z);
     }
-    
-    
 }
 
 
