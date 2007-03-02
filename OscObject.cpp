@@ -75,14 +75,12 @@ OscObject::OscObject(cGenericObject* p, const char *name)
 //! Any constraints associated with the object are destroyed as well.
 OscObject::~OscObject()
 {
-    printf("destroying %s: is locked = %d\n", m_name.c_str(), WORLD_LOCKED());
     // Destroy any constraints associated with the object
     while (odePrimitive()->m_Joint.size() > 0) {
         std::string jointname = odePrimitive()->m_Joint.begin()->first;
         if (world_constraints.find(jointname)!=world_constraints.end())
             delete world_constraints[jointname];
         world_constraints.erase(jointname);
-        printf("Deleted constraint %s\n", jointname.c_str());
     }
     
     // Destroy any constraints to which this object is linked
@@ -94,7 +92,6 @@ OscObject::~OscObject()
         if (world_constraints.find(jointname)!=world_constraints.end())
             delete world_constraints[jointname];
         world_constraints.erase(jointname);
-        printf("Deleted constraint %s\n", jointname.c_str());
     }
     
     // Remove object from CHAI world
@@ -322,7 +319,7 @@ OscBallJoint::OscBallJoint(const char *name, OscObject *object1, OscObject *obje
     cVector3d anchor(x,y,z);
     object1->odePrimitive()->ballLink(name, object2?object2->odePrimitive():NULL, anchor);
 
-    printf("ball link created between %s and %s at (%f,%f,%f)\n", object1->name(), object2?object2->name():"world", x,y,z);
+    printf("Ball link created between %s and %s at (%f,%f,%f)\n", object1->name(), object2?object2->name():"world", x,y,z);
 }
 
 // ----------------------------------------------------------------------------------

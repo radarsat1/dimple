@@ -73,7 +73,8 @@ cODEPrimitive::cODEPrimitive(cWorld* a_parent, dWorldID a_odeWorld,
 //===========================================================================
 cODEPrimitive::~cODEPrimitive()
 {
-    wait_ode_request(destroyCallback, this);
+//    wait_ode_request(destroyCallback, this);
+    destroyCallback(this);
 }
 
 void cODEPrimitive::destroyCallback(cODEPrimitive *self)
