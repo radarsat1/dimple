@@ -270,6 +270,9 @@ void updateDisplay(int val)
     	ode_simStep();
 #endif
 
+    if (WORLD_LOCKED())
+        while (poll_ode_requests());
+
     if (!hapticsStarted)
         while (poll_chai_requests());
 }
@@ -374,6 +377,9 @@ void ode_hapticsLoop(void* a_pUserData)
         UNLOCK_WORLD();
         clearFlag = false;
     }
+
+    // process any waiting Chai messages
+    while (poll_chai_requests());
     
     // Skip this timestep if world is being modified
     // TODO: improve this to avoid haptic glitches
@@ -385,9 +391,6 @@ void ode_hapticsLoop(void* a_pUserData)
 	ode_simStep();
 #endif
 
-    // process any waiting Chai messages
-    while (poll_chai_requests());
-    
     cursor->computeGlobalPositions(1);
     
     // update the tool's pose and compute and apply forces

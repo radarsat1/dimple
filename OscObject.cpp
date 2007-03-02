@@ -454,7 +454,12 @@ OscFixed::OscFixed(const char *name, OscObject *object1, OscObject *object2)
     : OscConstraint(name, object1, object2)
 {
 	// create the constraint for object1
+    if (object2)
     object1->odePrimitive()->fixedLink(name, object2?object2->odePrimitive():NULL);
+
+    if (!object2) {
+        dGeomSetBody(object1->odePrimitive()->m_odeGeom, 0);
+    }
 
     printf("Fixed joint created between %s and %s\n",
            object1->name(), object2?object2->name():"world");
