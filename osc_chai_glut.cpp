@@ -269,6 +269,9 @@ void updateDisplay(int val)
     if (!WORLD_LOCKED())
     	ode_simStep();
 #endif
+
+    if (!hapticsStarted)
+        while (poll_chai_requests());
 }
 
 //---------------------------------------------------------------------------
@@ -595,7 +598,7 @@ void stopHaptics()
 }
 
 // called from OSC thread, non-blocking
-ode_request_class* post_ode_request(ode_callback *callback, cODEPrimitive *ob)
+ode_request_class* add_ode_request(ode_callback *callback, cODEPrimitive *ob)
 {
     if (ode_queue.writelocked())
         return 0;
@@ -611,7 +614,7 @@ ode_request_class* post_ode_request(ode_callback *callback, cODEPrimitive *ob)
     return ret;
 }
 
-chai_request_class* post_chai_request(chai_callback *callback, cGenericObject *ob)
+chai_request_class* add_chai_request(chai_callback *callback, cGenericObject *ob)
 {
     if (chai_queue.writelocked())
         return 0;
@@ -628,38 +631,45 @@ chai_request_class* post_chai_request(chai_callback *callback, cGenericObject *o
 }
 
 // called from OSC thread
-void wait_ode_request(ode_callback *callback, cODEPrimitive *ob)
+ode_request_class *post_ode_request(ode_callback *callback, cODEPrimitive *ob)
 {
     ode_request_class *r=0;
-    while (!(r=post_ode_request(callback, ob)))
-#ifdef WIN32
+    while (!(r=add_ode_request(callback, ob)))
         Sleep(1);
-#else
-        usleep(1);
-#endif
 
     // Take care of it right away if graphics isn't running
     // TODO: change this when ODE is on its own thread!
+    /*
     if (!glutStarted)
         poll_ode_requests();
+    */
 
+    return r;
+}
+
+void wait_ode_request(ode_callback *callback, cODEPrimitive *ob)
+{
+    ode_request_class *r = post_ode_request(callback, ob);
     ode_queue.wait(r);
+}
+
+chai_request_class *post_chai_request(chai_callback *callback, cGenericObject *ob)
+{
+    chai_request_class *r=0;
+    while (!(r=add_chai_request(callback, ob)))
+        Sleep(1);
+
+    // Take care of it right away if haptics isn't running
+    /*
+    if (!hapticsStarted)
+        poll_chai_requests();
+    */
+    return r;
 }
 
 void wait_chai_request(chai_callback *callback, cGenericObject *ob)
 {
-    chai_request_class *r=0;
-    while (!(r=post_chai_request(callback, ob)))
-#ifdef WIN32
-        Sleep(1);
-#else
-        usleep(1);
-#endif
-
-    // Take care of it right away if haptics isn't running
-    if (!hapticsStarted)
-        poll_chai_requests();
-
+    chai_request_class *r = post_chai_request(callback, ob);
     chai_queue.wait(r);
 }
 
@@ -681,9 +691,9 @@ int poll_ode_requests()
     ode_queue.lock_read();
     if (ode_queue.size()>0 && !ode_queue.front().handled) {
         ode_request_class *req = (ode_request_class*)&ode_queue.front();
+        req->handled = true;
         ode_queue.unlock_read();
         if (req->callback) req->callback(req->ob);
-        req->handled = true;
         handled = true;
     }
     else
@@ -700,9 +710,9 @@ int poll_chai_requests()
     chai_queue.lock_read();
     if (chai_queue.size()>0 && !chai_queue.front().handled) {
         chai_request_class *req = (chai_request_class*)&chai_queue.front();
+        req->handled = true;
         chai_queue.unlock_read();
         if (req->callback) req->callback(req->ob);
-        req->handled = true;
         handled = true;
     }
     else
@@ -738,24 +748,23 @@ int graphicsEnable_handler(const char *path, const char *types, lo_arg **argv,
 	 return 0;
 }
 
+void clear_world(cODEPrimitive* o)
+{
+    objects_iter it;
+    for (it=world_objects.begin(); it!=world_objects.end(); it++)
+    {
+        OscObject *o = world_objects[(*it).first];
+        world_objects.erase(it);
+        if (o) delete o;
+    }
+    
+    world_objects.clear();
+}
+
 int worldClear_handler(const char *path, const char *types, lo_arg **argv,
                        int argc, void *data, void *user_data)
 {
-    if (hapticsStarted)
-        clearFlag = true;
-    else {
-        LOCK_WORLD();
-        objects_iter it;
-        for (it=world_objects.begin(); it!=world_objects.end(); it++)
-        {
-            OscObject *o = world_objects[(*it).first];
-            if (o) delete o;
-        }
-
-        world_objects.clear();
-        clearFlag = false;
-        UNLOCK_WORLD();
-    }
+    wait_ode_request(clear_world, 0);
     return 0;
 }
 
