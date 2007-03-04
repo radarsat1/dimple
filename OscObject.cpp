@@ -16,7 +16,9 @@ void OscBase::addHandler(const char *methodname, const char* type, lo_method_han
     std::string n("/");
     if (m_classname.length()>0)
         n += m_classname + "/";
-    n += m_name + "/" + methodname;
+    n += m_name;
+    if (strlen(methodname)>0)
+        n = n + "/" + methodname;
 
     // add it to liblo server and store it
     if (lo_server_thread_add_method(loserver, n.c_str(), type, h, this))
@@ -40,14 +42,91 @@ OscBase::~OscBase()
 
 // ----------------------------------------------------------------------------------
 
+OscVector3::OscVector3(const char *name, const char *classname)
+    : OscBase(name, classname),
+      cVector3d()
+{
+    addHandler("",              "fff", OscVector3::_handler);
+    addHandler("get",           "i"  , OscVector3::get_handler);
+    addHandler("get",           ""   , OscVector3::get_handler);
+    addHandler("magnitude",     "f"  , OscVector3::magnitude_handler);
+    addHandler("magnitude/get", "i"  , OscVector3::magnitudeGet_handler);
+    addHandler("magnitude/get", ""   , OscVector3::magnitudeGet_handler);
+}
+
+int OscVector3::_handler(const char *path, const char *types, lo_arg **argv,
+                         int argc, void *data, void *user_data)
+{
+    OscVector3 *me = (OscVector3*)user_data;
+    if (argc == 3) {
+        me->x = argv[0]->f;
+        me->y = argv[1]->f;
+        me->z = argv[2]->f;
+    }
+    // TODO: method for informing parent that data has changed?
+}
+
+int OscVector3::get_handler(const char *path, const char *types, lo_arg **argv,
+                            int argc, void *data, void *user_data)
+{
+    OscVector3 *me = (OscVector3*)user_data;
+    lo_send(address_send, ("/" + me->m_classname +
+                           "/" + me->m_name).c_str(),
+            "fff", me->x, me->y, me->z
+        );
+}
+
+int OscVector3::magnitude_handler(const char *path, const char *types, lo_arg **argv,
+                                  int argc, void *data, void *user_data)
+{
+    OscVector3 *me = (OscVector3*)user_data;
+    // TODO
+}
+
+int OscVector3::magnitudeGet_handler(const char *path, const char *types, lo_arg **argv,
+                                    int argc, void *data, void *user_data)
+{
+    OscVector3 *me = (OscVector3*)user_data;
+    lo_send(address_send, ("/" + me->m_classname +
+                           "/" + me->m_name +
+                           "/magnitude").c_str(),
+            "f", sqrt(me->x*me->x + me->y*me->y + me->z*me->z) );
+}
+
+// ----------------------------------------------------------------------------------
+
+OscScalar::OscScalar(const char *name, const char *classname)
+    : OscBase(name, classname)
+{
+    value = 0;
+}
+
+// ----------------------------------------------------------------------------------
+
 //! OscObject has a CHAI/ODE object associated with it. Class name = "object"
 OscObject::OscObject(cGenericObject* p, const char *name)
-    : OscBase(name, "object")
+    : OscBase(name, "object"),
+      m_velocity("velocity", (std::string("object/")+name).c_str()),
+      m_accel("acceleration", (std::string("object/")+name).c_str())
 {
     m_objChai = p;
     addHandler("destroy", ""   , OscObject::destroy_handler);
     addHandler("mass"   , "f"  , OscObject::mass_handler);
     addHandler("force"  , "fff", OscObject::force_handler);
+
+    /*
+    addHandler("velocity/magnitude/get", "i", OscObject::velocityMagnitudeGet_handler);
+    addHandler("velocity/magnitude/get", "", OscObject::velocityMagnitudeGet_handler);
+    addHandler("acceleration/magnitude/get", "i", OscObject::accelerationMagnitudeGet_handler);
+    addHandler("acceleration/magnitude/get", "", OscObject::accelerationMagnitudeGet_handler);
+    */
+
+    m_accel[0] = 0;
+    m_accel[1] = 0;
+    m_accel[2] = 0;
+    m_velocity[0] = 0;
+    m_velocity[1] = 0;
+    m_velocity[2] = 0;
 
     // If the new object is supposed to be a part of a
     // composite object, find it and join.
@@ -115,6 +194,17 @@ void OscObject::unlinkConstraint(std::string &name)
 		  if ((*it)==name) m_constraintLinks.erase(it);
 }
 
+//! Set the velocity extracted from the dynamic simulation
+void OscObject::setDynamicVelocity(const dReal* vel)
+{
+    m_accel[0] = m_velocity[0] - vel[0];
+    m_accel[1] = m_velocity[1] - vel[1];
+    m_accel[2] = m_velocity[2] - vel[2];
+    m_velocity[0] = vel[0];
+    m_velocity[1] = vel[1];
+    m_velocity[2] = vel[2];
+}
+
 //! Destroy the object
 int OscObject::destroy_handler(const char *path, const char *types, lo_arg **argv,
 							   int argc, void *data, void *user_data)
@@ -152,6 +242,28 @@ int OscObject::force_handler(const char *path, const char *types, lo_arg **argv,
     dBodySetForce(me->odePrimitive()->m_odeBody, argv[0]->f, argv[1]->f, argv[2]->f);
     UNLOCK_WORLD();
     return 0;
+}
+
+int OscObject::velocityMagnitudeGet_handler(const char *path, const char *types, lo_arg **argv,
+                                            int argc, void *data, void *user_data)
+{
+    OscObject *me = (OscObject*)user_data;
+    double velmag = sqrt(  me->m_velocity[0]*me->m_velocity[0]
+                         + me->m_velocity[1]*me->m_velocity[1]
+                         + me->m_velocity[2]*me->m_velocity[2]);
+    lo_send(address_send, ("/object/"+me->m_name+"/velocity/magnitude").c_str(),
+            "f", velmag);
+}
+
+int OscObject::accelerationMagnitudeGet_handler(const char *path, const char *types, lo_arg **argv,
+                                                int argc, void *data, void *user_data)
+{
+    OscObject *me = (OscObject*)user_data;
+    double accmag = sqrt(  me->m_accel[0]*me->m_accel[0]
+                         + me->m_accel[1]*me->m_accel[1]
+                         + me->m_accel[2]*me->m_accel[2]);
+    lo_send(address_send, ("/object/"+me->m_name+"/acceleration/magnitude").c_str(),
+            "f", accmag);
 }
 
 // ----------------------------------------------------------------------------------

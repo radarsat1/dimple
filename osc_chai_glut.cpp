@@ -453,9 +453,11 @@ void ode_simStep()
     // Perform simulation step
 	dSpaceCollide (ode_space,0,&ode_nearCallback);
 	dWorldStepFast1 (ode_world, ode_step, 5);
+    /*
 	for (int j = 0; j < dSpaceGetNumGeoms(ode_space); j++){
 		dSpaceGetGeom(ode_space, j);
 	}
+    */
 	dJointGroupEmpty (ode_contact_group);
     
     // Synchronize CHAI & ODE
@@ -465,8 +467,12 @@ void ode_simStep()
     objects_iter oit;
     for (oit=world_objects.begin(); oit!=world_objects.end(); oit++)
     {
-        cODEPrimitive *o = world_objects[(*oit).first]->odePrimitive();
-        o->syncPose();
+        OscObject *o = oit->second;
+        o->odePrimitive()->syncPose();
+
+        // Track object's velocity
+        const dReal *vel = dBodyGetLinearVel(o->odePrimitive()->m_odeBody);
+        o->setDynamicVelocity(vel);
     }
 }
 

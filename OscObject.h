@@ -31,6 +31,33 @@ protected:
     std::vector <method_t> m_methods;
 };
 
+//! The OscVector3 class is used to maintain information about 3-vector values
+//! used throughout the OSC interface.
+class OscVector3 : public OscBase, public cVector3d
+{
+  public:
+    OscVector3(const char *name, const char *classname);
+
+  protected:
+    static int _handler(const char *path, const char *types, lo_arg **argv,
+                        int argc, void *data, void *user_data);
+    static int get_handler(const char *path, const char *types, lo_arg **argv,
+                           int argc, void *data, void *user_data);
+    static int magnitude_handler(const char *path, const char *types, lo_arg **argv,
+                                 int argc, void *data, void *user_data);
+    static int magnitudeGet_handler(const char *path, const char *types, lo_arg **argv,
+                                    int argc, void *data, void *user_data);
+};
+
+//! The OscScalar class is used to maintain information about scalar values
+//! used throughout the OSC interface.
+class OscScalar : public OscBase
+{
+  public:
+    OscScalar(const char *name, const char *classname);
+    double value;
+};
+
 //! The OscObject class keeps track of an object in the world. The object
 //! is some cGenericObject and some cODEPrimitve -- in other words, an
 //! OscObject consists of an object in the CHAI world and an object in the
@@ -47,9 +74,13 @@ class OscObject : public OscBase
 	void linkConstraint(std::string &name);
 	void unlinkConstraint(std::string &name);
 
+    void setDynamicVelocity(const dReal* vel);
+
   protected:
 	cGenericObject* m_objChai;
 	std::vector<std::string> m_constraintLinks;
+    OscVector3 m_velocity;
+    OscVector3 m_accel;
 
     static int destroy_handler(const char *path, const char *types, lo_arg **argv,
                                int argc, void *data, void *user_data);
@@ -57,6 +88,11 @@ class OscObject : public OscBase
                             int argc, void *data, void *user_data);
     static int force_handler(const char *path, const char *types, lo_arg **argv,
                              int argc, void *data, void *user_data);
+
+    static int velocityMagnitudeGet_handler(const char *path, const char *types, lo_arg **argv,
+                                            int argc, void *data, void *user_data);
+    static int accelerationMagnitudeGet_handler(const char *path, const char *types, lo_arg **argv,
+                                                int argc, void *data, void *user_data);
 };
 
 class OscComposite : public OscObject
