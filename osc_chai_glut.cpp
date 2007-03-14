@@ -87,7 +87,7 @@ int requestHapticsStop = 0;
 float globalForceMagnitude = 0;
 int quit = 0;
 int lock_world = 0;
-pthread_t ode_pthread = 0;
+pthread_t ode_pthread;
 
 void poll_requests();
 
@@ -114,7 +114,7 @@ bool clearFlag = false;
 int mousepos[2];
 
 #ifdef _POSIX
-#define Sleep usleep
+#define Sleep(t) usleep(t*1000)
 #endif
 
 // Synchronized class allowing seperate read and write locks & non-block operation
@@ -264,15 +264,17 @@ void updateDisplay(int val)
 #ifdef ODE_IN_HAPTICS_LOOP
 	// update ODE
     if (!WORLD_LOCKED() && !hapticsStarted)
-    	;//ode_simStep();
+        {}//ode_simStep();
 #else
 	// update ODE
     if (!WORLD_LOCKED())
-    	;//ode_simStep();
+        {}//ode_simStep();
 #endif
 
+        /*
     if (WORLD_LOCKED())
         while (poll_ode_requests());
+        */
 
     if (!hapticsStarted)
         while (poll_chai_requests());
@@ -426,11 +428,9 @@ void ode_hapticsLoop(void* a_pUserData)
 
 void ode_simStep()
 {
-    // process any waiting ODE messages
-    while (poll_ode_requests());
-
     // Add forces to an object in contact with the proxy
-	if (contactObject) 
+    cODEPrimitive *ob = contactObject;
+	if (ob) 
 	{
 		float x =  lastContactPoint.x;
 		float y =  lastContactPoint.y;
@@ -440,7 +440,7 @@ void ode_simStep()
 		float fy = -force_scale*lastForce.y ;
 		float fz = -force_scale*lastForce.z ;
         
-		dBodyAddForceAtPos(contactObject->m_odeBody,fx,fy,fz,x,y,z);
+		dBodyAddForceAtPos(ob->m_odeBody,fx,fy,fz,x,y,z);
 	}
 
     // Allow constraints to update forces by calling each constraint's callback
@@ -485,9 +485,9 @@ void ode_simStep()
 void* ode_threadproc(void*p)
 {
     while (!quit) {
-        Sleep((int)(ode_step*1000000.0));
+        Sleep((int)(ode_step*1000.0));
+        while (poll_ode_requests());
         if (!WORLD_LOCKED()) {
-            while (poll_ode_requests());
             ode_simStep();
         }
     }
@@ -722,9 +722,9 @@ int poll_ode_requests()
     ode_queue.lock_read();
     if (ode_queue.size()>0 && !ode_queue.front().handled) {
         ode_request_class *req = (ode_request_class*)&ode_queue.front();
-        req->handled = true;
         ode_queue.unlock_read();
         if (req->callback) req->callback(req->ob);
+        req->handled = true;
         handled = true;
     }
     else
@@ -741,9 +741,9 @@ int poll_chai_requests()
     chai_queue.lock_read();
     if (chai_queue.size()>0 && !chai_queue.front().handled) {
         chai_request_class *req = (chai_request_class*)&chai_queue.front();
-        req->handled = true;
         chai_queue.unlock_read();
         if (req->callback) req->callback(req->ob);
+        req->handled = true;
         handled = true;
     }
     else

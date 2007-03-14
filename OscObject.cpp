@@ -64,6 +64,7 @@ int OscVector3::_handler(const char *path, const char *types, lo_arg **argv,
         me->z = argv[2]->f;
     }
     // TODO: method for informing parent that data has changed?
+    return 0;
 }
 
 int OscVector3::get_handler(const char *path, const char *types, lo_arg **argv,
@@ -74,6 +75,7 @@ int OscVector3::get_handler(const char *path, const char *types, lo_arg **argv,
                            "/" + me->m_name).c_str(),
             "fff", me->x, me->y, me->z
         );
+    return 0;
 }
 
 int OscVector3::magnitude_handler(const char *path, const char *types, lo_arg **argv,
@@ -81,6 +83,7 @@ int OscVector3::magnitude_handler(const char *path, const char *types, lo_arg **
 {
     OscVector3 *me = (OscVector3*)user_data;
     // TODO
+    return 0;
 }
 
 int OscVector3::magnitudeGet_handler(const char *path, const char *types, lo_arg **argv,
@@ -91,6 +94,7 @@ int OscVector3::magnitudeGet_handler(const char *path, const char *types, lo_arg
                            "/" + me->m_name +
                            "/magnitude").c_str(),
             "f", sqrt(me->x*me->x + me->y*me->y + me->z*me->z) );
+    return 0;
 }
 
 // ----------------------------------------------------------------------------------
