@@ -87,6 +87,7 @@ int requestHapticsStop = 0;
 float globalForceMagnitude = 0;
 int quit = 0;
 int lock_world = 0;
+pthread_t ode_pthread = 0;
 
 void poll_requests();
 
@@ -263,11 +264,11 @@ void updateDisplay(int val)
 #ifdef ODE_IN_HAPTICS_LOOP
 	// update ODE
     if (!WORLD_LOCKED() && !hapticsStarted)
-    	ode_simStep();
+    	;//ode_simStep();
 #else
 	// update ODE
     if (!WORLD_LOCKED())
-    	ode_simStep();
+    	;//ode_simStep();
 #endif
 
     if (WORLD_LOCKED())
@@ -388,7 +389,7 @@ void ode_hapticsLoop(void* a_pUserData)
 
 #ifdef ODE_IN_HAPTICS_LOOP
     // update ODE
-	ode_simStep();
+	//ode_simStep();
 #endif
 
     cursor->computeGlobalPositions(1);
@@ -470,10 +471,28 @@ void ode_simStep()
         OscObject *o = oit->second;
         o->odePrimitive()->syncPose();
 
+        // Track object's position
+        o->setDynamicPosition(dBodyGetPosition(o->odePrimitive()->m_odeBody));
+
         // Track object's velocity
         const dReal *vel = dBodyGetLinearVel(o->odePrimitive()->m_odeBody);
         o->setDynamicVelocity(vel);
     }
+}
+
+//---------------------------------------------------------------------------
+
+void* ode_threadproc(void*p)
+{
+    while (!quit) {
+        Sleep((int)(ode_step*1000000.0));
+        if (!WORLD_LOCKED()) {
+            while (poll_ode_requests());
+            ode_simStep();
+        }
+    }
+
+    return 0;
 }
 
 //---------------------------------------------------------------------------
@@ -562,6 +581,9 @@ void initODE()
     printf("ode_step = %f\n", ode_step);
     ode_space = dSimpleSpaceCreate(0);
     ode_contact_group = dJointGroupCreate(0);
+
+    if (pthread_create(&ode_pthread, NULL, ode_threadproc, NULL))
+        printf("Could not start ODE thread.\n");
 }
 
 void startHaptics()
