@@ -75,12 +75,14 @@ class OscObject : public OscBase
 	void unlinkConstraint(std::string &name);
 
     void setDynamicVelocity(const dReal* vel);
+    void setDynamicPosition(const dReal* pos);
 
   protected:
 	cGenericObject* m_objChai;
 	std::vector<std::string> m_constraintLinks;
     OscVector3 m_velocity;
     OscVector3 m_accel;
+    OscVector3 m_position;
 
     static int destroy_handler(const char *path, const char *types, lo_arg **argv,
                                int argc, void *data, void *user_data);

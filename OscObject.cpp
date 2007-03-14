@@ -107,19 +107,13 @@ OscScalar::OscScalar(const char *name, const char *classname)
 OscObject::OscObject(cGenericObject* p, const char *name)
     : OscBase(name, "object"),
       m_velocity("velocity", (std::string("object/")+name).c_str()),
-      m_accel("acceleration", (std::string("object/")+name).c_str())
+      m_accel("acceleration", (std::string("object/")+name).c_str()),
+      m_position("position", (std::string("object/")+name).c_str())
 {
     m_objChai = p;
     addHandler("destroy", ""   , OscObject::destroy_handler);
     addHandler("mass"   , "f"  , OscObject::mass_handler);
     addHandler("force"  , "fff", OscObject::force_handler);
-
-    /*
-    addHandler("velocity/magnitude/get", "i", OscObject::velocityMagnitudeGet_handler);
-    addHandler("velocity/magnitude/get", "", OscObject::velocityMagnitudeGet_handler);
-    addHandler("acceleration/magnitude/get", "i", OscObject::accelerationMagnitudeGet_handler);
-    addHandler("acceleration/magnitude/get", "", OscObject::accelerationMagnitudeGet_handler);
-    */
 
     m_accel[0] = 0;
     m_accel[1] = 0;
@@ -127,6 +121,9 @@ OscObject::OscObject(cGenericObject* p, const char *name)
     m_velocity[0] = 0;
     m_velocity[1] = 0;
     m_velocity[2] = 0;
+    m_position[0] = 0;
+    m_position[1] = 0;
+    m_position[2] = 0;
 
     // If the new object is supposed to be a part of a
     // composite object, find it and join.
@@ -205,6 +202,14 @@ void OscObject::setDynamicVelocity(const dReal* vel)
     m_velocity[2] = vel[2];
 }
 
+//! Set the position extracted from the dynamic simulation
+void OscObject::setDynamicPosition(const dReal* pos)
+{
+    m_position[0] = pos[0];
+    m_position[1] = pos[1];
+    m_position[2] = pos[2];
+}
+
 //! Destroy the object
 int OscObject::destroy_handler(const char *path, const char *types, lo_arg **argv,
 							   int argc, void *data, void *user_data)
@@ -244,6 +249,7 @@ int OscObject::force_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
+/*
 int OscObject::velocityMagnitudeGet_handler(const char *path, const char *types, lo_arg **argv,
                                             int argc, void *data, void *user_data)
 {
@@ -265,6 +271,7 @@ int OscObject::accelerationMagnitudeGet_handler(const char *path, const char *ty
     lo_send(address_send, ("/object/"+me->m_name+"/acceleration/magnitude").c_str(),
             "f", accmag);
 }
+*/
 
 // ----------------------------------------------------------------------------------
 
