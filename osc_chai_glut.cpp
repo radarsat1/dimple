@@ -394,6 +394,7 @@ void ode_hapticsLoop(void* a_pUserData)
 	//ode_simStep();
 #endif
 
+    LOCK_WORLD();
     cursor->computeGlobalPositions(1);
     
     // update the tool's pose and compute and apply forces
@@ -422,6 +423,7 @@ void ode_hapticsLoop(void* a_pUserData)
             break;
         }
     }
+    UNLOCK_WORLD();
 }
 
 //---------------------------------------------------------------------------
@@ -784,8 +786,8 @@ void clear_world(cODEPrimitive* o)
     objects_iter it;
     for (it=world_objects.begin(); it!=world_objects.end(); it++)
     {
-        OscObject *o = world_objects[(*it).first];
-        world_objects.erase(it);
+        OscObject *o = it->second;
+//        world_objects.erase(it);
         if (o) delete o;
     }
     
