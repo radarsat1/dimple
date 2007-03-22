@@ -25,6 +25,7 @@ if [ $($MD5 $liblo_TAR | $MD5CUT)x != ${liblo_MD5}x ]; then
 fi
 
 if ! [ -d $liblo_DIR ]; then
+
 echo Extracting $liblo_TAR ...
 if !(tar -xzf $liblo_TAR); then
 	echo "Error in archive.";
@@ -41,21 +42,37 @@ fi
 
 case $(uname) in
    CYGWIN*)
+   echo Compiling $liblo_DIR Debug
+   if !( "$COMPILE" /Build Debug $(cygpath -w $liblo_DIR/LibLo.sln ) /Project LibLo /Out compile.log ); then
+	  echo "Error compiling $ode_DIR" Debug
+	  cat compile.log
+	  exit
+   fi
+   rm compile.log >/dev/null 2>&1
+   echo Compiling $liblo_DIR Release
+   if !( "$COMPILE" /Build Release $(cygpath -w $liblo_DIR/LibLo.sln ) /Project LibLo /Out compile.log ); then
+	  echo "Error compiling $ode_DIR" Release
+	  cat compile.log
+	  exit
+   fi
+   rm compile.log >/dev/null 2>&1
    ;;
-   *)
-echo Configuring $liblo_DIR
-if !(cd $liblo_DIR && ./configure --disable-shared); then
-	echo "Error configuring $liblo_DIR"
-	exit
-fi
 
-echo Compiling $liblo_DIR
-if !(cd $liblo_DIR && make); then
-	echo "Error compiling $liblo_DIR"
-	exit
-fi
-    ;;
+   *)
+   echo Configuring $liblo_DIR
+   if !(cd $liblo_DIR && ./configure --disable-shared); then
+	  echo "Error configuring $liblo_DIR"
+	  exit
+   fi
+
+   echo Compiling $liblo_DIR
+   if !(cd $liblo_DIR && make); then
+	  echo "Error compiling $liblo_DIR"
+	  exit
+   fi
+   ;;
 esac
+
 fi
 
 echo
@@ -81,6 +98,7 @@ if [ $($MD5 $ode_TAR | $MD5CUT)x != ${ode_MD5}x ]; then
 fi
 
 if ! [ -d $ode_DIR ]; then
+
 echo Extracting $ode_TAR ...
 if !(unzip -o $ode_TAR); then
 	echo "Error in archive.";
@@ -97,23 +115,37 @@ fi
 
 case $(uname) in
 	CYGWIN*)
+    echo Compiling $ode_DIR DebugLib
+    if !( "$COMPILE" /Build DebugLib $(cygpath -w $ode_DIR/build/vs2003/ode.sln ) /Project ode /Out compile.log ); then
+	   echo "Error compiling $ode_DIR" DebugLib
+	   cat compile.log
+	   exit
+    fi
+    rm compile.log >/dev/null 2>&1
+    echo Compiling $ode_DIR ReleaseLib
+    if !( "$COMPILE" /Build ReleaseLib $(cygpath -w $ode_DIR/build/vs2003/ode.sln ) /Project ode /Out compile.log ); then
+	   echo "Error compiling $ode_DIR" ReleaseLib
+	   cat compile.log
+	   exit
+    fi
+    rm compile.log >/dev/null 2>&1
 	;;
+
 	*)
-echo Configuring $ode_DIR
-if !(cd $ode_DIR && ./configure --disable-shared); then
-	echo "Error configuring $ode_DIR"
-	exit
-fi
+    echo Configuring $ode_DIR
+    if !(cd $ode_DIR && ./configure --disable-shared); then
+    	echo "Error configuring $ode_DIR"
+	    exit
+    fi
 
-# Seems to make the shared version anyway.. ?
-rm -v $ode_DIR/ode/src/libode.so
+    # Seems to make the shared version anyway.. ?
+    rm -v $ode_DIR/ode/src/libode.so
 
-echo Compiling $ode_DIR
-if !(cd $ode_DIR && make); then
-	echo "Error compiling $ode_DIR"
-	exit
-fi
-
+    echo Compiling $ode_DIR
+    if !(cd $ode_DIR && make); then
+	    echo "Error compiling $ode_DIR"
+    	exit
+    fi
     ;;
 esac
 
@@ -157,14 +189,28 @@ fi
 
 case $(uname) in
 	CYGWIN*)
+    echo Compiling $chai_DIR Debug
+    if !( "$COMPILE" /Build Debug $(cygpath -w $chai_DIR/chai3d_complete.sln ) /Project chai3d_complete /Out compile.log ); then
+       echo "Error compiling $chai_DIR" Debug
+       cat compile.log
+  	   exit
+    fi
+    rm compile.log >/dev/null 2>&1
+    echo Compiling $chai_DIR Release
+    if !( "$COMPILE" /Build Release $(cygpath -w $chai_DIR/chai3d_complete.sln ) /Project chai3d_complete /Out compile.log ); then
+       echo "Error compiling $chai_DIR" Release
+       cat compile.log
+  	   exit
+    fi
+    rm compile.log >/dev/null 2>&1
 	;;
-	*)
-echo Compiling $chai_DIR
-if !(cd $chai_DIR && make); then
-    echo "Error compiling $chai_DIR"
-    exit
-fi
 
+	*)
+    echo Compiling $chai_DIR
+    if !(cd $chai_DIR && make); then
+        echo "Error compiling $chai_DIR"
+        exit
+    fi
     ;;
 esac
 
@@ -181,23 +227,21 @@ case $(uname) in
 	DL="wget -O"
     MD5=md5sum
 	MD5CUT="awk {print\$1}"
+	COMPILE="/cygdrive/c/Program Files/Microsoft Visual Studio .NET 2003/Common7/IDE/devenv.exe"
     liblo_PATCH=liblo-0.23-msvc7.patch
     ode_PATCH=ode-0.23-msvc7.patch
 	chai_DIR=chai3d/msvc7
+
+	if !( [ -f "$COMPILE" ]); then
+		echo "Couldn't find Visual Studio 2003.  Please edit the line COMPILE= in this file (bootstrap.sh)"
+		exit
+	fi
 
     ode
     liblo
 	chai3d
 
-	echo Now open the following solution files in \
-		Visual Studio 2003 and Batch Build everything.
-	echo "$(cygpath -w $liblo_DIR/LibLo.sln)"
-	echo "$(cygpath -w $chai_DIR/chai3d_complete.sln)"
-	echo "$(cygpath -w $ode_DIR/build/vs2003/ode.sln)"
-
-	explorer $(cygpath -w $liblo_DIR/)
-	explorer $(cygpath -w $chai_DIR/)
-	explorer $(cygpath -w $ode_DIR/build/vs2003/)
+	echo Now open osc_chai_glut.sln in Visual Studio 2003 and build.
     ;;
 
     Linux*)
