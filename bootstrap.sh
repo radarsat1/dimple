@@ -139,7 +139,7 @@ case $(uname) in
     fi
 
     # Seems to make the shared version anyway.. ?
-    rm -v $ode_DIR/ode/src/libode.so
+    rm -v $ode_DIR/ode/src/libode.so $ode_DIR/ode/src/libode.dylib
 
     echo Compiling $ode_DIR
     if !(cd $ode_DIR && make); then
