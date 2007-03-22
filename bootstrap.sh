@@ -75,10 +75,6 @@ ode_URL=http://internap.dl.sourceforge.net/sourceforge/opende/ode-src-0.7.zip
 ode_TAR=ode-src-0.7.zip
 ode_DIR=ode-0.7
 ode_MD5=b6727fef2cbb9ca812438bb774c9d6ec
-case $(uname) in
-	CYGWIN*)
-    ;;
-esac
 
 if [ $($MD5 $ode_TAR | $MD5CUT)x != ${ode_MD5}x ]; then
 	echo Downloading $ode_TAR ...
@@ -173,7 +169,7 @@ case $(uname) in
     CYGWIN*)
 	DL="wget -O"
     MD5=md5sum
-	MD5CUT='cut -d\\  -f1'
+	MD5CUT="awk {print\$1}"
     liblo_PATCH=liblo-0.23-msvc7.patch
     ode_PATCH=ode-0.23-msvc7.patch
 #    ode
@@ -183,10 +179,11 @@ case $(uname) in
     Linux*)
 	DL="wget -O"
     MD5=md5sum
-	MD5CUT='cut -d\\  -f1'
+	MD5CUT="awk {print\$1}"
 	chai_DIR=chai3d/linux
 
 	ode
+    chai3d
     echo For Linux, please get package \"liblo\" from your distribution.
     echo Ubuntu and Debian: sudo apt-get install liblo0-dev
     exit

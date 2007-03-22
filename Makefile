@@ -21,14 +21,20 @@ CFLAGS = -O3 $(INCLUDE) $(DEBUG)
 LD   = g++ -o 
 
 DARWIN_LIBS = -framework OpenGL -framework GLUT
+DARWIN_CHAI_LIBS = -Lchai3d/lib/darwin -lchai3d_darwin
+
 LINUX_LIBS = -lGL -lglut -lGLU
 LINUX_CHAI_LIBS = -Lchai3d/lib/linux -lchai3d_linux -ldhd -lpciscan -lusb
-DARWIN_CHAI_LIBS = -Lchai3d/lib/darwin -lchai3d_darwin
+
 LIBS = -Lliblo-0.23/src/.libs -lpthread -llo -Lode-0.7/ode/src -lode
 
 ifeq ($(shell uname),Darwin)
 INCLUDE += $(DARWIN_INCLUDE)
 LIBS +=  $(DARWIN_LIBS) $(DARWIN_CHAI_LIBS)
+else
+ifeq ($(shell uname),Linux)
+LIBS +=  $(LINUX_LIBS) $(LINUX_CHAI_LIBS)
+endif
 endif
 
 all: osc_chai_glut
