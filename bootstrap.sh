@@ -44,14 +44,14 @@ case $(uname) in
    CYGWIN*)
    echo Compiling $liblo_DIR Debug
    if !( "$COMPILE" /Build Debug $(cygpath -w $liblo_DIR/LibLo.sln ) /Project LibLo /Out compile.log ); then
-	  echo "Error compiling $ode_DIR" Debug
+	  echo "Error compiling $liblo_DIR" Debug
 	  cat compile.log
 	  exit
    fi
    rm compile.log >/dev/null 2>&1
    echo Compiling $liblo_DIR Release
    if !( "$COMPILE" /Build Release $(cygpath -w $liblo_DIR/LibLo.sln ) /Project LibLo /Out compile.log ); then
-	  echo "Error compiling $ode_DIR" Release
+	  echo "Error compiling $liblo_DIR" Release
 	  cat compile.log
 	  exit
    fi
@@ -105,7 +105,7 @@ if !(unzip -o $ode_TAR); then
 	exit
 fi
 
-if [ -f $ode_PATCH ]; then
+if [ ${ode_PATCH}x != x ] && [ -f $ode_PATCH ]; then
 echo Patching $ode_DIR
 if !(cd $ode_DIR && patch -p1 <../$ode_PATCH); then
 	echo "Error applying patch " $ode_PATCH
@@ -161,6 +161,8 @@ chai_URL=http://chai3d.org/builds/chai3d%5Bv1.51%5D.zip
 chai_TAR=chai3d\[v1.51\].zip
 chai_MD5=006c5464dc3c389d87e615c24ccd9696
 
+if ! [ -d $chai_DIR ]; then
+
 if [ $($MD5 "$chai_TAR" | $MD5CUT)x != ${chai_MD5}x ]; then
     echo Downloading $chai_TAR ...
     rm -v $chai_TAR
@@ -170,6 +172,7 @@ fi
 if [ $($MD5 "$chai_TAR" | $MD5CUT)x != ${chai_MD5}x ]; then
     echo "Error in MD5 checksum for $chai_TAR"
     exit
+fi
 fi
 
 if ! [ -d $chai_DIR ]; then
