@@ -190,10 +190,10 @@
 -1 -1;
 #N canvas 5 46 450 300 connect 0;
 #X obj 20 241 sendOSC;
-#X obj 20 64 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
+#X obj 20 64 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
 ;
 #X msg 80 213 disconnect;
-#X obj 20 114 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+#X obj 20 114 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #X msg 20 135 send /graphics/enable \$1;
 #X msg 20 84 send /haptics/enable \$1;
@@ -238,7 +238,7 @@
 #X obj 208 507 OSCroute /magnitude;
 #X obj 209 482 OSCroute /velocity /acceleration;
 #X obj 138 419 print;
-#N canvas 331 311 450 300 smash 1;
+#N canvas 331 311 450 300 smash 0;
 #X obj 36 217 list prepend send;
 #X obj 36 240 list trim;
 #X obj 36 263 s osc;
