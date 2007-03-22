@@ -41,7 +41,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="atls.lib winmm.lib opengl32.lib chai3d_complete.lib glu32.lib odbc32.lib odbccp32.lib liblo-0.23\Release\liblo.lib wsock32.lib pthreadVC2.lib ode.lib"
+				AdditionalDependencies="atls.lib winmm.lib opengl32.lib chai3d_complete.lib glu32.lib odbc32.lib odbccp32.lib liblo-0.23\Release\liblo.lib wsock32.lib pthreadVC2.lib ode-0.7/lib/releaselib/ode.lib"
 				OutputFile="osc_chai_glut.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -103,7 +103,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="atls.lib winmm.lib opengl32.lib chai3d_complete.lib glu32.lib odbc32.lib odbccp32.lib liblo-0.23\Debug\liblo.lib wsock32.lib pthreadVC2.lib oded.lib"
+				AdditionalDependencies="atls.lib winmm.lib opengl32.lib chai3d_complete.lib glu32.lib odbc32.lib odbccp32.lib liblo-0.23\Debug\liblo.lib wsock32.lib pthreadVC2.lib ode-0.7/lib/debuglib/ode.lib"
 				OutputFile="osc_chai_glut_d.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"

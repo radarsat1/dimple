@@ -1,0 +1,20 @@
+--- ode-0.7.orig/build/vs2003/ode.vcproj	2007-03-21 22:41:23.968750000 -0400
++++ ode-0.7/build/vs2003/ode.vcproj	2007-03-21 22:40:27.453125000 -0400
+@@ -134,7 +134,7 @@
+ 				PreprocessorDefinitions="WIN32;ODE_LIB"
+ 				MinimalRebuild="TRUE"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="1"
++				RuntimeLibrary="3"
+ 				EnableFunctionLevelLinking="TRUE"
+ 				RuntimeTypeInfo="TRUE"
+ 				UsePrecompiledHeader="2"
+@@ -181,7 +179,7 @@
+ 				AdditionalIncludeDirectories="../../include;../../OPCODE"
+ 				PreprocessorDefinitions="WIN32;ODE_LIB"
+ 				StringPooling="TRUE"
+-				RuntimeLibrary="0"
++				RuntimeLibrary="2"
+ 				EnableFunctionLevelLinking="TRUE"
+ 				RuntimeTypeInfo="TRUE"
+ 				UsePrecompiledHeader="2"
