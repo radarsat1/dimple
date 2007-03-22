@@ -61,13 +61,6 @@ fi
 echo
 echo LibLo Done.
 echo
-case $(uname) in
-   CYGWIN*)
-echo Now open solution file "$(cygpath -w $liblo_DIR/LibLo.sln)" in \
-    Visual Studio 2003 and Build All.
-explorer "$(cygpath -w $liblo_DIR)"
-   ;;
-esac
 }
 
 ode() {
@@ -94,12 +87,18 @@ if !(unzip -o $ode_TAR); then
 	exit
 fi
 
-#echo Patching $ode_DIR
-#if !(cd $ode_DIR && patch -p1 <../$ode_PATCH); then
-#	echo "Error applying MSVC7 patch."
-#	exit
-#fi
+if [ -f $ode_PATCH ]; then
+echo Patching $ode_DIR
+if !(cd $ode_DIR && patch -p1 <../$ode_PATCH); then
+	echo "Error applying patch " $ode_PATCH
+	exit
+fi
+fi
 
+case $(uname) in
+	CYGWIN*)
+	;;
+	*)
 echo Configuring $ode_DIR
 if !(cd $ode_DIR && ./configure --disable-shared); then
 	echo "Error configuring $ode_DIR"
@@ -114,6 +113,10 @@ if !(cd $ode_DIR && make); then
 	echo "Error compiling $ode_DIR"
 	exit
 fi
+
+    ;;
+esac
+
 fi
 
 echo
@@ -152,11 +155,19 @@ if !(patch -p0 <$chai_PATCH); then
 fi
 fi
 
+case $(uname) in
+	CYGWIN*)
+	;;
+	*)
 echo Compiling $chai_DIR
 if !(cd $chai_DIR && make); then
     echo "Error compiling $chai_DIR"
     exit
 fi
+
+    ;;
+esac
+
 fi
 
 echo
@@ -172,8 +183,21 @@ case $(uname) in
 	MD5CUT="awk {print\$1}"
     liblo_PATCH=liblo-0.23-msvc7.patch
     ode_PATCH=ode-0.23-msvc7.patch
-#    ode
+	chai_DIR=chai3d/msvc7
+
+    ode
     liblo
+	chai3d
+
+	echo Now open the following solution files in \
+		Visual Studio 2003 and Batch Build everything.
+	echo "$(cygpath -w $liblo_DIR/LibLo.sln)"
+	echo "$(cygpath -w $chai_DIR/chai3d_complete.sln)"
+	echo "$(cygpath -w $ode_DIR/build/vs2003/ode.sln)"
+
+	explorer $(cygpath -w $liblo_DIR/)
+	explorer $(cygpath -w $chai_DIR/)
+	explorer $(cygpath -w $ode_DIR/build/vs2003/)
     ;;
 
     Linux*)
