@@ -110,6 +110,7 @@ cVector3d lastContactPoint;
 double force_scale = 0.1;
 
 bool clearFlag = false;
+int ode_counter = 0;
 
 int mousepos[2];
 
@@ -353,6 +354,13 @@ void ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
 
 	if (int numc = dCollide (o1,o2,MAX_CONTACTS,&contact[0].geom,sizeof(dContact)))
 	{
+        OscObject *p1 = static_cast<OscObject*>(dGeomGetData(o1));
+        OscObject *p2 = static_cast<OscObject*>(dGeomGetData(o2));
+        if (p1 && p2) {
+//            p1->collidedWith(p2);
+//            p2->collidedWith(p1);
+            // note: this strategy will NOT work for multiple collisions between same objects!!
+        }
 		for (i=0; i<numc; i++) {
 			dJointID c = dJointCreateContact (ode_world,ode_contact_group,contact+i);
 			dJointAttach (c,b1,b2);
@@ -427,6 +435,8 @@ void ode_hapticsLoop(void* a_pUserData)
 
 void ode_simStep()
 {
+    ode_counter ++;
+
     // Add forces to an object in contact with the proxy
     cODEPrimitive *ob = contactObject;
 	if (ob) 

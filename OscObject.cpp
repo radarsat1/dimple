@@ -114,11 +114,19 @@ OscObject::OscObject(cGenericObject* p, const char *name)
       m_accel("acceleration", (std::string("object/")+name).c_str()),
       m_position("position", (std::string("object/")+name).c_str())
 {
+    // Track pointer for ODE/Chai object
     m_objChai = p;
+
+    // Set user data to point to this object for ODE geom, so that
+    // we can identify this OscObject during collision detction
+    odePrimitive()->setGeomData(this);
+
+    // Create handlers for OSC messages
     addHandler("destroy", ""   , OscObject::destroy_handler);
     addHandler("mass"   , "f"  , OscObject::mass_handler);
     addHandler("force"  , "fff", OscObject::force_handler);
 
+    // Set initial physical properties
     m_accel[0] = 0;
     m_accel[1] = 0;
     m_accel[2] = 0;

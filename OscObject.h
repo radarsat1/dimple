@@ -77,9 +77,14 @@ class OscObject : public OscBase
     void setDynamicVelocity(const dReal* vel);
     void setDynamicPosition(const dReal* pos);
 
+    const OscVector3& getPosition() { return m_position; }
+    const OscVector3& getVelocity() { return m_velocity; }
+    const OscVector3& getAccel() { return m_accel; }
+
   protected:
 	cGenericObject* m_objChai;
 	std::vector<std::string> m_constraintLinks;
+
     OscVector3 m_velocity;
     OscVector3 m_accel;
     OscVector3 m_position;

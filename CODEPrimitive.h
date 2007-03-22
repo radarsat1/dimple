@@ -84,6 +84,14 @@ class cODEPrimitive
 	  void setMass(float a_mass);
 	  //! Sync the pose of the ODE object with the pose of the CHAI object
 	  void syncPose();
+      //! Set data associated with ODE geom
+      void setGeomData(void* data) { if (m_odeGeom) dGeomSetData(m_odeGeom, data); }
+      //! Set data associated with ODE body
+      void setBodyData(void* data) { if (m_odeBody) dBodySetData(m_odeBody, data); }
+      //! Get data associated with ODE geom
+      void* getGeomData() { if (m_odeGeom) return dGeomGetData(m_odeGeom); else return NULL; }
+      //! Get data associated with ODE body
+      void* getBodyData() { if (m_odeBody) return dBodyGetData(m_odeBody); else return NULL; }
   
  	  //! List of names of the joints.
 	  std::map<std::string ,dJointID> m_Joint;
