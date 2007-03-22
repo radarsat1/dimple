@@ -353,9 +353,6 @@ void ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
 
 	if (int numc = dCollide (o1,o2,MAX_CONTACTS,&contact[0].geom,sizeof(dContact)))
 	{
-		dMatrix3 RI;
-		dRSetIdentity (RI);
-		const dReal ss[3] = {0.02,0.02,0.02};
 		for (i=0; i<numc; i++) {
 			dJointID c = dJointCreateContact (ode_world,ode_contact_group,contact+i);
 			dJointAttach (c,b1,b2);
