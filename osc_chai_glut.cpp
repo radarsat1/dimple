@@ -757,7 +757,7 @@ int poll_chai_requests()
 int hapticsEnable_handler(const char *path, const char *types, lo_arg **argv,
                           int argc, void *data, void *user_data)
 {
-	if (argv[0]->c==0)
+	if (argv[0]->d==0)
 		requestHapticsStop = 1;
 	else
 		requestHapticsStart = 1;
@@ -767,7 +767,7 @@ int hapticsEnable_handler(const char *path, const char *types, lo_arg **argv,
 int graphicsEnable_handler(const char *path, const char *types, lo_arg **argv,
                            int argc, void *data, void *user_data)
 {
-	 if (argv[0]->c) {
+	 if (argv[0]->d) {
 		  if (!glutStarted) {
 			   glutStarted = 1;
 		  }
