@@ -883,7 +883,7 @@ int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv
     world->addChild(pr);
     UNLOCK_WORLD();
 
-    printf("Prism added at (%f, %f, %f).\n", pos.x, pos.y, pos.z);
+    printf("Prism %s added at (%f, %f, %f).\n", ob->name(), pos.x, pos.y, pos.z);
     return 0;
 }
 
@@ -919,7 +919,7 @@ int objectSphereCreate_handler(const char *path, const char *types, lo_arg **arg
     world->addChild(sp);
     UNLOCK_WORLD();
 
-    printf("Sphere added at (%f, %f, %f).\n", pos.x, pos.y, pos.z);
+    printf("Sphere %s added at (%f, %f, %f).\n", ob->name(), pos.x, pos.y, pos.z);
     return 0;
 }
 
@@ -1232,7 +1232,7 @@ int main(int argc, char* argv[])
 	 printf ("\n");
 	 printf ("  ==========================================================\n");
 	 printf ("  DIMPLE: Dynamic Interactive Musically PhysicaL Environment\n");
-	 printf ("  Stephen Sinclair, IDMIL 2007                              \n");
+	 printf ("  Version 0.0.1 (alpha).        Stephen Sinclair, IDMIL 2007\n");
 	 printf ("  ==========================================================\n");
 	 printf ("\n");
 
