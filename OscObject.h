@@ -78,7 +78,7 @@ class OscObject : public OscBase
     void setDynamicVelocity(const dReal* vel);
     void setDynamicPosition(const dReal* pos);
 
-    void collidedWith(OscObject *o);
+    bool collidedWith(OscObject *o);
 
     const OscVector3& getPosition() { return m_position; }
     const OscVector3& getVelocity() { return m_velocity; }
@@ -92,6 +92,7 @@ class OscObject : public OscBase
     OscVector3 m_velocity;
     OscVector3 m_accel;
     OscVector3 m_position;
+    bool m_getCollide;
 
     static int destroy_handler(const char *path, const char *types, lo_arg **argv,
                                int argc, void *data, void *user_data);
@@ -99,6 +100,9 @@ class OscObject : public OscBase
                             int argc, void *data, void *user_data);
     static int force_handler(const char *path, const char *types, lo_arg **argv,
                              int argc, void *data, void *user_data);
+
+    static int collideGet_handler(const char *path, const char *types, lo_arg **argv,
+                                  int argc, void *data, void *user_data);
 
     static int velocityMagnitudeGet_handler(const char *path, const char *types, lo_arg **argv,
                                             int argc, void *data, void *user_data);
