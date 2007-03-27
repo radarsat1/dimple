@@ -7,6 +7,7 @@
 #include "CODEPrism.h"
 #include "CODESphere.h"
 #include <vector>
+#include <map>
 
 //! The OscBase class handles basic OSC functions for dealing with LibLo.
 //! It keeps a record of the object's name and classname which becomes
@@ -77,6 +78,8 @@ class OscObject : public OscBase
     void setDynamicVelocity(const dReal* vel);
     void setDynamicPosition(const dReal* pos);
 
+    void collidedWith(OscObject *o);
+
     const OscVector3& getPosition() { return m_position; }
     const OscVector3& getVelocity() { return m_velocity; }
     const OscVector3& getAccel() { return m_accel; }
@@ -84,6 +87,7 @@ class OscObject : public OscBase
   protected:
 	cGenericObject* m_objChai;
 	std::vector<std::string> m_constraintLinks;
+    std::map<OscObject*,int> m_collisions;
 
     OscVector3 m_velocity;
     OscVector3 m_accel;

@@ -85,4 +85,7 @@ void wait_chai_request(chai_callback *callback, cGenericObject *ob);
 int poll_ode_requests();
 int poll_chai_requests();
 
+// ODE simulation step count
+extern int ode_counter;
+
 #endif // _OSC_CHAI_GLUT_H_
