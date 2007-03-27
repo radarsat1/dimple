@@ -125,6 +125,8 @@ OscObject::OscObject(cGenericObject* p, const char *name)
     addHandler("destroy", ""   , OscObject::destroy_handler);
     addHandler("mass"   , "f"  , OscObject::mass_handler);
     addHandler("force"  , "fff", OscObject::force_handler);
+    addHandler("collide/get", "" , OscObject::collideGet_handler);
+    addHandler("collide/get", "i", OscObject::collideGet_handler);
 
     // Set initial physical properties
     m_accel[0] = 0;
@@ -136,6 +138,8 @@ OscObject::OscObject(cGenericObject* p, const char *name)
     m_position[0] = 0;
     m_position[1] = 0;
     m_position[2] = 0;
+
+    m_getCollide = false;
 
     // If the new object is supposed to be a part of a
     // composite object, find it and join.
@@ -214,14 +218,22 @@ void OscObject::setDynamicVelocity(const dReal* vel)
     m_velocity[2] = vel[2];
 }
 
-void OscObject::collidedWith(OscObject *o)
+//! Inform object that it is in collision with another object.
+//! \return True if this is a new collision
+bool OscObject::collidedWith(OscObject *o)
 {
+    bool rc=false;
     if (m_collisions[o] != ode_counter-1) {
-//        printf("%s: %s collisions = %d\n", name(), o->name(), m_collisions[o]);
-        lo_send(address_send, ("/object/"+m_name+"/collided").c_str(),
-                "s", o->name());
+        rc=true;
+        if (m_getCollide) {
+            lo_send(address_send, ("/object/"+m_name+"/collide").c_str(),
+                    "s", o->name());
+            // TODO: send collision force
+        }
     }
     m_collisions[o] = ode_counter;
+
+    return rc;
 }
 
 //! Set the position extracted from the dynamic simulation
@@ -269,6 +281,19 @@ int OscObject::force_handler(const char *path, const char *types, lo_arg **argv,
     dBodySetForce(me->odePrimitive()->m_odeBody, argv[0]->f, argv[1]->f, argv[2]->f);
     UNLOCK_WORLD();
     return 0;
+}
+
+int OscObject::collideGet_handler(const char *path, const char *types, lo_arg **argv,
+                                  int argc, void *data, void *user_data)
+{
+    OscObject *me = (OscObject*)user_data;
+
+    int interval=-1;
+    if (argc > 0) {
+        interval = argv[0]->i;
+    }
+    me->m_getCollide = (interval>0);
+    // TODO: only report one collision if multiple collisions occur within given interval
 }
 
 // ----------------------------------------------------------------------------------

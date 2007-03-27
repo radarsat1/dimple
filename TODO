@@ -1,0 +1,21 @@
+
+Development map:
+
+v0.1:
+
+* Fix removal of constraints during clear
+* Composite objects
+* Parameter request timer
+* Determine collision force
+
+v0.2:
+
+* Fix locking/threading issues (move to processes?)
+* Mesh objects
+* More proxy information
+* Proxy object "grab"
+
+v1.0:
+
+* Finish the OSC for Haptics specification
+* Complete implementation of the OSC for Haptics specification

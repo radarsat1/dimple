@@ -111,6 +111,7 @@ double force_scale = 0.1;
 
 bool clearFlag = false;
 int ode_counter = 0;
+bool bGetCollide = false;
 
 int mousepos[2];
 
@@ -357,9 +358,13 @@ void ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
         OscObject *p1 = static_cast<OscObject*>(dGeomGetData(o1));
         OscObject *p2 = static_cast<OscObject*>(dGeomGetData(o2));
         if (p1 && p2) {
-            p1->collidedWith(p2);
-            p2->collidedWith(p1);
-            // note: this strategy will NOT work for multiple collisions between same objects!!
+            bool co1 = p1->collidedWith(p2);
+            bool co2 = p2->collidedWith(p1);
+            if ( (co1 || co2) && bGetCollide ) {
+                lo_send(address_send, "/object/collide", "ss", p1->name(), p2->name());
+                // TODO: send collision force
+            }
+            // TODO: this strategy will NOT work for multiple collisions between same objects!!
         }
 		for (i=0; i<numc; i++) {
 			dJointID c = dJointCreateContact (ode_world,ode_contact_group,contact+i);
@@ -1114,6 +1119,16 @@ int constraintFixedCreate_handler(const char *path, const char *types, lo_arg **
     return 0;
 }
 
+int objectCollideGet_handler(const char *path, const char *types, lo_arg **argv,
+                             int argc, void *data, void *user_data)
+{
+    int interval=-1;
+    if (argc > 0) {
+        interval = argv[0]->i;
+    }
+    bGetCollide = (interval>0);
+}
+
 int unknown_handler(const char *path, const char *types, lo_arg **argv,
                     int argc, void *data, void *user_data)
 {
@@ -1150,7 +1165,8 @@ void initOSC()
 	 lo_server_thread_add_method(loserver, "/constraint/fixed/create", "sss", constraintFixedCreate_handler, NULL);
      lo_server_thread_add_method(loserver, "/world/clear", "", worldClear_handler, NULL);
      lo_server_thread_add_method(loserver, "/world/gravity", "f", worldGravity1_handler, NULL);
-     lo_server_thread_add_method(loserver, "/world/gravity", "fff", worldGravity3_handler, NULL);
+     lo_server_thread_add_method(loserver, "/object/collide/get", "", objectCollideGet_handler, NULL);
+     lo_server_thread_add_method(loserver, "/object/collide/get", "i", objectCollideGet_handler, NULL);
 
      // TODO: this seems to get messages even when it is handled by another function (bug?)
      //lo_server_thread_add_method(loserver, NULL, NULL, unknown_handler, NULL);
