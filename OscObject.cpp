@@ -1,6 +1,20 @@
 
+//======================================================================================
+/*
+    This file is part of DIMPLE, the Dynamic Interactive Musically PhysicaL Environment,
+
+    This code is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License("GPL") version 2
+    as published by the Free Software Foundation.  See the file LICENSE
+    for more information.
+
+    sinclair@music.mcgill.ca
+    http://www.music.mcgill.ca/~sinclair/content/dimple
+*/
+//======================================================================================
+
 #include "OscObject.h"
-#include "osc_chai_glut.h"
+#include "dimple.h"
 #include <assert.h>
 
 //! OscBase objects always have a name. Class name defaults to "".
@@ -597,10 +611,17 @@ OscFixed::OscFixed(const char *name, OscObject *object1, OscObject *object2)
 {
 	// create the constraint for object1
     if (object2)
-    object1->odePrimitive()->fixedLink(name, object2?object2->odePrimitive():NULL);
+        object1->odePrimitive()->fixedLink(name, object2?object2->odePrimitive():NULL);
 
+    // if object2 is world, then simply make the object have no "body"
+    // this ensures it will not react to any interaction, and is thus fixed in place
+    // (other objects will still collide with it, but it won't budge.)
     if (!object2) {
         dGeomSetBody(object1->odePrimitive()->m_odeGeom, 0);
+        
+        // track this constraint
+        std::string s(name);
+        object1->linkConstraint(s);
     }
 
     printf("Fixed joint created between %s and %s\n",

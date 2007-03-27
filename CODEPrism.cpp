@@ -1,14 +1,21 @@
 
-//===========================================================================
+//======================================================================================
 /*
-    This file is part of a proof-of-concept implementation for using
-    Open SoundControl to interact with a haptic virtual environment.
+    This file is part of DIMPLE, the Dynamic Interactive Musically PhysicaL Environment,
 
-    stephen.sinclair@mail.mcgill.ca
+    This code is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License("GPL") version 2
+    as published by the Free Software Foundation.  See the file LICENSE
+    for more information.
+
+    sinclair@music.mcgill.ca
+    http://www.music.mcgill.ca/~sinclair/content/dimple
+
+    This file based on example code from CHAI 3D
 */
-//===========================================================================
+//======================================================================================
 
-#include "osc_chai_glut.h"
+#include "dimple.h"
 #include "CODEPrism.h"
 
 cODEPrism::cODEPrism(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpace, const cVector3d& a_size)

@@ -1,4 +1,18 @@
 
+//======================================================================================
+/*
+    This file is part of DIMPLE, the Dynamic Interactive Musically PhysicaL Environment,
+
+    This code is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License("GPL") version 2
+    as published by the Free Software Foundation.  See the file LICENSE
+    for more information.
+
+    sinclair@music.mcgill.ca
+    http://www.music.mcgill.ca/~sinclair/content/dimple
+*/
+//======================================================================================
+
 #ifndef _OSC_CHAI_GLUT_H_
 #define _OSC_CHAI_GLUT_H_
 

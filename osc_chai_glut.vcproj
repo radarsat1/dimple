@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="osc_chai_glut"
+	Name="dimple"
 	ProjectGUID="{03968EC1-C6F9-4811-8EED-4A68A5F0E965}"
 	SccProjectName=""
 	SccLocalPath="">
@@ -30,7 +30,7 @@
 				EnableFunctionLevelLinking="TRUE"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\Release/osc_chai_glut.pch"
+				PrecompiledHeaderFile=".\Release/dimple.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
@@ -42,16 +42,16 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="atls.lib winmm.lib opengl32.lib chai3d_complete.lib glu32.lib odbc32.lib odbccp32.lib liblo-0.23\Release\liblo.lib wsock32.lib pthreadVC2.lib ode-0.7/lib/releaselib/ode.lib"
-				OutputFile="osc_chai_glut.exe"
+				OutputFile="dimple.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile=".\Release/osc_chai_glut_msvc7.pdb"
+				ProgramDatabaseFile=".\Release/dimple_msvc7.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/osc_chai_glut.tlb"
+				TypeLibraryName=".\Release/dimple.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -91,7 +91,7 @@
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\Debug/osc_chai_glut.pch"
+				PrecompiledHeaderFile=".\Debug/dimple.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
@@ -104,17 +104,17 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="atls.lib winmm.lib opengl32.lib chai3d_complete.lib glu32.lib odbc32.lib odbccp32.lib liblo-0.23\Debug\liblo.lib wsock32.lib pthreadVC2.lib ode-0.7/lib/debuglib/ode.lib"
-				OutputFile="osc_chai_glut_d.exe"
+				OutputFile="dimple_d.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Debug/osc_chai_glut_msvc7.pdb"
+				ProgramDatabaseFile=".\Debug/dimple_msvc7.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/osc_chai_glut.tlb"
+				TypeLibraryName=".\Debug/dimple.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -160,7 +160,7 @@
 				RelativePath=".\CODESphere.cpp">
 			</File>
 			<File
-				RelativePath="osc_chai_glut.cpp">
+				RelativePath="dimple.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -205,7 +205,7 @@
 				RelativePath=".\CODESphere.h">
 			</File>
 			<File
-				RelativePath=".\osc_chai_glut.h">
+				RelativePath=".\dimple.h">
 			</File>
 			<File
 				RelativePath=".\OscObject.h">
