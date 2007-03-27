@@ -1,12 +1,17 @@
 
-//===========================================================================
+//======================================================================================
 /*
-    This file is part of a proof-of-concept implementation for using
-    Open SoundControl to interact with a haptic virtual environment.
+    This file is part of DIMPLE, the Dynamic Interactive Musically PhysicaL Environment,
 
-    stephen.sinclair@mail.mcgill.ca
+    This code is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License("GPL") version 2
+    as published by the Free Software Foundation.  See the file LICENSE
+    for more information.
+
+    sinclair@music.mcgill.ca
+    http://www.music.mcgill.ca/~sinclair/content/dimple
 */
-//===========================================================================
+//======================================================================================
 
 #define _WINSOCKAPI_
 //---------------------------------------------------------------------------
@@ -37,7 +42,7 @@
 #include "CMeta3dofPointer.h"
 #include "CShapeSphere.h"
 //---------------------------------------------------------------------------
-#include "osc_chai_glut.h"
+#include "dimple.h"
 #include "CODEMesh.h"
 #include "CODEProxy.h"
 #include "CODEPrism.h"
@@ -84,7 +89,7 @@ int glutStarted = 0;
 int hapticsStarted = 0;
 int requestHapticsStart = 0;
 int requestHapticsStop = 0;
-float globalForceMagnitude = 0;
+float proxyForceMagnitude = 0;
 int quit = 0;
 int lock_world = 0;
 pthread_t ode_pthread;
@@ -328,7 +333,7 @@ void hapticsLoop(void* a_pUserData)
     // get position of cursor in global coordinates
     cVector3d cursorPos = cursor->m_deviceGlobalPos;
 
-	globalForceMagnitude = cursor->m_lastComputedGlobalForce.length();
+	proxyForceMagnitude = cursor->m_lastComputedGlobalForce.length();
 }
 
 //---------------------------------------------------------------------------
@@ -569,13 +574,13 @@ void initGlutWindow()
     glutInitWindowSize(512, 512);
     glutInitWindowPosition(0, 0);
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
-    glutCreateWindow("DEFAULT WINDOW");
+    glutCreateWindow("Dimple");
     glutDisplayFunc(draw);
     glutKeyboardFunc(key);
     glutMouseFunc(mouse);
     glutMotionFunc(motion);
     glutReshapeFunc(rezizeWindow);
-    glutSetWindowTitle("OSC for Haptics");
+    glutSetWindowTitle("Dimple");
 
     // create a mouse menu
     glutCreateMenu(setOther);
@@ -1219,21 +1224,16 @@ void poll_requests()
 			stopHaptics();
 		requestHapticsStop = 0;
 	}
-
-	if (globalForceMagnitude!=0) {
-		lo_send(address_send, "/force/magnitude", "f", globalForceMagnitude);
-		globalForceMagnitude = 0;
-	}
 }
 
 int main(int argc, char* argv[])
 {
 	 // display pretty message
 	 printf ("\n");
-	 printf ("  =============================================\n");
-	 printf ("  OSC for Haptics - CHAI 3D/GLUT implementation\n");
-	 printf ("  Stephen Sinclair, IDMIL/CIRMMT 2006     \n");
-	 printf ("  =============================================\n");
+	 printf ("  ==========================================================\n");
+	 printf ("  DIMPLE: Dynamic Interactive Musically PhysicaL Environment\n");
+	 printf ("  Stephen Sinclair, IDMIL 2007                              \n");
+	 printf ("  ==========================================================\n");
 	 printf ("\n");
 
 	 signal(SIGINT, sighandler_quit);
@@ -1242,32 +1242,6 @@ int main(int argc, char* argv[])
 	 initOSC();
 	 initWorld();
 	 initODE();
-
-	 /*
-	 cODEMesh *o1 = new cODEPrism(world, ode_world, ode_space, cVector3d(0.1,0.1,0.1));
-	 objects["test1"] = o1;
-	 world->addChild(o1);
-     cVector3d pos(0,0.05,0);
-     o1->setDynamicPosition(pos);
-	 o1->setMass(2);
-
-	 cODEMesh *o2 = new cODEPrism(world, ode_world, ode_space, cVector3d(0.1,0.1,0.1));
-	 objects["test2"] = o2;
-	 world->addChild(o2);
-     pos.set(0,-0.05,0);
-     o2->setDynamicPosition(pos);
-	 o2->setMass(2);
-
-	 o1->fixedLink("testlink", NULL);
-
-	 cODESphere *o3 = new cODESphere(world, ode_world, ode_space, 0.04);
-	 objects["sphere"] = o3;
-	 world->addChild(o3);
-     pos.set(0,0,0.1);
-     o3->setDynamicPosition(pos);
-	 o3->setMass(2);
-     dBodySetLinearVel(o3->m_odeBody, 0, 0, -0.05);
-	 */
 
 	 // initially loop just waiting for messages
 	 glutInit(&argc, argv);

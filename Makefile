@@ -2,7 +2,7 @@
 #
 # If you don't have the SensAble libraries installed, take out -lHD and -lHDU from the LIBS line
 
-OBJECTS = osc_chai_glut.o \
+OBJECTS = dimple.o \
 	CODEPrimitive.o \
 	CODEMesh.o \
 	CODEPrism.o \
@@ -37,16 +37,16 @@ LIBS +=  $(LINUX_LIBS) $(LINUX_CHAI_LIBS)
 endif
 endif
 
-all: osc_chai_glut
+all: dimple
 
 %.o: %.cpp  $(wildcard *.h)
 	$(CC) $(CFLAGS) $<
 
 # Actual target and dependencies
-osc_chai_glut: $(OBJECTS)
-	$(LD) osc_chai_glut $(LOCALOBJS) $(LIBS)
+dimple: $(OBJECTS)
+	$(LD) dimple $(LOCALOBJS) $(LIBS)
 	@echo "compilation done"
 
 # Target deleting unwanted files
 clean:
-	\rm -f *.o *~ osc_chai_glut core 
+	\rm -f *.o *~ dimple core 
