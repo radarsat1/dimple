@@ -357,8 +357,8 @@ void ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
         OscObject *p1 = static_cast<OscObject*>(dGeomGetData(o1));
         OscObject *p2 = static_cast<OscObject*>(dGeomGetData(o2));
         if (p1 && p2) {
-//            p1->collidedWith(p2);
-//            p2->collidedWith(p1);
+            p1->collidedWith(p2);
+            p2->collidedWith(p1);
             // note: this strategy will NOT work for multiple collisions between same objects!!
         }
 		for (i=0; i<numc; i++) {

@@ -214,6 +214,16 @@ void OscObject::setDynamicVelocity(const dReal* vel)
     m_velocity[2] = vel[2];
 }
 
+void OscObject::collidedWith(OscObject *o)
+{
+    if (m_collisions[o] != ode_counter-1) {
+//        printf("%s: %s collisions = %d\n", name(), o->name(), m_collisions[o]);
+        lo_send(address_send, ("/object/"+m_name+"/collided").c_str(),
+                "s", o->name());
+    }
+    m_collisions[o] = ode_counter;
+}
+
 //! Set the position extracted from the dynamic simulation
 void OscObject::setDynamicPosition(const dReal* pos)
 {
@@ -260,30 +270,6 @@ int OscObject::force_handler(const char *path, const char *types, lo_arg **argv,
     UNLOCK_WORLD();
     return 0;
 }
-
-/*
-int OscObject::velocityMagnitudeGet_handler(const char *path, const char *types, lo_arg **argv,
-                                            int argc, void *data, void *user_data)
-{
-    OscObject *me = (OscObject*)user_data;
-    double velmag = sqrt(  me->m_velocity[0]*me->m_velocity[0]
-                         + me->m_velocity[1]*me->m_velocity[1]
-                         + me->m_velocity[2]*me->m_velocity[2]);
-    lo_send(address_send, ("/object/"+me->m_name+"/velocity/magnitude").c_str(),
-            "f", velmag);
-}
-
-int OscObject::accelerationMagnitudeGet_handler(const char *path, const char *types, lo_arg **argv,
-                                                int argc, void *data, void *user_data)
-{
-    OscObject *me = (OscObject*)user_data;
-    double accmag = sqrt(  me->m_accel[0]*me->m_accel[0]
-                         + me->m_accel[1]*me->m_accel[1]
-                         + me->m_accel[2]*me->m_accel[2]);
-    lo_send(address_send, ("/object/"+me->m_name+"/acceleration/magnitude").c_str(),
-            "f", accmag);
-}
-*/
 
 // ----------------------------------------------------------------------------------
 
