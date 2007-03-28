@@ -114,7 +114,6 @@ cVector3d lastForce;
 cVector3d lastContactPoint;
 double force_scale = 0.1;
 
-bool clearFlag = false;
 int ode_counter = 0;
 bool bGetCollide = false;
 
@@ -382,27 +381,15 @@ void ode_hapticsLoop(void* a_pUserData)
 {
     bool cursor_ready = true;
 
-    if (clearFlag) {
-        LOCK_WORLD();
-        objects_iter it;
-        for (it=world_objects.begin(); it!=world_objects.end(); it++)
-        {
-            OscObject *o = world_objects[(*it).first];
-            if (o) delete o;
-        }
-
-        world_objects.clear();
-        UNLOCK_WORLD();
-        clearFlag = false;
-    }
-
     // process any waiting Chai messages
     while (poll_chai_requests());
-    
+
     // Skip this timestep if world is being modified
     // TODO: improve this to avoid haptic glitches
+    /*
     if (WORLD_LOCKED())
         return;
+        */
 
 #ifdef ODE_IN_HAPTICS_LOOP
     // update ODE
@@ -504,10 +491,13 @@ void ode_simStep()
 void* ode_threadproc(void*p)
 {
     while (!quit) {
+    fflush(stdout);
         Sleep((int)(ode_step*1000.0));
         while (poll_ode_requests());
-        if (!WORLD_LOCKED()) {
+/*        if (!WORLD_LOCKED()) */{
+            LOCK_WORLD();
             ode_simStep();
+            UNLOCK_WORLD();
         }
     }
 
@@ -635,8 +625,10 @@ void startHaptics()
 	printf("Haptics started.\n");
 
 #ifdef ODE_IN_HAPTICS_LOOP
+    /*
         ode_step = HAPTIC_TIMESTEP_MS / 1000.0;
     printf("ode_step = %f\n", ode_step);
+    */
 #endif
 }
 
@@ -875,6 +867,7 @@ int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv
     cVector3d size(0.01,0.01,0.01);
 
     // Create object
+    WAIT_WORLD_LOCK();
     LOCK_WORLD();
     cODEPrism *pr = new cODEPrism(world,ode_world,ode_space,size);
     pr->setDynamicPosition(pos);
@@ -912,6 +905,7 @@ int objectSphereCreate_handler(const char *path, const char *types, lo_arg **arg
 		 pos.z = argv[3]->f;
 
     // Create object
+    WAIT_WORLD_LOCK();
     LOCK_WORLD();
     cODESphere *sp = new cODESphere(world,ode_world,ode_space,0.01);
     sp->setDynamicPosition(pos);
@@ -1246,6 +1240,7 @@ int main(int argc, char* argv[])
 	 printf ("  Version 0.0.1 (alpha).        Stephen Sinclair, IDMIL 2007\n");
 	 printf ("  ==========================================================\n");
 	 printf ("\n");
+     fflush(stdout);
 
 	 signal(SIGINT, sighandler_quit);
 

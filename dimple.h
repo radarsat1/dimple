@@ -60,6 +60,7 @@ extern int lock_world;
 #define LOCK_WORLD() (lock_world++)
 //#define LOCK_WORLD() (lock_world=0)
 #define UNLOCK_WORLD() (lock_world--)
+#define WAIT_WORLD_LOCK() {while (lock_world) Sleep(1);}
 
 // Request structure
 class request {
