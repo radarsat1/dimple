@@ -3,7 +3,6 @@ Development map:
 
 v0.1:
 
-* Fix removal of constraints during clear
 * Composite objects
 * Parameter request timer
 * Determine collision force
