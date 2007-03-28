@@ -308,6 +308,8 @@ int OscObject::collideGet_handler(const char *path, const char *types, lo_arg **
     }
     me->m_getCollide = (interval>0);
     // TODO: only report one collision if multiple collisions occur within given interval
+
+    return 0;
 }
 
 // ----------------------------------------------------------------------------------
