@@ -1,6 +1,6 @@
-diff -urN liblo-0.23/LibLo.sln liblo-0.23-msvc7/LibLo.sln
---- liblo-0.23/LibLo.sln	1969-12-31 19:00:00.000000000 -0500
-+++ liblo-0.23-msvc7/LibLo.sln	2006-12-22 10:15:59.125000000 -0500
+diff -ruwN liblo-0.23.orig/LibLo.sln liblo-0.23/LibLo.sln
+--- liblo-0.23.orig/LibLo.sln	1969-12-31 19:00:00.000000000 -0500
++++ liblo-0.23/LibLo.sln	2007-03-28 11:45:38.312500000 -0400
 @@ -0,0 +1,39 @@
 +Microsoft Visual Studio Solution File, Format Version 8.00
 +Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibLo", "LibLo.vcproj", "{EE96A36F-F672-4B6C-9A6A-01C7604A70E5}"
@@ -41,9 +41,9 @@ diff -urN liblo-0.23/LibLo.sln liblo-0.23-msvc7/LibLo.sln
 +	GlobalSection(ExtensibilityAddIns) = postSolution
 +	EndGlobalSection
 +EndGlobal
-diff -urN liblo-0.23/LibLo.vcproj liblo-0.23-msvc7/LibLo.vcproj
---- liblo-0.23/LibLo.vcproj	1969-12-31 19:00:00.000000000 -0500
-+++ liblo-0.23-msvc7/LibLo.vcproj	2006-12-21 21:52:42.000000000 -0500
+diff -ruwN liblo-0.23.orig/LibLo.vcproj liblo-0.23/LibLo.vcproj
+--- liblo-0.23.orig/LibLo.vcproj	1969-12-31 19:00:00.000000000 -0500
++++ liblo-0.23/LibLo.vcproj	2007-03-28 11:45:38.312500000 -0400
 @@ -0,0 +1,156 @@
 +<?xml version="1.0" encoding="Windows-1252"?>
 +<VisualStudioProject
@@ -201,9 +201,9 @@ diff -urN liblo-0.23/LibLo.vcproj liblo-0.23-msvc7/LibLo.vcproj
 +	<Globals>
 +	</Globals>
 +</VisualStudioProject>
-diff -urN liblo-0.23/examples/example_client.c liblo-0.23-msvc7/examples/example_client.c
---- liblo-0.23/examples/example_client.c	2004-08-07 18:21:02.000000000 -0400
-+++ liblo-0.23-msvc7/examples/example_client.c	2006-12-21 20:31:10.093750000 -0500
+diff -ruwN liblo-0.23.orig/examples/example_client.c liblo-0.23/examples/example_client.c
+--- liblo-0.23.orig/examples/example_client.c	2004-08-07 18:21:02.000000000 -0400
++++ liblo-0.23/examples/example_client.c	2007-03-28 11:45:38.312500000 -0400
 @@ -16,7 +16,9 @@
  
  #include <stdio.h>
@@ -214,9 +214,9 @@ diff -urN liblo-0.23/examples/example_client.c liblo-0.23-msvc7/examples/example
  
  #include "lo/lo.h"
  
-diff -urN liblo-0.23/examples/example_server.c liblo-0.23-msvc7/examples/example_server.c
---- liblo-0.23/examples/example_server.c	2005-04-25 17:46:46.000000000 -0400
-+++ liblo-0.23-msvc7/examples/example_server.c	2006-12-21 19:35:39.984375000 -0500
+diff -ruwN liblo-0.23.orig/examples/example_server.c liblo-0.23/examples/example_server.c
+--- liblo-0.23.orig/examples/example_server.c	2005-04-25 17:46:46.000000000 -0400
++++ liblo-0.23/examples/example_server.c	2007-03-28 11:45:38.328125000 -0400
 @@ -16,7 +16,11 @@
  
  #include <stdio.h>
@@ -229,9 +229,9 @@ diff -urN liblo-0.23/examples/example_server.c liblo-0.23-msvc7/examples/example
  
  #include "lo/lo.h"
  
-diff -urN liblo-0.23/examples/liblo_example_client.vcproj liblo-0.23-msvc7/examples/liblo_example_client.vcproj
---- liblo-0.23/examples/liblo_example_client.vcproj	1969-12-31 19:00:00.000000000 -0500
-+++ liblo-0.23-msvc7/examples/liblo_example_client.vcproj	2006-12-21 21:53:30.484375000 -0500
+diff -ruwN liblo-0.23.orig/examples/liblo_example_client.vcproj liblo-0.23/examples/liblo_example_client.vcproj
+--- liblo-0.23.orig/examples/liblo_example_client.vcproj	1969-12-31 19:00:00.000000000 -0500
++++ liblo-0.23/examples/liblo_example_client.vcproj	2007-03-28 11:45:38.328125000 -0400
 @@ -0,0 +1,136 @@
 +<?xml version="1.0" encoding="Windows-1252"?>
 +<VisualStudioProject
@@ -369,9 +369,9 @@ diff -urN liblo-0.23/examples/liblo_example_client.vcproj liblo-0.23-msvc7/examp
 +	<Globals>
 +	</Globals>
 +</VisualStudioProject>
-diff -urN liblo-0.23/examples/liblo_example_server.vcproj liblo-0.23-msvc7/examples/liblo_example_server.vcproj
---- liblo-0.23/examples/liblo_example_server.vcproj	1969-12-31 19:00:00.000000000 -0500
-+++ liblo-0.23-msvc7/examples/liblo_example_server.vcproj	2006-12-21 21:53:30.484375000 -0500
+diff -ruwN liblo-0.23.orig/examples/liblo_example_server.vcproj liblo-0.23/examples/liblo_example_server.vcproj
+--- liblo-0.23.orig/examples/liblo_example_server.vcproj	1969-12-31 19:00:00.000000000 -0500
++++ liblo-0.23/examples/liblo_example_server.vcproj	2007-03-28 11:45:38.343750000 -0400
 @@ -0,0 +1,137 @@
 +<?xml version="1.0" encoding="Windows-1252"?>
 +<VisualStudioProject
@@ -510,9 +510,9 @@ diff -urN liblo-0.23/examples/liblo_example_server.vcproj liblo-0.23-msvc7/examp
 +	<Globals>
 +	</Globals>
 +</VisualStudioProject>
-diff -urN liblo-0.23/lo/lo.h liblo-0.23-msvc7/lo/lo.h
---- liblo-0.23/lo/lo.h	2005-12-05 17:25:31.000000000 -0500
-+++ liblo-0.23-msvc7/lo/lo.h	2006-12-21 19:48:36.109375000 -0500
+diff -ruwN liblo-0.23.orig/lo/lo.h liblo-0.23/lo/lo.h
+--- liblo-0.23.orig/lo/lo.h	2005-12-05 17:25:31.000000000 -0500
++++ liblo-0.23/lo/lo.h	2007-03-28 11:45:38.343750000 -0400
 @@ -25,6 +25,16 @@
   * \file lo.h The liblo main headerfile and high-level API functions.
   */
@@ -705,9 +705,9 @@ diff -urN liblo-0.23/lo/lo.h liblo-0.23-msvc7/lo/lo.h
  
  /** @} */
  
-diff -urN liblo-0.23/lo/lo_endian.h liblo-0.23-msvc7/lo/lo_endian.h
---- liblo-0.23/lo/lo_endian.h	2006-01-26 10:01:18.000000000 -0500
-+++ liblo-0.23-msvc7/lo/lo_endian.h	2006-12-21 20:48:15.125000000 -0500
+diff -ruwN liblo-0.23.orig/lo/lo_endian.h liblo-0.23/lo/lo_endian.h
+--- liblo-0.23.orig/lo/lo_endian.h	2006-01-26 10:01:18.000000000 -0500
++++ liblo-0.23/lo/lo_endian.h	2007-03-28 11:45:38.343750000 -0400
 @@ -18,12 +18,14 @@
  #define LO_ENDIAN_H
  
@@ -733,9 +733,9 @@ diff -urN liblo-0.23/lo/lo_endian.h liblo-0.23-msvc7/lo/lo_endian.h
  #define lo_htoo16(x) (x)
  #define lo_htoo32(x) (x)
  #define lo_htoo64(x) (x)
-diff -urN liblo-0.23/lo/lo_lowlevel.h liblo-0.23-msvc7/lo/lo_lowlevel.h
---- liblo-0.23/lo/lo_lowlevel.h	2006-01-26 09:11:49.000000000 -0500
-+++ liblo-0.23-msvc7/lo/lo_lowlevel.h	2006-12-21 19:39:41.625000000 -0500
+diff -ruwN liblo-0.23.orig/lo/lo_lowlevel.h liblo-0.23/lo/lo_lowlevel.h
+--- liblo-0.23.orig/lo/lo_lowlevel.h	2006-01-26 09:11:49.000000000 -0500
++++ liblo-0.23/lo/lo_lowlevel.h	2007-03-28 11:45:38.343750000 -0400
 @@ -23,7 +23,11 @@
  extern "C" {
  #endif
@@ -766,9 +766,9 @@ diff -urN liblo-0.23/lo/lo_lowlevel.h liblo-0.23-msvc7/lo/lo_lowlevel.h
  
  
  /** \brief Find the time difference between two timetags
-diff -urN liblo-0.23/lo/lo_macros.h liblo-0.23-msvc7/lo/lo_macros.h
---- liblo-0.23/lo/lo_macros.h	2005-12-05 17:22:09.000000000 -0500
-+++ liblo-0.23-msvc7/lo/lo_macros.h	2006-12-22 09:16:58.546875000 -0500
+diff -ruwN liblo-0.23.orig/lo/lo_macros.h liblo-0.23/lo/lo_macros.h
+--- liblo-0.23.orig/lo/lo_macros.h	2005-12-05 17:22:09.000000000 -0500
++++ liblo-0.23/lo/lo_macros.h	2007-03-28 11:45:38.359375000 -0400
 @@ -17,6 +17,8 @@
  #ifndef LO_MACROS_H
  #define LO_MACROS_H
@@ -801,9 +801,9 @@ diff -urN liblo-0.23/lo/lo_macros.h liblo-0.23-msvc7/lo/lo_macros.h
  #ifdef __cplusplus
  }
  #endif
-diff -urN liblo-0.23/lo/lo_msvc_stdint.h liblo-0.23-msvc7/lo/lo_msvc_stdint.h
---- liblo-0.23/lo/lo_msvc_stdint.h	1969-12-31 19:00:00.000000000 -0500
-+++ liblo-0.23-msvc7/lo/lo_msvc_stdint.h	2006-12-21 20:33:29.515625000 -0500
+diff -ruwN liblo-0.23.orig/lo/lo_msvc_stdint.h liblo-0.23/lo/lo_msvc_stdint.h
+--- liblo-0.23.orig/lo/lo_msvc_stdint.h	1969-12-31 19:00:00.000000000 -0500
++++ liblo-0.23/lo/lo_msvc_stdint.h	2007-03-28 11:45:38.359375000 -0400
 @@ -0,0 +1,188 @@
 +/* stdint.h - integer types
 +
@@ -993,9 +993,9 @@ diff -urN liblo-0.23/lo/lo_msvc_stdint.h liblo-0.23-msvc7/lo/lo_msvc_stdint.h
 +#define UINTMAX_C(x) x ## ULL
 +
 +#endif /* _STDINT_H */
-diff -urN liblo-0.23/lo/lo_osc_types.h liblo-0.23-msvc7/lo/lo_osc_types.h
---- liblo-0.23/lo/lo_osc_types.h	2005-12-26 20:58:02.000000000 -0500
-+++ liblo-0.23-msvc7/lo/lo_osc_types.h	2006-12-21 19:39:18.750000000 -0500
+diff -ruwN liblo-0.23.orig/lo/lo_osc_types.h liblo-0.23/lo/lo_osc_types.h
+--- liblo-0.23.orig/lo/lo_osc_types.h	2005-12-26 20:58:02.000000000 -0500
++++ liblo-0.23/lo/lo_osc_types.h	2007-03-28 11:45:38.359375000 -0400
 @@ -17,7 +17,11 @@
  #ifndef LO_OSC_TYPES_H
  #define LO_OSC_TYPES_H
@@ -1018,9 +1018,9 @@ diff -urN liblo-0.23/lo/lo_osc_types.h liblo-0.23-msvc7/lo/lo_osc_types.h
  
  /** @} */
  
-diff -urN liblo-0.23/src/address.c liblo-0.23-msvc7/src/address.c
---- liblo-0.23/src/address.c	2005-12-26 20:58:02.000000000 -0500
-+++ liblo-0.23-msvc7/src/address.c	2006-12-21 20:24:24.265625000 -0500
+diff -ruwN liblo-0.23.orig/src/address.c liblo-0.23/src/address.c
+--- liblo-0.23.orig/src/address.c	2005-12-26 20:58:02.000000000 -0500
++++ liblo-0.23/src/address.c	2007-03-28 11:45:38.375000000 -0400
 @@ -16,21 +16,24 @@
  
  #include <stdio.h>
@@ -1048,9 +1048,9 @@ diff -urN liblo-0.23/src/address.c liblo-0.23-msvc7/src/address.c
  
  lo_address lo_address_new(const char *host, const char *port)
  {
-diff -urN liblo-0.23/src/bundle.c liblo-0.23-msvc7/src/bundle.c
---- liblo-0.23/src/bundle.c	2005-09-02 18:41:07.000000000 -0400
-+++ liblo-0.23-msvc7/src/bundle.c	2006-12-21 17:55:23.171875000 -0500
+diff -ruwN liblo-0.23.orig/src/bundle.c liblo-0.23/src/bundle.c
+--- liblo-0.23.orig/src/bundle.c	2005-09-02 18:41:07.000000000 -0400
++++ liblo-0.23/src/bundle.c	2007-03-28 11:45:38.375000000 -0400
 @@ -113,7 +113,7 @@
  	    return NULL;
  	}
@@ -1060,9 +1060,9 @@ diff -urN liblo-0.23/src/bundle.c liblo-0.23-msvc7/src/bundle.c
  	fprintf(stderr, "liblo: data integrity error\n");
  
  	return NULL;
-diff -urN liblo-0.23/src/message.c liblo-0.23-msvc7/src/message.c
---- liblo-0.23/src/message.c	2005-08-11 05:07:29.000000000 -0400
-+++ liblo-0.23-msvc7/src/message.c	2006-12-21 20:48:46.203125000 -0500
+diff -ruwN liblo-0.23.orig/src/message.c liblo-0.23/src/message.c
+--- liblo-0.23.orig/src/message.c	2005-08-11 05:07:29.000000000 -0400
++++ liblo-0.23/src/message.c	2007-03-28 11:45:38.375000000 -0400
 @@ -226,7 +226,7 @@
  	m->data = realloc(m->data, m->datasize);
      }
@@ -1107,9 +1107,9 @@ diff -urN liblo-0.23/src/message.c liblo-0.23-msvc7/src/message.c
      }
  }
  
-diff -urN liblo-0.23/src/msvc_config.h liblo-0.23-msvc7/src/msvc_config.h
---- liblo-0.23/src/msvc_config.h	1969-12-31 19:00:00.000000000 -0500
-+++ liblo-0.23-msvc7/src/msvc_config.h	2006-12-21 17:58:35.468750000 -0500
+diff -ruwN liblo-0.23.orig/src/msvc_config.h liblo-0.23/src/msvc_config.h
+--- liblo-0.23.orig/src/msvc_config.h	1969-12-31 19:00:00.000000000 -0500
++++ liblo-0.23/src/msvc_config.h	2007-03-28 11:45:38.390625000 -0400
 @@ -0,0 +1,80 @@
 +/* config.h.  Generated by configure.  */
 +/* config.h.in.  Generated from configure.in by autoheader.  */
@@ -1191,9 +1191,9 @@ diff -urN liblo-0.23/src/msvc_config.h liblo-0.23-msvc7/src/msvc_config.h
 +
 +/* Define to `unsigned' if <sys/types.h> does not define. */
 +/* #undef size_t */
-diff -urN liblo-0.23/src/send.c liblo-0.23-msvc7/src/send.c
---- liblo-0.23/src/send.c	2006-01-26 10:00:28.000000000 -0500
-+++ liblo-0.23-msvc7/src/send.c	2006-12-22 09:14:17.203125000 -0500
+diff -ruwN liblo-0.23.orig/src/send.c liblo-0.23/src/send.c
+--- liblo-0.23.orig/src/send.c	2006-01-26 10:00:28.000000000 -0500
++++ liblo-0.23/src/send.c	2007-03-28 11:46:01.078125000 -0400
 @@ -23,13 +23,14 @@
  #include <stdio.h>
  #include <string.h>
@@ -1362,7 +1362,7 @@ diff -urN liblo-0.23/src/send.c liblo-0.23-msvc7/src/send.c
  		exit(1);
  	    }
  	    lo_message_add_symbol(msg, s);
-@@ -331,7 +372,7 @@
+@@ -331,29 +372,30 @@
  	default:
  	    t->errnum = -1;
  	    t->errstr = "unknown type";
@@ -1371,7 +1371,10 @@ diff -urN liblo-0.23/src/send.c liblo-0.23-msvc7/src/send.c
  		    *(types-1), file, line);
  	    break;
  	}
-@@ -341,19 +382,18 @@
+     }
++#if 0
+     i = va_arg(ap, uint32_t);
+     if (i != LO_MARKER_A) {
  	t->errnum = -1;
  	t->errstr = "bad format/args";
  	fprintf(stderr, "liblo error: lo_send called with mismatching types "
@@ -1386,6 +1389,7 @@ diff -urN liblo-0.23/src/send.c liblo-0.23-msvc7/src/send.c
 -	        "and data at\n%s:%d, exiting.\n", file, line);
 +	        "and data" FILELINE ", exiting.\n", file, line);
      }
++#endif
      va_end(ap);
  }
  
@@ -1393,9 +1397,9 @@ diff -urN liblo-0.23/src/send.c liblo-0.23-msvc7/src/send.c
  static int resolve_address(lo_address a)
  {
      int ret;
-diff -urN liblo-0.23/src/server.c liblo-0.23-msvc7/src/server.c
---- liblo-0.23/src/server.c	2006-01-26 10:00:28.000000000 -0500
-+++ liblo-0.23-msvc7/src/server.c	2006-12-21 20:20:21.781250000 -0500
+diff -ruwN liblo-0.23.orig/src/server.c liblo-0.23/src/server.c
+--- liblo-0.23.orig/src/server.c	2006-01-26 10:00:28.000000000 -0500
++++ liblo-0.23/src/server.c	2007-03-28 11:45:38.390625000 -0400
 @@ -19,7 +19,6 @@
  #endif
  
@@ -1470,11 +1474,11 @@ diff -urN liblo-0.23/src/server.c liblo-0.23-msvc7/src/server.c
      if (!strcmp(path, "#bundle")) {
  	char *pos = types;
  	uint32_t len;
-diff -urN liblo-0.23/src/server_thread.c liblo-0.23-msvc7/src/server_thread.c
---- liblo-0.23/src/server_thread.c	2006-01-26 10:00:28.000000000 -0500
-+++ liblo-0.23-msvc7/src/server_thread.c	2006-12-21 20:02:04.500000000 -0500
+diff -ruwN liblo-0.23.orig/src/server_thread.c liblo-0.23/src/server_thread.c
+--- liblo-0.23.orig/src/server_thread.c	2006-01-26 10:00:28.000000000 -0500
++++ liblo-0.23/src/server_thread.c	2007-03-28 11:45:38.406250000 -0400
 @@ -14,7 +14,6 @@
-  *  $Id: liblo-0.23-msvc7.patch,v 1.1 2007/01/02 16:05:38 sinclairs Exp $
+  *  $Id: server_thread.c,v 1.8 2006/01/26 15:00:28 nhumfrey Exp $
   */
  
 -#include <unistd.h>
@@ -1489,9 +1493,162 @@ diff -urN liblo-0.23/src/server_thread.c liblo-0.23-msvc7/src/server_thread.c
  #include <netdb.h>
  #include <sys/socket.h>
  #endif
-diff -urN liblo-0.23/src/subtest.c liblo-0.23-msvc7/src/subtest.c
---- liblo-0.23/src/subtest.c	2005-07-05 09:26:23.000000000 -0400
-+++ liblo-0.23-msvc7/src/subtest.c	2006-12-21 19:02:18.578125000 -0500
+diff -ruwN liblo-0.23.orig/src/server_thread.c.orig liblo-0.23/src/server_thread.c.orig
+--- liblo-0.23.orig/src/server_thread.c.orig	1969-12-31 19:00:00.000000000 -0500
++++ liblo-0.23/src/server_thread.c.orig	2006-01-26 10:00:28.000000000 -0500
+@@ -0,0 +1,149 @@
++/*
++ *  Copyright (C) 2004 Steve Harris
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  $Id: server_thread.c,v 1.8 2006/01/26 15:00:28 nhumfrey Exp $
++ */
++
++#include <unistd.h>
++#include <stdlib.h>
++#include <stdio.h>
++#include <string.h>
++#include <pthread.h>
++#include <sys/types.h>
++
++#ifdef WIN32
++#include <winsock2.h>
++#include <ws2tcpip.h>
++#else
++#include <netdb.h>
++#include <sys/socket.h>
++#endif
++
++#include "lo_types_internal.h"
++#include "lo/lo.h"
++#include "lo/lo_throw.h"
++
++static void thread_func(void *data);
++
++lo_server_thread lo_server_thread_new(const char *port, lo_err_handler err_h)
++{
++    lo_server_thread st = malloc(sizeof(struct _lo_server_thread));
++    st->s = lo_server_new(port, err_h);
++    st->active = 0;
++    st->done = 0;
++
++    if (!st->s) {
++	free(st);
++
++	return NULL;
++    }
++
++    return st;
++}
++
++void lo_server_thread_free(lo_server_thread st)
++{
++    if (st) {
++	if (st->active) {
++	    lo_server_thread_stop(st);
++	}
++	lo_server_free(st->s);
++    }
++    free(st);
++}
++
++lo_method lo_server_thread_add_method(lo_server_thread st, const char *path,
++			       const char *typespec, lo_method_handler h,
++			       void *user_data)
++{
++    return lo_server_add_method(st->s, path, typespec, h, user_data);
++}
++
++void lo_server_thread_del_method(lo_server_thread st, const char *path,
++			       const char *typespec)
++{
++    lo_server_del_method(st->s, path, typespec);
++}
++
++void lo_server_thread_start(lo_server_thread st)
++{
++    int result;
++	
++    if (!st->active) {
++	st->active = 1;
++	st->done = 0;
++	
++	// Create the server thread
++	result = pthread_create(&(st->thread), NULL, (void *)&thread_func, st);
++	if (result) {
++	    fprintf(stderr, "Failed to create thread: pthread_create() returned %s\n", strerror(result));
++	}
++	
++    }
++}
++
++void lo_server_thread_stop(lo_server_thread st)
++{
++    int result;
++
++    if (st->active) {
++	// Signal thread to stop
++	st->active = 0;
++	
++	// pthread_join waits for thread to terminate 
++	// and then releases the thread's resources
++	result = pthread_join( st->thread, NULL );
++	if (result) {
++	    fprintf(stderr, "Failed to stop thread: pthread_join() returned %s\n", strerror(result));
++	}
++    }
++}
++
++int lo_server_thread_get_port(lo_server_thread st)
++{
++    return lo_server_get_port(st->s);
++}
++
++char *lo_server_thread_get_url(lo_server_thread st) 
++{
++    return lo_server_get_url(st->s);
++}
++
++lo_server lo_server_thread_get_server(lo_server_thread st) 
++{
++    return st->s;
++}
++
++int lo_server_thread_events_pending(lo_server_thread st)
++{
++    return lo_server_events_pending(st->s);
++}
++
++static void thread_func(void *data)
++{
++    lo_server_thread st = (lo_server_thread)data;
++
++    while (st->active) {
++	lo_server_recv_noblock(st->s, 10);
++    }
++    st->done = 1;
++    
++    pthread_exit(NULL);
++}
++
++void lo_server_thread_pp(lo_server_thread st)
++{
++    lo_server_pp(st->s);
++}
++
++/* vi:set ts=8 sts=4 sw=4: */
+diff -ruwN liblo-0.23.orig/src/subtest.c liblo-0.23/src/subtest.c
+--- liblo-0.23.orig/src/subtest.c	2005-07-05 09:26:23.000000000 -0400
++++ liblo-0.23/src/subtest.c	2007-03-28 11:45:38.406250000 -0400
 @@ -17,7 +17,9 @@
  #include <stdio.h>
  #include <stdlib.h>
@@ -1502,9 +1659,9 @@ diff -urN liblo-0.23/src/subtest.c liblo-0.23-msvc7/src/subtest.c
  
  #include "lo/lo.h"
  
-diff -urN liblo-0.23/src/testlo.c liblo-0.23-msvc7/src/testlo.c
---- liblo-0.23/src/testlo.c	2005-12-05 17:22:09.000000000 -0500
-+++ liblo-0.23-msvc7/src/testlo.c	2006-12-21 19:28:26.687500000 -0500
+diff -ruwN liblo-0.23.orig/src/testlo.c liblo-0.23/src/testlo.c
+--- liblo-0.23.orig/src/testlo.c	2005-12-05 17:22:09.000000000 -0500
++++ liblo-0.23/src/testlo.c	2007-03-28 11:45:38.406250000 -0400
 @@ -23,16 +23,19 @@
  #include <float.h>
  #include <stdio.h>
@@ -1572,11 +1729,11 @@ diff -urN liblo-0.23/src/testlo.c liblo-0.23-msvc7/src/testlo.c
      m1 = lo_message_new();
      lo_message_add_string(m1, "abcdefghijklmnopqrstuvwxyz");
      lo_message_add_string(m1, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-diff -urN liblo-0.23/src/timetag.c liblo-0.23-msvc7/src/timetag.c
---- liblo-0.23/src/timetag.c	2005-08-19 06:12:35.000000000 -0400
-+++ liblo-0.23-msvc7/src/timetag.c	2006-12-21 19:29:35.531250000 -0500
+diff -ruwN liblo-0.23.orig/src/timetag.c liblo-0.23/src/timetag.c
+--- liblo-0.23.orig/src/timetag.c	2005-08-19 06:12:35.000000000 -0400
++++ liblo-0.23/src/timetag.c	2007-03-28 11:45:38.406250000 -0400
 @@ -14,7 +14,9 @@
-  *  $Id: liblo-0.23-msvc7.patch,v 1.1 2007/01/02 16:05:38 sinclairs Exp $
+  *  $Id: timetag.c,v 1.3 2005/08/19 10:12:35 theno23 Exp $
   */
  
 +#ifndef WIN32
@@ -1605,3 +1762,60 @@ diff -urN liblo-0.23/src/timetag.c liblo-0.23-msvc7/src/timetag.c
          ((ftime.dwHighDateTime*4294967296.e-7)-9435484800.)+
          (ftime.dwLowDateTime*1.e-7);
  
+diff -ruwN liblo-0.23.orig/src/timetag.c.orig liblo-0.23/src/timetag.c.orig
+--- liblo-0.23.orig/src/timetag.c.orig	1969-12-31 19:00:00.000000000 -0500
++++ liblo-0.23/src/timetag.c.orig	2005-08-19 06:12:35.000000000 -0400
+@@ -0,0 +1,53 @@
++/*
++ *  Copyright (C) 2004 Steve Harris
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  $Id: timetag.c,v 1.3 2005/08/19 10:12:35 theno23 Exp $
++ */
++
++#include <sys/time.h>
++#include <time.h>
++
++#include "lo_types_internal.h"
++#include "lo/lo.h"
++
++#define JAN_1970 0x83aa7e80      /* 2208988800 1970 - 1900 in seconds */
++
++double lo_timetag_diff(lo_timetag a, lo_timetag b)
++{
++	return (double)a.sec - (double)b.sec +
++		((double)a.frac - (double)b.frac) * 0.00000000093132257461;
++}
++
++void lo_timetag_now(lo_timetag *t)
++{
++#ifdef WIN32
++    /* 
++        FILETIME is the time in units of 100 nsecs from 1601-Jan-01
++        1601 and 1900 are 9435484800 seconds apart.
++    */
++    FILETIME ftime;
++    GetSystemTimeAsFileTime(&ftime);
++    double dtime = 
++        ((ftime.dwHighDateTime*4294967296.e-7)-9435484800.)+
++        (ftime.dwLowDateTime*1.e-7);
++
++	t->sec = (uint32_t)dtime;
++	t->frac = (uint32_t)((dtime-t->sec)*4294967296.);
++#else
++    struct timeval tv;
++
++	gettimeofday(&tv, NULL);
++	t->sec = tv.tv_sec + JAN_1970;
++	t->frac = tv.tv_usec * 4294.967295;
++#endif
++}

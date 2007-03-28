@@ -244,7 +244,7 @@ case $(uname) in
     liblo
 	chai3d
 
-	echo Now open osc_chai_glut.sln in Visual Studio 2003 and build.
+	echo Now open dimple.sln in Visual Studio 2003 and build.
     ;;
 
     Linux*)

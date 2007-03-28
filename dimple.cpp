@@ -592,8 +592,17 @@ void initGlutWindow()
     glutTimerFunc(GLUT_TIMESTEP_MS, updateDisplay, 0);
 }
 
+void ode_errorhandler(int errnum, const char *msg, va_list ap)
+{
+    printf("ODE error %d: %s\n", errnum, msg);
+}
+
 void initODE()
 {
+    dSetDebugHandler(ode_errorhandler);
+    dSetErrorHandler(ode_errorhandler);
+    dSetMessageHandler(ode_errorhandler);
+
     ode_world = dWorldCreate();
     dWorldSetGravity (ode_world,0,0,0);
     ode_step = GLUT_TIMESTEP_MS/1000.0; // will be changed when haptics starts
@@ -774,7 +783,7 @@ int poll_chai_requests()
 int hapticsEnable_handler(const char *path, const char *types, lo_arg **argv,
                           int argc, void *data, void *user_data)
 {
-	if (argv[0]->d==0)
+	if (argv[0]->i==0)
 		requestHapticsStop = 1;
 	else
 		requestHapticsStart = 1;
@@ -784,7 +793,7 @@ int hapticsEnable_handler(const char *path, const char *types, lo_arg **argv,
 int graphicsEnable_handler(const char *path, const char *types, lo_arg **argv,
                            int argc, void *data, void *user_data)
 {
-	 if (argv[0]->d) {
+	 if (argv[0]->i) {
 		  if (!glutStarted) {
 			   glutStarted = 1;
 		  }
@@ -1132,6 +1141,8 @@ int objectCollideGet_handler(const char *path, const char *types, lo_arg **argv,
         interval = argv[0]->i;
     }
     bGetCollide = (interval>0);
+
+    return 0;
 }
 
 int unknown_handler(const char *path, const char *types, lo_arg **argv,
