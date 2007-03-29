@@ -230,7 +230,7 @@ case $(uname) in
 	DL="wget -O"
     MD5=md5sum
 	MD5CUT="awk {print\$1}"
-	COMPILE="/cygdrive/c/Program Files/Microsoft Visual Studio .NET 2003/Common7/IDE/devenv.exe"
+	COMPILE="$(cygpath -u $PROGRAMFILES)/Microsoft Visual Studio .NET 2003/Common7/IDE/devenv.exe"
     liblo_PATCH=liblo-0.23-msvc7.patch
     ode_PATCH=ode-0.7-msvc7.patch
 	chai_DIR=chai3d/msvc7
