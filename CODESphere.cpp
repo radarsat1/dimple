@@ -50,7 +50,9 @@ cODESphere::cODESphere(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpac
 	  cODEPrimitive(a_parent, a_odeWorld, a_odeSpace)
 {
     m_objClass = CLASS_SPHERE;
+    UNLOCK_WORLD();
     wait_ode_request(initCallbackDefaults, this);
+    LOCK_WORLD();
 }
 
 //===========================================================================

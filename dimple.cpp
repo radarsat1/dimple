@@ -91,7 +91,8 @@ int requestHapticsStart = 0;
 int requestHapticsStop = 0;
 float proxyForceMagnitude = 0;
 int quit = 0;
-int lock_world = 0;
+int lock_ode = 0;
+int lock_chai = 0;
 pthread_t ode_pthread;
 
 void poll_requests();
@@ -365,7 +366,7 @@ void ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
             bool co1 = p1->collidedWith(p2);
             bool co2 = p2->collidedWith(p1);
             if ( (co1 || co2) && bGetCollide ) {
-                lo_send(address_send, "/object/collide", "ss", p1->name(), p2->name());
+                lo_send(address_send, "/object/collide", "ssf", p1->name(), p2->name(), (p1->getVelocity() + p2->getVelocity()).length());
                 // TODO: send collision force
             }
             // TODO: this strategy will NOT work for multiple collisions between same objects!!
@@ -386,17 +387,15 @@ void ode_hapticsLoop(void* a_pUserData)
 
     // Skip this timestep if world is being modified
     // TODO: improve this to avoid haptic glitches
-    /*
-    if (WORLD_LOCKED())
+    if (CHAI_LOCKED())
         return;
-        */
 
 #ifdef ODE_IN_HAPTICS_LOOP
     // update ODE
 	//ode_simStep();
 #endif
 
-    LOCK_WORLD();
+    LOCK_CHAI();
     cursor->computeGlobalPositions(1);
     
     // update the tool's pose and compute and apply forces
@@ -425,7 +424,7 @@ void ode_hapticsLoop(void* a_pUserData)
             break;
         }
     }
-    UNLOCK_WORLD();
+    UNLOCK_CHAI();
 }
 
 //---------------------------------------------------------------------------
@@ -481,8 +480,10 @@ void ode_simStep()
         o->setDynamicPosition(dBodyGetPosition(o->odePrimitive()->m_odeBody));
 
         // Track object's velocity
-        const dReal *vel = dBodyGetLinearVel(o->odePrimitive()->m_odeBody);
-        o->setDynamicVelocity(vel);
+        if (dGeomGetBody(o->odePrimitive()->m_odeGeom)==o->odePrimitive()->m_odeBody) {
+            const dReal *vel = dBodyGetLinearVel(o->odePrimitive()->m_odeBody);
+            o->setDynamicVelocity(vel);
+        }
     }
 }
 
@@ -494,10 +495,10 @@ void* ode_threadproc(void*p)
     fflush(stdout);
         Sleep((int)(ode_step*1000.0));
         while (poll_ode_requests());
-/*        if (!WORLD_LOCKED()) */{
-            LOCK_WORLD();
+        if (!ODE_LOCKED()) {
+            LOCK_ODE();
             ode_simStep();
-            UNLOCK_WORLD();
+            UNLOCK_ODE();
         }
     }
 
@@ -956,6 +957,7 @@ int constraintBallCreate_handler(const char *path, const char *types, lo_arg **a
     }
 
     // Track the OSC object
+    WAIT_WORLD_LOCK();
     LOCK_WORLD();
     OscBallJoint *cons=NULL;
     cons = new OscBallJoint(&argv[0]->s, ob1, ob2, argv[3]->f, argv[4]->f, argv[5]->f);
@@ -995,6 +997,7 @@ int constraintHingeCreate_handler(const char *path, const char *types, lo_arg **
     }
 
     // Track the OSC object
+    WAIT_WORLD_LOCK();
     LOCK_WORLD();
     OscHinge *cons=NULL;
     cons = new OscHinge(&argv[0]->s, ob1, ob2, argv[3]->f, argv[4]->f, argv[5]->f, argv[6]->f, argv[7]->f, argv[8]->f);
@@ -1034,6 +1037,7 @@ int constraintHinge2Create_handler(const char *path, const char *types, lo_arg *
     }
 
     // Track the OSC object
+    WAIT_WORLD_LOCK();
     LOCK_WORLD();
     OscHinge2 *cons=NULL;
     cons = new OscHinge2(&argv[0]->s, ob1, ob2,
@@ -1076,6 +1080,7 @@ int constraintUniversalCreate_handler(const char *path, const char *types, lo_ar
     }
 
     // Track the OSC object
+    WAIT_WORLD_LOCK();
     LOCK_WORLD();
     OscUniversal *cons=NULL;
     cons = new OscUniversal(&argv[0]->s, ob1, ob2,
@@ -1118,6 +1123,7 @@ int constraintFixedCreate_handler(const char *path, const char *types, lo_arg **
     }
 
     // Track the OSC object
+    WAIT_WORLD_LOCK();
     LOCK_WORLD();
     OscFixed *cons=NULL;
     cons = new OscFixed(&argv[0]->s, ob1, ob2);
@@ -1193,6 +1199,7 @@ void sighandler_quit(int sig)
 // TODO: wait for haptics to stop
 
     // delete all objects
+    WAIT_WORLD_LOCK();
     LOCK_WORLD();
     objects_iter it;
     for (it=world_objects.begin(); it!=world_objects.end(); it++)
