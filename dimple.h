@@ -53,14 +53,18 @@ extern dSpaceID ode_space;
 //       more sophisticated (TODO). It is based on the idea
 //       that modifying an 'int' is an atomic operation.
 
-extern int lock_world;
-#define WORLD_LOCKED() (lock_world!=0)
-//#define LOCK_WORLD() printf("Locking.\n");(lock_world=1)
-//#define UNLOCK_WORLD() printf("Unlocking.\n");(lock_world=0)
-#define LOCK_WORLD() (lock_world++)
-//#define LOCK_WORLD() (lock_world=0)
-#define UNLOCK_WORLD() (lock_world--)
-#define WAIT_WORLD_LOCK() {while (lock_world) Sleep(1);}
+extern int lock_ode;
+extern int lock_chai;
+#define LOCK_ODE() (lock_ode++)
+#define UNLOCK_ODE() (lock_ode--)
+#define ODE_LOCKED() (lock_ode>0)
+#define LOCK_CHAI() (lock_chai++)
+#define UNLOCK_CHAI() (lock_chai--)
+#define CHAI_LOCKED() (lock_chai>0)
+#define LOCK_WORLD() (lock_chai++ + lock_ode++)
+#define UNLOCK_WORLD() (lock_chai-- + lock_ode--)
+#define WORLD_LOCKED() (lock_ode>0 || lock_chai>0)
+#define WAIT_WORLD_LOCK() {while (WORLD_LOCKED()) Sleep(1);}
 
 // Request structure
 class request {

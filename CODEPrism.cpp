@@ -24,7 +24,9 @@ cODEPrism::cODEPrism(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpace,
 	m_size = a_size;
     m_objClass = CLASS_PRISM;
     
+    UNLOCK_WORLD();
     wait_ode_request(initCallbackDefaults, this);
+    LOCK_WORLD();
 }
 
 cODEPrism::~cODEPrism()
