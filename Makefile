@@ -12,8 +12,8 @@ OBJECTS = dimple.o \
 
 DEBUG = -g -ggdb
 SOURCES = $(OBJECTS:.o=.cpp)
-INCLUDE = -Ichai3d/include -Iode-0.7/include -I.
-DARWIN_INCLUDE = -Ichai3d/darwin/GL -Ichai3d/darwin/GLUT -Iliblo-0.23
+INCLUDE = -Ichai3d/include -Iode-0.7/include -I. -Iliblo-0.23
+DARWIN_INCLUDE = -Ichai3d/darwin/GL -Ichai3d/darwin/GLUT
 LOCALOBJS = $(notdir $(OBJECTS) )
 DEFS = -D_POSIX -D_MAX_PATH=260 -D_LINUX -DLINUX -D__LINUX__ -D_POSIX # -DUSE_FREEGLUT
 CC   = g++ -c $(DEFS)
