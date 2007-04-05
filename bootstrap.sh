@@ -38,6 +38,12 @@ if !(cd $liblo_DIR && patch -p1 <../$liblo_PATCH); then
 	echo "Error applying patch" $liblo_PATCH
 	exit
 fi
+
+echo Patching $liblo_DIR with dispatchcallback patch
+if !(cd $liblo_DIR && patch -p1 <../liblo-0.23-dispatchcallback.patch); then
+	echo "Error applying patch" liblo-0.23-dispatchcallback.patch
+	exit
+fi
 fi
 
 case $(uname) in
@@ -256,8 +262,9 @@ case $(uname) in
 
 	ode
     chai3d
-    echo For Linux, please get package \"liblo\" from your distribution.
-    echo Ubuntu and Debian: sudo apt-get install liblo0-dev
+	liblo
+#    echo For Linux, please get package \"liblo\" from your distribution.
+#    echo Ubuntu and Debian: sudo apt-get install liblo0-dev
     exit
 	;;
 
