@@ -1158,6 +1158,12 @@ void liblo_error(int num, const char *msg, const char *path)
     fflush(stdout);
 }
 
+void dispatch_callback(void* s, const char *path, char *types, void *data)
+{
+    printf("dispatch!\n");
+    lo_server_dispatch_method(s, path, types, data);
+}
+
 void initOSC()
 {
 	 /* start a new server on port 7770 */
@@ -1166,6 +1172,8 @@ void initOSC()
          printf("Error starting OSC server on port 7770.\n");
          exit(1);
      }
+
+     lo_server_thread_set_dispatch_callback(loserver, dispatch_callback);
 
 	 /* add methods for each message */
 	 lo_server_thread_add_method(loserver, "/haptics/enable", "i", hapticsEnable_handler, NULL);
@@ -1183,9 +1191,6 @@ void initOSC()
      lo_server_thread_add_method(loserver, "/world/gravity", "f", worldGravity1_handler, NULL);
      lo_server_thread_add_method(loserver, "/object/collide/get", "", objectCollideGet_handler, NULL);
      lo_server_thread_add_method(loserver, "/object/collide/get", "i", objectCollideGet_handler, NULL);
-
-     // TODO: this seems to get messages even when it is handled by another function (bug?)
-     //lo_server_thread_add_method(loserver, NULL, NULL, unknown_handler, NULL);
 
 	 lo_server_thread_start(loserver);
 
