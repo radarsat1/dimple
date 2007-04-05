@@ -38,12 +38,12 @@ if !(cd $liblo_DIR && patch -p1 <../$liblo_PATCH); then
 	echo "Error applying patch" $liblo_PATCH
 	exit
 fi
+fi
 
 echo Patching $liblo_DIR with dispatchcallback patch
 if !(cd $liblo_DIR && patch -p1 <../liblo-0.23-dispatchcallback.patch); then
 	echo "Error applying patch" liblo-0.23-dispatchcallback.patch
 	exit
-fi
 fi
 
 case $(uname) in
