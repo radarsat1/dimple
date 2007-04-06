@@ -282,9 +282,6 @@ void updateDisplay(int val)
     if (WORLD_LOCKED())
         while (poll_ode_requests());
         */
-
-    if (!hapticsStarted)
-        while (poll_chai_requests());
 }
 
 //---------------------------------------------------------------------------
@@ -1289,6 +1286,9 @@ void sighandler_quit(int sig)
 // poll waiting requests on the main thread
 void poll_requests()
 {
+    if (!hapticsStarted)
+        while (poll_chai_requests());
+
 	if (requestHapticsStart) {
 		if (!hapticsStarted)
 			startHaptics();
