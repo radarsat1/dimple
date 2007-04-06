@@ -29,7 +29,7 @@ public:
     //! Destructor of cODEPrism.
     ~cODEPrism();
 
-    static void initCallbackDefaults(cODEPrimitive *self);
+    static void initCallbackDefaults(void *self);
 
     //! Change the dimensions of the prism
     void setSize(cVector3d& size);

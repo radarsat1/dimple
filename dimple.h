@@ -55,14 +55,20 @@ extern dSpaceID ode_space;
 
 extern int lock_ode;
 extern int lock_chai;
-#define LOCK_ODE() (lock_ode++)
-#define UNLOCK_ODE() (lock_ode--)
+//#define LOCK_ODE() (lock_ode++)
+//#define UNLOCK_ODE() (lock_ode--)
+#define LOCK_ODE() 
+#define UNLOCK_ODE() 
 #define ODE_LOCKED() (lock_ode>0)
-#define LOCK_CHAI() (lock_chai++)
-#define UNLOCK_CHAI() (lock_chai--)
+//#define LOCK_CHAI() (lock_chai++)
+//#define UNLOCK_CHAI() (lock_chai--)
+#define LOCK_CHAI()
+#define UNLOCK_CHAI()
 #define CHAI_LOCKED() (lock_chai>0)
-#define LOCK_WORLD() (lock_chai++ + lock_ode++)
-#define UNLOCK_WORLD() (lock_chai-- + lock_ode--)
+//#define LOCK_WORLD() (lock_chai++ + lock_ode++)
+//#define UNLOCK_WORLD() (lock_chai-- + lock_ode--)
+#define LOCK_WORLD()
+#define UNLOCK_WORLD()
 #define WORLD_LOCKED() (lock_ode>0 || lock_chai>0)
 #define WAIT_WORLD_LOCK() {while (WORLD_LOCKED()) Sleep(1);}
 
@@ -74,7 +80,7 @@ class request {
 };
 
 // Request and callback structures for each queue
-typedef void ode_callback(cODEPrimitive *self);
+typedef void ode_callback(void *self);
 class ode_request_class : public request {
   public:
     ode_request_class() : request() {}
@@ -82,7 +88,7 @@ class ode_request_class : public request {
     cODEPrimitive *ob;
 };
 
-typedef void chai_callback(cGenericObject *self);
+typedef void chai_callback(void *self);
 class chai_request_class : public request {
   public:
     chai_request_class() : request() {}
@@ -106,5 +112,31 @@ int poll_chai_requests();
 
 // ODE simulation step count
 extern int ode_counter;
+
+// Program thread identifiers
+typedef enum {
+    DIMPLE_THREAD_MAIN,
+    DIMPLE_THREAD_CONTROL,
+    DIMPLE_THREAD_PHYSICS,
+    DIMPLE_THREAD_HAPTICS,
+    DIMPLE_THREAD_GRAPHICS
+} dimple_thread_t;
+
+class handler_data
+{
+public:
+    lo_method_handler handler;
+    std::string path;
+    std::string types;
+    lo_arg **argv;
+    int argc;
+    void *user_data;
+    int thread;
+    handler_data(lo_method_handler _handler,
+        const char *_path, const char *_types,
+        lo_arg **_argv, int _argc, void *_user_data, int _thread);
+    ~handler_data();
+};
+
 
 #endif // _OSC_CHAI_GLUT_H_

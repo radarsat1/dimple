@@ -800,7 +800,7 @@ int graphicsEnable_handler(const char *path, const char *types, lo_arg **argv,
 	 return 0;
 }
 
-void clear_world(cODEPrimitive* o)
+void clear_world(void*)
 {
     objects_iter it;
     for (it=world_objects.begin(); it!=world_objects.end(); it++)
@@ -816,7 +816,8 @@ void clear_world(cODEPrimitive* o)
 int worldClear_handler(const char *path, const char *types, lo_arg **argv,
                        int argc, void *data, void *user_data)
 {
-    wait_ode_request(clear_world, 0);
+//    wait_ode_request(clear_world, 0);
+    clear_world(0);
     return 0;
 }
 
@@ -1158,13 +1159,68 @@ void liblo_error(int num, const char *msg, const char *path)
     fflush(stdout);
 }
 
-void dispatch_callback(void* s, const char *data, size_t len)
+handler_data::handler_data(lo_method_handler _handler,
+                           const char *_path, const char *_types,
+                           lo_arg **_argv, int _argc, void *_user_data, int _thread)
+    : handler(_handler), path(_path), types(_types), argc(_argc),
+      user_data(_user_data), thread(_thread)
 {
-    char *tmpdata = new char[len];
-    memcpy(tmpdata, data, len);
-    printf("dispatch! %#x, %d\n", tmpdata, len);
-    lo_server_dispatch_method(s, tmpdata, len);
-    delete tmpdata;
+    argv = new lo_arg*[argc];
+    int i;
+    for (i=0; i<argc; i++)
+        if (types[i]==LO_STRING) {
+            argv[i] = (lo_arg*)strdup(&_argv[i]->s);
+        }
+        else {
+            argv[i] = new lo_arg;
+            memcpy(argv[i], _argv[i], sizeof(lo_arg));
+        }
+}
+
+handler_data::~handler_data()
+{
+    int i;
+    for (i=0; i<argc; i++)
+        if (types[i]==LO_STRING)
+            free(argv[i]);
+        else
+            delete argv[i];
+    delete argv;
+}
+
+void thread_handler_callback(void *data)
+{
+    handler_data *h = (handler_data*)data;
+
+//    printf("handler, thread = %d\n", h->thread);
+    if (h->thread == DIMPLE_THREAD_PHYSICS)
+        h->handler(h->path.c_str(), h->types.c_str(), h->argv, h->argc, 0, h->user_data);
+
+    delete h;
+}
+
+int handler_callback(lo_method_handler handler, const char *path, const char *types,
+                     lo_arg **argv, int argc, void *data, void *user_data)
+{
+    handler_data *h_ode = new handler_data(handler, path, types, argv, argc, user_data, DIMPLE_THREAD_PHYSICS);
+    if (!h_ode)
+        return 0;
+
+    handler_data *h_chai = new handler_data(handler, path, types, argv, argc, user_data, DIMPLE_THREAD_HAPTICS);
+    if (!h_chai) {
+        delete h_ode;
+        return 0;
+    }
+
+    ode_request_class *r1 = post_ode_request(thread_handler_callback, (cODEPrimitive*)h_ode);
+    chai_request_class *r2 = post_chai_request(thread_handler_callback, (cGenericObject*)h_chai);
+
+    // TODO: we only have to wait here because the implementation doesn't crawl
+    // the message queue properly.  (only handles last one, but it is never cleaned)
+    ode_queue.wait(r1);
+    chai_queue.wait(r2);
+
+    return 0;
 }
 
 void initOSC()
@@ -1176,7 +1232,7 @@ void initOSC()
          exit(1);
      }
 
-     lo_server_thread_set_dispatch_callback(loserver, dispatch_callback);
+     lo_server_thread_set_handler_callback(loserver, handler_callback);
 
 	 /* add methods for each message */
 	 lo_server_thread_add_method(loserver, "/haptics/enable", "i", hapticsEnable_handler, NULL);
