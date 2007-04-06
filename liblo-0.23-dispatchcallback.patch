@@ -1,6 +1,6 @@
-diff -riu -x'*.sln' -x'*.vcproj' -x'*.htm' -x'*.ncb' -x'*.suo' liblo-0.23.orig/lo/lo.h liblo-0.23/lo/lo.h
---- liblo-0.23.orig/lo/lo.h	2007-04-05 18:50:51.609375000 -0400
-+++ liblo-0.23/lo/lo.h	2007-04-05 18:45:25.781250000 -0400
+diff -rui liblo-0.23-msvc7-orig/lo/lo.h liblo-0.23-changed/lo/lo.h
+--- liblo-0.23-msvc7-orig/lo/lo.h	2007-04-06 16:07:15.250000000 -0400
++++ liblo-0.23-changed/lo/lo.h	2007-04-05 19:01:31.218750000 -0400
 @@ -237,6 +237,12 @@
   */
  EXPORT lo_server lo_server_thread_get_server(lo_server_thread st);
@@ -14,9 +14,9 @@ diff -riu -x'*.sln' -x'*.vcproj' -x'*.htm' -x'*.ncb' -x'*.suo' liblo-0.23.orig/l
  /** \brief Return true if there are scheduled events (eg. from bundles) waiting
   * to be dispatched by the thread */
  EXPORT int lo_server_thread_events_pending(lo_server_thread st);
-diff -riu -x'*.sln' -x'*.vcproj' -x'*.htm' -x'*.ncb' -x'*.suo' liblo-0.23.orig/lo/lo_lowlevel.h liblo-0.23/lo/lo_lowlevel.h
---- liblo-0.23.orig/lo/lo_lowlevel.h	2007-04-05 18:50:51.625000000 -0400
-+++ liblo-0.23/lo/lo_lowlevel.h	2007-04-05 18:22:07.125000000 -0400
+diff -rui liblo-0.23-msvc7-orig/lo/lo_lowlevel.h liblo-0.23-changed/lo/lo_lowlevel.h
+--- liblo-0.23-msvc7-orig/lo/lo_lowlevel.h	2007-04-06 16:07:15.265625000 -0400
++++ liblo-0.23-changed/lo/lo_lowlevel.h	2007-04-06 15:57:01.125000000 -0400
 @@ -484,6 +484,16 @@
  double lo_server_next_event_delay(lo_server s);
  
@@ -28,16 +28,16 @@ diff -riu -x'*.sln' -x'*.vcproj' -x'*.htm' -x'*.ncb' -x'*.suo' liblo-0.23.orig/l
 +/**
 + * \brief Dispatch the given method to registered handler functions.
 + */
-+void lo_server_dispatch_method(lo_server s, const char *path, char *types, void *data);
++void lo_server_dispatch_method(lo_server s, const char *data, size_t len);
 +
 +/**
   * \brief Return the protocol portion of an OSC URL, eg. udp, tcp.
   *
   * This library uses OSC URLs of the form: osc.prot://hostname:port/path if the
-diff -riu -x'*.sln' -x'*.vcproj' -x'*.htm' -x'*.ncb' -x'*.suo' liblo-0.23.orig/lo/lo_types.h liblo-0.23/lo/lo_types.h
---- liblo-0.23.orig/lo/lo_types.h	2005-04-25 17:46:47.000000000 -0400
-+++ liblo-0.23/lo/lo_types.h	2007-04-05 18:22:06.984375000 -0400
-@@ -123,6 +123,14 @@
+diff -rui liblo-0.23-msvc7-orig/lo/lo_types.h liblo-0.23-changed/lo/lo_types.h
+--- liblo-0.23-msvc7-orig/lo/lo_types.h	2005-04-25 17:46:47.000000000 -0400
++++ liblo-0.23-changed/lo/lo_types.h	2007-04-06 15:57:17.656250000 -0400
+@@ -123,6 +123,13 @@
  				 lo_arg **argv, int argc, lo_message msg,
  				 void *user_data);
  
@@ -46,26 +46,24 @@ diff -riu -x'*.sln' -x'*.vcproj' -x'*.htm' -x'*.ncb' -x'*.suo' liblo-0.23.orig/l
 + * are dispatched to a handler.  This function must make a call to
 + * lo_server_dispatch_method() with the arguments provided.
 + */
-+typedef void (*lo_dispatch_method_callback)(void* s, const char *path,
-+                                            char *types, void *data);
++typedef void (*lo_dispatch_method_callback)(void* s, const char *data, size_t len);
 +
  #ifdef __cplusplus
  }
  #endif
-diff -riu -x'*.sln' -x'*.vcproj' -x'*.htm' -x'*.ncb' -x'*.suo' liblo-0.23.orig/src/lo_types_internal.h liblo-0.23/src/lo_types_internal.h
---- liblo-0.23.orig/src/lo_types_internal.h	2005-08-11 05:07:29.000000000 -0400
-+++ liblo-0.23/src/lo_types_internal.h	2007-04-05 16:53:10.031250000 -0400
-@@ -53,6 +53,9 @@
+diff -rui liblo-0.23-msvc7-orig/src/lo_types_internal.h liblo-0.23-changed/src/lo_types_internal.h
+--- liblo-0.23-msvc7-orig/src/lo_types_internal.h	2005-08-11 05:07:29.000000000 -0400
++++ liblo-0.23-changed/src/lo_types_internal.h	2007-04-06 15:58:36.953125000 -0400
+@@ -53,6 +53,8 @@
  	struct _lo_method *next;
  } *lo_method;
  
-+typedef void (*lo_dispatch_method_callback)(void* s, const char *path,
-+                                            char *types, void *data);
++typedef void (*lo_dispatch_method_callback)(void* s, const char *data, size_t len);
 +
  typedef struct _lo_server {
  	int	                 socket;
  	struct addrinfo         *ai;
-@@ -65,6 +68,7 @@
+@@ -65,6 +67,7 @@
  	void		        *queued;
  	struct sockaddr_storage  addr;
  	socklen_t 	         addr_len;
@@ -73,10 +71,20 @@ diff -riu -x'*.sln' -x'*.vcproj' -x'*.htm' -x'*.ncb' -x'*.suo' liblo-0.23.orig/s
  } *lo_server;
  
  typedef struct _lo_server_thread {
-diff -riu -x'*.sln' -x'*.vcproj' -x'*.htm' -x'*.ncb' -x'*.suo' liblo-0.23.orig/src/server.c liblo-0.23/src/server.c
---- liblo-0.23.orig/src/server.c	2007-04-05 18:50:51.687500000 -0400
-+++ liblo-0.23/src/server.c	2007-04-05 18:42:51.515625000 -0400
-@@ -165,6 +165,7 @@
+diff -rui liblo-0.23-msvc7-orig/src/server.c liblo-0.23-changed/src/server.c
+--- liblo-0.23-msvc7-orig/src/server.c	2007-04-06 16:07:15.296875000 -0400
++++ liblo-0.23-changed/src/server.c	2007-04-06 15:59:41.375000000 -0400
+@@ -62,8 +62,7 @@
+ 
+ static int lo_can_coerce_spec(const char *a, const char *b);
+ static int lo_can_coerce(char a, char b);
+-static void dispatch_method(lo_server s, const char *path, char *types,
+-			    void *data);
++static void dispatch_method(lo_server s, const char *data, size_t len);
+ static int dispatch_queued(lo_server s);
+ static void queue_data(lo_server s, lo_timetag ts, void *data, size_t len);
+ 
+@@ -165,6 +164,7 @@
      s->path = NULL;
      s->queued = NULL;
      s->socket = -1;
@@ -84,23 +92,58 @@ diff -riu -x'*.sln' -x'*.vcproj' -x'*.htm' -x'*.ncb' -x'*.suo' liblo-0.23.orig/s
  
      memset(&hints, 0, sizeof(hints));
  
-@@ -619,6 +620,15 @@
- static void dispatch_method(lo_server s, const char *path, char *types,
- 			    void *data)
+@@ -574,7 +574,7 @@
+ 	    if ((ts.sec == 0 && ts.frac == 1) ||
+ 				lo_timetag_diff(ts, now) <= 0.0) {
+ 		types = pos + lo_strsize(pos);
+-		dispatch_method(s, pos, types + 1, types + lo_strsize(types));
++		dispatch_method(s, pos, len);
+ 	    } else {
+ 		queue_data(s, ts, pos, len);
+ 	    }
+@@ -590,7 +590,7 @@
+ 	return -1;
+     }
+ 
+-    dispatch_method(s, path, types+1, data);
++    dispatch_method(s, data, size);
+ 
+     free(data);
+ 
+@@ -616,9 +616,20 @@
+     return 100.0;
+ }
+ 
+-static void dispatch_method(lo_server s, const char *path, char *types,
+-			    void *data)
++static void dispatch_method(lo_server s, const char *data, size_t len)
  {
 +    if (s->dispatch_callback)
-+        s->dispatch_callback(s, path, types, data);
++        s->dispatch_callback(s, data, len);
 +    else
-+        lo_server_dispatch_method(s, path, types, data);
++        lo_server_dispatch_method(s, data, len);
 +}
 +
-+void lo_server_dispatch_method(lo_server s, const char *path, char *types,
-+			    void *data)
++void lo_server_dispatch_method(lo_server s, const char *_data, size_t len)
 +{
++	const char *path = _data;
++	const char *types = path + lo_strsize(path) + 1;
++	void *data = types + lo_strsize(types);
++
      int argc = strlen(types);
      lo_arg **argv = NULL;
      lo_method it;
-@@ -1062,6 +1072,13 @@
+@@ -898,7 +909,8 @@
+ 	path = ((queued_msg_list *)s->queued)->data;
+ 	types = path + lo_strsize(path) + 1;
+ 	data = types + lo_strsize(types);
+-	dispatch_method(s, path, types, data);
++	dispatch_method(s, ((queued_msg_list *)s->queued)->data,
++                       ((queued_msg_list *)s->queued)->len);
+ 
+ 	free(((queued_msg_list *)s->queued)->data);
+ 	free((queued_msg_list *)s->queued);
+@@ -1062,6 +1074,13 @@
      }
  }
  
@@ -114,9 +157,9 @@ diff -riu -x'*.sln' -x'*.vcproj' -x'*.htm' -x'*.ncb' -x'*.suo' liblo-0.23.orig/s
  static int lo_can_coerce_spec(const char *a, const char *b)
  {
      unsigned int i;
-diff -riu -x'*.sln' -x'*.vcproj' -x'*.htm' -x'*.ncb' -x'*.suo' liblo-0.23.orig/src/server_thread.c liblo-0.23/src/server_thread.c
---- liblo-0.23.orig/src/server_thread.c	2007-04-05 18:50:51.703125000 -0400
-+++ liblo-0.23/src/server_thread.c	2007-04-05 18:44:29.125000000 -0400
+diff -rui liblo-0.23-msvc7-orig/src/server_thread.c liblo-0.23-changed/src/server_thread.c
+--- liblo-0.23-msvc7-orig/src/server_thread.c	2007-04-06 16:07:15.312500000 -0400
++++ liblo-0.23-changed/src/server_thread.c	2007-04-05 19:01:31.234375000 -0400
 @@ -129,6 +129,12 @@
      return lo_server_events_pending(st->s);
  }

@@ -1158,10 +1158,13 @@ void liblo_error(int num, const char *msg, const char *path)
     fflush(stdout);
 }
 
-void dispatch_callback(void* s, const char *path, char *types, void *data)
+void dispatch_callback(void* s, const char *data, size_t len)
 {
-    printf("dispatch!\n");
-    lo_server_dispatch_method(s, path, types, data);
+    char *tmpdata = new char[len];
+    memcpy(tmpdata, data, len);
+    printf("dispatch! %#x, %d\n", tmpdata, len);
+    lo_server_dispatch_method(s, tmpdata, len);
+    delete tmpdata;
 }
 
 void initOSC()
