@@ -25,7 +25,8 @@ cODEPrism::cODEPrism(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpace,
     m_objClass = CLASS_PRISM;
     
     UNLOCK_WORLD();
-    wait_ode_request(initCallbackDefaults, this);
+//    wait_ode_request(initCallbackDefaults, this);
+    initCallbackDefaults(this);
     LOCK_WORLD();
 }
 
@@ -33,7 +34,7 @@ cODEPrism::~cODEPrism()
 {
 }
 
-void cODEPrism::initCallbackDefaults(cODEPrimitive *self)
+void cODEPrism::initCallbackDefaults(void *self)
 {
     (static_cast<cODEPrism*>(self))->create(false);
     (static_cast<cODEPrism*>(self))->initDynamic(BOX);

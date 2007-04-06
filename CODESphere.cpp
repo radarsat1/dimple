@@ -51,7 +51,8 @@ cODESphere::cODESphere(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpac
 {
     m_objClass = CLASS_SPHERE;
     UNLOCK_WORLD();
-    wait_ode_request(initCallbackDefaults, this);
+//    wait_ode_request(initCallbackDefaults, this);
+    initCallbackDefaults(this);
     LOCK_WORLD();
 }
 
@@ -74,7 +75,7 @@ cODESphere::~cODESphere()
     \fn     cODESphere::initDynamic()
 */
 //===========================================================================
-void cODESphere::initCallbackDefaults(cODEPrimitive *self)
+void cODESphere::initCallbackDefaults(void *self)
 {
     (static_cast<cODESphere*>(self))->initDynamic();
 }

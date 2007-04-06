@@ -73,7 +73,7 @@ class cODESphere : public cShapeSphere, public cODEPrimitive
                              float a_density = 1.0);
 
 
-    static void initCallbackDefaults(cODEPrimitive *self);
+    static void initCallbackDefaults(void *self);
 };
 
 //---------------------------------------------------------------------------
