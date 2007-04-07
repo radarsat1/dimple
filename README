@@ -20,7 +20,7 @@ It can be used with any software that supports OpenSoundControl.  This
 includes PureData, as well as Cycling 74's Max/MSP, or even the
 non-graphical Chuck audio language.
 
-This release, version 0.0.1 alpha, is _very_ young, so I don't claim
+This release, version 0.0.4 alpha, is very young, so I don't claim
 that it will even compile for you, let alone run.  If there was a
 letter in the greek alphabet before alpha, it would describe this
 version better. In any case, if you're not scared off yet, please try
@@ -44,32 +44,55 @@ messages on port 7770.  If at any time it is instructed to send
 messages, it will also send them to localhost, on port 7771.  (This
 will not be hardcoded in future versions.)
 
-Firstly, open the GLUT window by telling DIMPLE to enable graphics:
+Now run PureData and load the included example file, "test.pd".
+You'll need version 0.40-1, as well as the following externals from
+the extended build: sendOSC, dumpOSC, OSCroute, and makesymbol.
+
+Clicking on the bang in front of Initialize should cause the GLUT
+window to open.  You should see a yellow sphere in the center, which
+represents the haptic proxy.  If you have a haptic device connected to
+your computer, you should be able to move it around with the
+controller.
+
+Try some of the other bangs for some examples of scenes you can create.
+
+Included demos:
+
+* Force Stick, a single prism which is constrained by a hinge.
+  Pushing on it will modulate the frequency of a sinusoid in Pd.
+
+* Marble Box, a box which you can fill with marbles.  First click
+  the bang to create the box, then give the world some gravity
+  and create some marbles by moving the designated number box.
+  You can move the marbles around with the haptic device, and
+  when they collide, Pd plays a decaying sinusoid.
+
+* Smash, a small test for the collision routines, causes three spheres
+  to fly at each other and hit.
+
+---------------
+  OSC Methods
+---------------
+
+Graphics and haptics can be enabled respectively by:
 
 /graphics/enable 1
-
-You should see a window open with a single sphere in the center.  This
-sphere is the haptic proxy, which represents the location of the hand
-controller's handle.  If you don't have a hand controller, simply
-ignore it.  If you do have one, you can also enable haptics in a
-similar fashion:
-
 /haptics/enable 1
 
-At this time, we can create sphere and prism objects, with the following
-messages:
+We can create sphere and prism objects:
 
 /object/sphere/create <name> <x> <y> <z>
 /object/prism/create <name> <x> <y> <z>
 
 You can then change the object's parameters, such as size and mass, or
-give it some force, for example, by refering to it thusly:
+give it some force, for example:
 
 /object/<name>/radius <radius>                   (for a sphere)
 /object/<name>/size <width> <height> <depth>     (for a prism)
 
-Please see the included "test.pd" file (a PureData patch) for more
-examples.
+/object/<name>/force <x> <y> <z>                 (any object)
+
+More information can be found in the full documentation.
 
 ---------
 Compiling
@@ -81,7 +104,7 @@ First, execute "bootstrap.sh", like so:
 
 On Windows, this must be done under the Cygwin environment.  The
 bootstrap script downloads & compiles libraries upon which DIMPLE
-depends.
+depends.  It also patches them in certain ways when it is necessary.
 
 If this is successful, continue on with compiling DIMPLE.  Otherwise,
 you'll have to manually make sure the dependancies compile correctly.
@@ -98,6 +121,8 @@ which you can execute like so:
 
 ./dimple
 
+(On Windows, the compilation currently depends on Visual Studio 2003.
+Work is in progress to port to MingW and Visual Studio 2005 Express.)
 
 ---------
 Questions
