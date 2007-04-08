@@ -122,14 +122,14 @@ fi
 case $(uname) in
 	CYGWIN*)
     echo Compiling $ode_DIR DebugLib
-    if !( "$COMPILE" /Build DebugLib $(cygpath -w $ode_DIR/build/vs2003/ode.sln ) /Project ode /Out compile.log ); then
+    if !( "$COMPILE" /Build DebugLib $(cygpath -w $ode_DIR/$ode_SLN ) /Project ode /Out compile.log ); then
 	   echo "Error compiling $ode_DIR" DebugLib
 	   cat compile.log
 	   exit
     fi
     rm compile.log >/dev/null 2>&1
     echo Compiling $ode_DIR ReleaseLib
-    if !( "$COMPILE" /Build ReleaseLib $(cygpath -w $ode_DIR/build/vs2003/ode.sln ) /Project ode /Out compile.log ); then
+    if !( "$COMPILE" /Build ReleaseLib $(cygpath -w $ode_DIR/$ode_SLN ) /Project ode /Out compile.log ); then
 	   echo "Error compiling $ode_DIR" ReleaseLib
 	   cat compile.log
 	   exit
@@ -188,6 +188,7 @@ if !(unzip -o "$chai_TAR"); then
     exit
 fi
 
+# TODO: change this to a -p1 patch to avoid confusion!
 if [ ${chai_PATCH}x != x ]; then
 echo Patching $chai_DIR
 if !(patch -p0 <$chai_PATCH); then
@@ -230,22 +231,157 @@ echo Chai3d Done.
 echo
 }
 
+freeglut() {
+freeglut_URL=http://internap.dl.sourceforge.net/sourceforge/freeglut/freeglut-2.4.0.tar.gz
+freeglut_TAR=freeglut-2.4.0.tar.gz
+freeglut_DIR=freeglut-2.4.0
+freeglut_MD5=6d16873bd876fbf4980a927cfbc496a1
+
+if ! [ -d $freeglut_DIR ]; then
+
+if [ $($MD5 "$freeglut_TAR" | $MD5CUT)x != ${freeglut_MD5}x ]; then
+    echo Downloading $freeglut_TAR ...
+    rm -v $freeglut_TAR
+    $DL "$freeglut_TAR" $freeglut_URL
+fi
+
+if [ $($MD5 "$freeglut_TAR" | $MD5CUT)x != ${freeglut_MD5}x ]; then
+    echo "Error in MD5 checksum for $freeglut_TAR"
+    exit
+fi
+fi
+
+if ! [ -d $freeglut_DIR ]; then
+echo Extracting "$freeglut_TAR" ...
+if !(tar -xzf "$freeglut_TAR"); then
+    echo "Error in archive.";
+    exit
+fi
+
+if [ ${freeglut_PATCH}x != x ]; then
+echo Patching $freeglut_DIR
+if !(cd $freeglut_DIR && patch -p1 <../$freeglut_PATCH); then
+	echo "Error applying patch" $freeglut_PATCH
+	exit
+fi
+fi
+
+case $(uname) in
+	CYGWIN*)
+    echo Compiling $freeglut_DIR Debug
+    if !( "$COMPILE" /Build Debug $(cygpath -w $freeglut_DIR/freeglut.sln ) /Project freeglut_static /Out compile.log ); then
+       echo "Error compiling $freeglut_DIR" Debug
+       cat compile.log
+  	   exit
+    fi
+    rm compile.log >/dev/null 2>&1
+    echo Compiling $freeglut_DIR Release
+    if !( "$COMPILE" /Build Release $(cygpath -w $freeglut_DIR/freeglut.sln ) /Project freeglut_static /Out compile.log ); then
+       echo "Error compiling $freeglut_DIR" Release
+       cat compile.log
+  	   exit
+    fi
+    rm compile.log >/dev/null 2>&1
+	;;
+esac
+
+fi
+
+echo
+echo FreeGLUT Done.
+echo
+}
+
+
+pthreads() {
+pthreads_URL=ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-8-0-release.tar.gz
+pthreads_TAR=pthreads-w32-2-8-0-release.tar.gz
+pthreads_DIR=pthreads-w32-2-8-0-release
+pthreads_MD5=6d30c693233b1464ef8983fedd8ccb22
+
+if ! [ -d $pthreads_DIR ]; then
+
+if [ $($MD5 "$pthreads_TAR" | $MD5CUT)x != ${pthreads_MD5}x ]; then
+    echo Downloading $pthreads_TAR ...
+    rm -v $pthreads_TAR
+    $DL "$pthreads_TAR" $pthreads_URL
+fi
+
+if [ $($MD5 "$pthreads_TAR" | $MD5CUT)x != ${pthreads_MD5}x ]; then
+    echo "Error in MD5 checksum for $pthreads_TAR"
+    exit
+fi
+fi
+
+if ! [ -d $pthreads_DIR ]; then
+echo Extracting "$pthreads_TAR" ...
+if !(tar -xzf "$pthreads_TAR"); then
+    echo "Error in archive.";
+    exit
+fi
+
+if [ ${pthreads_PATCH}x != x ]; then
+echo Patching $pthreads_DIR
+if !(cd $pthreads_DIR && patch -p1 <../$pthreads_PATCH); then
+	echo "Error applying patch" $pthreads_PATCH
+	exit
+fi
+fi
+
+case $(uname) in
+	CYGWIN*)
+    echo Compiling $pthreads_DIR Debug
+    if !( "$COMPILE" /Build Debug $(cygpath -w $pthreads_DIR/pthreads.sln ) /Project pthreads /Out compile.log ); then
+       echo "Error compiling $pthreads_DIR" Debug
+       cat compile.log
+  	   exit
+    fi
+    rm compile.log >/dev/null 2>&1
+    echo Compiling $pthreads_DIR Release
+    if !( "$COMPILE" /Build Release $(cygpath -w $pthreads_DIR/pthreads.sln ) /Project pthreads /Out compile.log ); then
+       echo "Error compiling $pthreads_DIR" Release
+       cat compile.log
+  	   exit
+    fi
+    rm compile.log >/dev/null 2>&1
+	;;
+esac
+
+fi
+
+echo
+echo pthreads Done.
+echo
+}
+
+
 # System-dependant bootstrapping
 case $(uname) in
     CYGWIN*)
 	DL="wget -O"
     MD5=md5sum
 	MD5CUT="awk {print\$1}"
-	COMPILE="$(echo $(cygpath -u $PROGRAMFILES)/Microsoft Visual Studio .NET 2003/Common7/IDE/devenv.exe)"
     liblo_PATCH=liblo-0.23-msvc7.patch
-    ode_PATCH=ode-0.7-msvc7.patch
 	chai_DIR=chai3d/msvc7
+	freeglut_PATCH=freeglut-2.4.0-vs2005exp.patch
+	pthreads_PATCH=pthreads-w32-2-8-0-release-vs2005exp-static.patch
 
+	COMPILE="$(echo $(cygpath -u $PROGRAMFILES)/Microsoft Visual Studio .NET 2003/Common7/IDE/devenv.exe)"
 	if !( [ -f "$COMPILE" ]); then
-		echo "Couldn't find Visual Studio 2003.  Please edit the line COMPILE= in this file (bootstrap.sh)"
-		exit
+		COMPILE="$(echo $(cygpath -u $PROGRAMFILES)/Microsoft Visual Studio 8/Common7/IDE/VCExpress.exe)"
+		if !( [ -f "$COMPILE" ]); then
+			echo "Couldn't find Visual Studio 2003 or 2005 Express.  Please edit the line COMPILE= in this file (bootstrap.sh)"
+			exit
+		else
+			ode_SLN=build/vs2005/ode.sln
+		fi
+	else
+		ode_SLN=build/vs2003/ode.sln
+		ode_PATCH=ode-0.7-msvc7.patch
 	fi
 
+	pthreads
+	freeglut
     ode
     liblo
 	chai3d
@@ -284,4 +420,3 @@ case $(uname) in
     exit
     ;;
 esac
-
