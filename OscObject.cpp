@@ -157,7 +157,7 @@ OscObject::OscObject(cGenericObject* p, const char *name)
 
     // If the new object is supposed to be a part of a
     // composite object, find it and join.
-    char *s;
+	const char *s;
     if (s=strchr(name, '/')) {
         char firstname[256];
         int len = (s-name<255)?(s-name):255;
