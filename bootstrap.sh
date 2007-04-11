@@ -12,6 +12,7 @@ liblo_URL=http://easynews.dl.sourceforge.net/sourceforge/liblo/liblo-0.23.tar.gz
 liblo_TAR=liblo-0.23.tar.gz
 liblo_DIR=liblo-0.23
 liblo_MD5=e14c9f4fae7ed8d9622d126f6fb9c1d7
+liblo_PATCH2=liblo-0.23-dispatchcallback.patch
 
 if [ $($MD5 $liblo_TAR | $MD5CUT)x != ${liblo_MD5}x ]; then
 	echo Downloading $liblo_TAR ...
@@ -41,8 +42,8 @@ fi
 fi
 
 echo Patching $liblo_DIR with dispatchcallback patch
-if !(cd $liblo_DIR && patch -p1 <../liblo-0.23-dispatchcallback.patch); then
-	echo "Error applying patch" liblo-0.23-dispatchcallback.patch
+if !(cd $liblo_DIR && patch -p1 <../$liblo_PATCH2); then
+	echo "Error applying patch" $liblo_PATCH2
 	exit
 fi
 
@@ -190,8 +191,8 @@ fi
 
 # TODO: change this to a -p1 patch to avoid confusion!
 if [ ${chai_PATCH}x != x ]; then
-echo Patching $chai_DIR
-if !(patch -p0 <$chai_PATCH); then
+echo Patching chai3d
+if !(cd chai3d; patch -p1 <../$chai_PATCH); then
 	echo "Error applying patch" $chai_PATCH
 	exit
 fi
@@ -361,10 +362,10 @@ case $(uname) in
 	DL="wget -O"
     MD5=md5sum
 	MD5CUT="awk {print\$1}"
-    liblo_PATCH=liblo-0.23-msvc7.patch
-	chai_DIR=chai3d/msvc7
+	chai_DIR=chai3d/msvc8exp
 	freeglut_PATCH=freeglut-2.4.0-vs2005exp.patch
 	pthreads_PATCH=pthreads-w32-2-8-0-release-vs2005exp-static.patch
+	chai_PATCH=chai3d-1.51-vs2005exp.patch
 
 	COMPILE="$(echo $(cygpath -u $PROGRAMFILES)/Microsoft Visual Studio .NET 2003/Common7/IDE/devenv.exe)"
 	if !( [ -f "$COMPILE" ]); then
@@ -374,10 +375,12 @@ case $(uname) in
 			exit
 		else
 			ode_SLN=build/vs2005/ode.sln
+			liblo_PATCH=liblo-0.23-vs2005exp.patch
 		fi
 	else
 		ode_SLN=build/vs2003/ode.sln
 		ode_PATCH=ode-0.7-msvc7.patch
+		liblo_PATCH=liblo-0.23-msvc7.patch
 	fi
 
 	pthreads
