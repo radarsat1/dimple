@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual C++ Express 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dimple", "dimple.vcproj", "{03968EC1-C6F9-4811-8EED-4A68A5F0E965}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dimple", "src\dimple.vcproj", "{03968EC1-C6F9-4811-8EED-4A68A5F0E965}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
