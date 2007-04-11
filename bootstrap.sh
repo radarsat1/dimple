@@ -367,6 +367,36 @@ echo pthreads Done.
 echo
 }
 
+scons() {
+scons_URL=http://superb-west.dl.sourceforge.net/sourceforge/scons/scons-local-0.96.1.tar.gz
+scons_TAR=scons-local-0.96.1.tar.gz
+scons_MD5=78754efc02b4a374d5082a61509879cd
+scons_DIR=scons-local-0.96.1
+
+if ! [ -d $scons_DIR ]; then
+
+if [ $($MD5 "$scons_TAR" | $MD5CUT)x != ${scons_MD5}x ]; then
+    echo Downloading $scons_TAR ...
+    rm -v $scons_TAR
+    $DL "$scons_TAR" $scons_URL
+fi
+
+if [ $($MD5 "$scons_TAR" | $MD5CUT)x != ${scons_MD5}x ]; then
+    echo "Error in MD5 checksum for $scons_TAR"
+    exit
+fi
+fi
+
+if ! [ -d $scons_DIR ]; then
+echo Extracting "$scons_TAR" ...
+if !(tar -xzf "$scons_TAR"); then
+    echo "Error in archive.";
+    exit
+fi
+fi
+
+}
+
 cd libdeps
 
 # System-dependant bootstrapping
@@ -424,6 +454,7 @@ case $(uname) in
     chai_PATCH=chai3d-1.51-ubuntu.patch
 	chai_DIR=chai3d/linux
 
+    scons
 	ode
     chai3d
 	liblo
@@ -438,6 +469,7 @@ case $(uname) in
 	MD5CUT="cut -f2 -d="
     chai_PATCH=chai3d-1.51-darwin.patch
 	chai_DIR=chai3d/darwin
+    scons
     ode
 	liblo
 	chai3d

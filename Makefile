@@ -1,6 +1,9 @@
 
 dimple:
-	scons -C src
+	python libdeps/scons.py -C src
+
+debug:
+	python libdeps/scons.py -C src debug=1
 
 clean:
-	scons -C src -c
+	python libdeps/scons.py -C src -c

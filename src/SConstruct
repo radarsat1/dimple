@@ -1,7 +1,19 @@
 
-import sys
+import sys, os
 
-env = Environment()
+# Read environment variables & arguments
+env = Environment(ENV = os.environ)
+
+# Command-line takes precedence, but environment can specify debug as well
+try:
+    if ARGUMENTS.has_key('debug'):
+        debug = int(ARGUMENTS.get('debug',0))==1
+    else:
+        debug = int(env['ENV'].get('DIMPLE_DEBUG',0))==1
+except:
+    debug = False
+
+# Start configuration
 conf = Configure(env)
 
 # Check for GL headers
@@ -33,7 +45,7 @@ elif 'darwin' in sys.platform:
 nv = conf.Finish()
 
 # Debug mode
-if ARGUMENTS.get('debug', 0):
+if debug:
 	env.Append(CPPFLAGS = ['-ggdb','-Wall'])
 else:
 	env.Append(CPPFLAGS = ['-O3'])
