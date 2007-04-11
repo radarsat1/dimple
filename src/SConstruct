@@ -1,0 +1,61 @@
+
+import sys
+
+env = Environment()
+conf = Configure(env)
+
+# Check for GL headers
+if conf.CheckHeader('/System/Library/Frameworks/OpenGL.framework/Headers/gl.h'):
+    env.Append(CPPPATH=['../libdeps/chai3d/darwin/GL'],
+               LINKFLAGS=['-framework','OpenGL'])
+else:
+	conf.CheckHeader('/usr/include/GL/gl.h')
+
+# Check for GLUT headers
+if conf.CheckHeader('/System/Library/Frameworks/GLUT.framework/Headers/glut.h'):
+    env.Append(CPPPATH=['../libdeps/chai3d/darwin/GLUT'],
+               LINKFLAGS=['-framework','GLUT'])
+else:
+    conf.CheckHeader('/usr/include/GL/glut.h')
+
+    # Using FreeGLUT on all platforms except Mac OS X.
+    env.Append(CPPDEFINES = ['USE_FREEGLUT'],
+               LIBS = ['glut'])
+
+# Platform dependant library names
+if 'linux' in sys.platform:
+	env.Append(LIBS = ['chai3d_linux', 'dhd', 'usb', 'pciscan'],
+               LIBPATH = ['../libdeps/chai3d/lib/linux'])
+elif 'darwin' in sys.platform:
+	env.Append(LIBS = ['chai3d_darwin'],
+               LIBPATH = ['../libdeps/chai3d/lib/darwin'])
+
+nv = conf.Finish()
+
+# Debug mode
+if ARGUMENTS.get('debug', 0):
+	env.Append(CPPFLAGS = ['-ggdb','-Wall'])
+else:
+	env.Append(CPPFLAGS = ['-O3'])
+
+env.Append(
+    CPPPATH = ['../libdeps/ode-0.7/include',
+               '../libdeps/chai3d/include',
+               '../libdeps/liblo-0.23'],
+    CPPDEFINES = ['_POSIX',
+                  'LINUX',
+                  ('_MAX_PATH','260')],
+    LIBPATH = ['../libdeps/ode-0.7/ode/src',
+               '../libdeps/liblo-0.23/src/.libs'],
+    LIBS = ['ode','lo', 'pthread']
+    )
+
+env.Program( target = 'dimple',
+    source = ['CODEMesh.cpp',
+              'CODEPotentialProxy.cpp',
+              'CODEPrimitive.cpp',
+              'CODEPrism.cpp',
+              'CODESphere.cpp',
+              'OscObject.cpp',
+              'dimple.cpp']
+	)
