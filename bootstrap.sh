@@ -145,14 +145,14 @@ case $(uname) in
 	    exit
     fi
 
-    # Seems to make the shared version anyway.. ?
-    rm -v $ode_DIR/ode/src/libode.so $ode_DIR/ode/src/libode.dylib
-
     echo Compiling $ode_DIR
     if !(cd $ode_DIR && make); then
 	    echo "Error compiling $ode_DIR"
     	exit
     fi
+
+    # Seems to make the shared version anyway.. ?
+    rm -v $ode_DIR/ode/src/libode.so $ode_DIR/ode/src/libode.dylib
     ;;
 esac
 

@@ -533,6 +533,16 @@ void initWorld()
 
     // create a cursor and add it to the world.
     cursor = new cMeta3dofPointer(world, 0);
+    if (!cursor) {
+        printf("CHAI: Could not create cursor.\n");
+        return;
+    }
+    if (!cursor->m_pointForceAlgos.size()) {
+        printf("CHAI: Cursor has no point force algos.\n");
+        return;
+    }
+    printf("cursor->m_pointForceAlgos.size(): %d\n", cursor->m_pointForceAlgos.size());
+    printf("cursor->m_pointForceAlgos[0]: %#x", cursor->m_pointForceAlgos[0]);
 
 	// replace the cursor's proxy objects with an ODE equivalent
 	cGenericPointForceAlgo* old_proxy = cursor->m_pointForceAlgos[0];
