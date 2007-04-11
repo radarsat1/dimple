@@ -355,6 +355,7 @@ echo pthreads Done.
 echo
 }
 
+cd libdeps
 
 # System-dependant bootstrapping
 case $(uname) in
