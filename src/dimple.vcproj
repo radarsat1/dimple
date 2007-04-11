@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="8.00"
 	Name="dimple"
 	ProjectGUID="{03968EC1-C6F9-4811-8EED-4A68A5F0E965}"
 	>
@@ -72,7 +72,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib advapi32.lib user32.lib winmm.lib ../libdeps/chai3d/lib/msvc7/chai3d_complete.lib glu32.lib odbc32.lib odbccp32.lib ../libdeps/liblo-0.23/Release/liblo.lib wsock32.lib ../libdeps/ode-0.7/lib/releaselib/ode.lib ../libdeps/pthreads-w32-2-8-0-release/Release/pthreadsVC2.lib ../libdeps/freeglut-2.4.0/ReleaseStatic/freeglut_static.lib"
+				AdditionalDependencies="ws2_32.lib advapi32.lib user32.lib winmm.lib ../libdeps/chai3d/lib/msvc8exp/chai3d_complete.lib glu32.lib odbc32.lib odbccp32.lib ../libdeps/liblo-0.23/Release/liblo.lib wsock32.lib ../libdeps/ode-0.7/lib/releaselib/ode.lib ../libdeps/pthreads-w32-2-8-0-release/Release/pthreadsVC2.lib ../libdeps/freeglut-2.4.0/ReleaseStatic/freeglut_static.lib"
 				OutputFile="../dimple.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -164,7 +164,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib advapi32.lib user32.lib winmm.lib ../libdeps/chai3d/lib/msvc7/chai3d_complete_d.lib glu32.lib odbc32.lib odbccp32.lib ../libdeps/liblo-0.23/Debug/liblo.lib wsock32.lib ../libdeps/ode-0.7/lib/debuglib/ode.lib ../libdeps/pthreads-w32-2-8-0-release/Debug/pthreadsVC2.lib ../libdeps/freeglut-2.4.0/DebugStatic/freeglut_static.lib"
+				AdditionalDependencies="ws2_32.lib advapi32.lib user32.lib winmm.lib ../libdeps/chai3d/lib/msvc8exp/chai3d_complete_d.lib glu32.lib odbc32.lib odbccp32.lib ../libdeps/liblo-0.23/Debug/liblo.lib wsock32.lib ../libdeps/ode-0.7/lib/debuglib/ode.lib ../libdeps/pthreads-w32-2-8-0-release/Debug/pthreadsVC2.lib ../libdeps/freeglut-2.4.0/DebugStatic/freeglut_static.lib"
 				OutputFile="../dimple_d.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
