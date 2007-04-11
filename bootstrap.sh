@@ -269,6 +269,12 @@ fi
 
 case $(uname) in
 	CYGWIN*)
+	if [ ${vs_VER}x == 2003x ]; then
+		echo Setting back version for solution \& project
+		sed 's/Version [0-9,.]*/Version 8.00/' $freeglut_DIR/freeglut.sln --in-place
+		sed 's/Version="[0-9,.]*"/Version="7.10"/' $freeglut_DIR/freeglut.vcproj --in-place
+		sed 's/Version="[0-9,.]*"/Version="7.10"/' $freeglut_DIR/freeglut_static.vcproj --in-place
+	fi
     echo Compiling $freeglut_DIR Debug
     if !( "$COMPILE" /Build Debug $(cygpath -w $freeglut_DIR/freeglut.sln ) /Project freeglut_static /Out compile.log ); then
        echo "Error compiling $freeglut_DIR" Debug
@@ -331,6 +337,12 @@ fi
 
 case $(uname) in
 	CYGWIN*)
+	if [ ${vs_VER}x == 2003x ]; then
+		echo Setting back version for solution \& project
+		sed 's/Version [0-9,.]*/Version 8.00/' $pthreads_DIR/pthreads.sln --in-place
+		sed 's/Version="[0-9,.]*"/Version="7.10"/' $pthreads_DIR/pthreads.vcproj --in-place
+	fi
+
     echo Compiling $pthreads_DIR Debug
     if !( "$COMPILE" /Build Debug $(cygpath -w $pthreads_DIR/pthreads.sln ) /Project pthreads /Out compile.log ); then
        echo "Error compiling $pthreads_DIR" Debug
@@ -363,7 +375,6 @@ case $(uname) in
 	DL="wget -O"
     MD5=md5sum
 	MD5CUT="awk {print\$1}"
-	chai_DIR=chai3d/msvc8exp
 	freeglut_PATCH=freeglut-2.4.0-vs2005exp.patch
 	pthreads_PATCH=pthreads-w32-2-8-0-release-vs2005exp-static.patch
 	chai_PATCH=chai3d-1.51-vs2005exp.patch
@@ -375,13 +386,17 @@ case $(uname) in
 			echo "Couldn't find Visual Studio 2003 or 2005 Express.  Please edit the line COMPILE= in this file (bootstrap.sh)"
 			exit
 		else
+			vs_VER=2005
 			ode_SLN=build/vs2005/ode.sln
 			liblo_PATCH=liblo-0.23-vs2005exp.patch
+			chai_DIR=chai3d/msvc8exp
 		fi
 	else
+		vs_VER=2003
 		ode_SLN=build/vs2003/ode.sln
 		ode_PATCH=ode-0.7-msvc7.patch
 		liblo_PATCH=liblo-0.23-msvc7.patch
+		chai_DIR=chai3d/msvc7
 	fi
 
 	pthreads
@@ -390,7 +405,16 @@ case $(uname) in
     liblo
 	chai3d
 
-	echo Now open dimple.sln in Visual Studio 2003 and build.
+	cd ..
+	if [ ${vs_VER}x == 2003x ]; then
+		echo Setting back version of dimple solution \& project for Visual Studio 2003
+		sed 's/Version [0-9,.]*/Version 8.00/' dimple.sln --in-place
+		sed 's/Version="[0-9,.]*"/Version="7.10"/' src/dimple.vcproj --in-place
+		sed 's,chai3d/lib/msvc8exp,chai3d/lib/msvc7,' src/dimple.vcproj --in-place
+	fi
+
+	echo Now open dimple.sln in Visual Studio and build.
+	explorer .
     ;;
 
     Linux*)
