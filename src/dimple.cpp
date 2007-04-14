@@ -215,7 +215,8 @@ void key(unsigned char key, int x, int y)
         timer.stop();
 
         // stop the tool
-        cursor->stop();
+        if (cursor)
+            cursor->stop();
 
         // wait for the simulation timer to close
         Sleep(100);
@@ -301,36 +302,6 @@ void setOther(int value)
     }
     
     glutPostRedisplay();
-}
-
-//---------------------------------------------------------------------------
-
-// TODO: remove this
-void hapticsLoop(void* a_pUserData)
-{
-    // read position from haptic device
-    cursor->updatePose();
-
-    // compute forces
-    cursor->computeForces();
-
-    // send forces to haptic device
-    cursor->applyForces();
-
-    // stop the simulation clock
-    g_clock.stop();
-
-    // read the time increment in seconds
-    double increment = g_clock.getCurrentTime() / 1000000.0;
-
-    // restart the simulation clock
-    g_clock.initialize();
-    g_clock.start();
-
-    // get position of cursor in global coordinates
-    cVector3d cursorPos = cursor->m_deviceGlobalPos;
-
-	proxyForceMagnitude = cursor->m_lastComputedGlobalForce.length();
 }
 
 //---------------------------------------------------------------------------
@@ -530,7 +501,10 @@ void initWorld()
     light->setPos(cVector3d(2,0.5,1));
     light->setDir(cVector3d(-2,0.5,1));
     camera->addChild(light);
+}
 
+void initCursor()
+{
     // create a cursor and add it to the world.
     cursor = new cMeta3dofPointer(world, 0);
 
@@ -604,9 +578,14 @@ void initODE()
 
 void startHaptics()
 {
+    if (!cursor)
+        initCursor();
+
     // set up the device
     if (cursor->initialize()) {
         printf("Could not initialize haptics.\n");
+        world->deleteChild(cursor);
+        cursor = NULL;
         return;
     }
 
@@ -633,7 +612,8 @@ void startHaptics()
 void stopHaptics()
 {
 	if (hapticsStarted) {
-        cursor->stop();
+        if (cursor)
+            cursor->stop();
         timer.stop();
         
         hapticsStarted = 0;
