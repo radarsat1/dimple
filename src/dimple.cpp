@@ -1225,6 +1225,7 @@ void initOSC()
 	 lo_server_thread_add_method(loserver, "/constraint/fixed/create", "sss", constraintFixedCreate_handler, NULL);
      lo_server_thread_add_method(loserver, "/world/clear", "", worldClear_handler, NULL);
      lo_server_thread_add_method(loserver, "/world/gravity", "f", worldGravity1_handler, NULL);
+     lo_server_thread_add_method(loserver, "/world/gravity", "fff", worldGravity3_handler, NULL);
      lo_server_thread_add_method(loserver, "/object/collide/get", "", objectCollideGet_handler, NULL);
      lo_server_thread_add_method(loserver, "/object/collide/get", "i", objectCollideGet_handler, NULL);
 
