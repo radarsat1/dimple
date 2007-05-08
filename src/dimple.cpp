@@ -97,8 +97,6 @@ pthread_t ode_pthread;
 
 void poll_requests();
 
-#define ODE_IN_HAPTICS_LOOP
-
 #define MAX_CONTACTS 30
 #define FPS 30
 #define GLUT_TIMESTEP_MS   (int)((1.0/FPS)*1000.0)
@@ -268,21 +266,6 @@ void updateDisplay(int val)
 
     // update the GLUT timer for the next rendering call
     glutTimerFunc(FPS, updateDisplay, 0);
-
-#ifdef ODE_IN_HAPTICS_LOOP
-	// update ODE
-    if (!WORLD_LOCKED() && !hapticsStarted)
-        {}//ode_simStep();
-#else
-	// update ODE
-    if (!WORLD_LOCKED())
-        {}//ode_simStep();
-#endif
-
-        /*
-    if (WORLD_LOCKED())
-        while (poll_ode_requests());
-        */
 }
 
 //---------------------------------------------------------------------------
@@ -357,11 +340,6 @@ void ode_hapticsLoop(void* a_pUserData)
     // TODO: improve this to avoid haptic glitches
     if (CHAI_LOCKED())
         return;
-
-#ifdef ODE_IN_HAPTICS_LOOP
-    // update ODE
-	//ode_simStep();
-#endif
 
     LOCK_CHAI();
     cursor->computeGlobalPositions(1);
@@ -600,13 +578,6 @@ void startHaptics()
 
 	hapticsStarted = 1;
 	printf("Haptics started.\n");
-
-#ifdef ODE_IN_HAPTICS_LOOP
-    /*
-        ode_step = HAPTIC_TIMESTEP_MS / 1000.0;
-    printf("ode_step = %f\n", ode_step);
-    */
-#endif
 }
 
 void stopHaptics()
@@ -619,11 +590,6 @@ void stopHaptics()
         hapticsStarted = 0;
         printf("Haptics stopped.\n");
 	}
-
-#ifdef ODE_IN_HAPTICS_LOOP
-        ode_step = GLUT_TIMESTEP_MS / 1000.0;
-    printf("ode_step = %f\n", ode_step);
-#endif
 }
 
 // called from OSC thread, non-blocking
