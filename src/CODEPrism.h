@@ -34,6 +34,9 @@ public:
     //! Change the dimensions of the prism
     void setSize(cVector3d& size);
 
+    //! Change the dimensions of the dynamic prism
+    void setDynamicSize(cVector3d& size);
+
 protected:
 	//! Hold the size of each dimension
 	cVector3d m_size;
