@@ -1,4 +1,4 @@
-
+// -*- mode:c++; indent-tabs-mode:nil; c-basic-offset:4; -*-
 //======================================================================================
 /*
     This file is part of DIMPLE, the Dynamic Interactive Musically PhysicaL Environment,
@@ -753,16 +753,29 @@ int poll_chai_requests()
 int hapticsEnable_handler(const char *path, const char *types, lo_arg **argv,
                           int argc, void *data, void *user_data)
 {
-	if (argv[0]->i==0)
-		requestHapticsStop = 1;
-	else
-		requestHapticsStart = 1;
-	return 0;
+	 handler_data *hd = (handler_data*)user_data;
+	 if (hd->thread != DIMPLE_THREAD_PHYSICS)
+		  return 0;
+
+	 if (argv[0]->i==0)
+		  requestHapticsStop = 1;
+	 else
+		  requestHapticsStart = 1;
+	 return 0;
 }
 
 int graphicsEnable_handler(const char *path, const char *types, lo_arg **argv,
                            int argc, void *data, void *user_data)
 {
+	 handler_data *hd = (handler_data*)user_data;
+
+	 // Handle this in the physics thread because it is pretty much
+     // the only message that is GLUT-related but otherwise we don't
+     // handle messages in the GLUT thread.  However we need to handle
+     // this only once, so physics thread it is.
+	 if (hd->thread != DIMPLE_THREAD_PHYSICS)
+		  return 0;
+
 	 if (argv[0]->i) {
 		  if (!glutStarted) {
 			   glutStarted = 1;
@@ -777,14 +790,16 @@ int graphicsEnable_handler(const char *path, const char *types, lo_arg **argv,
 	 return 0;
 }
 
-void clear_world(void*)
+void clear_world(dimple_thread_t th)
 {
     objects_iter it;
     for (it=world_objects.begin(); it!=world_objects.end(); it++)
     {
         OscObject *o = it->second;
-//        world_objects.erase(it);
         if (o) delete o;
+
+//        world_objects.erase(it);
+		// TODO: figure out how to handle world_objects in a thread-safe way
     }
     
     world_objects.clear();
@@ -793,9 +808,12 @@ void clear_world(void*)
 int worldClear_handler(const char *path, const char *types, lo_arg **argv,
                        int argc, void *data, void *user_data)
 {
-//    wait_ode_request(clear_world, 0);
-    clear_world(0);
-    return 0;
+	 handler_data *hd = (handler_data*)user_data;
+
+	 // handle in only one thread
+	 if (hd->thread == DIMPLE_THREAD_HAPTICS)
+		  clear_world(hd->thread);
+	 return 0;
 }
 
 int worldGravity1_handler(const char *path, const char *types, lo_arg **argv,
@@ -1138,7 +1156,8 @@ void liblo_error(int num, const char *msg, const char *path)
 
 handler_data::handler_data(lo_method_handler _handler,
                            const char *_path, const char *_types,
-                           lo_arg **_argv, int _argc, void *_user_data, int _thread)
+                           lo_arg **_argv, int _argc, void *_user_data,
+						   dimple_thread_t _thread)
     : handler(_handler), path(_path), types(_types), argc(_argc),
       user_data(_user_data), thread(_thread)
 {
@@ -1168,24 +1187,21 @@ handler_data::~handler_data()
 void thread_handler_callback(void *data)
 {
     handler_data *h = (handler_data*)data;
-
-//    printf("handler, thread = %d\n", h->thread);
-    if (h->thread == DIMPLE_THREAD_PHYSICS)
-        h->handler(h->path.c_str(), h->types.c_str(), h->argv, h->argc, 0, h->user_data);
-
+	h->handler(h->path.c_str(), h->types.c_str(), h->argv, h->argc, 0, h);
     delete h;
 }
 
 int handler_callback(lo_method_handler handler, const char *path, const char *types,
                      lo_arg **argv, int argc, void *data, void *user_data)
 {
-    handler_data *h_ode = new handler_data(handler, path, types, argv, argc, user_data, DIMPLE_THREAD_PHYSICS);
+    handler_data *h_ode = new handler_data(handler, path, types, argv, argc,
+										   user_data, DIMPLE_THREAD_PHYSICS);
     if (!h_ode)
         return 0;
 
-    handler_data *h_chai = new handler_data(handler, path, types, argv, argc, user_data, DIMPLE_THREAD_HAPTICS);
+    handler_data *h_chai = new handler_data(handler, path, types, argv, argc,
+											user_data, DIMPLE_THREAD_HAPTICS);
     if (!h_chai) {
-        delete h_ode;
         return 0;
     }
 
@@ -1289,7 +1305,7 @@ int main(int argc, char* argv[])
 	 printf ("\n");
 	 printf ("  ==========================================================\n");
 	 printf ("  DIMPLE: Dynamic Interactive Musically PhysicaL Environment\n");
-	 printf ("  Version 0.0.4 (alpha).        Stephen Sinclair, IDMIL 2007\n");
+	 printf ("  Version 0.0.5 (alpha).        Stephen Sinclair, IDMIL 2007\n");
 	 printf ("  ==========================================================\n");
 	 printf ("\n");
      fflush(stdout);
@@ -1302,7 +1318,6 @@ int main(int argc, char* argv[])
 	 initODE();
 
 	 // initially loop just waiting for messages
-	 glutInit(&argc, argv);
 	 while (!glutStarted && !quit) {
 		  Sleep(100);
 		  poll_requests();
@@ -1310,6 +1325,7 @@ int main(int argc, char* argv[])
 
 	 // when graphics start, fall through to initialize GLUT stuff
 	 if (glutStarted && !quit) {
+		  glutInit(&argc, argv);
 		  initGlutWindow();
 		  glutMainLoop();
 	 }

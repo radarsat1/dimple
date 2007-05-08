@@ -71,20 +71,22 @@ OscVector3::OscVector3(const char *name, const char *classname)
 int OscVector3::_handler(const char *path, const char *types, lo_arg **argv,
                          int argc, void *data, void *user_data)
 {
-    OscVector3 *me = (OscVector3*)user_data;
-    if (argc == 3) {
-        me->x = argv[0]->f;
-        me->y = argv[1]->f;
-        me->z = argv[2]->f;
-    }
-    // TODO: method for informing parent that data has changed?
-    return 0;
+	 handler_data *hd = (handler_data*)user_data;
+	 OscVector3 *me = (OscVector3*)hd->user_data;
+	 if (argc == 3) {
+		  me->x = argv[0]->f;
+		  me->y = argv[1]->f;
+		  me->z = argv[2]->f;
+	 }
+	 // TODO: method for informing parent that data has changed?
+	 return 0;
 }
 
 int OscVector3::get_handler(const char *path, const char *types, lo_arg **argv,
                             int argc, void *data, void *user_data)
 {
-    OscVector3 *me = (OscVector3*)user_data;
+	 handler_data *hd = (handler_data*)user_data;
+	 OscVector3 *me = (OscVector3*)hd->user_data;
     lo_send(address_send, ("/" + me->m_classname +
                            "/" + me->m_name).c_str(),
             "fff", me->x, me->y, me->z
@@ -95,7 +97,8 @@ int OscVector3::get_handler(const char *path, const char *types, lo_arg **argv,
 int OscVector3::magnitude_handler(const char *path, const char *types, lo_arg **argv,
                                   int argc, void *data, void *user_data)
 {
-    OscVector3 *me = (OscVector3*)user_data;
+	 handler_data *hd = (handler_data*)user_data;
+	 OscVector3 *me = (OscVector3*)hd->user_data;
     // TODO
     return 0;
 }
@@ -103,7 +106,8 @@ int OscVector3::magnitude_handler(const char *path, const char *types, lo_arg **
 int OscVector3::magnitudeGet_handler(const char *path, const char *types, lo_arg **argv,
                                     int argc, void *data, void *user_data)
 {
-    OscVector3 *me = (OscVector3*)user_data;
+	 handler_data *hd = (handler_data*)user_data;
+	 OscVector3 *me = (OscVector3*)hd->user_data;
     lo_send(address_send, ("/" + me->m_classname +
                            "/" + me->m_name +
                            "/magnitude").c_str(),
@@ -262,7 +266,8 @@ void OscObject::setDynamicPosition(const dReal* pos)
 int OscObject::destroy_handler(const char *path, const char *types, lo_arg **argv,
 							   int argc, void *data, void *user_data)
 {
-    OscObject *me = (OscObject*)user_data;
+	 handler_data *hd = (handler_data*)user_data;
+	 OscObject *me = (OscObject*)hd->user_data;
 
     if (me) {
         LOCK_WORLD();
@@ -278,9 +283,12 @@ int OscObject::mass_handler(const char *path, const char *types, lo_arg **argv,
                              int argc, void *data, void *user_data)
 {
     if (argc!=1) return 0;
+
     LOCK_WORLD();
-    OscObject *me = (OscObject*)user_data;
-    me->odePrimitive()->setMass(argv[0]->f);
+	handler_data *hd = (handler_data*)user_data;
+    OscObject *me = (OscObject*)hd->user_data;
+	if (hd->thread == DIMPLE_THREAD_PHYSICS)
+		 me->odePrimitive()->setMass(argv[0]->f);
     UNLOCK_WORLD();
     return 0;
 }
@@ -291,8 +299,10 @@ int OscObject::force_handler(const char *path, const char *types, lo_arg **argv,
 {
     if (argc!=3) return 0;
     LOCK_WORLD();
-    OscObject *me = (OscObject*)user_data;
-    dBodySetForce(me->odePrimitive()->m_odeBody, argv[0]->f, argv[1]->f, argv[2]->f);
+	handler_data *hd = (handler_data*)user_data;
+    OscObject *me = (OscObject*)hd->user_data;
+	if (hd->thread == DIMPLE_THREAD_PHYSICS)
+		 dBodySetForce(me->odePrimitive()->m_odeBody, argv[0]->f, argv[1]->f, argv[2]->f);
     UNLOCK_WORLD();
     return 0;
 }
@@ -300,7 +310,8 @@ int OscObject::force_handler(const char *path, const char *types, lo_arg **argv,
 int OscObject::collideGet_handler(const char *path, const char *types, lo_arg **argv,
                                   int argc, void *data, void *user_data)
 {
-    OscObject *me = (OscObject*)user_data;
+	 handler_data *hd = (handler_data*)user_data;
+	 OscObject *me = (OscObject*)hd->user_data;
 
     int interval=-1;
     if (argc > 0) {
@@ -360,18 +371,22 @@ int OscPrism::size_handler(const char *path, const char *types, lo_arg **argv,
     if (argc!=3)
         return 0;
 
-    OscPrism* me = (OscPrism*)user_data;
+	handler_data *hd = (handler_data*)user_data;
+    OscPrism* me = (OscPrism*)hd->user_data;
 	cODEPrism *prism = me->odePrimitive();
-    if (prism)
-    {
-        cVector3d size;
-        size.x = argv[0]->f;
-        size.y = argv[1]->f;
-        size.z = argv[2]->f;
-        LOCK_WORLD();
-        prism->setSize(size);
-        UNLOCK_WORLD();
-    }
+	if (prism)
+	{
+		 cVector3d size;
+		 size.x = argv[0]->f;
+		 size.y = argv[1]->f;
+		 size.z = argv[2]->f;
+		 LOCK_WORLD();
+		 if (hd->thread == DIMPLE_THREAD_HAPTICS)
+			  prism->setSize(size);
+		 else if (hd->thread == DIMPLE_THREAD_PHYSICS)
+			  prism->setDynamicSize(size);
+		 UNLOCK_WORLD();
+	}
 
 	return 0;
 }
@@ -391,11 +406,15 @@ int OscSphere::radius_handler(const char *path, const char *types, lo_arg **argv
     if (argc!=1)
         return 0;
 
-    OscSphere* me = (OscSphere*)user_data;
+	handler_data *hd = (handler_data*)user_data;
+    OscSphere* me = (OscSphere*)hd->user_data;
 	cODESphere *sphere = me->odePrimitive();
     if (sphere) {
         LOCK_WORLD();
-        sphere->setRadius(argv[0]->f);
+		if (hd->thread == DIMPLE_THREAD_HAPTICS)
+			 sphere->setRadius(argv[0]->f);
+		else if (hd->thread == DIMPLE_THREAD_PHYSICS)
+			 sphere->setRadius(argv[0]->f);
         UNLOCK_WORLD();
     }
     return 0;
@@ -433,7 +452,8 @@ OscConstraint::~OscConstraint()
 int OscConstraint::destroy_handler(const char *path, const char *types, lo_arg **argv,
 							   int argc, void *data, void *user_data)
 {
-    OscConstraint *me = (OscConstraint*)user_data;
+	 handler_data *hd = (handler_data*)user_data;
+	 OscConstraint *me = (OscConstraint*)hd->user_data;
 
     if (me) {
         LOCK_WORLD();
@@ -449,7 +469,8 @@ int OscConstraint::responseLinear_handler(const char *path, const char *types, l
 {
     if (argc!=1) return 0;
 
-    OscConstraint *me = (OscConstraint*)user_data;
+	handler_data *hd = (handler_data*)user_data;
+    OscConstraint *me = (OscConstraint*)hd->user_data;
     me->m_stiffness = argv[0]->f;
     me->m_damping = 0;
     return 0;
@@ -460,9 +481,12 @@ int OscConstraint::responseSpring_handler(const char *path, const char *types, l
 {
     if (argc!=2) return 0;
 
-    OscConstraint *me = (OscConstraint*)user_data;
-    me->m_stiffness = argv[0]->f;
-    me->m_damping = argv[1]->f;
+	handler_data *hd = (handler_data*)user_data;
+    OscConstraint *me = (OscConstraint*)hd->user_data;
+	if (hd->thread == DIMPLE_THREAD_HAPTICS) {
+		 me->m_stiffness = argv[0]->f;
+		 me->m_damping = argv[1]->f;
+	}
     return 0;
 }
 
@@ -477,7 +501,8 @@ OscBallJoint::OscBallJoint(const char *name, OscObject *object1, OscObject *obje
     cVector3d anchor(x,y,z);
     object1->odePrimitive()->ballLink(name, object2?object2->odePrimitive():NULL, anchor);
 
-    printf("Ball link created between %s and %s at (%f,%f,%f)\n", object1->name(), object2?object2->name():"world", x,y,z);
+    printf("Ball link created between %s and %s at (%f,%f,%f)\n",
+		   object1->name(), object2?object2->name():"world", x,y,z);
 }
 
 // ----------------------------------------------------------------------------------
@@ -501,7 +526,7 @@ OscHinge::OscHinge(const char *name, OscObject *object1, OscObject *object2,
 
 //! This function is called once per simulation step, allowing the
 //! constraint to be "motorized" according to some response.
-//! It runs in the haptics thread.
+//! It runs in the physics thread.
 void OscHinge::simulationCallback()
 {
     dJointID *id;
@@ -524,8 +549,9 @@ int OscHinge::forceMagnitudeGet_handler(const char *path, const char *types, lo_
         once=false;
     }
 
-    OscHinge *me = (OscHinge*)user_data;
-    if (once) {
+	handler_data *hd = (handler_data*)user_data;
+    OscHinge *me = (OscHinge*)hd->user_data;
+    if (once && hd->thread == DIMPLE_THREAD_HAPTICS) {
         lo_send(address_send, ("/constraint/"+me->m_name+"/force/magnitude").c_str(), "f", me->m_torque);
     }
 

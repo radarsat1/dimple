@@ -131,10 +131,11 @@ public:
     lo_arg **argv;
     int argc;
     void *user_data;
-    int thread;
+    dimple_thread_t thread;
     handler_data(lo_method_handler _handler,
-        const char *_path, const char *_types,
-        lo_arg **_argv, int _argc, void *_user_data, int _thread);
+				 const char *_path, const char *_types,
+				 lo_arg **_argv, int _argc, void *_user_data,
+				 dimple_thread_t _thread);
     ~handler_data();
 };
 

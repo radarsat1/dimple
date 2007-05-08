@@ -40,7 +40,7 @@ void cODEPrism::initCallbackDefaults(void *self)
     (static_cast<cODEPrism*>(self))->initDynamic(BOX);
 }
 
-void cODEPrism::setSize(cVector3d& a_size)
+void cODEPrism::setDynamicSize(cVector3d& a_size)
 {
     // calculate the ratio between the two sizes
     cVector3d ratio;
@@ -57,6 +57,21 @@ void cODEPrism::setSize(cVector3d& a_size)
     dBodyGetMass(m_odeBody, &mass);
     m = mass.mass;
 
+    // resize ODE geom
+    dGeomBoxSetLengths (m_odeGeom, m_size[0], m_size[1], m_size[2]);
+
+    // scale the mass accordingly
+    setMass(m*ratio.x*ratio.y*ratio.z);
+}
+
+void cODEPrism::setSize(cVector3d& a_size)
+{
+    // calculate the ratio between the two sizes
+    cVector3d ratio;
+    ratio.x = a_size[0] / m_size[0];
+    ratio.y = a_size[1] / m_size[1];
+    ratio.z = a_size[2] / m_size[2];
+
     // reposition vertices
     int i,n;
     n = getNumVertices();
@@ -66,11 +81,6 @@ void cODEPrism::setSize(cVector3d& a_size)
         getVertex(i)->setPos(pos);
     }
 
-    // resize ODE geom
-    dGeomBoxSetLengths (m_odeGeom, m_size[0], m_size[1], m_size[2]);
-
-    // scale the mass accordingly
-    setMass(m*ratio.x*ratio.y*ratio.z);
 }
 
 // This function stolen from dynamic_ode...

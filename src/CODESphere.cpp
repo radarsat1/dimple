@@ -117,5 +117,9 @@ void cODESphere::initDynamic(objectType a_objType, float a_x,
 void cODESphere::setRadius (double a_radius)
 {
     cShapeSphere::setRadius(a_radius);
+}
+
+void cODESphere::setDynamicRadius (double a_radius)
+{
     dGeomSphereSetRadius(m_odeGeom, a_radius);
 }
