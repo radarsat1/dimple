@@ -100,6 +100,7 @@ void poll_requests();
 #define MAX_CONTACTS 30
 #define FPS 30
 #define GLUT_TIMESTEP_MS   (int)((1.0/FPS)*1000.0)
+#define PHYSICS_TIMESTEP_MS 10
 #define HAPTIC_TIMESTEP_MS 1
 
 // ODE objects
@@ -545,7 +546,7 @@ void initODE()
 
     ode_world = dWorldCreate();
     dWorldSetGravity (ode_world,0,0,0);
-    ode_step = GLUT_TIMESTEP_MS/1000.0; // will be changed when haptics starts
+    ode_step = PHYSICS_TIMESTEP_MS/1000.0;
     printf("ode_step = %f\n", ode_step);
     ode_space = dSimpleSpaceCreate(0);
     ode_contact_group = dJointGroupCreate(0);
@@ -777,7 +778,7 @@ int worldClear_handler(const char *path, const char *types, lo_arg **argv,
 	 handler_data *hd = (handler_data*)user_data;
 
 	 // handle in only one thread
-	 if (hd->thread == DIMPLE_THREAD_HAPTICS)
+	 if (hd->thread == DIMPLE_THREAD_PHYSICS)
 		  clear_world(hd->thread);
 	 return 0;
 }
@@ -785,6 +786,10 @@ int worldClear_handler(const char *path, const char *types, lo_arg **argv,
 int worldGravity1_handler(const char *path, const char *types, lo_arg **argv,
                          int argc, void *data, void *user_data)
 {
+    handler_data *hd = (handler_data*)user_data;
+    if (hd->thread != DIMPLE_THREAD_PHYSICS)
+        return 0;
+
     LOCK_WORLD();
     dWorldSetGravity(ode_world, 0, 0, argv[0]->f);
     UNLOCK_WORLD();
@@ -814,6 +819,10 @@ OscObject *findObject(const char *name)
 int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv,
                               int argc, void *data, void *user_data)
 {
+    handler_data *hd = (handler_data*)user_data;
+    if (hd->thread != DIMPLE_THREAD_PHYSICS)
+        return 0;
+
     if (findObject(&argv[0]->s))
         return 0;
 
@@ -855,6 +864,10 @@ int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv
 int objectSphereCreate_handler(const char *path, const char *types, lo_arg **argv,
                                int argc, void *data, void *user_data)
 {
+    handler_data *hd = (handler_data*)user_data;
+    if (hd->thread != DIMPLE_THREAD_PHYSICS)
+        return 0;
+
     if (findObject(&argv[0]->s))
         return 0;
 
@@ -892,6 +905,10 @@ int objectSphereCreate_handler(const char *path, const char *types, lo_arg **arg
 int constraintBallCreate_handler(const char *path, const char *types, lo_arg **argv,
                                int argc, void *data, void *user_data)
 {
+    handler_data *hd = (handler_data*)user_data;
+    if (hd->thread != DIMPLE_THREAD_PHYSICS)
+        return 0;
+
     if (argc!=6) return 0;
 
     if (world_constraints.find(&argv[0]->s)!=world_constraints.end())
@@ -932,6 +949,10 @@ int constraintBallCreate_handler(const char *path, const char *types, lo_arg **a
 int constraintHingeCreate_handler(const char *path, const char *types, lo_arg **argv,
                                   int argc, void *data, void *user_data)
 {
+    handler_data *hd = (handler_data*)user_data;
+    if (hd->thread != DIMPLE_THREAD_PHYSICS)
+        return 0;
+
     if (argc!=9) return 0;
 
     if (world_constraints.find(&argv[0]->s)!=world_constraints.end())
@@ -972,6 +993,10 @@ int constraintHingeCreate_handler(const char *path, const char *types, lo_arg **
 int constraintHinge2Create_handler(const char *path, const char *types, lo_arg **argv,
                                    int argc, void *data, void *user_data)
 {
+    handler_data *hd = (handler_data*)user_data;
+    if (hd->thread != DIMPLE_THREAD_PHYSICS)
+        return 0;
+
     if (argc!=12) return 0;
 
     if (world_constraints.find(&argv[0]->s)!=world_constraints.end())
@@ -1015,6 +1040,10 @@ int constraintHinge2Create_handler(const char *path, const char *types, lo_arg *
 int constraintUniversalCreate_handler(const char *path, const char *types, lo_arg **argv,
                                       int argc, void *data, void *user_data)
 {
+    handler_data *hd = (handler_data*)user_data;
+    if (hd->thread != DIMPLE_THREAD_PHYSICS)
+        return 0;
+
     if (argc!=12) return 0;
 
     if (world_constraints.find(&argv[0]->s)!=world_constraints.end())
@@ -1058,6 +1087,10 @@ int constraintUniversalCreate_handler(const char *path, const char *types, lo_ar
 int constraintFixedCreate_handler(const char *path, const char *types, lo_arg **argv,
                                   int argc, void *data, void *user_data)
 {
+    handler_data *hd = (handler_data*)user_data;
+    if (hd->thread != DIMPLE_THREAD_PHYSICS)
+        return 0;
+
     if (argc!=3) return 0;
 
     if (world_constraints.find(&argv[0]->s)!=world_constraints.end())
@@ -1098,19 +1131,16 @@ int constraintFixedCreate_handler(const char *path, const char *types, lo_arg **
 int objectCollideGet_handler(const char *path, const char *types, lo_arg **argv,
                              int argc, void *data, void *user_data)
 {
+    handler_data *hd = (handler_data*)user_data;
+    if (hd->thread != DIMPLE_THREAD_PHYSICS)
+        return 0;
+
     int interval=-1;
     if (argc > 0) {
         interval = argv[0]->i;
     }
     bGetCollide = (interval>0);
 
-    return 0;
-}
-
-int unknown_handler(const char *path, const char *types, lo_arg **argv,
-                    int argc, void *data, void *user_data)
-{
-    printf("Unknown message %s, %d args.\n", path, argc);
     return 0;
 }
 
