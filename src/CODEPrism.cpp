@@ -42,6 +42,9 @@ void cODEPrism::initCallbackDefaults(void *self)
 
 void cODEPrism::setDynamicSize(cVector3d& a_size)
 {
+    if (a_size[0] <= 0 || a_size[1] <= 0 || a_size[2] <= 0)
+        return;
+
     // calculate the ratio between the two sizes
     cVector3d ratio;
     ratio.x = a_size[0] / m_size[0];
