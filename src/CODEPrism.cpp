@@ -69,21 +69,15 @@ void cODEPrism::setDynamicSize(cVector3d& a_size)
 
 void cODEPrism::setSize(cVector3d& a_size)
 {
-    // calculate the ratio between the two sizes
-    cVector3d ratio;
-    ratio.x = a_size[0] / m_size[0];
-    ratio.y = a_size[1] / m_size[1];
-    ratio.z = a_size[2] / m_size[2];
-
     // reposition vertices
     int i,n;
     n = getNumVertices();
     for (i=0; i<n; i++) {
-        cVector3d pos = getVertex(i)->getPos();
-        pos.elementMul(ratio);
-        getVertex(i)->setPos(pos);
+		 cVector3d pos = getVertex(i)->getPos();
+		 pos.elementMul(cVector3d(1.0/fabs(pos.x), 1.0/fabs(pos.y), 1.0/fabs(pos.z)));
+		 pos.elementMul(a_size/2.0);
+		 getVertex(i)->setPos(pos);
     }
-
 }
 
 // This function stolen from dynamic_ode...
