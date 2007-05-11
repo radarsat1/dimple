@@ -27,6 +27,8 @@ it!  It's been developed on Linux, but also works on OS X and Windows.
 (The latter is important for haptic devices that unfortunately only
 provide Windows drivers.)
 
+image:./icon/dimple_sphere.png["DIMPLE logo"]
+
 Using
 -----
 
