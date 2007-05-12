@@ -414,7 +414,7 @@ int OscSphere::radius_handler(const char *path, const char *types, lo_arg **argv
 		if (hd->thread == DIMPLE_THREAD_HAPTICS)
 			 sphere->setRadius(argv[0]->f);
 		else if (hd->thread == DIMPLE_THREAD_PHYSICS)
-			 sphere->setRadius(argv[0]->f);
+			 sphere->setDynamicRadius(argv[0]->f);
         UNLOCK_WORLD();
     }
     return 0;
