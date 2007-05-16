@@ -64,7 +64,7 @@ void cODEPrism::setDynamicSize(cVector3d& a_size)
     dGeomBoxSetLengths (m_odeGeom, m_size[0], m_size[1], m_size[2]);
 
     // scale the mass accordingly
-    setMass(m*ratio.x*ratio.y*ratio.z);
+    setDynamicMass(m*ratio.x*ratio.y*ratio.z);
 }
 
 void cODEPrism::setSize(cVector3d& a_size)

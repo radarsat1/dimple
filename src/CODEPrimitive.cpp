@@ -143,13 +143,8 @@ void cODEPrimitive::setDynamicPosition(cVector3d &a_pos)
 {
     if (!m_odeGeom) return;
     dGeomSetPosition(m_odeGeom, a_pos.x, a_pos.y, a_pos.z);
-    cGenericObject *o = dynamic_cast<cGenericObject*>(this);
-    if (o) {
-        o->setPos(a_pos.x,a_pos.y,a_pos.z);
-        o->computeGlobalPositions(1);
-    }
-    
-    if (m_objType == DYNAMIC_OBJECT)
+
+    if (m_objType == DYNAMIC_OBJECT && m_odeBody)
     {
         dBodySetPosition(m_odeBody, a_pos.x, a_pos.y, a_pos.z);
     }
@@ -162,10 +157,49 @@ void cODEPrimitive::setDynamicPosition(cVector3d &a_pos)
     \fn     cODEPrimitive::setMass(dReal mass)
 */
 //===========================================================================
-void cODEPrimitive::setMass(float a_mass)
+void cODEPrimitive::setDynamicMass(float a_mass)
 {
   dMassAdjust(&m_odeMass, a_mass);
   dBodySetMass(m_odeBody,&m_odeMass);
+}
+
+//===========================================================================
+/*!
+    Set a force on the body.
+
+    \fn     cODEPrimitive::setDynamicForce(cVector3d &a_force)
+*/
+//===========================================================================
+void cODEPrimitive::setDynamicForce(cVector3d &a_force)
+{
+    dBodySetForce(m_odeBody, a_force.x, a_force.y, a_force.z);
+}
+
+//===========================================================================
+/*!
+    Set the dynamic object's rotational position.
+
+    \fn     cODEPrimitive::setDynamicRotation(cMatrix3d &a_rot)
+*/
+//===========================================================================
+void cODEPrimitive::setDynamicRotation(cMatrix3d &a_rot)
+{
+    // Convert from a chai rotation matrix to an ODE rotation matrix
+    dMatrix3 odeRotation;
+    odeRotation[ 0] = a_rot.getCol0().x;
+    odeRotation[ 1] = a_rot.getCol0().y;
+    odeRotation[ 2] = a_rot.getCol0().z;
+    odeRotation[ 3] = 0;
+    odeRotation[ 4] = a_rot.getCol1().x;
+    odeRotation[ 5] = a_rot.getCol1().y;
+    odeRotation[ 6] = a_rot.getCol1().z;
+    odeRotation[ 7] = 0;
+    odeRotation[ 8] = a_rot.getCol2().x;
+    odeRotation[ 9] = a_rot.getCol2().y;
+    odeRotation[10] = a_rot.getCol2().z;
+    odeRotation[11] = 0;
+    dGeomSetRotation(m_odeGeom, odeRotation);
+    dBodySetRotation(m_odeBody, odeRotation);
 }
 
 //===========================================================================
@@ -342,3 +376,14 @@ bool cODEPrimitive::getJoint(string id, dJointID* &pJoint)
     }
 }
 
+//===========================================================================
+void cODEPrimitive::removeBody()
+{
+    dGeomSetBody(m_odeGeom, 0);
+}
+
+//===========================================================================
+void cODEPrimitive::restoreBody()
+{
+    dGeomSetBody(m_odeGeom, m_odeBody);
+}

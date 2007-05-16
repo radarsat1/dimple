@@ -98,6 +98,8 @@ class OscObject : public OscBase
     const OscVector3& getVelocity() { return m_velocity; }
     const OscVector3& getAccel() { return m_accel; }
 
+    void ungrab(int thread);
+
   protected:
 	cGenericObject* m_objChai;
 	std::vector<std::string> m_constraintLinks;
@@ -114,14 +116,10 @@ class OscObject : public OscBase
                             int argc, void *data, void *user_data);
     static int force_handler(const char *path, const char *types, lo_arg **argv,
                              int argc, void *data, void *user_data);
-
     static int collideGet_handler(const char *path, const char *types, lo_arg **argv,
                                   int argc, void *data, void *user_data);
-
-    static int velocityMagnitudeGet_handler(const char *path, const char *types, lo_arg **argv,
-                                            int argc, void *data, void *user_data);
-    static int accelerationMagnitudeGet_handler(const char *path, const char *types, lo_arg **argv,
-                                                int argc, void *data, void *user_data);
+    static int grab_handler(const char *path, const char *types, lo_arg **argv,
+                            int argc, void *data, void *user_data);
 };
 
 class OscComposite : public OscObject
