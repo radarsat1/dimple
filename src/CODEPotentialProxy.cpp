@@ -43,15 +43,17 @@ cVector3d cODEPotentialProxy::computeForces(const cVector3d& a_nextDevicePos)
         int numObjects = m_world->getNumChildren();
         for (int i=0; i<numObjects; i++)
         {
-            cVector3d nextForce = m_world->getChild(i)->computeForces(a_nextDevicePos);
-            if (nextForce.lengthsq()!=0) {
-                m_lastContactObject = m_world->getChild(i);
-                // TODO: determine contact point on potential field
-                //       for spheres, this is inconsequential, but for anything else,
-                //       it is needed for calculating torque.
-                //m_lastContactPoint 
+            if (m_world->getChild(i)->getHapticEnabled()) {
+                cVector3d nextForce = m_world->getChild(i)->computeForces(a_nextDevicePos);
+                if (nextForce.lengthsq()!=0) {
+                    m_lastContactObject = m_world->getChild(i);
+                    // TODO: determine contact point on potential field
+                    //       for spheres, this is inconsequential, but for anything else,
+                    //       it is needed for calculating torque.
+                    //m_lastContactPoint 
+                }
+                force.add(nextForce);
             }
-            force.add(nextForce);
         }
     }
 

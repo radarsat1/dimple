@@ -25,7 +25,6 @@ extern "C" {
 }
 #include "OscObject.h"
 
-
 // LibLo server
 extern lo_server_thread loserver;
 extern lo_address address_send;
@@ -43,6 +42,7 @@ OscObject *findObject(const char *name);
 extern cWorld* world;
 extern dWorldID ode_world;
 extern dSpaceID ode_space;
+extern OscObject *proxyObject;
 
 // Locking must be placed around OSC- and graphics-thread
 // functions that modify the Chai or ODE worlds. This means

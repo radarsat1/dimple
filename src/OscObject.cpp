@@ -140,11 +140,13 @@ OscObject::OscObject(cGenericObject* p, const char *name)
     odePrimitive()->setGeomData(this);
 
     // Create handlers for OSC messages
-    addHandler("destroy", ""   , OscObject::destroy_handler);
-    addHandler("mass"   , "f"  , OscObject::mass_handler);
-    addHandler("force"  , "fff", OscObject::force_handler);
-    addHandler("collide/get", "" , OscObject::collideGet_handler);
-    addHandler("collide/get", "i", OscObject::collideGet_handler);
+    addHandler("destroy"    , ""   , OscObject::destroy_handler);
+    addHandler("mass"       , "f"  , OscObject::mass_handler);
+    addHandler("force"      , "fff", OscObject::force_handler);
+    addHandler("collide/get", ""   , OscObject::collideGet_handler);
+    addHandler("collide/get", "i"  , OscObject::collideGet_handler);
+    addHandler("grab"       , ""   , OscObject::grab_handler);
+    addHandler("grab"       , "i"   , OscObject::grab_handler);
 
     // Set initial physical properties
     m_accel[0] = 0;
@@ -288,7 +290,7 @@ int OscObject::mass_handler(const char *path, const char *types, lo_arg **argv,
 	handler_data *hd = (handler_data*)user_data;
     OscObject *me = (OscObject*)hd->user_data;
 	if (hd->thread == DIMPLE_THREAD_PHYSICS)
-		 me->odePrimitive()->setMass(argv[0]->f);
+		 me->odePrimitive()->setDynamicMass(argv[0]->f);
     UNLOCK_WORLD();
     return 0;
 }
@@ -302,7 +304,7 @@ int OscObject::force_handler(const char *path, const char *types, lo_arg **argv,
 	handler_data *hd = (handler_data*)user_data;
     OscObject *me = (OscObject*)hd->user_data;
 	if (hd->thread == DIMPLE_THREAD_PHYSICS)
-		 dBodySetForce(me->odePrimitive()->m_odeBody, argv[0]->f, argv[1]->f, argv[2]->f);
+        me->odePrimitive()->setDynamicForce(cVector3d(argv[0]->f, argv[1]->f, argv[2]->f));
     UNLOCK_WORLD();
     return 0;
 }
@@ -322,6 +324,45 @@ int OscObject::collideGet_handler(const char *path, const char *types, lo_arg **
 
     return 0;
 }
+
+int OscObject::grab_handler(const char *path, const char *types, lo_arg **argv,
+                            int argc, void *data, void *user_data)
+{
+    handler_data *hd = (handler_data*)user_data;
+	OscObject *me = (OscObject*)hd->user_data;
+
+    if (hd->thread != DIMPLE_THREAD_HAPTICS)
+        return 0;
+
+    if (proxyObject)
+        proxyObject->ungrab(hd->thread);
+
+    if (argc == 1 && argv[0]->i == 0)
+        return 0;
+
+    // remove self from haptics contact
+    me->chaiObject()->setHapticEnabled(false, true);
+    printf("Disabled haptics for object %s: %d\n", me->name(), me->chaiObject()->getHapticEnabled());
+
+    // become the proxy object
+    proxyObject = me;
+
+    return 0;
+}
+
+void OscObject::ungrab(int thread)
+{
+    if (thread != DIMPLE_THREAD_HAPTICS)
+        return;
+
+    if (proxyObject == this) {
+        proxyObject = NULL;
+
+        // add self back into haptics contact
+        chaiObject()->setHapticEnabled(true, true);
+    }
+}
+
 
 // ----------------------------------------------------------------------------------
 
@@ -645,7 +686,7 @@ OscFixed::OscFixed(const char *name, OscObject *object1, OscObject *object2)
     // this ensures it will not react to any interaction, and is thus fixed in place
     // (other objects will still collide with it, but it won't budge.)
     if (!object2) {
-        dGeomSetBody(object1->odePrimitive()->m_odeGeom, 0);
+        object1->odePrimitive()->removeBody();
         
         // track this constraint
         std::string s(name);

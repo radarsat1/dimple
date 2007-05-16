@@ -88,7 +88,11 @@ class cODEPrimitive
 	  //! Set the position of the dynamic object.
 	  void setDynamicPosition(cVector3d &a_pos);
 	  //! Set the mass of the dynamic object.
-	  void setMass(float a_mass);
+	  void setDynamicMass(float a_mass);
+	  //! Set a force on the dynamic object.
+      void setDynamicForce(cVector3d &a_force);
+      //! Set the dynamic object's rotational position.
+      void setDynamicRotation(cMatrix3d &a_rot);
 	  //! Sync the pose of the ODE object with the pose of the CHAI object
 	  void syncPose();
       //! Set data associated with ODE geom
@@ -118,6 +122,11 @@ class cODEPrimitive
 	  bool destroyJoint(string id);
 	  //! Get one of the body's joints.
 	  bool getJoint(string id,dJointID* &pJoint);
+
+      //! Remove an object from being affected by the simulation.  (Remove the object's "body".)
+      void removeBody();
+      //! Restore an object into the simulation.  (Restore the object's "body".)
+      void restoreBody();
 
     // MEMBERS:
 	  //! List of vertices for ODE.

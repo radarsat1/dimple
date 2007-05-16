@@ -114,6 +114,8 @@ cVector3d lastForce;
 cVector3d lastContactPoint;
 double force_scale = 0.1;
 
+OscObject *proxyObject=NULL;
+
 int ode_counter = 0;
 bool bGetCollide = false;
 
@@ -346,15 +348,26 @@ void ode_hapticsLoop(void* a_pUserData)
     cursor->computeGlobalPositions(1);
     
     // update the tool's pose and compute and apply forces
-    cursor->updatePose();	 
-    cursor->computeForces();
+    cursor->updatePose();
+    if (!proxyObject) {
+        cursor->computeForces();
+        cursor->setShow(true, true);
+    }
+
+    if (proxyObject) {
+        cVector3d diff(cursor->m_deviceGlobalPos - proxyObject->getPosition());
+        cursor->m_lastComputedGlobalForce = diff * -10 + proxyObject->getVelocity();
+        cursor->setShow(false, true);
+    }
+
     cursor->applyForces();
     
     contactObject = NULL;
     for (unsigned int i=0; i<cursor->m_pointForceAlgos.size(); i++)
     {
         cProxyPointForceAlgo* pointforce_proxy = dynamic_cast<cProxyPointForceAlgo*>(cursor->m_pointForceAlgos[i]);
-        if ((pointforce_proxy != NULL) && (pointforce_proxy->getContactObject() != NULL)) 
+        if ((pointforce_proxy != NULL)
+            && (pointforce_proxy->getContactObject() != NULL))
         {
             lastContactPoint = pointforce_proxy->getContactPoint();
             lastForce = cursor->m_lastComputedGlobalForce;
@@ -363,7 +376,8 @@ void ode_hapticsLoop(void* a_pUserData)
         }
 
         cODEPotentialProxy* potential_proxy = dynamic_cast<cODEPotentialProxy*>(cursor->m_pointForceAlgos[i]);
-        if ((potential_proxy != NULL) && (potential_proxy->getContactObject() != NULL)) 
+        if ((potential_proxy != NULL)
+            && (potential_proxy->getContactObject() != NULL))
         {
             lastContactPoint = potential_proxy->getContactPoint();
             lastForce = cursor->m_lastComputedGlobalForce;
@@ -376,9 +390,54 @@ void ode_hapticsLoop(void* a_pUserData)
 
 //---------------------------------------------------------------------------
 
+// There are two solutions for the non-degenerative case of cos(theta)!=0,
+// but we only need the first solution.
+// (Greg G. Slabaugh, Computing Euler angles from a rotation matrix)
+cVector3d eulerFromMatrix(const cMatrix3d &rot)
+{
+    cVector3d result;
+
+    // theta
+    result.x = -asin(rot.getCol2().x);
+
+    // phi
+    result.y = atan2(rot.getCol2().y/cos(result.x), rot.getCol2().z/cos(result.x));
+
+    // omega
+    result.z = atan2(rot.getCol1().x/cos(result.x), rot.getCol0().x/cos(result.x));
+
+    return result;
+}
+
+//---------------------------------------------------------------------------
+
 void ode_simStep()
 {
     ode_counter ++;
+
+    if (proxyObject && cursor) {
+        // When a proxy object is in use, create a spring between cursor position and ODE object position
+        cVector3d diff(proxyObject->getPosition() - cursor->m_deviceGlobalPos);
+        cVector3d vel(proxyObject->getVelocity());
+        proxyObject->odePrimitive()->setDynamicForce(diff * -100 - vel*10);
+
+        /* TODO: rotation is not correctly set here, seems backwards.
+        // Set the object's orientation statically (TODO: also use a spring here)
+        proxyObject->odePrimitive()->setDynamicRotation(cursor->m_deviceGlobalRot);
+        
+        cVector3d euler(eulerFromMatrix(cursor->m_deviceGlobalRot));
+        printf("euler: %f, %f, %f     ", euler.x, euler.y, euler.z);
+
+        cMatrix3d mat;
+        const dReal* rot = dBodyGetRotation(proxyObject->odePrimitive()->m_odeBody);
+    	mat.set(rot[0],rot[1],rot[2],rot[4],rot[5],rot[6],rot[8],rot[9],rot[10]);
+        cVector3d euler2(eulerFromMatrix(mat));
+        printf("%f, %f, %f     \r", euler2.x, euler2.y, euler2.z);
+
+        proxyObject->odePrimitive()->setDynamicForce(cVector3d(0,0,0));
+        proxyObject->odePrimitive()->setDynamicPosition(cVector3d(0,0,0));
+        */
+    }
 
     // Add forces to an object in contact with the proxy
     cODEPrimitive *ob = contactObject;
@@ -401,6 +460,18 @@ void ode_simStep()
     {
         OscConstraint *oc = (*cit).second;
         oc->simulationCallback();
+    }
+
+    objects_iter oit2;
+    for (oit2=world_objects.begin(); oit2!=world_objects.end(); oit2++) {
+        OscObject *o = oit2->second;
+        if (o!=proxyObject) {
+            cMatrix3d mat;
+            mat.setCol0(cVector3d(1, 0, 0));
+            mat.setCol1(cVector3d(0, 1, 0));
+            mat.setCol2(cVector3d(0, 0, 1));
+            o->odePrimitive()->setDynamicRotation(mat);
+        }
     }
 
     // Perform simulation step
@@ -784,7 +855,7 @@ int worldClear_handler(const char *path, const char *types, lo_arg **argv,
 }
 
 int worldGravity1_handler(const char *path, const char *types, lo_arg **argv,
-                         int argc, void *data, void *user_data)
+                          int argc, void *data, void *user_data)
 {
     handler_data *hd = (handler_data*)user_data;
     if (hd->thread != DIMPLE_THREAD_PHYSICS)
@@ -799,6 +870,10 @@ int worldGravity1_handler(const char *path, const char *types, lo_arg **argv,
 int worldGravity3_handler(const char *path, const char *types, lo_arg **argv,
                          int argc, void *data, void *user_data)
 {
+    handler_data *hd = (handler_data*)user_data;
+    if (hd->thread != DIMPLE_THREAD_PHYSICS)
+        return 0;
+
     LOCK_WORLD();
     dWorldSetGravity(ode_world, argv[0]->f, argv[1]->f, argv[2]->f);
     UNLOCK_WORLD();
@@ -843,7 +918,7 @@ int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv
     LOCK_WORLD();
     cODEPrism *pr = new cODEPrism(world,ode_world,ode_space,size);
     pr->setDynamicPosition(pos);
-    pr->setMass(0.5);
+    pr->setDynamicMass(0.5);
     pr->m_material.setStaticFriction(1);
     pr->m_material.setDynamicFriction(0.5);
     pr->useMaterial(true);
@@ -885,7 +960,7 @@ int objectSphereCreate_handler(const char *path, const char *types, lo_arg **arg
     LOCK_WORLD();
     cODESphere *sp = new cODESphere(world,ode_world,ode_space,0.01);
     sp->setDynamicPosition(pos);
-    sp->setMass(0.5);
+    sp->setDynamicMass(0.5);
     sp->m_material.setStaticFriction(1);
     sp->m_material.setDynamicFriction(0.5);
     
