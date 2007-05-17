@@ -90,6 +90,10 @@ int OscScalar::get_handler(const char *path, const char *types, lo_arg **argv,
 {
 	 handler_data *hd = (handler_data*)user_data;
 	 OscScalar *me = (OscScalar*)hd->user_data;
+
+	 if (hd->thread != DIMPLE_THREAD_PHYSICS)
+		  return 0;
+
 	 lo_send(address_send, ("/" + me->m_classname +
 							"/" + me->m_name).c_str(),
 			 "f", me->m_value
@@ -137,6 +141,10 @@ int OscVector3::get_handler(const char *path, const char *types, lo_arg **argv,
 {
 	 handler_data *hd = (handler_data*)user_data;
 	 OscVector3 *me = (OscVector3*)hd->user_data;
+
+	 if (hd->thread != DIMPLE_THREAD_PHYSICS)
+		  return 0;
+
 	 lo_send(address_send, ("/" + me->m_classname +
 							"/" + me->m_name).c_str(),
 			 "fff", me->x, me->y, me->z
