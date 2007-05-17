@@ -136,10 +136,10 @@ void cODEPrimitive::updateDynamicPosition()
 /*!
 Set the dynamic position of the cODEPrimitive to the given value.
 
-  \fn     cODEPrimitive::setDynamicPosition(cVector3d &pos)
+  \fn     cODEPrimitive::setDynamicPosition(const cVector3d &pos)
 */
 //===========================================================================
-void cODEPrimitive::setDynamicPosition(cVector3d &a_pos)
+void cODEPrimitive::setDynamicPosition(const cVector3d &a_pos)
 {
     if (!m_odeGeom) return;
     dGeomSetPosition(m_odeGeom, a_pos.x, a_pos.y, a_pos.z);
@@ -167,10 +167,10 @@ void cODEPrimitive::setDynamicMass(float a_mass)
 /*!
     Set a force on the body.
 
-    \fn     cODEPrimitive::setDynamicForce(cVector3d &a_force)
+    \fn     cODEPrimitive::setDynamicForce(const cVector3d &a_force)
 */
 //===========================================================================
-void cODEPrimitive::setDynamicForce(cVector3d &a_force)
+void cODEPrimitive::setDynamicForce(const cVector3d &a_force)
 {
     dBodySetForce(m_odeBody, a_force.x, a_force.y, a_force.z);
 }
@@ -179,10 +179,10 @@ void cODEPrimitive::setDynamicForce(cVector3d &a_force)
 /*!
     Set the dynamic object's rotational position.
 
-    \fn     cODEPrimitive::setDynamicRotation(cMatrix3d &a_rot)
+    \fn     cODEPrimitive::setDynamicRotation(const cMatrix3d &a_rot)
 */
 //===========================================================================
-void cODEPrimitive::setDynamicRotation(cMatrix3d &a_rot)
+void cODEPrimitive::setDynamicRotation(const cMatrix3d &a_rot)
 {
     // Convert from a chai rotation matrix to an ODE rotation matrix
     dMatrix3 odeRotation;
