@@ -56,16 +56,66 @@ OscBase::~OscBase()
 
 // ----------------------------------------------------------------------------------
 
+OscScalar::OscScalar(const char *name, const char *classname)
+	 : OscValue(name, classname)
+{
+	 m_value = 0;
+	 
+	 addHandler("",              "f", OscScalar::_handler);
+	 addHandler("get",           "i", OscScalar::get_handler);
+	 addHandler("get",           "" , OscScalar::get_handler);
+}
+
+void OscScalar::set(double value)
+{
+	 m_value = value;
+	 setChanged();
+}
+
+int OscScalar::_handler(const char *path, const char *types, lo_arg **argv,
+                         int argc, void *data, void *user_data)
+{
+	 handler_data *hd = (handler_data*)user_data;
+	 OscScalar *me = (OscScalar*)hd->user_data;
+
+	 if (argc == 1)
+		  me->m_value = argv[0]->f;
+
+	 // TODO: method for informing parent that data has changed?
+	 return 0;
+}
+
+int OscScalar::get_handler(const char *path, const char *types, lo_arg **argv,
+                            int argc, void *data, void *user_data)
+{
+	 handler_data *hd = (handler_data*)user_data;
+	 OscScalar *me = (OscScalar*)hd->user_data;
+	 lo_send(address_send, ("/" + me->m_classname +
+							"/" + me->m_name).c_str(),
+			 "f", me->m_value
+		  );
+    return 0;
+}
+
+
+// ----------------------------------------------------------------------------------
+
 OscVector3::OscVector3(const char *name, const char *classname)
-    : OscBase(name, classname),
+    : OscValue(name, classname),
+	  m_magnitude("magnitude", (std::string(classname)+"/"+name).c_str()),
       cVector3d()
 {
     addHandler("",              "fff", OscVector3::_handler);
     addHandler("get",           "i"  , OscVector3::get_handler);
     addHandler("get",           ""   , OscVector3::get_handler);
-    addHandler("magnitude",     "f"  , OscVector3::magnitude_handler);
-    addHandler("magnitude/get", "i"  , OscVector3::magnitudeGet_handler);
-    addHandler("magnitude/get", ""   , OscVector3::magnitudeGet_handler);
+}
+
+void OscVector3::setChanged()
+{
+	 // TODO: this would be more efficient if it was only
+	 // calcuated when asked for, but only the first time
+     // if it hasn't changed.
+	 m_magnitude.set(sqrt(x*x + y*y + z*z));
 }
 
 int OscVector3::_handler(const char *path, const char *types, lo_arg **argv,
@@ -87,40 +137,11 @@ int OscVector3::get_handler(const char *path, const char *types, lo_arg **argv,
 {
 	 handler_data *hd = (handler_data*)user_data;
 	 OscVector3 *me = (OscVector3*)hd->user_data;
-    lo_send(address_send, ("/" + me->m_classname +
-                           "/" + me->m_name).c_str(),
-            "fff", me->x, me->y, me->z
-        );
+	 lo_send(address_send, ("/" + me->m_classname +
+							"/" + me->m_name).c_str(),
+			 "fff", me->x, me->y, me->z
+		  );
     return 0;
-}
-
-int OscVector3::magnitude_handler(const char *path, const char *types, lo_arg **argv,
-                                  int argc, void *data, void *user_data)
-{
-	 handler_data *hd = (handler_data*)user_data;
-	 OscVector3 *me = (OscVector3*)hd->user_data;
-    // TODO
-    return 0;
-}
-
-int OscVector3::magnitudeGet_handler(const char *path, const char *types, lo_arg **argv,
-                                    int argc, void *data, void *user_data)
-{
-	 handler_data *hd = (handler_data*)user_data;
-	 OscVector3 *me = (OscVector3*)hd->user_data;
-    lo_send(address_send, ("/" + me->m_classname +
-                           "/" + me->m_name +
-                           "/magnitude").c_str(),
-            "f", sqrt(me->x*me->x + me->y*me->y + me->z*me->z) );
-    return 0;
-}
-
-// ----------------------------------------------------------------------------------
-
-OscScalar::OscScalar(const char *name, const char *classname)
-    : OscBase(name, classname)
-{
-    value = 0;
 }
 
 // ----------------------------------------------------------------------------------
@@ -233,9 +254,11 @@ void OscObject::setDynamicVelocity(const dReal* vel)
     m_accel[0] = m_velocity[0] - vel[0];
     m_accel[1] = m_velocity[1] - vel[1];
     m_accel[2] = m_velocity[2] - vel[2];
+	m_accel.setChanged();
     m_velocity[0] = vel[0];
     m_velocity[1] = vel[1];
     m_velocity[2] = vel[2];
+	m_velocity.setChanged();
 }
 
 //! Inform object that it is in collision with another object.
@@ -262,6 +285,7 @@ void OscObject::setDynamicPosition(const dReal* pos)
     m_position[0] = pos[0];
     m_position[1] = pos[1];
     m_position[2] = pos[2];
+	m_position.setChanged();
 }
 
 //! Destroy the object
