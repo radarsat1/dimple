@@ -1,0 +1,4 @@
+Known Bugs
+----------
+
+1. Prisms disappear when one /size argument is 0.
