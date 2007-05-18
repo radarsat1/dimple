@@ -69,5 +69,6 @@ env.Program( target = 'dimple',
               'CODEPrism.cpp',
               'CODESphere.cpp',
               'OscObject.cpp',
+              'valuetimer.cpp',
               'dimple.cpp']
 	)

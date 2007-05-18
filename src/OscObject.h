@@ -53,7 +53,13 @@ class OscValue : public OscBase
 {
   public:
     OscValue(const char *name, const char *classname) : OscBase(name, classname) {};
+    virtual ~OscValue();
 	virtual void setChanged() = 0;
+    virtual void send() = 0;
+
+  protected:
+    static int get_handler(const char *path, const char *types, lo_arg **argv,
+                           int argc, void *data, void *user_data);
 };
 
 //! The OscScalar class is used to maintain information about scalar values
@@ -62,16 +68,15 @@ class OscScalar : public OscValue
 {
   public:
     OscScalar(const char *name, const char *classname);
-	virtual void setChanged() {};
-	virtual void set(double value);
+	void setChanged() {};
+	void set(double value);
+    void send();
 
     double m_value;
 
   protected:
     static int _handler(const char *path, const char *types, lo_arg **argv,
                         int argc, void *data, void *user_data);
-    static int get_handler(const char *path, const char *types, lo_arg **argv,
-                           int argc, void *data, void *user_data);
 };
 
 //! The OscVector3 class is used to maintain information about 3-vector values
@@ -80,15 +85,14 @@ class OscVector3 : public OscValue, public cVector3d
 {
   public:
     OscVector3(const char *name, const char *classname);
-	virtual void setChanged();
+	void setChanged();
+    void send();
 
 	OscScalar m_magnitude;
 
   protected:
     static int _handler(const char *path, const char *types, lo_arg **argv,
                         int argc, void *data, void *user_data);
-    static int get_handler(const char *path, const char *types, lo_arg **argv,
-                           int argc, void *data, void *user_data);
 };
 
 //! The OscObject class keeps track of an object in the world. The object

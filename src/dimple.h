@@ -1,4 +1,4 @@
-
+// -*- mode:c++; indent-tabs-mode:nil; c-basic-offset:4; compile-command:"scons debug=1" -*-
 //======================================================================================
 /*
     This file is part of DIMPLE, the Dynamic Interactive Musically PhysicaL Environment,

@@ -1,4 +1,4 @@
-#N canvas 334 131 690 535 10;
+#N canvas 1690 188 690 535 10;
 #X msg 504 139 send /world/clear;
 #X obj 456 176 s osc;
 #X obj 281 150 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
@@ -310,9 +310,8 @@
 #X restore 56 428 pd beepcollide;
 #X msg 366 149 2;
 #N canvas 71 287 540 396 s3_accel 0;
-#X obj 22 164 s osc;
-#X obj 22 36 metro 10;
-#X obj 22 13 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
+#X obj 33 162 s osc;
+#X obj 33 32 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
 ;
 #X obj 162 308 OSCroute /magnitude;
 #X floatatom 289 232 10 0 0 0 - - -;
@@ -329,40 +328,41 @@
 #X obj 23 238 OSCroute /object;
 #X obj 23 306 OSCroute /magnitude;
 #X obj 24 281 OSCroute /velocity /acceleration;
-#X obj 47 14 inlet;
+#X obj 33 10 inlet;
 #X obj 24 210 r rosc;
 #X obj 217 255 outlet;
 #X obj 237 233 outlet;
-#X msg 33 75 send /object/3s/velocity/magnitude/get;
-#X msg 33 97 send /object/3s/acceleration/magnitude/get;
 #X msg 50 135 send /object/3s/destroy;
 #X obj 23 260 OSCroute /3s;
-#X connect 1 0 21 0;
+#X obj 33 52 * 30;
+#X msg 33 75 send /object/3s/velocity/magnitude/get \$1;
+#X msg 33 97 send /object/3s/acceleration/magnitude/get \$1;
 #X connect 1 0 22 0;
-#X connect 2 0 1 0;
-#X connect 3 0 4 0;
-#X connect 4 0 11 0;
-#X connect 4 0 13 0;
-#X connect 4 0 20 0;
-#X connect 5 0 19 0;
-#X connect 9 0 10 0;
-#X connect 10 0 12 0;
-#X connect 11 0 9 0;
-#X connect 12 0 9 1;
-#X connect 12 0 8 1;
-#X connect 13 0 8 0;
-#X connect 14 0 24 0;
-#X connect 15 0 5 0;
-#X connect 16 0 15 0;
-#X connect 16 1 3 0;
-#X connect 17 0 2 0;
-#X connect 18 0 14 0;
-#X connect 21 0 0 0;
-#X connect 22 0 0 0;
+#X connect 2 0 3 0;
+#X connect 3 0 10 0;
+#X connect 3 0 12 0;
+#X connect 3 0 19 0;
+#X connect 4 0 18 0;
+#X connect 8 0 9 0;
+#X connect 9 0 11 0;
+#X connect 10 0 8 0;
+#X connect 11 0 8 1;
+#X connect 11 0 7 1;
+#X connect 12 0 7 0;
+#X connect 13 0 21 0;
+#X connect 14 0 4 0;
+#X connect 15 0 14 0;
+#X connect 15 1 2 0;
+#X connect 16 0 1 0;
+#X connect 17 0 13 0;
+#X connect 20 0 0 0;
+#X connect 21 0 15 0;
+#X connect 22 0 23 0;
+#X connect 22 0 24 0;
 #X connect 23 0 0 0;
-#X connect 24 0 16 0;
+#X connect 24 0 0 0;
 #X restore 258 417 pd s3_accel;
-#X obj 258 395 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 258 395 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X floatatom 258 454 10 0 0 0 - - -;
 #X floatatom 257 473 10 0 0 0 - - -;
