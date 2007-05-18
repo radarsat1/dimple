@@ -20,7 +20,7 @@ typedef std::pair<OscValue*, struct ValueTimerPair*> value_pair;
 ValueTimer valuetimer;
 
 
-int ValueTimer::addValue(OscValue* oscval, int interval_ms)
+void ValueTimer::addValue(OscValue* oscval, int interval_ms)
 {
     value_iter it;
     it = m_values.find(oscval);
@@ -34,7 +34,7 @@ int ValueTimer::addValue(OscValue* oscval, int interval_ms)
     }
 }
 
-int ValueTimer::removeValue(OscValue* oscval)
+void ValueTimer::removeValue(OscValue* oscval)
 {
     value_iter it;
     it = m_values.find(oscval);
