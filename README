@@ -19,13 +19,13 @@ It can be used with any software that supports OpenSoundControl.  This
 includes PureData, as well as Cycling 74's Max/MSP, or even the
 non-graphical Chuck audio language.
 
-This release, version 0.0.4 alpha, is very young, so I don't claim
-that it will even compile for you, let alone run.  If there was a
-letter in the greek alphabet before alpha, it would describe this
-version better. In any case, if you're not scared off yet, please try
-it!  It's been developed on Linux, but also works on OS X and Windows.
-(The latter is important for haptic devices that unfortunately only
-provide Windows drivers.)
+This alpha release is very young, so I don't claim that it will even
+compile for you, let alone run.  If there was a letter in the greek
+alphabet before alpha, it would describe this version better. In any
+case, if you're not scared off yet, please try it!  It's been
+developed on Linux, but also works on OS X and Windows.  (The latter
+is important for haptic devices that unfortunately only provide
+Windows drivers.)
 
 image:./icon/dimple_sphere.png["DIMPLE logo"]
 
