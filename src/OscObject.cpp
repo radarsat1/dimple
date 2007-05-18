@@ -1,4 +1,4 @@
-
+// -*- mode:c++; indent-tabs-mode:nil; c-basic-offset:4; compile-command:"scons debug=1" -*-
 //======================================================================================
 /*
     This file is part of DIMPLE, the Dynamic Interactive Musically PhysicaL Environment,
@@ -90,11 +90,14 @@ int OscValue::get_handler(const char *path, const char *types, lo_arg **argv,
 OscScalar::OscScalar(const char *name, const char *classname)
 	 : OscValue(name, classname)
 {
-	 m_value = 0;
-	 
-	 addHandler("",              "f", OscScalar::_handler);
-	 addHandler("get",           "i", OscScalar::get_handler);
-	 addHandler("get",           "" , OscScalar::get_handler);
+    m_callback = NULL;
+    m_callback_data = NULL;
+    
+    m_value = 0;
+	
+    addHandler("",              "f", OscScalar::_handler);
+    addHandler("get",           "i", OscScalar::get_handler);
+    addHandler("get",           "" , OscScalar::get_handler);
 }
 
 void OscScalar::set(double value)
@@ -117,10 +120,15 @@ int OscScalar::_handler(const char *path, const char *types, lo_arg **argv,
 	 handler_data *hd = (handler_data*)user_data;
 	 OscScalar *me = (OscScalar*)hd->user_data;
 
+     if (hd->thread != DIMPLE_THREAD_PHYSICS)
+         return 0;
+
 	 if (argc == 1)
 		  me->m_value = argv[0]->f;
 
-	 // TODO: method for informing parent that data has changed?
+     if (me->m_callback)
+         me->m_callback(me->m_callback_data, *me);
+
 	 return 0;
 }
 
@@ -132,6 +140,10 @@ OscVector3::OscVector3(const char *name, const char *classname)
 	  m_magnitude("magnitude", (std::string(classname)+"/"+name).c_str()),
       cVector3d()
 {
+    m_callback = NULL;
+    m_callback_data = NULL;
+    m_magnitude.setCallback((OscScalar::set_callback*)OscVector3::setMagnitude, this);
+
     addHandler("",              "fff", OscVector3::_handler);
     addHandler("get",           "i"  , OscVector3::get_handler);
     addHandler("get",           ""   , OscVector3::get_handler);
@@ -153,17 +165,39 @@ void OscVector3::send()
         );
 }
 
+void OscVector3::setMagnitude(OscVector3 *me, const OscScalar& s)
+{
+    double ratio;
+    if (me->x==0 && me->y==0 && me->z==0)
+        ratio = 0;
+    else
+        ratio = s.m_value / sqrt(me->x*me->x + me->y*me->y + me->z*me->z);
+    
+    *me *= ratio;
+
+    if (me->m_callback)
+        me->m_callback(me->m_callback_data, *me);
+}
+
 int OscVector3::_handler(const char *path, const char *types, lo_arg **argv,
                          int argc, void *data, void *user_data)
 {
 	 handler_data *hd = (handler_data*)user_data;
 	 OscVector3 *me = (OscVector3*)hd->user_data;
+
+     if (hd->thread != DIMPLE_THREAD_PHYSICS)
+         return 0;
+
 	 if (argc == 3) {
 		  me->x = argv[0]->f;
 		  me->y = argv[1]->f;
 		  me->z = argv[2]->f;
+          me->setChanged();
 	 }
-	 // TODO: method for informing parent that data has changed?
+     
+     if (me->m_callback)
+         me->m_callback(me->m_callback_data, *me);
+
 	 return 0;
 }
 
@@ -202,6 +236,10 @@ OscObject::OscObject(cGenericObject* p, const char *name)
     m_position[0] = 0;
     m_position[1] = 0;
     m_position[2] = 0;
+
+    // Set callbacks for when values change
+    m_position.setCallback((OscVector3::set_callback*)OscObject::setPosition, this);
+    m_velocity.setCallback((OscVector3::set_callback*)OscObject::setVelocity, this);
 
     m_getCollide = false;
 
@@ -271,8 +309,29 @@ void OscObject::unlinkConstraint(std::string &name)
 		  if ((*it)==name) m_constraintLinks.erase(it);
 }
 
-//! Set the velocity extracted from the dynamic simulation
-void OscObject::setDynamicVelocity(const dReal* vel)
+//! Set the dynamic object to a new position
+void OscObject::setPosition(OscObject *me, const OscVector3& pos)
+{
+    me->odePrimitive()->setDynamicPosition(pos);
+}
+
+//! Set the dynamic object velocity
+void OscObject::setVelocity(OscObject *me, const OscVector3& vel)
+{
+    me->odePrimitive()->setDynamicLinearVelocity(vel);
+}
+
+//! Update the position extracted from the dynamic simulation
+void OscObject::updateDynamicPosition(const dReal* pos)
+{
+    m_position[0] = pos[0];
+    m_position[1] = pos[1];
+    m_position[2] = pos[2];
+	m_position.setChanged();
+}
+
+//! Update the velocity extracted from the dynamic simulation
+void OscObject::updateDynamicVelocity(const dReal* vel)
 {
     m_accel[0] = m_velocity[0] - vel[0];
     m_accel[1] = m_velocity[1] - vel[1];
@@ -300,15 +359,6 @@ bool OscObject::collidedWith(OscObject *o)
     m_collisions[o] = ode_counter;
 
     return rc;
-}
-
-//! Set the position extracted from the dynamic simulation
-void OscObject::setDynamicPosition(const dReal* pos)
-{
-    m_position[0] = pos[0];
-    m_position[1] = pos[1];
-    m_position[2] = pos[2];
-	m_position.setChanged();
 }
 
 //! Destroy the object

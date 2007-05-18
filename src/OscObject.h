@@ -74,7 +74,12 @@ class OscScalar : public OscValue
 
     double m_value;
 
+    typedef void set_callback(void*, const OscScalar&);
+    void setCallback(set_callback*c, void*d) { m_callback = c; m_callback_data = d; }
+
   protected:
+    set_callback *m_callback;
+    void *m_callback_data;
     static int _handler(const char *path, const char *types, lo_arg **argv,
                         int argc, void *data, void *user_data);
 };
@@ -90,7 +95,13 @@ class OscVector3 : public OscValue, public cVector3d
 
 	OscScalar m_magnitude;
 
+    typedef void set_callback(void*, const OscVector3&);
+    void setCallback(set_callback*c, void*d) { m_callback = c; m_callback_data = d; }
+
   protected:
+    set_callback *m_callback;
+    void *m_callback_data;
+    static void setMagnitude(OscVector3*, const OscScalar&);
     static int _handler(const char *path, const char *types, lo_arg **argv,
                         int argc, void *data, void *user_data);
 };
@@ -111,14 +122,17 @@ class OscObject : public OscBase
 	void linkConstraint(std::string &name);
 	void unlinkConstraint(std::string &name);
 
-    void setDynamicVelocity(const dReal* vel);
-    void setDynamicPosition(const dReal* pos);
+    void updateDynamicVelocity(const dReal* vel);
+    void updateDynamicPosition(const dReal* pos);
 
     bool collidedWith(OscObject *o);
 
     const OscVector3& getPosition() { return m_position; }
     const OscVector3& getVelocity() { return m_velocity; }
     const OscVector3& getAccel() { return m_accel; }
+
+    static void setPosition(OscObject *me, const OscVector3& pos);
+    static void setVelocity(OscObject *me, const OscVector3& vel);
 
     void ungrab(int thread);
 
@@ -267,3 +281,4 @@ public:
 };
 
 #endif // _OSC_OBJECT_H_
+

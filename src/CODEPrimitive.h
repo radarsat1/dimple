@@ -87,6 +87,10 @@ class cODEPrimitive
 	  void updateDynamicPosition();
 	  //! Set the position of the dynamic object.
 	  void setDynamicPosition(const cVector3d &a_pos);
+	  //! Set the linear velocity of the dynamic object.
+	  void setDynamicLinearVelocity(const cVector3d &a_pos);
+	  //! Set the angular velocity of the dynamic object.
+	  void setDynamicAngularVelocity(const cVector3d &a_pos);
 	  //! Set the mass of the dynamic object.
 	  void setDynamicMass(float a_mass);
 	  //! Set a force on the dynamic object.
