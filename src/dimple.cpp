@@ -1,4 +1,4 @@
-// -*- mode:c++; indent-tabs-mode:nil; c-basic-offset:4; -*-
+// -*- mode:c++; indent-tabs-mode:nil; c-basic-offset:4; compile-command:"scons debug=1" -*-
 //======================================================================================
 /*
     This file is part of DIMPLE, the Dynamic Interactive Musically PhysicaL Environment,
@@ -43,6 +43,7 @@
 #include "CShapeSphere.h"
 //---------------------------------------------------------------------------
 #include "dimple.h"
+#include "valuetimer.h"
 #include "CODEMesh.h"
 #include "CODEProxy.h"
 #include "CODEPrism.h"
@@ -503,6 +504,9 @@ void ode_simStep()
             o->setDynamicVelocity(vel);
         }
     }
+
+    // Check if any values need to be sent
+    valuetimer.onTimer(PHYSICS_TIMESTEP_MS);
 }
 
 //---------------------------------------------------------------------------

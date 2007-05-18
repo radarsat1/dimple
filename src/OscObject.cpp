@@ -15,6 +15,7 @@
 
 #include "OscObject.h"
 #include "dimple.h"
+#include "valuetimer.h"
 #include <assert.h>
 
 //! OscBase objects always have a name. Class name defaults to "".
@@ -56,6 +57,36 @@ OscBase::~OscBase()
 
 // ----------------------------------------------------------------------------------
 
+OscValue::~OscValue()
+{
+    valuetimer.removeValue(this);
+}
+
+int OscValue::get_handler(const char *path, const char *types, lo_arg **argv,
+                          int argc, void *data, void *user_data)
+{
+    handler_data *hd = (handler_data*)user_data;
+    OscValue *me = (OscValue*)hd->user_data;
+    
+    if (hd->thread != DIMPLE_THREAD_PHYSICS)
+        return 0;
+
+    if (argc==0) {
+        me->send();
+    }
+
+    else if (argc==1) {
+        if (argv[0]->i == 0)
+            valuetimer.removeValue(me);
+        else
+            valuetimer.addValue(me, argv[0]->i);
+    }
+
+    return 0;
+}
+
+// ----------------------------------------------------------------------------------
+
 OscScalar::OscScalar(const char *name, const char *classname)
 	 : OscValue(name, classname)
 {
@@ -72,6 +103,14 @@ void OscScalar::set(double value)
 	 setChanged();
 }
 
+void OscScalar::send()
+{
+    lo_send(address_send, ("/" + m_classname +
+                           "/" + m_name).c_str(),
+            "f", m_value
+        );
+}
+
 int OscScalar::_handler(const char *path, const char *types, lo_arg **argv,
                          int argc, void *data, void *user_data)
 {
@@ -85,25 +124,9 @@ int OscScalar::_handler(const char *path, const char *types, lo_arg **argv,
 	 return 0;
 }
 
-int OscScalar::get_handler(const char *path, const char *types, lo_arg **argv,
-                            int argc, void *data, void *user_data)
-{
-	 handler_data *hd = (handler_data*)user_data;
-	 OscScalar *me = (OscScalar*)hd->user_data;
-
-	 if (hd->thread != DIMPLE_THREAD_PHYSICS)
-		  return 0;
-
-	 lo_send(address_send, ("/" + me->m_classname +
-							"/" + me->m_name).c_str(),
-			 "f", me->m_value
-		  );
-    return 0;
-}
-
-
 // ----------------------------------------------------------------------------------
 
+//! OscVector3 is a 3-vector which can report its magnitude.
 OscVector3::OscVector3(const char *name, const char *classname)
     : OscValue(name, classname),
 	  m_magnitude("magnitude", (std::string(classname)+"/"+name).c_str()),
@@ -122,6 +145,14 @@ void OscVector3::setChanged()
 	 m_magnitude.set(sqrt(x*x + y*y + z*z));
 }
 
+void OscVector3::send()
+{
+    lo_send(address_send, ("/" + m_classname +
+                           "/" + m_name).c_str(),
+            "fff", x, y, z
+        );
+}
+
 int OscVector3::_handler(const char *path, const char *types, lo_arg **argv,
                          int argc, void *data, void *user_data)
 {
@@ -134,22 +165,6 @@ int OscVector3::_handler(const char *path, const char *types, lo_arg **argv,
 	 }
 	 // TODO: method for informing parent that data has changed?
 	 return 0;
-}
-
-int OscVector3::get_handler(const char *path, const char *types, lo_arg **argv,
-                            int argc, void *data, void *user_data)
-{
-	 handler_data *hd = (handler_data*)user_data;
-	 OscVector3 *me = (OscVector3*)hd->user_data;
-
-	 if (hd->thread != DIMPLE_THREAD_PHYSICS)
-		  return 0;
-
-	 lo_send(address_send, ("/" + me->m_classname +
-							"/" + me->m_name).c_str(),
-			 "fff", me->x, me->y, me->z
-		  );
-    return 0;
 }
 
 // ----------------------------------------------------------------------------------
