@@ -1,4 +1,4 @@
-#N canvas 541 188 694 539 10;
+#N canvas 541 188 698 543 10;
 #X msg 504 139 send /world/clear;
 #X obj 456 176 s osc;
 #X obj 281 150 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
@@ -309,9 +309,9 @@
 #X connect 16 0 15 0;
 #X restore 56 428 pd beepcollide;
 #X msg 366 149 2;
-#N canvas 71 287 540 396 s3_accel 0;
+#N canvas 71 287 544 400 s3_accel 0;
 #X obj 33 162 s osc;
-#X obj 33 32 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
+#X obj 33 32 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
 ;
 #X obj 162 308 OSCroute /magnitude;
 #X floatatom 289 232 10 0 0 0 - - -;
@@ -362,7 +362,7 @@
 #X connect 23 0 0 0;
 #X connect 24 0 0 0;
 #X restore 258 417 pd s3_accel;
-#X obj 258 395 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 258 395 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X floatatom 258 454 10 0 0 0 - - -;
 #X floatatom 257 473 10 0 0 0 - - -;
@@ -507,8 +507,6 @@ PhysicaL Environment;
 #X msg 177 273 sphere;
 #X msg 223 273 box;
 #X msg 251 273 none;
-#X obj 198 49 s osc;
-#X msg 198 21 send /object/s3/velocity/magnitude -1;
 #X connect 0 0 1 0;
 #X connect 2 0 13 0;
 #X connect 3 0 2 0;
@@ -530,4 +528,3 @@ PhysicaL Environment;
 #X connect 55 0 54 0;
 #X connect 56 0 54 0;
 #X connect 57 0 54 0;
-#X connect 59 0 58 0;
