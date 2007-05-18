@@ -256,6 +256,10 @@
 				RelativePath=".\OscObject.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\valuetimer.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -291,6 +295,10 @@
 			</File>
 			<File
 				RelativePath=".\OscObject.h"
+				>
+			</File>
+			<File
+				RelativePath=".\valuetimer.h"
 				>
 			</File>
 		</Filter>
