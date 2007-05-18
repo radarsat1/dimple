@@ -444,7 +444,6 @@ case $(uname) in
 	fi
 
 	echo Now open dimple.sln in Visual Studio and build.
-	explorer .
     ;;
 
     Linux*)
