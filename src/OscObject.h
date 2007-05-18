@@ -131,9 +131,6 @@ class OscObject : public OscBase
     const OscVector3& getVelocity() { return m_velocity; }
     const OscVector3& getAccel() { return m_accel; }
 
-    static void setPosition(OscObject *me, const OscVector3& pos);
-    static void setVelocity(OscObject *me, const OscVector3& vel);
-
     void ungrab(int thread);
 
   protected:
@@ -145,6 +142,12 @@ class OscObject : public OscBase
     OscVector3 m_accel;
     OscVector3 m_position;
     bool m_getCollide;
+
+    static void setPosition(OscObject *me, const OscVector3& pos);
+    static void setVelocity(OscObject *me, const OscVector3& vel);
+
+    OscVector3 m_color;
+    static void setColor(OscObject *me, const OscVector3& color);
 
     static int destroy_handler(const char *path, const char *types, lo_arg **argv,
                                int argc, void *data, void *user_data);
