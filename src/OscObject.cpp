@@ -368,6 +368,9 @@ int OscObject::destroy_handler(const char *path, const char *types, lo_arg **arg
 	 handler_data *hd = (handler_data*)user_data;
 	 OscObject *me = (OscObject*)hd->user_data;
 
+     if (hd->thread != DIMPLE_THREAD_PHYSICS)
+         return 0;
+
     if (me) {
         LOCK_WORLD();
         world_objects.erase(me->m_name);
