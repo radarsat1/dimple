@@ -31,8 +31,8 @@ class ValueTimer
     ValueTimer() {};
     virtual ~ValueTimer() {};
 
-    int addValue(OscValue* oscval, int interval_ms);
-    int removeValue(OscValue* oscval);
+    void addValue(OscValue* oscval, int interval_ms);
+    void removeValue(OscValue* oscval);
 
     void onTimer(int interval_ms);
 
