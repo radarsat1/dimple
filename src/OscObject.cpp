@@ -208,7 +208,8 @@ OscObject::OscObject(cGenericObject* p, const char *name)
     : OscBase(name, "object"),
       m_velocity("velocity", (std::string("object/")+name).c_str()),
       m_accel("acceleration", (std::string("object/")+name).c_str()),
-      m_position("position", (std::string("object/")+name).c_str())
+      m_position("position", (std::string("object/")+name).c_str()),
+      m_color("color", (std::string("object/")+name).c_str())
 {
     // Track pointer for ODE/Chai object
     m_objChai = p;
@@ -224,7 +225,7 @@ OscObject::OscObject(cGenericObject* p, const char *name)
     addHandler("collide/get", ""   , OscObject::collideGet_handler);
     addHandler("collide/get", "i"  , OscObject::collideGet_handler);
     addHandler("grab"       , ""   , OscObject::grab_handler);
-    addHandler("grab"       , "i"   , OscObject::grab_handler);
+    addHandler("grab"       , "i"  , OscObject::grab_handler);
 
     // Set initial physical properties
     m_accel[0] = 0;
@@ -240,6 +241,7 @@ OscObject::OscObject(cGenericObject* p, const char *name)
     // Set callbacks for when values change
     m_position.setCallback((OscVector3::set_callback*)OscObject::setPosition, this);
     m_velocity.setCallback((OscVector3::set_callback*)OscObject::setVelocity, this);
+    m_color.setCallback((OscVector3::set_callback*)OscObject::setColor, this);
 
     m_getCollide = false;
 
@@ -319,6 +321,20 @@ void OscObject::setPosition(OscObject *me, const OscVector3& pos)
 void OscObject::setVelocity(OscObject *me, const OscVector3& vel)
 {
     me->odePrimitive()->setDynamicLinearVelocity(vel);
+}
+
+//! Set the graphical object color
+void OscObject::setColor(OscObject *me, const OscVector3& color)
+{
+    cShapeSphere *sphere = dynamic_cast<cShapeSphere*>(me->chaiObject());
+    if (sphere) {
+        sphere->m_material.m_diffuse.set(color.x, color.y, color.z);
+        return;
+    }
+
+    cMesh *mesh = dynamic_cast<cMesh*>(me->chaiObject());
+    if (mesh)
+        mesh->m_material.m_diffuse.set(color.x, color.y, color.z);
 }
 
 //! Update the position extracted from the dynamic simulation
@@ -462,7 +478,6 @@ void OscObject::ungrab(int thread)
         chaiObject()->setHapticEnabled(true, true);
     }
 }
-
 
 // ----------------------------------------------------------------------------------
 
