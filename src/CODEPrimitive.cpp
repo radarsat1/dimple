@@ -152,6 +152,37 @@ void cODEPrimitive::setDynamicPosition(const cVector3d &a_pos)
 
 //===========================================================================
 /*!
+Set the dynamic linear velocity of the cODEPrimitive to the given value.
+
+  \fn     cODEPrimitive::setDynamicLinearVelocity(const cVector3d &pos)
+*/
+//===========================================================================
+void cODEPrimitive::setDynamicLinearVelocity(const cVector3d &a_pos)
+{
+    if (m_objType == DYNAMIC_OBJECT && m_odeBody)
+    {
+        dBodySetLinearVel(m_odeBody, a_pos.x, a_pos.y, a_pos.z);
+    }
+}
+
+//===========================================================================
+/*!
+Set the dynamic angular velocity of the cODEPrimitive to the given value.
+
+  \fn     cODEPrimitive::setDynamicAngularVelocity(const cVector3d &pos)
+*/
+//===========================================================================
+void cODEPrimitive::setDynamicAngularVelocity(const cVector3d &a_pos)
+{
+    if (m_objType == DYNAMIC_OBJECT && m_odeBody)
+    {
+        dBodySetAngularVel(m_odeBody, a_pos.x, a_pos.y, a_pos.z);
+    }
+}
+
+
+//===========================================================================
+/*!
     Set a custom mass for the body.
 
     \fn     cODEPrimitive::setMass(dReal mass)

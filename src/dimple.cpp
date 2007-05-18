@@ -496,12 +496,12 @@ void ode_simStep()
         o->odePrimitive()->syncPose();
 
         // Track object's position
-        o->setDynamicPosition(dBodyGetPosition(o->odePrimitive()->m_odeBody));
+        o->updateDynamicPosition(dBodyGetPosition(o->odePrimitive()->m_odeBody));
 
         // Track object's velocity
         if (dGeomGetBody(o->odePrimitive()->m_odeGeom)==o->odePrimitive()->m_odeBody) {
             const dReal *vel = dBodyGetLinearVel(o->odePrimitive()->m_odeBody);
-            o->setDynamicVelocity(vel);
+            o->updateDynamicVelocity(vel);
         }
     }
 
