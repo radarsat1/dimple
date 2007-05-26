@@ -1,85 +1,138 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="8.00"
 	Name="dimple"
-	ProjectGUID="{03968EC1-C6F9-4811-8EED-4A68A5F0E965}">
+	ProjectGUID="{03968EC1-C6F9-4811-8EED-4A68A5F0E965}"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\Release"
 			IntermediateDirectory="..\Release"
 			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\Release/dimple.tlb"
+				HeaderFileName=""
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../libdeps/liblo-0.23/;../libdeps/pthreads-w32-2-8-0-release/;../libdeps/freeglut-2.4.0/include;../libdeps/chai3d/include;../libdeps/ode-0.7/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_MSVC;WINVER=0X0500;PTW32_STATIC_LIB;FREEGLUT_STATIC"
-				StringPooling="TRUE"
+				StringPooling="true"
 				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="TRUE"
-				RuntimeTypeInfo="TRUE"
+				EnableFunctionLevelLinking="true"
+				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Release/dimple.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
-				CompileAs="0"/>
+				SuppressStartupBanner="true"
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib advapi32.lib user32.lib winmm.lib ../libdeps/chai3d/lib/msvc7/chai3d_complete.lib glu32.lib odbc32.lib odbccp32.lib ../libdeps/liblo-0.23/Release/liblo.lib wsock32.lib ../libdeps/ode-0.7/lib/releaselib/ode.lib ../libdeps/pthreads-w32-2-8-0-release/Release/pthreadsVC2.lib ../libdeps/freeglut-2.4.0/ReleaseStatic/freeglut_static.lib"
-				OutputFile="../dimple.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile=".\Release/dimple_msvc7.pdb"
-				SubSystem="1"
-				TargetMachine="1"/>
-			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/dimple.tlb"
-				HeaderFileName=""/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"/>
+				Culture="1033"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLinkerTool"
+				AdditionalDependencies="ws2_32.lib advapi32.lib user32.lib winmm.lib ../libdeps/chai3d/lib/msvc8exp/chai3d_complete.lib glu32.lib odbc32.lib odbccp32.lib ../libdeps/liblo-0.23/Release/liblo.lib wsock32.lib ../libdeps/ode-0.7/lib/releaselib/ode.lib ../libdeps/pthreads-w32-2-8-0-release/Release/pthreadsVC2.lib ../libdeps/freeglut-2.4.0/ReleaseStatic/freeglut_static.lib"
+				OutputFile="../dimple.exe"
+				LinkIncremental="1"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile=".\Release/dimple_msvc7.pdb"
+				SubSystem="1"
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\Debug"
 			IntermediateDirectory="..\Debug"
 			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\Debug/dimple.tlb"
+				HeaderFileName=""
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
@@ -87,53 +140,64 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_MSVC;WINVER=0X0500;PTW32_STATIC_LIB;FREEGLUT_STATIC"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				RuntimeTypeInfo="TRUE"
+				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Debug/dimple.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
-				CompileAs="0"/>
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib advapi32.lib user32.lib winmm.lib ../libdeps/chai3d/lib/msvc7/chai3d_complete_d.lib glu32.lib odbc32.lib odbccp32.lib ../libdeps/liblo-0.23/Debug/liblo.lib wsock32.lib ../libdeps/ode-0.7/lib/debuglib/ode.lib ../libdeps/pthreads-w32-2-8-0-release/Debug/pthreadsVC2.lib ../libdeps/freeglut-2.4.0/DebugStatic/freeglut_static.lib"
-				OutputFile="../dimple_d.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories=""
-				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Debug/dimple_msvc7.pdb"
-				SubSystem="1"
-				TargetMachine="1"/>
-			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/dimple.tlb"
-				HeaderFileName=""/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG,_AFXDLL"
-				Culture="1033"/>
+				Culture="1033"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLinkerTool"
+				AdditionalDependencies="ws2_32.lib advapi32.lib user32.lib winmm.lib ../libdeps/chai3d/lib/msvc8exp/chai3d_complete_d.lib glu32.lib odbc32.lib odbccp32.lib ../libdeps/liblo-0.23/Debug/liblo.lib wsock32.lib ../libdeps/ode-0.7/lib/debuglib/ode.lib ../libdeps/pthreads-w32-2-8-0-release/Debug/pthreadsVC2.lib ../libdeps/freeglut-2.4.0/DebugStatic/freeglut_static.lib"
+				OutputFile="../dimple_d.exe"
+				LinkIncremental="1"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories=""
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile=".\Debug/dimple_msvc7.pdb"
+				SubSystem="1"
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -141,89 +205,107 @@
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+			>
 			<File
-				RelativePath=".\CODEMesh.cpp">
+				RelativePath=".\CODEMesh.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\CODEPotentialProxy.cpp">
+				RelativePath=".\CODEPotentialProxy.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\CODEPrimitive.cpp">
+				RelativePath=".\CODEPrimitive.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\CODEPrism.cpp">
+				RelativePath=".\CODEPrism.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\CODESphere.cpp">
+				RelativePath=".\CODESphere.cpp"
+				>
 			</File>
 			<File
-				RelativePath="dimple.cpp">
+				RelativePath="dimple.cpp"
+				>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\OscObject.cpp">
+				RelativePath=".\OscObject.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\valuetimer.cpp">
+				RelativePath=".\valuetimer.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl">
+			Filter="h;hpp;hxx;hm;inl"
+			>
 			<File
-				RelativePath=".\CODEMesh.h">
+				RelativePath=".\CODEMesh.h"
+				>
 			</File>
 			<File
-				RelativePath=".\CODEPotentialProxy.h">
+				RelativePath=".\CODEPotentialProxy.h"
+				>
 			</File>
 			<File
-				RelativePath=".\CODEPrimitive.h">
+				RelativePath=".\CODEPrimitive.h"
+				>
 			</File>
 			<File
-				RelativePath=".\CODEPrism.h">
+				RelativePath=".\CODEPrism.h"
+				>
 			</File>
 			<File
-				RelativePath=".\CODEProxy.h">
+				RelativePath=".\CODEProxy.h"
+				>
 			</File>
 			<File
-				RelativePath=".\CODESphere.h">
+				RelativePath=".\CODESphere.h"
+				>
 			</File>
 			<File
-				RelativePath=".\dimple.h">
+				RelativePath=".\dimple.h"
+				>
 			</File>
 			<File
-				RelativePath=".\OscObject.h">
+				RelativePath=".\OscObject.h"
+				>
 			</File>
 			<File
-				RelativePath=".\valuetimer.h">
+				RelativePath=".\valuetimer.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
-			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
-			<File
-				RelativePath=".\dimple.rc">
-			</File>
-			<File
-				RelativePath=".\resource.h">
-			</File>
+			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+			>
 		</Filter>
 	</Files>
 	<Globals>
