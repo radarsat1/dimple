@@ -271,7 +271,7 @@
 #X obj 56 404 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X text 80 404 audio;
-#N canvas 397 578 478 328 beepcollide 0;
+#N canvas 397 472 478 328 beepcollide 0;
 #X obj 78 47 OSCroute /object;
 #X obj 78 133 print collided;
 #X obj 79 26 r rosc;
@@ -281,14 +281,15 @@
 #X obj 31 229 *~;
 #X obj 78 90 OSCroute /collide;
 #X obj 91 68 OSCroute /s*;
-#X obj 227 188 vline~;
+#X obj 130 218 vline~;
 #X obj 68 165 osc~ 150;
-#X msg 227 168 \$1 1 \, 0 100 1;
+#X msg 130 196 \$1 1 \, 0 100 1;
 #X obj 139 112 unpack s s 0;
 #X obj 227 149 clip 0 1;
 #X obj 227 130 * 5;
 #X msg 209 14 \; pd dsp 1;
 #X obj 209 -6 select 1;
+#X obj 227 174 modal;
 #X connect 0 0 7 0;
 #X connect 0 0 8 0;
 #X connect 2 0 0 0;
@@ -304,14 +305,14 @@
 #X connect 10 0 4 0;
 #X connect 11 0 9 0;
 #X connect 12 2 14 0;
-#X connect 13 0 11 0;
+#X connect 13 0 17 0;
 #X connect 14 0 13 0;
 #X connect 16 0 15 0;
 #X restore 56 428 pd beepcollide;
 #X msg 366 149 2;
 #N canvas 71 287 544 400 s3_accel 0;
 #X obj 33 162 s osc;
-#X obj 33 32 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
+#X obj 33 32 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
 ;
 #X obj 162 308 OSCroute /magnitude;
 #X floatatom 289 232 10 0 0 0 - - -;
@@ -362,7 +363,7 @@
 #X connect 23 0 0 0;
 #X connect 24 0 0 0;
 #X restore 258 417 pd s3_accel;
-#X obj 258 395 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+#X obj 258 395 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #X floatatom 258 454 10 0 0 0 - - -;
 #X floatatom 257 473 10 0 0 0 - - -;
