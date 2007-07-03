@@ -18,10 +18,11 @@
 
 #include <lo/lo.h>
 #include <string>
-#include "CODEPrism.h"
-#include "CODESphere.h"
 #include <vector>
 #include <map>
+
+#include "CODEPrism.h"
+#include "CODESphere.h"
 
 //! The OscBase class handles basic OSC functions for dealing with LibLo.
 //! It keeps a record of the object's name and classname which becomes
@@ -52,12 +53,19 @@ protected:
 class OscValue : public OscBase
 {
   public:
-    OscValue(const char *name, const char *classname) : OscBase(name, classname) {};
+    OscValue(const char *name, const char *classname);
     virtual ~OscValue();
-	virtual void setChanged() = 0;
+	virtual void setChanged() {}
     virtual void send() = 0;
 
+    typedef void set_callback(void*, const OscValue&);
+    void setCallback(set_callback*c, void*d, int thread)
+      { m_callback = c; m_callback_data = d; m_callback_thread = thread; }
+
   protected:
+    set_callback *m_callback;
+    void *m_callback_data;
+    int m_callback_thread;
     static int get_handler(const char *path, const char *types, lo_arg **argv,
                            int argc, void *data, void *user_data);
 };
@@ -68,18 +76,12 @@ class OscScalar : public OscValue
 {
   public:
     OscScalar(const char *name, const char *classname);
-	void setChanged() {};
 	void set(double value);
     void send();
 
     double m_value;
 
-    typedef void set_callback(void*, const OscScalar&);
-    void setCallback(set_callback*c, void*d) { m_callback = c; m_callback_data = d; }
-
   protected:
-    set_callback *m_callback;
-    void *m_callback_data;
     static int _handler(const char *path, const char *types, lo_arg **argv,
                         int argc, void *data, void *user_data);
 };
@@ -91,17 +93,24 @@ class OscVector3 : public OscValue, public cVector3d
   public:
     OscVector3(const char *name, const char *classname);
 	void setChanged();
+	void set(double x, double y, double z);
     void send();
 
 	OscScalar m_magnitude;
 
-    typedef void set_callback(void*, const OscVector3&);
-    void setCallback(set_callback*c, void*d) { m_callback = c; m_callback_data = d; }
+  protected:
+    static void setMagnitude(OscVector3*, const OscScalar&);
+    static int _handler(const char *path, const char *types, lo_arg **argv,
+                        int argc, void *data, void *user_data);
+};
+
+class OscString : public OscValue, public std::string
+{
+  public:
+    OscString(const char *name, const char *classname);
+    void send();
 
   protected:
-    set_callback *m_callback;
-    void *m_callback_data;
-    static void setMagnitude(OscVector3*, const OscScalar&);
     static int _handler(const char *path, const char *types, lo_arg **argv,
                         int argc, void *data, void *user_data);
 };
@@ -138,16 +147,24 @@ class OscObject : public OscBase
 	std::vector<std::string> m_constraintLinks;
     std::map<OscObject*,int> m_collisions;
 
+    bool m_getCollide;
+
     OscVector3 m_velocity;
     OscVector3 m_accel;
     OscVector3 m_position;
-    bool m_getCollide;
-
     static void setPosition(OscObject *me, const OscVector3& pos);
     static void setVelocity(OscObject *me, const OscVector3& vel);
 
+    OscScalar m_friction_static;
+    OscScalar m_friction_dynamic;
+    static void setFrictionStatic(OscObject *me, const OscScalar& value);
+    static void setFrictionDynamic(OscObject *me, const OscScalar& value);
+
     OscVector3 m_color;
     static void setColor(OscObject *me, const OscVector3& color);
+
+    OscString m_texture_image;
+    static void setTextureImage(OscObject *me, const OscString& filename);
 
     static int destroy_handler(const char *path, const char *types, lo_arg **argv,
                                int argc, void *data, void *user_data);

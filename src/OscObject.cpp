@@ -57,6 +57,14 @@ OscBase::~OscBase()
 
 // ----------------------------------------------------------------------------------
 
+OscValue::OscValue(const char *name, const char *classname)
+  : OscBase(name, classname)
+{
+    m_callback = NULL;
+    m_callback_data = NULL;
+    m_callback_thread = DIMPLE_THREAD_PHYSICS;
+}
+
 OscValue::~OscValue()
 {
     valuetimer.removeValue(this);
@@ -120,7 +128,7 @@ int OscScalar::_handler(const char *path, const char *types, lo_arg **argv,
 	 handler_data *hd = (handler_data*)user_data;
 	 OscScalar *me = (OscScalar*)hd->user_data;
 
-     if (hd->thread != DIMPLE_THREAD_PHYSICS)
+     if (hd->thread != me->m_callback_thread)
          return 0;
 
 	 if (argc == 1)
@@ -142,7 +150,8 @@ OscVector3::OscVector3(const char *name, const char *classname)
 {
     m_callback = NULL;
     m_callback_data = NULL;
-    m_magnitude.setCallback((OscScalar::set_callback*)OscVector3::setMagnitude, this);
+    m_magnitude.setCallback((OscScalar::set_callback*)OscVector3::setMagnitude, this,
+        DIMPLE_THREAD_PHYSICS);
 
     addHandler("",              "fff", OscVector3::_handler);
     addHandler("get",           "i"  , OscVector3::get_handler);
@@ -152,9 +161,17 @@ OscVector3::OscVector3(const char *name, const char *classname)
 void OscVector3::setChanged()
 {
 	 // TODO: this would be more efficient if it was only
-	 // calcuated when asked for, but only the first time
+	 // calculated when asked for, but only the first time
      // if it hasn't changed.
 	 m_magnitude.set(sqrt(x*x + y*y + z*z));
+}
+
+void OscVector3::set(double _x, double _y, double _z)
+{
+    x = _x;
+    y = _y;
+    z = _z;
+    setChanged();
 }
 
 void OscVector3::send()
@@ -185,7 +202,7 @@ int OscVector3::_handler(const char *path, const char *types, lo_arg **argv,
 	 handler_data *hd = (handler_data*)user_data;
 	 OscVector3 *me = (OscVector3*)hd->user_data;
 
-     if (hd->thread != DIMPLE_THREAD_PHYSICS)
+     if (hd->thread != me->m_callback_thread)
          return 0;
 
 	 if (argc == 3) {
@@ -203,13 +220,55 @@ int OscVector3::_handler(const char *path, const char *types, lo_arg **argv,
 
 // ----------------------------------------------------------------------------------
 
+//! OscString is an OSC-accessible and -settable string value.
+OscString::OscString(const char *name, const char *classname)
+    : OscValue(name, classname)
+{
+    addHandler("",              "s",   OscString::_handler);
+    addHandler("get",           "i"  , OscString::get_handler);
+    addHandler("get",           ""   , OscString::get_handler);
+}
+
+void OscString::send()
+{
+    lo_send(address_send, ("/" + m_classname +
+                           "/" + m_name).c_str(),
+            "s", c_str()
+        );
+}
+
+int OscString::_handler(const char *path, const char *types, lo_arg **argv,
+                        int argc, void *data, void *user_data)
+{
+	 handler_data *hd = (handler_data*)user_data;
+	 OscString *me = (OscString*)hd->user_data;
+
+     if (hd->thread != me->m_callback_thread)
+         return 0;
+
+	 if (argc == 1) {
+         me->assign(&argv[0]->s);
+         me->setChanged();
+	 }
+     
+     if (me->m_callback)
+         me->m_callback(me->m_callback_data, *me);
+
+	 return 0;
+}
+
+// ----------------------------------------------------------------------------------
+
 //! OscObject has a CHAI/ODE object associated with it. Class name = "object"
 OscObject::OscObject(cGenericObject* p, const char *name)
     : OscBase(name, "object"),
       m_velocity("velocity", (std::string("object/")+name).c_str()),
       m_accel("acceleration", (std::string("object/")+name).c_str()),
       m_position("position", (std::string("object/")+name).c_str()),
-      m_color("color", (std::string("object/")+name).c_str())
+      m_color("color", (std::string("object/")+name).c_str()),
+      m_friction_static("friction/static", (std::string("object/")+name).c_str()),
+      m_friction_dynamic("friction/dynamic", (std::string("object/")+name).c_str()),
+      m_texture_image("texture/image", (std::string("object/")+name).c_str())
 {
     // Track pointer for ODE/Chai object
     m_objChai = p;
@@ -228,20 +287,27 @@ OscObject::OscObject(cGenericObject* p, const char *name)
     addHandler("grab"       , "i"  , OscObject::grab_handler);
 
     // Set initial physical properties
-    m_accel[0] = 0;
-    m_accel[1] = 0;
-    m_accel[2] = 0;
-    m_velocity[0] = 0;
-    m_velocity[1] = 0;
-    m_velocity[2] = 0;
-    m_position[0] = 0;
-    m_position[1] = 0;
-    m_position[2] = 0;
+    m_accel.set(0,0,0);
+    m_velocity.set(0,0,0);
+    m_position.set(0,0,0);
+
+    // Sane friction defaults
+    m_friction_static.set(1);
+    m_friction_dynamic.set(0.5);
 
     // Set callbacks for when values change
-    m_position.setCallback((OscVector3::set_callback*)OscObject::setPosition, this);
-    m_velocity.setCallback((OscVector3::set_callback*)OscObject::setVelocity, this);
-    m_color.setCallback((OscVector3::set_callback*)OscObject::setColor, this);
+    m_position.setCallback((OscVector3::set_callback*)OscObject::setPosition, this,
+                           DIMPLE_THREAD_PHYSICS);
+    m_velocity.setCallback((OscVector3::set_callback*)OscObject::setVelocity, this,
+                           DIMPLE_THREAD_PHYSICS);
+    m_color.setCallback((OscVector3::set_callback*)OscObject::setColor, this,
+                        DIMPLE_THREAD_HAPTICS);
+    m_friction_static.setCallback((OscScalar::set_callback*)OscObject::setFrictionStatic, this,
+                                  DIMPLE_THREAD_HAPTICS);
+    m_friction_dynamic.setCallback((OscScalar::set_callback*)OscObject::setFrictionDynamic, this,
+                                   DIMPLE_THREAD_HAPTICS);
+    m_texture_image.setCallback((OscScalar::set_callback*)OscObject::setTextureImage, this,
+                                DIMPLE_THREAD_HAPTICS);
 
     m_getCollide = false;
 
@@ -335,6 +401,69 @@ void OscObject::setColor(OscObject *me, const OscVector3& color)
     cMesh *mesh = dynamic_cast<cMesh*>(me->chaiObject());
     if (mesh)
         mesh->m_material.m_diffuse.set(color.x, color.y, color.z);
+}
+
+//! Set the haptic object static friction coefficient.
+void OscObject::setFrictionStatic(OscObject *me, const OscScalar& value)
+{
+    // Note: unfortunately cMesh and cGenericPotentialField don't
+    // share the same m_material field...
+    cShapeSphere *sphere = dynamic_cast<cShapeSphere*>(me->chaiObject());
+    if (sphere) {
+        sphere->m_material.setStaticFriction(value.m_value);
+        return;
+    }
+
+    cMesh *mesh = dynamic_cast<cMesh*>(me->chaiObject());
+    if (mesh)
+        mesh->m_material.setStaticFriction(value.m_value);
+}
+
+//! Set the haptic object dynamic friction coefficient.
+void OscObject::setFrictionDynamic(OscObject *me, const OscScalar& value)
+{
+    cShapeSphere *sphere = dynamic_cast<cShapeSphere*>(me->chaiObject());
+    if (sphere) {
+        sphere->m_material.setDynamicFriction(value.m_value);
+        return;
+    }
+
+    cMesh *mesh = dynamic_cast<cMesh*>(me->chaiObject());
+    if (mesh)
+        mesh->m_material.setDynamicFriction(value.m_value);
+}
+
+//! Set the texture file to use for this object.
+void OscObject::setTextureImage(OscObject *me, const OscString& filename)
+{
+    // TODO: ensure same texture file doesn't need to be loaded more than once
+    cTexture2D *texture, *old_texture;
+    texture = new cTexture2D;
+    texture->setEnvironmentMode(GL_MODULATE);
+    if (!texture->loadFromFile(filename.c_str())) {
+        printf("Error loading %s\n", filename.c_str());
+        delete texture;
+        return;
+    }
+
+    cShapeSphere *sphere = dynamic_cast<cShapeSphere*>(me->chaiObject());
+    if (sphere) {
+        old_texture = sphere->m_texture;
+        if (old_texture)
+            delete old_texture;
+        sphere->m_texture = texture;
+        texture->setSphericalMappingEnabled(true);
+        return;
+    }
+
+    cMesh *mesh = dynamic_cast<cMesh*>(me->chaiObject());
+    if (mesh) {
+        old_texture = mesh->getTexture();
+        if (old_texture)
+            delete old_texture;
+        mesh->setTexture(texture);
+        texture->setSphericalMappingEnabled(false);
+    }
 }
 
 //! Update the position extracted from the dynamic simulation
