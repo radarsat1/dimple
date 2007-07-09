@@ -35,6 +35,8 @@ public:
 
     const char* name() { return m_name.c_str(); }
     const char* classname() { return m_classname.c_str(); }
+    const std::string strname() { return m_name; }
+    const std::string strclassname() { return m_classname; }
 
 protected:
     virtual void addHandler(const char *methodname, const char* type, lo_method_handler h);
@@ -53,7 +55,7 @@ protected:
 class OscValue : public OscBase
 {
   public:
-    OscValue(const char *name, const char *classname);
+    OscValue(const char *name, OscBase *owner);
     virtual ~OscValue();
 	virtual void setChanged() {}
     virtual void send() = 0;
@@ -75,7 +77,7 @@ class OscValue : public OscBase
 class OscScalar : public OscValue
 {
   public:
-    OscScalar(const char *name, const char *classname);
+    OscScalar(const char *name, OscBase *owner);
 	void set(double value);
     void send();
 
@@ -91,7 +93,7 @@ class OscScalar : public OscValue
 class OscVector3 : public OscValue, public cVector3d
 {
   public:
-    OscVector3(const char *name, const char *classname);
+    OscVector3(const char *name, OscBase *owner);
 	void setChanged();
 	void set(double x, double y, double z);
     void send();
@@ -107,7 +109,7 @@ class OscVector3 : public OscValue, public cVector3d
 class OscString : public OscValue, public std::string
 {
   public:
-    OscString(const char *name, const char *classname);
+    OscString(const char *name, OscBase *owner);
     void send();
 
   protected:
@@ -265,11 +267,8 @@ public:
 
     virtual void simulationCallback();
 
-    static int forceMagnitudeGet_handler(const char *path, const char *types, lo_arg **argv,
-                                         int argc, void *data, void *user_data);
-
 protected:
-    float m_torque;
+    OscScalar m_torque;
 };
 
 class OscHinge2 : public OscConstraint

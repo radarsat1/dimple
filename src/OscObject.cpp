@@ -57,12 +57,15 @@ OscBase::~OscBase()
 
 // ----------------------------------------------------------------------------------
 
-OscValue::OscValue(const char *name, const char *classname)
-  : OscBase(name, classname)
+OscValue::OscValue(const char *name, OscBase *owner)
+    : OscBase(name, (owner->strclassname()+"/"+owner->strname()).c_str())
 {
     m_callback = NULL;
     m_callback_data = NULL;
     m_callback_thread = DIMPLE_THREAD_PHYSICS;
+
+    addHandler("get",           "i"  , OscValue::get_handler);
+    addHandler("get",           ""   , OscValue::get_handler);
 }
 
 OscValue::~OscValue()
@@ -95,8 +98,8 @@ int OscValue::get_handler(const char *path, const char *types, lo_arg **argv,
 
 // ----------------------------------------------------------------------------------
 
-OscScalar::OscScalar(const char *name, const char *classname)
-	 : OscValue(name, classname)
+OscScalar::OscScalar(const char *name, OscBase *owner)
+	 : OscValue(name, owner)
 {
     m_callback = NULL;
     m_callback_data = NULL;
@@ -104,8 +107,6 @@ OscScalar::OscScalar(const char *name, const char *classname)
     m_value = 0;
 	
     addHandler("",              "f", OscScalar::_handler);
-    addHandler("get",           "i", OscScalar::get_handler);
-    addHandler("get",           "" , OscScalar::get_handler);
 }
 
 void OscScalar::set(double value)
@@ -143,9 +144,9 @@ int OscScalar::_handler(const char *path, const char *types, lo_arg **argv,
 // ----------------------------------------------------------------------------------
 
 //! OscVector3 is a 3-vector which can report its magnitude.
-OscVector3::OscVector3(const char *name, const char *classname)
-    : OscValue(name, classname),
-	  m_magnitude("magnitude", (std::string(classname)+"/"+name).c_str()),
+OscVector3::OscVector3(const char *name, OscBase *owner)
+    : OscValue(name, owner),
+	  m_magnitude("magnitude", this),
       cVector3d()
 {
     m_callback = NULL;
@@ -154,8 +155,6 @@ OscVector3::OscVector3(const char *name, const char *classname)
         DIMPLE_THREAD_PHYSICS);
 
     addHandler("",              "fff", OscVector3::_handler);
-    addHandler("get",           "i"  , OscVector3::get_handler);
-    addHandler("get",           ""   , OscVector3::get_handler);
 }
 
 void OscVector3::setChanged()
@@ -221,12 +220,12 @@ int OscVector3::_handler(const char *path, const char *types, lo_arg **argv,
 // ----------------------------------------------------------------------------------
 
 //! OscString is an OSC-accessible and -settable string value.
-OscString::OscString(const char *name, const char *classname)
-    : OscValue(name, classname)
+OscString::OscString(const char *name, OscBase *owner)
+    : OscValue(name, owner)
 {
     addHandler("",              "s",   OscString::_handler);
-    addHandler("get",           "i"  , OscString::get_handler);
-    addHandler("get",           ""   , OscString::get_handler);
+//    addHandler("get",           "i"  , OscString::get_handler);
+//    addHandler("get",           ""   , OscString::get_handler);
 }
 
 void OscString::send()
@@ -262,13 +261,13 @@ int OscString::_handler(const char *path, const char *types, lo_arg **argv,
 //! OscObject has a CHAI/ODE object associated with it. Class name = "object"
 OscObject::OscObject(cGenericObject* p, const char *name)
     : OscBase(name, "object"),
-      m_velocity("velocity", (std::string("object/")+name).c_str()),
-      m_accel("acceleration", (std::string("object/")+name).c_str()),
-      m_position("position", (std::string("object/")+name).c_str()),
-      m_color("color", (std::string("object/")+name).c_str()),
-      m_friction_static("friction/static", (std::string("object/")+name).c_str()),
-      m_friction_dynamic("friction/dynamic", (std::string("object/")+name).c_str()),
-      m_texture_image("texture/image", (std::string("object/")+name).c_str())
+      m_velocity("velocity", this),
+      m_accel("acceleration", this),
+      m_position("position", this),
+      m_color("color", this),
+      m_friction_static("friction/static", this),
+      m_friction_dynamic("friction/dynamic", this),
+      m_texture_image("texture/image", this)
 {
     // Track pointer for ODE/Chai object
     m_objChai = p;
@@ -795,15 +794,13 @@ OscBallJoint::OscBallJoint(const char *name, OscObject *object1, OscObject *obje
 //! A hinge requires a fixed anchor point and an axis
 OscHinge::OscHinge(const char *name, OscObject *object1, OscObject *object2,
                    double x, double y, double z, double ax, double ay, double az)
-    : OscConstraint(name, object1, object2)
+    : OscConstraint(name, object1, object2),
+      m_torque("torque", this)
 {
 	// create the constraint for object1
     cVector3d anchor(x,y,z);
     cVector3d axis(ax,ay,az);
     object1->odePrimitive()->hingeLink(name, object2?object2->odePrimitive():NULL, anchor, axis);
-
-    addHandler("force/magnitude/get", "i", OscHinge::forceMagnitudeGet_handler);
-    addHandler("force/magnitude/get", "", OscHinge::forceMagnitudeGet_handler);
 
     printf("Hinge joint created between %s and %s at anchor (%f,%f,%f), axis (%f,%f,%f)\n",
         object1->name(), object2?object2->name():"world", x,y,z,ax,ay,az);
@@ -820,27 +817,8 @@ void OscHinge::simulationCallback()
 
     dReal angle = dJointGetHingeAngle(*id);
     dReal rate = dJointGetHingeAngleRate(*id);
-    m_torque = -m_stiffness*angle - m_damping*rate;
-    dJointAddHingeTorque(*id, m_torque);
-}
-
-int OscHinge::forceMagnitudeGet_handler(const char *path, const char *types, lo_arg **argv,
-                                        int argc, void *data, void *user_data)
-{
-    bool once=true;
-    int interval=0;
-    if (argc>0) {
-        interval = argv[0]->i;
-        once=false;
-    }
-
-	handler_data *hd = (handler_data*)user_data;
-    OscHinge *me = (OscHinge*)hd->user_data;
-    if (once && hd->thread == DIMPLE_THREAD_HAPTICS) {
-        lo_send(address_send, ("/constraint/"+me->m_name+"/force/magnitude").c_str(), "f", me->m_torque);
-    }
-
-    return 0;
+    m_torque.set(-m_stiffness*angle - m_damping*rate);
+    dJointAddHingeTorque(*id, m_torque.m_value);
 }
 
 // ----------------------------------------------------------------------------------
