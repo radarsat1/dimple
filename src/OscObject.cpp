@@ -451,7 +451,7 @@ void OscObject::setTextureImage(OscObject *me, const OscString& filename)
         if (old_texture)
             delete old_texture;
         sphere->m_texture = texture;
-        texture->setSphericalMappingEnabled(true);
+//        texture->setSphericalMappingEnabled(true);
         return;
     }
 
@@ -756,11 +756,13 @@ int OscConstraint::destroy_handler(const char *path, const char *types, lo_arg *
 int OscConstraint::responseCenter_handler(const char *path, const char *types, lo_arg **argv,
                                           int argc, void *data, void *user_data)
 {
+    return 0;
 }
 
 int OscConstraint::responseConstant_handler(const char *path, const char *types, lo_arg **argv,
                                             int argc, void *data, void *user_data)
 {
+    return 0;
 }
 
 int OscConstraint::responseLinear_handler(const char *path, const char *types, lo_arg **argv,
@@ -792,11 +794,13 @@ int OscConstraint::responseSpring_handler(const char *path, const char *types, l
 int OscConstraint::responseWall_handler(const char *path, const char *types, lo_arg **argv,
                                         int argc, void *data, void *user_data)
 {
+    return 0;
 }
 
 int OscConstraint::responsePluck_handler(const char *path, const char *types, lo_arg **argv,
                                          int argc, void *data, void *user_data)
 {
+    return 0;
 }
 
 // ----------------------------------------------------------------------------------
