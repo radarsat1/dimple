@@ -721,8 +721,13 @@ OscConstraint::OscConstraint(const char *name, OscObject *object1, OscObject *ob
 	if (object2) object2->linkConstraint(m_name);
 
     addHandler("destroy", "", OscConstraint::destroy_handler);
-    addHandler("response/linear", "f", OscConstraint::responseLinear_handler);
-    addHandler("response/spring", "ff", OscConstraint::responseSpring_handler);
+    addHandler("response/center",   "f", OscConstraint::responseCenter_handler);
+    addHandler("response/constant", "f", OscConstraint::responseConstant_handler);
+    addHandler("response/linear",   "f", OscConstraint::responseLinear_handler);
+    addHandler("response/spring",   "ff", OscConstraint::responseSpring_handler);
+    addHandler("response/wall",     "ff", OscConstraint::responseWall_handler);
+    addHandler("response/wall",     "ffi", OscConstraint::responseWall_handler);
+    addHandler("response/pluck",    "ff", OscConstraint::responsePluck_handler);
 }
 
 OscConstraint::~OscConstraint()
@@ -746,6 +751,16 @@ int OscConstraint::destroy_handler(const char *path, const char *types, lo_arg *
         UNLOCK_WORLD();
     }
     return 0;
+}
+
+int OscConstraint::responseCenter_handler(const char *path, const char *types, lo_arg **argv,
+                                          int argc, void *data, void *user_data)
+{
+}
+
+int OscConstraint::responseConstant_handler(const char *path, const char *types, lo_arg **argv,
+                                            int argc, void *data, void *user_data)
+{
 }
 
 int OscConstraint::responseLinear_handler(const char *path, const char *types, lo_arg **argv,
@@ -772,6 +787,16 @@ int OscConstraint::responseSpring_handler(const char *path, const char *types, l
 		 me->m_damping = argv[1]->f;
 	}
     return 0;
+}
+
+int OscConstraint::responseWall_handler(const char *path, const char *types, lo_arg **argv,
+                                        int argc, void *data, void *user_data)
+{
+}
+
+int OscConstraint::responsePluck_handler(const char *path, const char *types, lo_arg **argv,
+                                         int argc, void *data, void *user_data)
+{
 }
 
 // ----------------------------------------------------------------------------------

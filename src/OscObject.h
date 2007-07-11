@@ -245,11 +245,23 @@ public:
 	  static int destroy_handler(const char *path, const char *types, lo_arg **argv,
 								 int argc, void *data, void *user_data);
 
+      static int responseCenter_handler(const char *path, const char *types, lo_arg **argv,
+                                        int argc, void *data, void *user_data);
+
+      static int responseConstant_handler(const char *path, const char *types, lo_arg **argv,
+                                          int argc, void *data, void *user_data);
+
 	  static int responseLinear_handler(const char *path, const char *types, lo_arg **argv,
 								        int argc, void *data, void *user_data);
 
       static int responseSpring_handler(const char *path, const char *types, lo_arg **argv,
 								        int argc, void *data, void *user_data);
+
+      static int responseWall_handler(const char *path, const char *types, lo_arg **argv,
+                                      int argc, void *data, void *user_data);
+
+      static int responsePluck_handler(const char *path, const char *types, lo_arg **argv,
+                                       int argc, void *data, void *user_data);
 };
 
 class OscBallJoint : public OscConstraint
