@@ -1,4 +1,4 @@
-diff -ruiN pthreads-w32-2-8-0-release-orig/pthread.c pthreads-w32-2-8-0-release-changed/pthread.c
+﻿diff -ruiN pthreads-w32-2-8-0-release-orig/pthread.c pthreads-w32-2-8-0-release-changed/pthread.c
 --- pthreads-w32-2-8-0-release-orig/pthread.c	2005-01-01 09:36:17.000000000 -0500
 +++ pthreads-w32-2-8-0-release-changed/pthread.c	2007-04-07 22:52:03.531250000 -0400
 @@ -48,7 +48,9 @@
@@ -85,7 +85,7 @@ diff -ruiN pthreads-w32-2-8-0-release-orig/pthreads.vcproj pthreads-w32-2-8-0-re
 +				PreprocessorDefinitions="_DEBUG;__CLEANUP_C;PTW32_BUILD_INLINED;PTW32_STATIC_LIB;CLEANUP=__CLEANUP_C;DLL_VER=2"
 +				MinimalRebuild="true"
 +				BasicRuntimeChecks="3"
-+				RuntimeLibrary="3"
++				RuntimeLibrary="1"
 +				UsePrecompiledHeader="0"
 +				WarningLevel="3"
 +				Detect64BitPortabilityProblems="true"
@@ -147,7 +147,7 @@ diff -ruiN pthreads-w32-2-8-0-release-orig/pthreads.vcproj pthreads-w32-2-8-0-re
 +				Name="VCCLCompilerTool"
 +				AdditionalIncludeDirectories="."
 +				PreprocessorDefinitions="__CLEANUP_C;PTW32_BUILD_INLINED;PTW32_STATIC_LIB;CLEANUP=__CLEANUP_C;DLL_VER=2"
-+				RuntimeLibrary="2"
++				RuntimeLibrary="0"
 +				UsePrecompiledHeader="0"
 +				WarningLevel="3"
 +				Detect64BitPortabilityProblems="true"

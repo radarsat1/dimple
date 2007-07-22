@@ -84,7 +84,8 @@ const int OPTION_FULLSCREEN     = 1;
 const int OPTION_WINDOWDISPLAY  = 2;
 
 // OSC handlers
-lo_server_thread loserver;
+lo_server_thread loserverthr;
+lo_server        loserver;
 
 int glutStarted = 0;
 int hapticsStarted = 0;
@@ -97,6 +98,9 @@ int lock_chai = 0;
 pthread_t ode_pthread;
 
 void poll_requests();
+void* glut_thread_proc(void*);
+
+pthread_t glut_thread;
 
 #define MAX_CONTACTS 30
 #define FPS 30
@@ -820,7 +824,8 @@ int graphicsEnable_handler(const char *path, const char *types, lo_arg **argv,
 
 	 if (argv[0]->i) {
 		  if (!glutStarted) {
-			   glutStarted = 1;
+              pthread_create(&glut_thread, NULL, glut_thread_proc, NULL);
+              glutStarted = 1;
 		  }
 		  else {
 			   glutShowWindow(); 
@@ -1293,36 +1298,45 @@ int handler_callback(lo_method_handler handler, const char *path, const char *ty
 
 void initOSC()
 {
+#ifdef FLEXT_SYS
+	// Note: Under flext, the UDP port is not used, but due to LibLo design
+	// we have no choice but to use it.  Changes to LibLo will be submitted
+	// for comment.
+	loserver = lo_server_new("7770", liblo_error);
+	loserverthr = NULL;
+#else
 	 /* start a new server on port 7770 */
-	 loserver = lo_server_thread_new("7770", liblo_error);
-     if (!loserver) {
+	 loserverthr = lo_server_thread_new("7770", liblo_error);
+     if (!loserverthr) {
          printf("Error starting OSC server on port 7770.\n");
          exit(1);
      }
+	 loserver = lo_server_thread_get_server(loserverthr);
+	 lo_server_thread_start(loserverthr);
+#endif
 
-     lo_server_thread_set_handler_callback(loserver, handler_callback);
+     lo_server_set_handler_callback(loserver, handler_callback);
 
 	 /* add methods for each message */
-	 lo_server_thread_add_method(loserver, "/haptics/enable", "i", hapticsEnable_handler, NULL);
-	 lo_server_thread_add_method(loserver, "/graphics/enable", "i", graphicsEnable_handler, NULL);
-	 lo_server_thread_add_method(loserver, "/object/prism/create", "sfff", objectPrismCreate_handler, NULL);
-	 lo_server_thread_add_method(loserver, "/object/prism/create", "s", objectPrismCreate_handler, NULL);
-	 lo_server_thread_add_method(loserver, "/object/sphere/create", "sfff", objectSphereCreate_handler, NULL);
-	 lo_server_thread_add_method(loserver, "/object/sphere/create", "s", objectSphereCreate_handler, NULL);
-	 lo_server_thread_add_method(loserver, "/constraint/ball/create", "sssfff", constraintBallCreate_handler, NULL);
-	 lo_server_thread_add_method(loserver, "/constraint/hinge/create", "sssffffff", constraintHingeCreate_handler, NULL);
-	 lo_server_thread_add_method(loserver, "/constraint/hinge2/create", "sssfffffffff", constraintHinge2Create_handler, NULL);
-	 lo_server_thread_add_method(loserver, "/constraint/universal/create", "sssfffffffff", constraintUniversalCreate_handler, NULL);
-	 lo_server_thread_add_method(loserver, "/constraint/fixed/create", "sss", constraintFixedCreate_handler, NULL);
-     lo_server_thread_add_method(loserver, "/world/clear", "", worldClear_handler, NULL);
-     lo_server_thread_add_method(loserver, "/world/gravity", "f", worldGravity1_handler, NULL);
-     lo_server_thread_add_method(loserver, "/world/gravity", "fff", worldGravity3_handler, NULL);
-     lo_server_thread_add_method(loserver, "/object/collide/get", "", objectCollideGet_handler, NULL);
-     lo_server_thread_add_method(loserver, "/object/collide/get", "i", objectCollideGet_handler, NULL);
-
-	 lo_server_thread_start(loserver);
+	 lo_server_add_method(loserver, "/haptics/enable", "i", hapticsEnable_handler, NULL);
+	 lo_server_add_method(loserver, "/graphics/enable", "i", graphicsEnable_handler, NULL);
+	 lo_server_add_method(loserver, "/object/prism/create", "sfff", objectPrismCreate_handler, NULL);
+	 lo_server_add_method(loserver, "/object/prism/create", "s", objectPrismCreate_handler, NULL);
+	 lo_server_add_method(loserver, "/object/sphere/create", "sfff", objectSphereCreate_handler, NULL);
+	 lo_server_add_method(loserver, "/object/sphere/create", "s", objectSphereCreate_handler, NULL);
+	 lo_server_add_method(loserver, "/constraint/ball/create", "sssfff", constraintBallCreate_handler, NULL);
+	 lo_server_add_method(loserver, "/constraint/hinge/create", "sssffffff", constraintHingeCreate_handler, NULL);
+	 lo_server_add_method(loserver, "/constraint/hinge2/create", "sssfffffffff", constraintHinge2Create_handler, NULL);
+	 lo_server_add_method(loserver, "/constraint/universal/create", "sssfffffffff", constraintUniversalCreate_handler, NULL);
+	 lo_server_add_method(loserver, "/constraint/fixed/create", "sss", constraintFixedCreate_handler, NULL);
+     lo_server_add_method(loserver, "/world/clear", "", worldClear_handler, NULL);
+     lo_server_add_method(loserver, "/world/gravity", "f", worldGravity1_handler, NULL);
+     lo_server_add_method(loserver, "/world/gravity", "fff", worldGravity3_handler, NULL);
+     lo_server_add_method(loserver, "/object/collide/get", "", objectCollideGet_handler, NULL);
+     lo_server_add_method(loserver, "/object/collide/get", "i", objectCollideGet_handler, NULL);
 
 	 printf("OSC server initialized on port 7770.\n");
+	 fflush(stdout);
 }
 
 void sighandler_quit(int sig)
@@ -1374,7 +1388,21 @@ void poll_requests()
 	}
 }
 
+void* glut_thread_proc(void*)
+{
+    // when graphics start, fall through to initialize GLUT stuff
+	int argc=0;
+    glutInit(&argc, NULL);
+    initGlutWindow();
+    glutMainLoop();
+	return 0;
+}
+
+#ifdef FLEXT_SYS  // Needed for initialization from Flext object
+int dimple_main(int argc, char* argv[])
+#else
 int main(int argc, char* argv[])
+#endif
 {
 	 // display pretty message
 	 printf ("\n");
@@ -1385,30 +1413,37 @@ int main(int argc, char* argv[])
 	 printf ("\n");
      fflush(stdout);
 
+#ifndef FLEXT_SYS
 	 signal(SIGINT, sighandler_quit);
+#endif
 
      // initialize all subsystems
 	 initOSC();
 	 initWorld();
 	 initODE();
 
+#ifndef FLEXT_SYS
 	 // initially loop just waiting for messages
-	 while (!glutStarted && !quit) {
+	 while (!quit) {
 		  Sleep(100);
 		  poll_requests();
 	 }
 
-	 // when graphics start, fall through to initialize GLUT stuff
-	 if (glutStarted && !quit) {
-		  glutInit(&argc, argv);
-		  initGlutWindow();
-		  glutMainLoop();
-	 }
-
-	 requestHapticsStop = 1;
-	 poll_requests();
+	 dimple_cleanup();
+#endif
 
 	 return 0;
+}
+
+void dimple_cleanup()
+{
+	quit = 1;
+	requestHapticsStop = 1;
+	poll_requests();
+	if (loserverthr)
+		lo_server_thread_free(loserverthr);
+	else if (loserver)
+		lo_server_free(loserver);
 }
 
 #if defined(WIN32) && defined(PTW32_STATIC_LIB)

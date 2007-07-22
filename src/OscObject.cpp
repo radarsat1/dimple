@@ -36,7 +36,7 @@ void OscBase::addHandler(const char *methodname, const char* type, lo_method_han
         n = n + "/" + methodname;
 
     // add it to liblo server and store it
-    if (lo_server_thread_add_method(loserver, n.c_str(), type, h, this))
+    if (lo_server_add_method(loserver, n.c_str(), type, h, this))
     {
         method_t m;
         m.name = n;

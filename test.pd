@@ -1,4 +1,4 @@
-#N canvas 425 257 698 543 10;
+#N canvas 371 86 702 547 10;
 #X msg 504 139 send /world/clear;
 #X obj 456 176 s osc;
 #X obj 281 150 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
@@ -13,7 +13,7 @@
 #X array accel 1000 float 0;
 #X coords 0 1 1000 0 200 140 1;
 #X restore 429 353 graph;
-#N canvas 302 192 687 743 createbox 1;
+#N canvas 302 57 691 746 createbox 0;
 #X obj 34 18 inlet;
 #X obj 34 130 / 2;
 #X obj 34 165 -;
@@ -58,7 +58,7 @@
 #X msg 10 629 send /object/backside/size \$12 \$5 \$8;
 #X msg 10 650 send /object/frontside/size \$12 \$5 \$10;
 #X msg 34 70 0.4 0.4 0.2 0.03 0.03;
-#N canvas 412 303 351 261 texture 1;
+#N canvas 412 303 355 265 texture 0;
 #X obj 40 223 s osc;
 #X msg 40 118 send /object/leftside/texture/image \$1;
 #X msg 40 139 send /object/rightside/texture/image \$1;
@@ -232,12 +232,12 @@
 #X connect 20 0 7 0;
 #X connect 21 0 3 0;
 #X restore 281 173 pd createmarble;
-#N canvas 530 283 462 312 connect 0;
+#N canvas 530 283 466 316 connect 0;
 #X obj 20 241 sendOSC;
-#X obj 20 64 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
+#X obj 20 64 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
 ;
 #X msg 80 213 disconnect;
-#X obj 20 114 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+#X obj 20 114 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #X msg 20 135 send /graphics/enable \$1;
 #X msg 20 84 send /haptics/enable \$1;
@@ -254,14 +254,19 @@
 #X obj 255 202 spigot 1;
 #X obj 260 167 t b b;
 #X obj 20 21 t b b;
+#X obj 88 255 route send;
+#X obj 88 277 dimple;
 #X connect 1 0 5 0;
 #X connect 2 0 0 0;
 #X connect 3 0 4 0;
 #X connect 4 0 0 0;
+#X connect 4 0 19 0;
 #X connect 5 0 0 0;
+#X connect 5 0 19 0;
 #X connect 6 0 0 0;
 #X connect 7 0 0 0;
 #X connect 8 0 0 0;
+#X connect 8 0 19 0;
 #X connect 9 0 1 0;
 #X connect 9 0 3 0;
 #X connect 11 0 18 0;
@@ -272,6 +277,8 @@
 #X connect 17 1 16 0;
 #X connect 18 0 9 0;
 #X connect 18 1 17 0;
+#X connect 19 0 20 0;
+#X connect 20 0 13 0;
 #X restore 17 129 pd connect;
 #X obj 17 108 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
@@ -333,17 +340,8 @@
 #N canvas 0 0 874 532 modal 0;
 #N canvas 0 0 450 300 (subpatch) 0;
 #X array array2 64 float 1;
-#A 0 -7.87634e-19 -8.23584e-19 -8.59332e-19 -8.94852e-19 -9.30116e-19
--9.651e-19 -9.99776e-19 -1.03412e-18 -1.0681e-18 -1.10171e-18 -1.1349e-18
--1.16767e-18 -1.19998e-18 -1.23181e-18 -1.26314e-18 -1.29395e-18 -1.32422e-18
--1.35391e-18 -1.38302e-18 -1.41152e-18 -1.43939e-18 -1.46661e-18 -1.49317e-18
--1.5178e-18 -1.54172e-18 -1.56493e-18 -1.5874e-18 -1.60912e-18 -1.63009e-18
--1.65027e-18 -1.66967e-18 -1.68827e-18 -1.70606e-18 -1.72303e-18 -1.73917e-18
--1.75447e-18 -1.76892e-18 -1.78253e-18 -1.79527e-18 -1.80714e-18 -1.81813e-18
--1.82824e-18 -1.83748e-18 -1.84585e-18 -1.85335e-18 -1.85997e-18 -1.86572e-18
--1.87061e-18 -1.87464e-18 -1.87782e-18 -1.88015e-18 -1.88165e-18 -1.88231e-18
--1.88216e-18 -1.8812e-18 -1.87946e-18 -1.87693e-18 -1.87365e-18 -1.86962e-18
--1.86486e-18 -1.8594e-18 -1.85325e-18 -1.84643e-18 -1.83896e-18;
+#A 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0;
 #X coords 0 1 63 -1 200 140 1;
 #X restore 134 358 graph;
 #N canvas 0 0 450 300 (subpatch) 0;

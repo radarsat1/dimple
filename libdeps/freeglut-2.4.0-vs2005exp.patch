@@ -1,4 +1,4 @@
-diff -ruiN freeglut-2.4.0-orig/freeglut.sln freeglut-2.4.0-changed/freeglut.sln
+﻿diff -ruiN freeglut-2.4.0-orig/freeglut.sln freeglut-2.4.0-changed/freeglut.sln
 --- freeglut-2.4.0-orig/freeglut.sln	1969-12-31 19:00:00.000000000 -0500
 +++ freeglut-2.4.0-changed/freeglut.sln	2007-04-07 21:45:56.796875000 -0400
 @@ -0,0 +1,26 @@
@@ -821,7 +821,7 @@ diff -ruiN freeglut-2.4.0-orig/freeglut_static.vcproj freeglut-2.4.0-changed/fre
 +				PreprocessorDefinitions="_DEBUG;FREEGLUT_STATIC;WIN32;_LIB"
 +				MinimalRebuild="true"
 +				BasicRuntimeChecks="3"
-+				RuntimeLibrary="3"
++				RuntimeLibrary="1"
 +				PrecompiledHeaderFile=".\DebugStatic/freeglut_static.pch"
 +				AssemblerListingLocation=".\DebugStatic/"
 +				ObjectFile=".\DebugStatic/"
@@ -897,7 +897,7 @@ diff -ruiN freeglut-2.4.0-orig/freeglut_static.vcproj freeglut-2.4.0-changed/fre
 +				AdditionalIncludeDirectories="include"
 +				PreprocessorDefinitions="NDEBUG;FREEGLUT_STATIC;WIN32;_LIB"
 +				StringPooling="true"
-+				RuntimeLibrary="2"
++				RuntimeLibrary="0"
 +				EnableFunctionLevelLinking="true"
 +				PrecompiledHeaderFile=".\ReleaseStatic/freeglut_static.pch"
 +				AssemblerListingLocation=".\ReleaseStatic/"

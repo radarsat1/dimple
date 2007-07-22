@@ -20,14 +20,13 @@
 #include <winsock2.h>
 #endif
 #define _WINSOCK2API_
-extern "C" {
 #include "lo/lo.h"
-}
 #include "OscObject.h"
 
 // LibLo server
-extern lo_server_thread loserver;
-extern lo_address address_send;
+extern lo_server_thread loserverthr;
+extern lo_server        loserver;
+extern lo_address       address_send;
 
 // world objects
 extern std::map<std::string,OscObject*> world_objects;
@@ -43,6 +42,8 @@ extern cWorld* world;
 extern dWorldID ode_world;
 extern dSpaceID ode_space;
 extern OscObject *proxyObject;
+
+void poll_requests();
 
 // Locking must be placed around OSC- and graphics-thread
 // functions that modify the Chai or ODE worlds. This means
@@ -139,5 +140,13 @@ public:
     ~handler_data();
 };
 
+#ifdef FLEXT_SYS
+// Needed for initialization from Flext object
+int dimple_main(int argc, char* argv[]);
+// A bit of a hack for the Flext object to catch lo_send()
+#define lo_send flext_dimple_send
+void flext_dimple_send(lo_address, const char*, const char*, ...);
+#endif
+void dimple_cleanup();
 
 #endif // _OSC_CHAI_GLUT_H_
