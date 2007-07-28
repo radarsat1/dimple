@@ -77,8 +77,6 @@ cODEMesh::~cODEMesh()
 void cODEMesh::initDynamic(geomType a_type, objectType a_objType, float a_x, 
                            float a_y, float a_z, float a_density) 
 {
-    
-    unsigned int nVertex,nIndices;
     float l[3];
     
     //calculateInertiaTensor(density,m_Mass,cgx,cgy,cgz,I11,I22,I33,I12,I13,I23);
@@ -91,7 +89,7 @@ void cODEMesh::initDynamic(geomType a_type, objectType a_objType, float a_x,
     
     translateMesh(cgx, cgy, cgz);
     
-    cODEMeshToODE(nVertex,nIndices);
+    cODEMeshToODE(m_nVertex,m_nIndices);
     
     l[0] = m_boundaryBoxMax.x - m_boundaryBoxMin.x;
     l[1] = m_boundaryBoxMax.y - m_boundaryBoxMin.y;
@@ -114,8 +112,10 @@ void cODEMesh::initDynamic(geomType a_type, objectType a_objType, float a_x,
         if (m_odeTriMeshData != NULL) 
             dGeomTriMeshDataDestroy(m_odeTriMeshData);
         m_odeTriMeshData = dGeomTriMeshDataCreate();
-        dGeomTriMeshDataBuildSingle(m_odeTriMeshData, m_odeVertex, 3*sizeof(float), nVertex, 
-            m_odeIndices, nIndices*3, 3 * sizeof(int));
+        dGeomTriMeshDataBuildSingle(m_odeTriMeshData, m_odeVertex,
+									3 * sizeof(float), m_nVertex,
+									m_odeIndices, m_nIndices*3,
+									3 * sizeof(int));
         m_odeGeom = dCreateTriMesh(m_odeSpace, m_odeTriMeshData, 0, 0, 0);
         break;
     }
@@ -508,5 +508,23 @@ void cODEMesh::translateMesh(float x, float y, float z)
             }
         }
     }
+}
+
+
+//===========================================================================
+/*!
+    Scale the dynamic ODE trimesh structure.
+
+    \fn     cODEMesh::translateMesh(float x, float y, float z)
+*/
+//===========================================================================
+void cODEMesh::scaleDynamicObject(float x, float y, float z)
+{
+	int i;
+	for (i=0; i<m_nVertex; i++) {
+		m_odeVertex[i*3+0] *= x;
+		m_odeVertex[i*3+1] *= y;
+		m_odeVertex[i*3+2] *= z;
+	}
 }
 

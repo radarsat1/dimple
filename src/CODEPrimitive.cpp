@@ -93,6 +93,9 @@ void cODEPrimitive::destroyCallback(cODEPrimitive *self)
     if (self->m_odeBody != NULL)         dBodyDestroy(self->m_odeBody);
     
     self->m_Joint.clear();
+
+	self->m_nVertex = 0;
+	self->m_nIndices = 0;
 }
 
 //===========================================================================

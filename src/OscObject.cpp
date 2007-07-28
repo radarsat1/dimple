@@ -743,16 +743,32 @@ int OscMesh::size_handler(const char *path, const char *types, lo_arg **argv,
                     argv[2]->f / boundarySize.z );
 
             chaimesh->scale(scale, true);
+            me->m_vLastScaled = scale;
             
-            printf("Scaled %s by %f, %f, %f\n",
+            printf("(haptics) Scaled %s by %f, %f, %f\n",
                    me->name(), scale.x, scale.y, scale.z);
+
+            // Perform similar scaling in the physics thread
+            // TODO: should be *post*, need to fix queueing first
+            wait_ode_request(size_physics_callback, (cODEPrimitive*)me);
         }
-        else if (hd->thread == DIMPLE_THREAD_PHYSICS)
-            ;//prism->setDynamicSize(size);
         UNLOCK_WORLD();
     }
-    
-    // TODO scale ODE vertices
+}
+
+//! The scaling function to be called in the physics thread after
+//! scaling has been done in the haptics thread.
+void OscMesh::size_physics_callback(void *self)
+{ 
+    OscMesh* me = static_cast<OscMesh*>(self);
+    me->odePrimitive()->scaleDynamicObject(me->m_vLastScaled.x,
+                                           me->m_vLastScaled.y,
+                                           me->m_vLastScaled.z);
+
+    printf("(physics) Scaled %s by %f, %f, %f\n",
+           me->name(), me->m_vLastScaled.x,
+           me->m_vLastScaled.y,
+           me->m_vLastScaled.z);
 }
 
 // ----------------------------------------------------------------------------------

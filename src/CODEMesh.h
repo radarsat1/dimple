@@ -72,6 +72,9 @@ class cODEMesh : public cMesh, public cODEPrimitive
       //! Load a mesh file supported by CHAI and convert the triangles to an ODE representation.
       virtual bool loadFromFileAndConvertToODE(const char *filepath);
 
+	  //! Scale the whole ODE mesh.
+	  void scaleDynamicObject(float x, float y, float z);
+
 	  //! Inertia tensor.
 	  float			cgx, cgy, cgz;
 	  float			I11, I22, I33;

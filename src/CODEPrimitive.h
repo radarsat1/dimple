@@ -135,8 +135,10 @@ class cODEPrimitive
     // MEMBERS:
 	  //! List of vertices for ODE.
 	  float	*m_odeVertex;
+	  unsigned int m_nVertex;
 	  //! List of vertex indices for ODE.
 	  odeVector3 *m_odeIndices;
+	  unsigned int m_nIndices;
 	
 	  //! Geometry for ODE.
 	  dGeomID m_odeGeom;

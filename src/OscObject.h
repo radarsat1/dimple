@@ -229,6 +229,8 @@ class OscMesh : public OscObject
   protected:
     static int size_handler(const char *path, const char *types, lo_arg **argv,
 							int argc, void *data, void *user_data);
+	static void size_physics_callback(void *self);
+	cVector3d m_vLastScaled;
 };
 
 //! The OscConstraint class keeps track of ODE constraints between two

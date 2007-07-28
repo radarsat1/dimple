@@ -233,10 +233,10 @@
 #X restore 281 173 pd createmarble;
 #N canvas 530 283 462 312 connect 0;
 #X obj 20 241 sendOSC;
-#X obj 20 64 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
+#X obj 20 64 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
 ;
 #X msg 80 213 disconnect;
-#X obj 20 114 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 20 114 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X msg 20 135 send /graphics/enable \$1;
 #X msg 20 84 send /haptics/enable \$1;
@@ -332,8 +332,17 @@
 #N canvas 0 0 874 532 modal 0;
 #N canvas 0 0 450 300 (subpatch) 0;
 #X array array2 64 float 1;
-#A 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0;
+#A 0 -5.97443e-19 -5.89144e-19 -5.80767e-19 -5.72336e-19 -5.6388e-19
+-5.55425e-19 -5.46999e-19 -5.38631e-19 -5.30348e-19 -5.22179e-19 -5.14154e-19
+-5.06302e-19 -4.98652e-19 -4.91236e-19 -4.84081e-19 -4.7722e-19 -4.70682e-19
+-4.64497e-19 -4.58697e-19 -4.53312e-19 -4.48372e-19 -4.43907e-19 -4.39949e-19
+-4.36527e-19 -4.3367e-19 -4.3141e-19 -4.29774e-19 -4.28791e-19 -4.28491e-19
+-4.289e-19 -4.30046e-19 -4.31955e-19 -4.34654e-19 -4.38166e-19 -4.42517e-19
+-4.47728e-19 -4.53823e-19 -4.60821e-19 -4.68742e-19 -4.77605e-19 -4.87427e-19
+-4.98221e-19 -5.10003e-19 -5.22784e-19 -5.36575e-19 -5.51384e-19 -5.67218e-19
+-5.84081e-19 -6.01976e-19 -6.20902e-19 -6.40859e-19 -6.61842e-19 -6.83844e-19
+-7.06857e-19 -7.30869e-19 -7.55867e-19 -7.81833e-19 -8.0875e-19 -8.36595e-19
+-8.65343e-19 -8.9497e-19 -9.24911e-19 -9.55668e-19 -9.87206e-19;
 #X coords 0 1 63 -1 200 140 1;
 #X restore 134 358 graph;
 #N canvas 0 0 450 300 (subpatch) 0;
@@ -1271,11 +1280,15 @@ PhysicaL Environment;
 #X text 581 240 The Snake;
 #X obj 635 260 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
-#N canvas 430 278 450 300 meshtest 1;
+#N canvas 430 278 450 300 meshtest 0;
 #X obj 22 135 s osc;
 #X msg 22 31 send /object/mesh/create test libdeps/chai3d/bin/resources/models/turntable.obj
 ;
+#X msg 36 73 send /object/test/size 0.1;
+#X msg 47 103 send /object/test/position 0 0 0.2;
 #X connect 1 0 0 0;
+#X connect 2 0 0 0;
+#X connect 3 0 0 0;
 #X restore 23 495 pd meshtest;
 #X connect 0 0 1 0;
 #X connect 2 0 13 0;
