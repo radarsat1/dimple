@@ -1,0 +1,5 @@
+NAME=dimple
+SRCS=flext_dimple.cpp OscObject.cpp CODEMesh.cpp CODEPotentialProxy.cpp CODEPrimitive.cpp CODEPrism.cpp CODESphere.cpp dimple.cpp valuetimer.cpp
+UFLAGS=-I "../libdeps/liblo-0.23/" -I "../libdeps/pthreads-w32-2-8-0-release/" -I "../libdeps/freeglut-2.4.0/include" -I "../libdeps/chai3d/include" -I "../libdeps/ode-0.7/include" -DUSE_FREEGLUT -D_POSIX -DLINUX -D_MAX_PATH=260
+LIBS=-lglut -lchai3d_linux -ldhd -lusb -lpciscan -lode -llo -lpthread
+LIBPATH=-L../libdeps/chai3d/lib/linux -L../libdeps/ode-0.7/ode/src -L../libdeps/liblo-0.23/src/.libs
