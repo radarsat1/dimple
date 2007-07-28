@@ -51,7 +51,7 @@ OscBase::~OscBase()
     while (m_methods.size()>0) {
         method_t m = m_methods.back();
         m_methods.pop_back();
-        lo_server_thread_del_method(loserver, m.name.c_str(), m.type.c_str());
+        lo_server_del_method(loserver, m.name.c_str(), m.type.c_str());
     }
 }
 
@@ -709,6 +709,50 @@ int OscSphere::radius_handler(const char *path, const char *types, lo_arg **argv
 OscMesh::OscMesh(cGenericObject* p, const char *name)
     : OscObject(p, name)
 {
+    addHandler("size", "f", OscMesh::size_handler);
+    addHandler("size", "fff", OscMesh::size_handler);
+}
+
+int OscMesh::size_handler(const char *path, const char *types, lo_arg **argv,
+                          int argc, void *data, void *user_data)
+{
+    cVector3d size;
+
+	handler_data *hd = (handler_data*)user_data;
+    OscMesh* me = (OscMesh*)hd->user_data;
+
+    cODEMesh *odemesh = me->odePrimitive();
+    cMesh *chaimesh = me->chaiObject();
+    if (chaimesh && odemesh) {
+        LOCK_WORLD();
+        if (hd->thread == DIMPLE_THREAD_HAPTICS) {
+            cVector3d boundarySize(chaimesh->getBoundaryMax() -
+                                   chaimesh->getBoundaryMin());
+
+            cVector3d scale;
+            if (argc == 1) {
+                float fscale = argv[0]->f /
+                    fmaxf( fmaxf(boundarySize.x, boundarySize.y),
+                           boundarySize.z);
+                scale.set(fscale, fscale, fscale);
+            }
+            else if (argc == 3)
+                scale.set(
+                    argv[0]->f / boundarySize.x,
+                    argv[1]->f / boundarySize.y,
+                    argv[2]->f / boundarySize.z );
+
+            chaimesh->scale(scale, true);
+            
+            printf("Scaled %s by %f, %f, %f\n",
+                   me->name(), scale.x, scale.y, scale.z);
+        }
+        else if (hd->thread == DIMPLE_THREAD_PHYSICS)
+            ;//prism->setDynamicSize(size);
+        UNLOCK_WORLD();
+    }
+    
+    // TODO scale ODE vertices
 }
 
 // ----------------------------------------------------------------------------------

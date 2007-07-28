@@ -1,4 +1,4 @@
-#N canvas 421 132 702 547 10;
+#N canvas 322 132 702 547 10;
 #X msg 504 139 send /world/clear;
 #X obj 456 176 s osc;
 #X obj 281 150 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
@@ -233,10 +233,10 @@
 #X restore 281 173 pd createmarble;
 #N canvas 530 283 462 312 connect 0;
 #X obj 20 241 sendOSC;
-#X obj 20 64 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
+#X obj 20 64 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
 ;
 #X msg 80 213 disconnect;
-#X obj 20 114 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+#X obj 20 114 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #X msg 20 135 send /graphics/enable \$1;
 #X msg 20 84 send /haptics/enable \$1;
@@ -1271,8 +1271,12 @@ PhysicaL Environment;
 #X text 581 240 The Snake;
 #X obj 635 260 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
-#X obj 280 61 s osc;
-#X msg 281 11 send /object/mesh/create test bunny.obj;
+#N canvas 430 278 450 300 meshtest 1;
+#X obj 22 135 s osc;
+#X msg 22 31 send /object/mesh/create test libdeps/chai3d/bin/resources/models/turntable.obj
+;
+#X connect 1 0 0 0;
+#X restore 23 495 pd meshtest;
 #X connect 0 0 1 0;
 #X connect 2 0 13 0;
 #X connect 3 0 2 0;
@@ -1296,4 +1300,3 @@ PhysicaL Environment;
 #X connect 57 0 54 0;
 #X connect 59 0 58 0;
 #X connect 61 0 58 1;
-#X connect 63 0 62 0;

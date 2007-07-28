@@ -225,6 +225,10 @@ class OscMesh : public OscObject
 
 	virtual cODEMesh* odePrimitive() { return dynamic_cast<cODEMesh*>(m_objChai); }
 	virtual cMesh*    chaiObject()   { return dynamic_cast<cMesh*>(m_objChai); }
+
+  protected:
+    static int size_handler(const char *path, const char *types, lo_arg **argv,
+							int argc, void *data, void *user_data);
 };
 
 //! The OscConstraint class keeps track of ODE constraints between two
