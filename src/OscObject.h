@@ -218,6 +218,15 @@ class OscSphere : public OscObject
                               int argc, void *data, void *user_data);
 };
 
+class OscMesh : public OscObject
+{
+  public:
+    OscMesh(cGenericObject* p, const char *name);
+
+	virtual cODEMesh* odePrimitive() { return dynamic_cast<cODEMesh*>(m_objChai); }
+	virtual cMesh*    chaiObject()   { return dynamic_cast<cMesh*>(m_objChai); }
+};
+
 //! The OscConstraint class keeps track of ODE constraints between two
 //! objects in the world, or between one object and some point in the
 //! coordinate space.

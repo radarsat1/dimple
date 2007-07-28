@@ -68,6 +68,10 @@ class cODEMesh : public cMesh, public cODEPrimitive
 	  virtual void initDynamic(geomType a_type = TRIMESH,objectType a_objType = DYNAMIC_OBJECT,
 								float a_x = 0.0, float a_y = 0.0, float a_z = 0.0,
 								float a_density = 1.0);
+
+      //! Load a mesh file supported by CHAI and convert the triangles to an ODE representation.
+      virtual bool loadFromFileAndConvertToODE(const char *filepath);
+
 	  //! Inertia tensor.
 	  float			cgx, cgy, cgz;
 	  float			I11, I22, I33;

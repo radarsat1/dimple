@@ -986,6 +986,66 @@ int objectSphereCreate_handler(const char *path, const char *types, lo_arg **arg
     return 0;
 }
 
+//#define PATH_3DS "libdeps/chai3d/bin/resources/models/bunny.obj"
+#define PATH_3DS "bunny.obj"
+
+int objectMeshCreate_handler(const char *path, const char *types, lo_arg **argv,
+                             int argc, void *data, void *user_data)
+{
+    handler_data *hd = (handler_data*)user_data;
+    if (hd->thread != DIMPLE_THREAD_PHYSICS)
+        return 0;
+
+    if (findObject(&argv[0]->s))
+        return 0;
+
+    // Optional position, default (0,0,0)
+	cVector3d pos;
+
+    // Path to the mesh file
+    const char* filepath=NULL;
+
+    if (argc>0 && types[1]=='f')
+        pos.x = argv[1]->f;
+    if (argc>1 && types[2]=='f')
+        pos.y = argv[2]->f;
+    if (argc>2 && types[3]=='f')
+        pos.z = argv[3]->f;
+
+    if (argc>0 && types[1]=='s')
+        filepath = &argv[1]->s;
+
+    // Create object
+    WAIT_WORLD_LOCK();
+    LOCK_WORLD();
+    cODEMesh *m = new cODEMesh(world,ode_world,ode_space);
+
+    if (filepath)
+        if (!m->loadFromFileAndConvertToODE(filepath)) {
+            printf("%s: Error loading %s\n", &argv[0]->s, filepath);
+            delete m;
+            UNLOCK_WORLD();
+            return 0;
+        }
+
+    m->setDynamicPosition(pos);
+    m->setDynamicMass(0.5);
+    m->m_material.setStaticFriction(1);
+    m->m_material.setDynamicFriction(0.5);
+
+    // Track the OSC object
+    OscObject *ob=NULL;
+    ob = new OscMesh(static_cast<cGenericObject*>(m), &argv[0]->s);
+    world_objects[&argv[0]->s] = ob;
+
+    // Add to CHAI world
+    world->addChild(m);
+    UNLOCK_WORLD();
+
+    printf("Mesh %s added at (%f, %f, %f).\n", ob->name(), pos.x, pos.y, pos.z);
+    return 0;
+}
+
 int constraintBallCreate_handler(const char *path, const char *types, lo_arg **argv,
                                int argc, void *data, void *user_data)
 {
@@ -1324,6 +1384,9 @@ void initOSC()
 	 lo_server_add_method(loserver, "/object/prism/create", "s", objectPrismCreate_handler, NULL);
 	 lo_server_add_method(loserver, "/object/sphere/create", "sfff", objectSphereCreate_handler, NULL);
 	 lo_server_add_method(loserver, "/object/sphere/create", "s", objectSphereCreate_handler, NULL);
+	 lo_server_add_method(loserver, "/object/mesh/create", "sfff", objectMeshCreate_handler, NULL);
+	 lo_server_add_method(loserver, "/object/mesh/create", "s", objectMeshCreate_handler, NULL);
+	 lo_server_add_method(loserver, "/object/mesh/create", "ss", objectMeshCreate_handler, NULL);
 	 lo_server_add_method(loserver, "/constraint/ball/create", "sssfff", constraintBallCreate_handler, NULL);
 	 lo_server_add_method(loserver, "/constraint/hinge/create", "sssffffff", constraintHingeCreate_handler, NULL);
 	 lo_server_add_method(loserver, "/constraint/hinge2/create", "sssfffffffff", constraintHinge2Create_handler, NULL);

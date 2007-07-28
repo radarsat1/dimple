@@ -706,6 +706,13 @@ int OscSphere::radius_handler(const char *path, const char *types, lo_arg **argv
 
 // ----------------------------------------------------------------------------------
 
+OscMesh::OscMesh(cGenericObject* p, const char *name)
+    : OscObject(p, name)
+{
+}
+
+// ----------------------------------------------------------------------------------
+
 //! OscConstraint has two CHAI/ODE object associated with it, though not owned by it. Class name = "constraint"
 OscConstraint::OscConstraint(const char *name, OscObject *object1, OscObject *object2)
     : OscBase(name, "constraint")
@@ -947,3 +954,4 @@ OscFixed::OscFixed(const char *name, OscObject *object1, OscObject *object2)
     printf("Fixed joint created between %s and %s\n",
            object1->name(), object2?object2->name():"world");
 }
+

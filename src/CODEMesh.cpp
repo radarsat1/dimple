@@ -164,6 +164,22 @@ void cODEMesh::initDynamic(geomType a_type, objectType a_objType, float a_x,
     }
 }
 
+//===========================================================================
+/*!
+    Load a mesh file supported by CHAI and use cODEMeshToODE() to convert it
+    to an equivalent ODE representation.
+
+    \fn     cODEMesh::loadFromFileAndConvertToODE(const char *filepath)
+*/
+//===========================================================================
+bool cODEMesh::loadFromFileAndConvertToODE(const char *filepath)
+{
+    if (!loadFromFile(filepath))
+        return false;
+
+    initDynamic(TRIMESH);
+    return true;
+}
 
 //===========================================================================
 /*!
