@@ -731,9 +731,9 @@ int OscMesh::size_handler(const char *path, const char *types, lo_arg **argv,
 
             cVector3d scale;
             if (argc == 1) {
-                float fscale = argv[0]->f /
-                    fmaxf( fmaxf(boundarySize.x, boundarySize.y),
-                           boundarySize.z);
+                float xymax = (boundarySize.x>boundarySize.y)?boundarySize.x:boundarySize.y;
+                float xyzmax = (xymax>boundarySize.z)?xymax:boundarySize.z;
+                float fscale = argv[0]->f / xyzmax;
                 scale.set(fscale, fscale, fscale);
             }
             else if (argc == 3)
@@ -754,6 +754,7 @@ int OscMesh::size_handler(const char *path, const char *types, lo_arg **argv,
         }
         UNLOCK_WORLD();
     }
+    return 0;
 }
 
 //! The scaling function to be called in the physics thread after

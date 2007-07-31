@@ -376,7 +376,15 @@ void ode_hapticsLoop(void* a_pUserData)
         {
             lastContactPoint = pointforce_proxy->getContactPoint();
             lastForce = cursor->m_lastComputedGlobalForce;
-            contactObject = dynamic_cast<cODEPrimitive*> (pointforce_proxy->getContactObject());
+
+            // Loop until parent object is a recognized ODE primitive
+            // (This is necessary for cMesh objects which have many submeshes)
+            cGenericObject *obj = pointforce_proxy->getContactObject();
+            contactObject = dynamic_cast<cODEPrimitive*> (obj);
+            while (!contactObject && obj) {
+                obj = obj->getParent();
+                contactObject = dynamic_cast<cODEPrimitive*> (obj);
+            }
             break;
         }
 
@@ -1000,7 +1008,7 @@ int objectMeshCreate_handler(const char *path, const char *types, lo_arg **argv,
         return 0;
 
     // Optional position, default (0,0,0)
-	cVector3d pos;
+	cVector3d pos(0,0,0);
 
     // Path to the mesh file
     const char* filepath=NULL;
