@@ -38,7 +38,8 @@ class CircBufferNoLock
         memset(m_buffer, 0, size);
     }
     ~CircBufferNoLock() {
-        delete m_buffer;
+        if (m_buffer)
+            delete m_buffer;
     }
 
     /*! Write bytes to the buffer. Return true if successful. */
@@ -86,6 +87,9 @@ class CircBufferNoLock
         
         return true;
     }
+
+    /*! Return the allocated size of the buffer. */
+    unsigned int getSize() { return m_size; }
 
   protected:
     unsigned int m_size;

@@ -178,6 +178,8 @@ class OscObject : public OscBase
                                   int argc, void *data, void *user_data);
     static int grab_handler(const char *path, const char *types, lo_arg **argv,
                             int argc, void *data, void *user_data);
+    static int oscillate_handler(const char *path, const char *types, lo_arg **argv,
+                                 int argc, void *data, void *user_data);
 };
 
 class OscComposite : public OscObject

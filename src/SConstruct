@@ -34,6 +34,8 @@ else:
     env.Append(CPPDEFINES = ['USE_FREEGLUT'],
                LIBS = ['glut'])
 
+conf.CheckLibWithHeader('samplerate', 'samplerate.h', 'C')
+
 # Platform dependant library names
 if 'linux' in sys.platform:
 	env.Append(LIBS = ['chai3d_linux', 'dhd', 'usb', 'pciscan'],
@@ -70,5 +72,6 @@ env.Program( target = 'dimple',
               'CODESphere.cpp',
               'OscObject.cpp',
               'valuetimer.cpp',
+              'AudioStreamer.cpp',
               'dimple.cpp']
 	)

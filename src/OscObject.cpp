@@ -284,6 +284,7 @@ OscObject::OscObject(cGenericObject* p, const char *name)
     addHandler("collide/get", "i"  , OscObject::collideGet_handler);
     addHandler("grab"       , ""   , OscObject::grab_handler);
     addHandler("grab"       , "i"  , OscObject::grab_handler);
+    addHandler("oscillate"  , "ff" , OscObject::oscillate_handler);
 
     // Set initial physical properties
     m_accel.set(0,0,0);
@@ -605,6 +606,28 @@ void OscObject::ungrab(int thread)
         // add self back into haptics contact
         chaiObject()->setHapticEnabled(true, true);
     }
+}
+
+void *oscillate_thread(void* data)
+{
+    printf("Oscillate thread!\n");
+}
+
+int OscObject::oscillate_handler(const char *path, const char *types, lo_arg **argv,
+                                 int argc, void *data, void *user_data)
+{
+    handler_data *hd = (handler_data*)user_data;
+	OscObject *me = (OscObject*)hd->user_data;
+
+    if (hd->thread != DIMPLE_THREAD_HAPTICS)
+        return 0;
+
+    float hz = argv[0]->f;
+    float amp = argv[1]->f;
+
+    pthread_t th;
+    pthread_create(&th, NULL, oscillate_thread, NULL);
+    printf("%s is oscillating at %f Hz, %f amplitude.\n", me->name(), hz, amp);
 }
 
 // ----------------------------------------------------------------------------------
