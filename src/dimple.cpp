@@ -1351,10 +1351,6 @@ handler_data::~handler_data()
 void thread_handler_callback(void *data)
 {
     handler_data *h = (handler_data*)data;
-    printf("received: %s (%s)\n", h->path.c_str(),
-           h->thread == DIMPLE_THREAD_PHYSICS ? "ode" :
-           (h->thread == DIMPLE_THREAD_HAPTICS ? "chai" : "?"));
-               
 	h->handler(h->path.c_str(), h->types.c_str(), h->argv, h->argc, 0, h);
     delete h;
 }
@@ -1378,8 +1374,8 @@ int handler_callback(lo_method_handler handler, const char *path, const char *ty
 
     // TODO: we only have to wait here because the implementation doesn't crawl
     // the message queue properly.  (only handles last one, but it is never cleaned)
-//    ode_queue.wait(r1);
-//    chai_queue.wait(r2);
+    ode_queue.wait(r1);
+    chai_queue.wait(r2);
 
     return 0;
 }
