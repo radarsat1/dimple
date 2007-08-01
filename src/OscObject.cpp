@@ -608,10 +608,16 @@ void OscObject::ungrab(int thread)
     }
 }
 
+static float sinewave=M_PI/2;
 void oscillate_callback(void* user)
 {
     cODEPrimitive* ob = static_cast<cODEPrimitive*>(user);
-    dBodyAddForce(ob->m_odeBody, 1, 0, 0);
+    float force = ((sinewave > M_PI)-0.50f)*10.0f;
+    //float force = sin(sinewave)*10.f;
+    printf("oscillate force: %f   \r", force);
+    dBodyAddForce(ob->m_odeBody, 0, force, 0);
+    sinewave += 0.4;
+    if (sinewave >= M_PI*2) sinewave -= M_PI*2;
 }
 
 void *oscillate_thread(void* user)
