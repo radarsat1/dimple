@@ -103,10 +103,6 @@ void* glut_thread_proc(void*);
 pthread_t glut_thread;
 
 #define MAX_CONTACTS 30
-#define FPS 30
-#define GLUT_TIMESTEP_MS   (int)((1.0/FPS)*1000.0)
-#define PHYSICS_TIMESTEP_MS 10
-#define HAPTIC_TIMESTEP_MS 1
 
 // ODE objects
 dWorldID ode_world;
@@ -125,10 +121,6 @@ int ode_counter = 0;
 bool bGetCollide = false;
 
 int mousepos[2];
-
-#ifdef _POSIX
-#define Sleep(t) usleep(t*1000)
-#endif
 
 // Synchronized class allowing seperate read and write locks & non-block operation
 class sync_lock {
@@ -1311,7 +1303,7 @@ handler_data::handler_data(lo_method_handler _handler,
 {
     argv = new lo_arg*[argc];
     int i;
-    for (i=0; i<argc; i++)
+    for (i=0; i<argc; i++) {
         if (types[i]==LO_STRING) {
             argv[i] = (lo_arg*)strdup(&_argv[i]->s);
         }
@@ -1319,16 +1311,20 @@ handler_data::handler_data(lo_method_handler _handler,
             argv[i] = new lo_arg;
             memcpy(argv[i], _argv[i], sizeof(lo_arg));
         }
+    }
 }
 
 handler_data::~handler_data()
 {
     int i;
-    for (i=0; i<argc; i++)
-        if (types[i]==LO_STRING)
+    for (i=0; i<argc; i++) {
+        if (types[i]==LO_STRING) {
             free(argv[i]);
-        else
+        }
+        else {
             delete argv[i];
+        }
+    }
     delete argv;
 }
 
@@ -1353,7 +1349,7 @@ int handler_callback(lo_method_handler handler, const char *path, const char *ty
         return 0;
     }
 
-    ode_request_class *r1 = post_ode_request(thread_handler_callback, (cODEPrimitive*)h_ode);
+    ode_request_class  *r1 = post_ode_request(thread_handler_callback, (cODEPrimitive*)h_ode);
     chai_request_class *r2 = post_chai_request(thread_handler_callback, (cGenericObject*)h_chai);
 
     // TODO: we only have to wait here because the implementation doesn't crawl
@@ -1497,7 +1493,8 @@ int main(int argc, char* argv[])
 	 // initially loop just waiting for messages
 	 while (!quit) {
 		  Sleep(100);
-		  poll_requests();
+          if (!glutStarted)
+              poll_requests();
 	 }
 
 	 dimple_cleanup();

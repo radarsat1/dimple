@@ -608,9 +608,25 @@ void OscObject::ungrab(int thread)
     }
 }
 
-void *oscillate_thread(void* data)
+void oscillate_callback(void* user)
 {
-    printf("Oscillate thread!\n");
+    cODEPrimitive* ob = static_cast<cODEPrimitive*>(user);
+    dBodyAddForce(ob->m_odeBody, 1, 0, 0);
+}
+
+void *oscillate_thread(void* user)
+{
+    float* args = (float*)user;
+    OscObject *ob = ((OscObject**)user)[0];
+    float hz = args[1];
+    float amp = args[2];
+    delete args;
+    
+    printf("Oscillate thread!  %s, %f, %f\n", ob->name(), hz, amp);
+
+    while (1) {
+        wait_ode_request(oscillate_callback, ob->odePrimitive());
+    }
 }
 
 int OscObject::oscillate_handler(const char *path, const char *types, lo_arg **argv,
@@ -624,9 +640,13 @@ int OscObject::oscillate_handler(const char *path, const char *types, lo_arg **a
 
     float hz = argv[0]->f;
     float amp = argv[1]->f;
+    void **args = new void*[3];
+    args[0] = (void*)me;
+    args[1] = (void*)*(unsigned int*)&hz;
+    args[2] = (void*)*(unsigned int*)&amp;
 
     pthread_t th;
-    pthread_create(&th, NULL, oscillate_thread, NULL);
+    pthread_create(&th, NULL, oscillate_thread, args);
     printf("%s is oscillating at %f Hz, %f amplitude.\n", me->name(), hz, amp);
 }
 
@@ -719,9 +739,9 @@ int OscSphere::radius_handler(const char *path, const char *types, lo_arg **argv
     if (sphere) {
         LOCK_WORLD();
 		if (hd->thread == DIMPLE_THREAD_HAPTICS)
-			 sphere->setRadius(argv[0]->f);
+            sphere->setRadius(argv[0]->f);
 		else if (hd->thread == DIMPLE_THREAD_PHYSICS)
-			 sphere->setDynamicRadius(argv[0]->f);
+            sphere->setDynamicRadius(argv[0]->f);
         UNLOCK_WORLD();
     }
     return 0;
