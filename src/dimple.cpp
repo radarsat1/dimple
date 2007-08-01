@@ -138,7 +138,7 @@ protected:
 };
 
 template<typename T> class request_queue
-    : public std::queue<T>, public sync_lock
+    : public std::vector<T>, public sync_lock
 {
 public:
     void clean();
@@ -153,9 +153,14 @@ template<typename T> void request_queue<T>::clean()
     while (writelocked())
         Sleep(1);
     lock_write();
-    while (   (std::queue<T>::size() > 0)
-           && (std::queue<T>::front().handled))
-        std::queue<T>::pop();
+    typename std::vector<T>::iterator it = std::vector<T>::begin();
+    bool unhandled = false;
+    while (it != std::vector<T>::end()) {
+        if (!it->handled)
+            unhandled = true;
+        it++;
+    }
+    if (!unhandled) std::vector<T>::clear();
     unlock_write();
 }
 
@@ -173,6 +178,9 @@ template<typename T> void request_queue<T>::wait(T* req)
 
 request_queue<ode_request_class> ode_queue;
 request_queue<chai_request_class> chai_queue;
+
+typedef request_queue<ode_request_class>::iterator ode_queue_iter;
+typedef request_queue<chai_request_class>::iterator chai_queue_iter;
 
 //---------------------------------------------------------------------------
 
@@ -683,7 +691,7 @@ ode_request_class* add_ode_request(ode_callback *callback, cODEPrimitive *ob)
     r.ob = ob;
 
     ode_queue.lock_write();
-    ode_queue.push(r);
+    ode_queue.push_back(r);
     ret = (ode_request_class*)&ode_queue.back();
     ode_queue.unlock_write();
     return ret;
@@ -699,7 +707,7 @@ chai_request_class* add_chai_request(chai_callback *callback, cGenericObject *ob
     r.ob = ob;
 
     chai_queue.lock_write();
-    chai_queue.push(r);
+    chai_queue.push_back(r);
     ret = (chai_request_class*)&chai_queue.back();
     chai_queue.unlock_write();
     return ret;
@@ -764,16 +772,22 @@ int poll_ode_requests()
     if (ode_queue.readlocked())
         return 0;
     ode_queue.lock_read();
-    if (ode_queue.size()>0 && !ode_queue.front().handled) {
-        ode_request_class *req = (ode_request_class*)&ode_queue.front();
+    if (ode_queue.size()==0)
+    {
         ode_queue.unlock_read();
-        if (req->callback) req->callback(req->ob);
-        req->handled = true;
-        handled = true;
+        return 0;
     }
-    else
-        ode_queue.unlock_read();
+    ode_queue_iter req = ode_queue.begin();
+    while (req != ode_queue.end()) {
+        if (!req->handled) {
+            if (req->callback) req->callback(req->ob);
+            req->handled = true;
+            handled = handled || true;
+        }
+        req ++;
+    }
 
+    ode_queue.unlock_read();
     return (int)handled;
 }
 
@@ -783,16 +797,22 @@ int poll_chai_requests()
     if (chai_queue.readlocked())
         return 0;
     chai_queue.lock_read();
-    if (chai_queue.size()>0 && !chai_queue.front().handled) {
-        chai_request_class *req = (chai_request_class*)&chai_queue.front();
+    if (chai_queue.size()==0)
+    {
         chai_queue.unlock_read();
-        if (req->callback) req->callback(req->ob);
-        req->handled = true;
-        handled = true;
+        return 0;
     }
-    else
-        chai_queue.unlock_read();
+    chai_queue_iter req = chai_queue.begin();
+    while (req != chai_queue.end()) {
+        if (!req->handled) {
+            if (req->callback) req->callback(req->ob);
+            req->handled = true;
+            handled = handled || true;
+        }
+        req ++;
+    }
 
+    chai_queue.unlock_read();
     return (int)handled;
 }
 
@@ -1331,6 +1351,10 @@ handler_data::~handler_data()
 void thread_handler_callback(void *data)
 {
     handler_data *h = (handler_data*)data;
+    printf("received: %s (%s)\n", h->path.c_str(),
+           h->thread == DIMPLE_THREAD_PHYSICS ? "ode" :
+           (h->thread == DIMPLE_THREAD_HAPTICS ? "chai" : "?"));
+               
 	h->handler(h->path.c_str(), h->types.c_str(), h->argv, h->argc, 0, h);
     delete h;
 }
@@ -1354,8 +1378,8 @@ int handler_callback(lo_method_handler handler, const char *path, const char *ty
 
     // TODO: we only have to wait here because the implementation doesn't crawl
     // the message queue properly.  (only handles last one, but it is never cleaned)
-    ode_queue.wait(r1);
-    chai_queue.wait(r2);
+//    ode_queue.wait(r1);
+//    chai_queue.wait(r2);
 
     return 0;
 }
