@@ -1,4 +1,4 @@
-#N canvas 486 125 702 547 10;
+#N canvas 478 52 710 555 10;
 #X msg 504 139 send /world/clear;
 #X obj 456 176 s osc;
 #X obj 281 150 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
@@ -330,17 +330,8 @@
 #N canvas 0 0 874 532 modal 0;
 #N canvas 0 0 450 300 (subpatch) 0;
 #X array array2 64 float 1;
-#A 0 -0.000351225 -0.00042078 -0.000490541 -0.000560407 -0.000630287
--0.000700095 -0.000769751 -0.000839182 -0.000908322 -0.000977108 -0.00104549
--0.0011134 -0.00118081 -0.00124766 -0.00131393 -0.00137956 -0.00144452
--0.00150878 -0.00157231 -0.00163508 -0.00169704 -0.00175818 -0.00181845
--0.00187782 -0.00193626 -0.00199372 -0.00205016 -0.00210554 -0.00215982
--0.00221294 -0.00226484 -0.00231547 -0.00236477 -0.00241266 -0.00245908
--0.00250396 -0.00254721 -0.00258875 -0.00262849 -0.00266636 -0.00270224
--0.00273605 -0.00276769 -0.00279705 -0.00282404 -0.00284855 -0.00287048
--0.00288973 -0.00290618 -0.00291974 -0.0029303 -0.00293778 -0.00294207
--0.00294308 -0.00294073 -0.00293493 -0.00292562 -0.00291272 -0.00289617
--0.00287592 -0.00285193 -0.00282417 -0.0027926 -0.00275722;
+#A 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0;
 #X coords 0 1 63 -1 200 140 1;
 #X restore 134 358 graph;
 #N canvas 0 0 450 300 (subpatch) 0;
@@ -968,7 +959,7 @@
 #X text 330 133 reset counter;
 #X text 54 383 objects collide;
 #X text 55 369 Beep when any two;
-#N canvas 5 46 450 300 forcestick 0;
+#N canvas 572 551 454 304 forcestick 0;
 #X obj 21 54 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
 -1;
 #X msg 21 143 send /object/stick/mass 2;
@@ -978,21 +969,21 @@
 #X msg 21 96 send /object/prism/create stick 0 0 0.15;
 #X msg 21 167 send /constraint/hinge/create c1 stick world 0 0 0 1
 0 0;
-#X msg 21 191 send /constraint/c1/response/spring 0.5 0.1;
 #X msg 21 119 send /object/stick/size 0.2 0.02 0.3;
 #X obj 22 15 inlet;
+#X msg 22 191 send /constraint/c1/response/spring 0.001 0.0001;
 #X connect 0 0 4 0;
 #X connect 1 0 2 0;
-#X connect 4 0 7 0;
+#X connect 4 0 9 0;
 #X connect 4 1 6 0;
 #X connect 4 2 1 0;
-#X connect 4 3 8 0;
+#X connect 4 3 7 0;
 #X connect 4 4 5 0;
 #X connect 5 0 2 0;
 #X connect 6 0 2 0;
 #X connect 7 0 2 0;
-#X connect 8 0 2 0;
-#X connect 9 0 0 0;
+#X connect 8 0 0 0;
+#X connect 9 0 2 0;
 #X restore 340 285 pd forcestick;
 #X obj 340 266 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
@@ -1100,9 +1091,9 @@ PhysicaL Environment;
 #X msg 177 273 sphere;
 #X msg 223 273 box;
 #X msg 251 273 none;
-#N canvas 421 204 655 436 snake 0;
+#N canvas 421 204 675 481 snake 0;
 #X obj 28 14 inlet;
-#X obj 15 400 s osc;
+#X obj 13 435 s osc;
 #N canvas 0 0 450 300 itercount 0;
 #X obj 86 110 until;
 #X obj 89 170 f;
@@ -1130,7 +1121,7 @@ PhysicaL Environment;
 #X obj 222 127 - 1;
 #X obj 190 155 pack 0 0 0;
 #X obj 190 290 s osc;
-#X msg 15 365 send /constraint/hinge/create hinge\$1world sn0 world
+#X msg 13 400 send /constraint/hinge/create hinge\$1world sn0 world
 0 0 0 1 0 0;
 #X msg 189 243 send /constraint/hinge\$1\$2/force/magnitude/get 100
 ;
@@ -1138,13 +1129,11 @@ PhysicaL Environment;
 #X obj 347 120 *~;
 #X obj 411 147 / 127;
 #X obj 411 12 vsl 15 128 0 127 0 0 empty empty empty 0 -9 0 10 -262144
--1 -1 0 1;
-#X msg 28 42 5;
+-1 -1 3000 1;
 #X msg 190 186 send /constraint/hinge/create hinge\$1\$2 sn\$1 sn\$2
 0 \$3 0 1 0 0;
 #X msg 75 313 send /object/prism/create sn\$1 0 \$2 0;
 #X obj 60 107 * 0.04;
-#X msg 190 220 send /constraint/hinge\$1\$2/response spring 1 0.1;
 #X msg 53 339 send /object/sn\$1/size 0.1 0.04 0.01;
 #N canvas 253 332 598 330 audio 0;
 #X obj 129 10 r rosc;
@@ -1240,20 +1229,25 @@ PhysicaL Environment;
 #X msg 139 267 send /object/sn\$1/velocity/magnitude/get 100;
 #X obj 432 11 inlet;
 #X obj 433 43 * 30;
-#X connect 0 0 16 0;
+#X msg 190 220 send /constraint/hinge\$1\$2/response spring 0.001 0.0001
+;
+#X msg 28 42 10;
+#X msg 31 367 send /object/sn\$1/mass 0.2;
+#X connect 0 0 25 0;
 #X connect 2 0 4 0;
 #X connect 3 0 5 0;
 #X connect 4 0 3 0;
 #X connect 4 0 6 0;
-#X connect 4 1 19 0;
-#X connect 5 1 21 0;
-#X connect 5 2 18 0;
+#X connect 4 1 18 0;
+#X connect 5 0 26 0;
+#X connect 5 1 19 0;
+#X connect 5 2 17 0;
 #X connect 6 1 7 0;
 #X connect 6 1 8 0;
-#X connect 6 1 23 0;
+#X connect 6 1 21 0;
 #X connect 7 0 8 1;
-#X connect 8 0 17 0;
-#X connect 8 0 20 0;
+#X connect 8 0 16 0;
+#X connect 8 0 24 0;
 #X connect 8 0 11 0;
 #X connect 10 0 1 0;
 #X connect 11 0 9 0;
@@ -1261,30 +1255,30 @@ PhysicaL Environment;
 #X connect 13 0 12 1;
 #X connect 14 0 13 1;
 #X connect 15 0 14 0;
-#X connect 16 0 2 0;
-#X connect 16 0 10 0;
-#X connect 17 0 9 0;
-#X connect 18 0 1 0;
-#X connect 19 0 3 1;
-#X connect 19 0 8 2;
-#X connect 20 0 9 0;
-#X connect 21 0 1 0;
-#X connect 22 0 13 0;
-#X connect 23 0 9 0;
-#X connect 24 0 25 0;
-#X connect 25 0 15 0;
+#X connect 16 0 9 0;
+#X connect 17 0 1 0;
+#X connect 18 0 3 1;
+#X connect 18 0 8 2;
+#X connect 19 0 1 0;
+#X connect 20 0 13 0;
+#X connect 21 0 9 0;
+#X connect 22 0 23 0;
+#X connect 23 0 15 0;
+#X connect 24 0 9 0;
+#X connect 25 0 2 0;
+#X connect 25 0 10 0;
+#X connect 26 0 1 0;
 #X restore 584 284 pd snake;
 #X obj 584 261 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
 #X text 581 240 The Snake;
-#X obj 635 260 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 635 260 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
-#N canvas 430 278 450 300 meshtest 0;
+#N canvas 787 47 454 304 meshtest 0;
 #X obj 22 135 s osc;
-#X msg 22 31 send /object/mesh/create test libdeps/chai3d/bin/resources/models/turntable.obj
-;
 #X msg 36 73 send /object/test/size 0.1;
 #X msg 47 103 send /object/test/position 0 0 0.2;
+#X msg 22 31 send /object/mesh/create test ../cup.obj;
 #X connect 1 0 0 0;
 #X connect 2 0 0 0;
 #X connect 3 0 0 0;

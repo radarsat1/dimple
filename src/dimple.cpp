@@ -96,6 +96,7 @@ int quit = 0;
 int lock_ode = 0;
 int lock_chai = 0;
 pthread_t ode_pthread;
+int physics_steps_since_haptic_loop = 0;
 
 void poll_requests();
 void* glut_thread_proc(void*);
@@ -296,6 +297,31 @@ void setOther(int value)
 }
 
 //---------------------------------------------------------------------------
+
+void syncPoses()
+{
+    // Synchronize CHAI & ODE
+    // TODO: this should be done in haptics thread
+    //       (check a flag to see if an ODE simstep has run,
+    //       then synchronize without blocking)
+    objects_iter oit;
+    for (oit=world_objects.begin(); oit!=world_objects.end(); oit++)
+    {
+        OscObject *o = oit->second;
+        o->odePrimitive()->syncPose();
+
+        // Track object's position
+        o->updateDynamicPosition(dBodyGetPosition(o->odePrimitive()->m_odeBody));
+
+        // Track object's velocity
+        if (dGeomGetBody(o->odePrimitive()->m_odeGeom)==o->odePrimitive()->m_odeBody) {
+            const dReal *vel = dBodyGetLinearVel(o->odePrimitive()->m_odeBody);
+            o->updateDynamicVelocity(vel);
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
 // callback function for ODE
 void ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
 {
@@ -340,6 +366,11 @@ void ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
 void ode_hapticsLoop(void* a_pUserData)
 {
     bool cursor_ready = true;
+
+    if (physics_steps_since_haptic_loop) {
+        physics_steps_since_haptic_loop = 0;
+        syncPoses();
+    }
 
     // process any waiting Chai messages
     while (poll_chai_requests());
@@ -496,26 +527,8 @@ void ode_simStep()
 	}
     */
 	dJointGroupEmpty (ode_contact_group);
-    
-    // Synchronize CHAI & ODE
-    // TODO: this should be done in haptics thread
-    //       (check a flag to see if an ODE simstep has run,
-    //       then synchronize without blocking)
-    objects_iter oit;
-    for (oit=world_objects.begin(); oit!=world_objects.end(); oit++)
-    {
-        OscObject *o = oit->second;
-        o->odePrimitive()->syncPose();
 
-        // Track object's position
-        o->updateDynamicPosition(dBodyGetPosition(o->odePrimitive()->m_odeBody));
-
-        // Track object's velocity
-        if (dGeomGetBody(o->odePrimitive()->m_odeGeom)==o->odePrimitive()->m_odeBody) {
-            const dReal *vel = dBodyGetLinearVel(o->odePrimitive()->m_odeBody);
-            o->updateDynamicVelocity(vel);
-        }
-    }
+    physics_steps_since_haptic_loop ++;
 
     // Check if any values need to be sent
     valuetimer.onTimer(PHYSICS_TIMESTEP_MS);
