@@ -88,7 +88,8 @@ lo_server_thread loserverthr;
 lo_server        loserver;
 
 int glutStarted = 0;
-int hapticsStarted = 0;
+int graphicsEnabled = 0;
+int hapticsEnabled = 0;
 int requestHapticsStart = 0;
 int requestHapticsStop = 0;
 float proxyForceMagnitude = 0;
@@ -186,6 +187,7 @@ typedef request_queue<chai_request_class>::iterator chai_queue_iter;
 //---------------------------------------------------------------------------
 
 void ode_simStep();
+void syncPoses();
 
 //---------------------------------------------------------------------------
 
@@ -198,6 +200,10 @@ void draw(void)
     // clear the color and depth buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // sync poses if haptics thread isn't doing it
+    if (!hapticsEnabled)
+        syncPoses();
+
     // render world
     camera->renderView(width, height);
 
@@ -205,11 +211,6 @@ void draw(void)
     GLenum err;
     err = glGetError();
     if (err != GL_NO_ERROR) printf("Error:  %s\n", gluErrorString(err));
-
-    // Swap buffers
-    glutSwapBuffers();
-
-    poll_requests();
 }
 
 //---------------------------------------------------------------------------
@@ -273,8 +274,14 @@ void updateDisplay(int val)
     // draw scene
     draw();
 
+    // Swap buffers
+    glutSwapBuffers();
+
     // update the GLUT timer for the next rendering call
-    glutTimerFunc(FPS, updateDisplay, 0);
+//    if (graphicsEnabled)
+        glutTimerFunc(FPS, updateDisplay, 0);
+
+    poll_requests();
 }
 
 //---------------------------------------------------------------------------
@@ -351,8 +358,9 @@ void ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
             bool co1 = p1->collidedWith(p2);
             bool co2 = p2->collidedWith(p1);
             if ( (co1 || co2) && bGetCollide ) {
-                lo_send(address_send, "/object/collide", "ssf", p1->name(), p2->name(), (p1->getVelocity() + p2->getVelocity()).length());
-                // TODO: send collision force
+                lo_send(address_send, "/object/collide", "ssf", p1->name(), p2->name(),
+                        (double)(p1->getVelocity() + p2->getVelocity()).length());
+                // TODO: send collision force instead of velocity?
             }
             // TODO: this strategy will NOT work for multiple collisions between same objects!!
         }
@@ -363,6 +371,7 @@ void ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
 	}
 }
 
+int chai_count=0;
 void ode_hapticsLoop(void* a_pUserData)
 {
     bool cursor_ready = true;
@@ -394,6 +403,15 @@ void ode_hapticsLoop(void* a_pUserData)
         cVector3d diff(cursor->m_deviceGlobalPos - proxyObject->getPosition());
         cursor->m_lastComputedGlobalForce = diff * -10 + proxyObject->getVelocity();
         cursor->setShow(false, true);
+    }
+
+    if (chai_count++ > 0) {
+        cVector3d vibroforce;
+        cursor->m_lastComputedGlobalForce.mulr(
+            sin(chai_count/(float)HAPTIC_TIMESTEP_MS/3.0f)*
+                cursor->m_lastComputedGlobalForce.length() / 10.0f,
+            vibroforce);
+        cursor->m_lastComputedGlobalForce.add(vibroforce);
     }
 
     cursor->applyForces();
@@ -457,6 +475,9 @@ cVector3d eulerFromMatrix(const cMatrix3d &rot)
 
 void ode_simStep()
 {
+    if (!graphicsEnabled)
+        poll_requests();
+
     ode_counter ++;
 
     if (proxyObject && cursor) {
@@ -677,18 +698,18 @@ void startHaptics()
     // start haptic timer callback
     timer.set(HAPTIC_TIMESTEP_MS, ode_hapticsLoop, NULL);
 
-	hapticsStarted = 1;
+	hapticsEnabled = 1;
 	printf("Haptics started.\n");
 }
 
 void stopHaptics()
 {
-	if (hapticsStarted) {
+	if (hapticsEnabled) {
         if (cursor)
             cursor->stop();
         timer.stop();
         
-        hapticsStarted = 0;
+        hapticsEnabled = 0;
         printf("Haptics stopped.\n");
 	}
 }
@@ -757,7 +778,7 @@ chai_request_class *post_chai_request(chai_callback *callback, cGenericObject *o
 
     // Take care of it right away if haptics isn't running
     /*
-    if (!hapticsStarted)
+    if (!hapticsEnabled)
         poll_chai_requests();
     */
     return r;
@@ -859,13 +880,16 @@ int graphicsEnable_handler(const char *path, const char *types, lo_arg **argv,
 		  if (!glutStarted) {
               pthread_create(&glut_thread, NULL, glut_thread_proc, NULL);
               glutStarted = 1;
+              graphicsEnabled = 1;
 		  }
 		  else {
 			   glutShowWindow(); 
+               graphicsEnabled = 1;
 		  }
 	 }
 	 else if (glutStarted) {
 		  glutHideWindow();
+          graphicsEnabled = 0;
 	 }
 	 return 0;
 }
@@ -1472,17 +1496,18 @@ void sighandler_quit(int sig)
 // poll waiting requests on the main thread
 void poll_requests()
 {
-    if (!hapticsStarted)
+    if (!hapticsEnabled)
         while (poll_chai_requests());
 
 	if (requestHapticsStart) {
-		if (!hapticsStarted)
+		if (!hapticsEnabled) {
 			startHaptics();
+        }
 		requestHapticsStart = 0;
 	}
 
 	if (requestHapticsStop) {
-		if (hapticsStarted)
+		if (hapticsEnabled)
 			stopHaptics();
 		requestHapticsStop = 0;
 	}
@@ -1526,8 +1551,6 @@ int main(int argc, char* argv[])
 	 // initially loop just waiting for messages
 	 while (!quit) {
 		  Sleep(100);
-          if (!glutStarted)
-              poll_requests();
 	 }
 
 	 dimple_cleanup();

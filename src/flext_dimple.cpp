@@ -133,6 +133,22 @@ void flext_dimple_send(lo_address adr, const char *path, const char *types, ...)
     t_atom a;
     dimple::SetString(a, path);
     dimple::AtomList lst(1, &a);
+
+    va_list ap;
+    va_start(ap, types);
+    int n_args = strlen(types), i;
+    for (i=0; i<n_args; i++) {
+        switch (types[i]) {
+        case 'f': dimple::SetFloat(a, (float)va_arg(ap, double));  break;
+        case 'i': dimple::SetFloat(a, (float)va_arg(ap, int));     break;
+        case 's': dimple::SetString(a, va_arg(ap, char*));         break;
+        default:
+            continue;
+        }
+        lst.Append(a);
+    }
+    va_end(ap);
+
     send_queue.push(lst);
 }
 
@@ -141,8 +157,12 @@ void dimple::m_timer(void*)
     while (send_queue.size() > 0)
     {
         AtomList *plst = &send_queue.front();
+        if (plst->Count()==1)
+            ToOutSymbol(0, dimple::GetSymbol((*plst)[0]));
+        else
+            ToOutAnything(0, dimple::GetSymbol((*plst)[0]),
+                          plst->Count()-1,
+                          &(*plst)[1]);
         send_queue.pop();
     }
-
-     poll_requests();
 }

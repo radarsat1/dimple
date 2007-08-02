@@ -46,6 +46,11 @@ typedef std::map<std::string,OscObject*>::iterator objects_iter;
 extern std::map<std::string,OscConstraint*> world_constraints;
 typedef std::map<std::string,OscConstraint*>::iterator constraints_iter;
 
+// state information
+extern int glutStarted;
+extern int graphicsEnabled;
+extern int hapticsEnabled;
+
 OscObject *findObject(const char *name);
 
 extern cWorld* world;
