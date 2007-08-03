@@ -1,4 +1,4 @@
-#N canvas 173 66 730 575 10;
+#N canvas 173 66 742 587 10;
 #X msg 504 139 send /world/clear;
 #X obj 456 176 s osc;
 #X obj 281 150 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
@@ -51,10 +51,8 @@
 #X msg 47 326 send /object/prism/create rightside 0 \$6 \$9;
 #X msg 47 347 send /object/prism/create backside \$4 0 \$9;
 #X msg 47 368 send /object/prism/create frontside \$3 0 \$11;
-#X msg 47 389 send /object/prism/create bottom 0 0 \$13;
-#X msg 10 566 send /object/bottom/size \$2 \$5 \$12;
-#X msg 10 587 send /object/leftside/size \$2 \$12 \$8;
-#X msg 10 608 send /object/rightside/size \$2 \$12 \$8;
+#X msg 47 389 #X msg 10 608 send /object/rightside/size \$2 \$12 \$8
+;
 #X msg 10 629 send /object/backside/size \$12 \$5 \$8;
 #X msg 10 650 send /object/frontside/size \$12 \$5 \$10;
 #X msg 34 70 0.4 0.4 0.2 0.03 0.03;
@@ -228,7 +226,7 @@
 #X connect 19 0 7 0;
 #X connect 20 0 3 0;
 #X restore 281 173 pd createmarble;
-#N canvas 179 324 502 352 connect 0;
+#N canvas 582 441 514 364 connect 1;
 #X obj 20 64 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
 ;
 #X msg 80 213 disconnect;
@@ -250,7 +248,12 @@
 #X obj 260 167 t b b;
 #X obj 20 21 t b b;
 #X obj 8 266 route send;
-#X obj 8 290 dimple;
+#X obj 8 290 dimple~;
+#X obj 87 293 *~ 1;
+#X obj 170 251 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X floatatom 170 219 5 0 0 0 - - -;
+#X obj 108 251 phasor~ 1;
 #X connect 0 0 4 0;
 #X connect 2 0 3 0;
 #X connect 3 0 18 0;
@@ -267,6 +270,10 @@
 #X connect 17 1 16 0;
 #X connect 18 0 19 0;
 #X connect 19 0 12 0;
+#X connect 20 0 19 0;
+#X connect 21 0 20 1;
+#X connect 22 0 23 0;
+#X connect 23 0 20 0;
 #X restore 17 129 pd connect;
 #X obj 17 108 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
@@ -327,18 +334,8 @@
 #N canvas 0 0 874 532 modal 0;
 #N canvas 0 0 450 300 (subpatch) 0;
 #X array array2 64 float 1;
-#A 0 -5.82701e-006 -5.42848e-006 -5.00695e-006 -4.56346e-006 -4.0991e-006
--3.61504e-006 -3.11251e-006 -2.59281e-006 -2.0573e-006 -1.50738e-006
--9.44516e-007 -3.70227e-007 2.1393e-007 8.0636e-007 1.40543e-006 2.00947e-006
-2.61679e-006 3.22569e-006 3.83442e-006 4.44124e-006 5.04441e-006 5.64217e-006
-6.23278e-006 6.81449e-006 7.38559e-006 7.94435e-006 8.48911e-006 9.01819e-006
-9.52999e-006 1.00229e-005 1.04954e-005 1.0946e-005 1.13733e-005 1.17758e-005
-1.21523e-005 1.25014e-005 1.2822e-005 1.3113e-005 1.33733e-005 1.36019e-005
-1.37979e-005 1.39606e-005 1.40892e-005 1.4183e-005 1.42415e-005 1.42643e-005
-1.42509e-005 1.4201e-005 1.41145e-005 1.39913e-005 1.38313e-005 1.36346e-005
-1.34013e-005 1.31318e-005 1.28263e-005 1.24852e-005 1.21091e-005 1.16985e-005
-1.12541e-005 1.07766e-005 1.02669e-005 9.72571e-006 9.15409e-006 8.55301e-006
-;
+#A 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0;
 #X coords 0 1 63 -1 200 140 1;
 #X restore 134 358 graph;
 #N canvas 0 0 450 300 (subpatch) 0;

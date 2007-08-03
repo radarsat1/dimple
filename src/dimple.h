@@ -22,6 +22,7 @@
 #define _WINSOCK2API_
 #include "lo/lo.h"
 #include "OscObject.h"
+#include "AudioStreamer.h"
 
 #define FPS 30
 #define GLUT_TIMESTEP_MS   (int)((1.0/FPS)*1000.0)
@@ -57,6 +58,7 @@ extern cWorld* world;
 extern dWorldID ode_world;
 extern dSpaceID ode_space;
 extern OscObject *proxyObject;
+extern AudioStreamer **audioStreamer;
 
 void poll_requests();
 

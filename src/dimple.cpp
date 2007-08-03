@@ -119,6 +119,8 @@ double force_scale = 0.1;
 
 OscObject *proxyObject=NULL;
 
+AudioStreamer **audioStreamer=NULL;
+
 int ode_counter = 0;
 bool bGetCollide = false;
 
@@ -371,7 +373,6 @@ void ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
 	}
 }
 
-int chai_count=0;
 void ode_hapticsLoop(void* a_pUserData)
 {
     bool cursor_ready = true;
@@ -405,13 +406,16 @@ void ode_hapticsLoop(void* a_pUserData)
         cursor->setShow(false, true);
     }
 
-    if (chai_count++ > 0) {
-        cVector3d vibroforce;
+    float vibroforce;
+    int hapcnt=0;
+    if (audioStreamer && audioStreamer[0] &&
+        audioStreamer[0]->readSamples(&vibroforce, 1))
+    {
+        cVector3d vibrovec;
         cursor->m_lastComputedGlobalForce.mulr(
-            sin(chai_count/(float)HAPTIC_TIMESTEP_MS/3.0f)*
-                cursor->m_lastComputedGlobalForce.length() / 10.0f,
-            vibroforce);
-        cursor->m_lastComputedGlobalForce.add(vibroforce);
+            vibroforce * cursor->m_lastComputedGlobalForce.length() / 10.0f,
+            vibrovec);
+        cursor->m_lastComputedGlobalForce.add(vibrovec);
     }
 
     cursor->applyForces();

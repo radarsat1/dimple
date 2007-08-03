@@ -397,6 +397,53 @@ fi
 
 }
 
+samplerate() {
+samplerate_URL="http://www.mega-nerd.com/SRC/libsamplerate-0.1.2.tar.gz"
+samplerate_TAR=libsamplerate-0.1.2.tar.gz
+samplerate_DIR=libsamplerate-0.1.2
+samplerate_MD5=06861c2c6b8e5273c9b80cf736b9fd0e
+
+if ! [ -d $samplerate_DIR ]; then
+
+if [ $($MD5 "$samplerate_TAR" | $MD5CUT)x != ${samplerate_MD5}x ]; then
+    echo Downloading $samplerate_TAR ...
+    rm -v $samplerate_TAR
+    $DL "$samplerate_TAR" $samplerate_URL
+fi
+
+if [ $($MD5 "$samplerate_TAR" | $MD5CUT)x != ${samplerate_MD5}x ]; then
+    echo "Error in MD5 checksum for $samplerate_TAR"
+    exit
+fi
+fi
+
+if ! [ -d $samplerate_DIR ]; then
+echo Extracting "$samplerate_TAR" ...
+if !(tar -xzf "$samplerate_TAR"); then
+    echo "Error in archive.";
+    exit
+fi
+
+if [ ${samplerate_PATCH}x != x ]; then
+echo Patching $samplerate_DIR
+if !(cd $samplerate_DIR && patch -p1 <../$samplerate_PATCH); then
+	echo "Error applying patch" $samplerate_PATCH
+	exit
+fi
+fi
+
+case $(uname) in
+	CYGWIN*)
+	;;
+esac
+
+fi
+
+echo
+echo samplerate Done.
+echo
+}
+
 cd libdeps
 
 # System-dependant bootstrapping
@@ -431,6 +478,7 @@ case $(uname) in
 
 	pthreads
 	freeglut
+    samplerate
     ode
     liblo
 	chai3d

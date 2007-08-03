@@ -14,12 +14,14 @@
 //======================================================================================
 
 /* 
-Based on flext tutorial advanced 1 by Thomas Grill
+Based on flext tutorials by Thomas Grill
 */
 
 #include <flext.h>
 #include "dimple.h"
+#include "AudioStreamer.h"
 #include <queue>
+#include <string>
 
 #if !defined(FLEXT_VERSION) || (FLEXT_VERSION < 401)
 #error You need at least flext version 0.4.1
@@ -27,17 +29,21 @@ Based on flext tutorial advanced 1 by Thomas Grill
 
 
 class dimple:
-	public flext_base
+	public flext_dsp
 {
-	FLEXT_HEADER(dimple,flext_base)
- 
+	FLEXT_HEADER(dimple,flext_dsp)
+
 public:
-	dimple(int argc,t_atom *argv);
+    dimple(int argc, t_atom *argv);
 	~dimple();
 
 protected:
 	void m_any(const t_symbol *s,int argc,t_atom *argv);
 	void m_timer(void*);
+    virtual void m_signal(int n, float *const *in, float *const *out);
+
+    int m_input_channels;
+    int m_output_channels;
 
 	Timer timer;
 private:
@@ -47,28 +53,60 @@ private:
 
 static std::queue<dimple::AtomList> send_queue;
 
-FLEXT_NEW_V("dimple",dimple)
+FLEXT_NEW_DSP_V("dimple~",dimple)
 
 // constructor
 
-dimple::dimple(int argc,t_atom *argv)
+dimple::dimple(int argc, t_atom *argv)
 { 
 	// Initialize DIMPLE:
 	dimple_main(0, NULL);
 
-	AddInAnything();  // one inlet that can receive anything 
-	AddOutAnything();  // one outlet for anything 
-	
-	// register method
-	FLEXT_ADDMETHOD(0,m_any);  // register method "m_any" for inlet 0
+	AddInAnything("DIMPLE message input");
+	AddOutAnything("DIMPLE message output");
+
+    int i;
+    m_input_channels = 0;
+    if (argc > 0)
+        m_input_channels = GetInt(argv[0]);
+    if (m_input_channels > 4)
+        m_input_channels = 4;
+    if (m_input_channels < 0)
+        m_input_channels = 0;
+    for (i=1; i<m_input_channels; i++) {
+        char str[256];
+        sprintf(str, "signal input %d", i-1);
+        AddInSignal(str);
+    }
+
+    m_output_channels = 0;
+    if (argc > 1)
+        m_output_channels = GetInt(argv[1]);
+    if (m_output_channels > 4)
+        m_output_channels = 4;
+    if (m_output_channels < 0)
+        m_output_channels = 0;
+    for (i=0; i<m_output_channels; i++) {
+        char str[256];
+        sprintf(str, "signal output %d", i);
+        AddOutSignal(str);
+    }
+
+	// register methods
+	FLEXT_ADDMETHOD(0,m_any);
 
     // register timer
     FLEXT_ADDTIMER(timer, m_timer);
     timer.Periodic(0.001);
+
+    // set-up AudioStreamer instances
+    audioStreamer = new AudioStreamer*[1];
+    audioStreamer[0] = new AudioStreamer(Samplerate(), 1000, 50, 1);
 }
 
 dimple::~dimple()
 {
+    printf("Cleaning up DIMPLE.\n");
     dimple_cleanup();
 }
 
@@ -165,4 +203,10 @@ void dimple::m_timer(void*)
                           &(*plst)[1]);
         send_queue.pop();
     }
+}
+
+void dimple::m_signal(int n, float *const *in, float *const *out)
+{
+    int input_chans = CntInSig();
+    audioStreamer[0]->writeSamples(in[0], n);
 }

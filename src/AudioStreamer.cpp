@@ -46,7 +46,7 @@ bool AudioStreamer::writeSamples(float *samples, unsigned int len)
 
         return
         m_fifo.writeBuffer((const unsigned char*)m_tmpbuffer,
-                           len * sizeof(float) * m_channels);
+                           (int)(len * m_samplerate_ratio) * sizeof(float) * m_channels);
     }
     else {
         return

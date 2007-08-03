@@ -18,6 +18,10 @@
 
 #include <string.h>
 #include <math.h>
+#ifdef WIN32
+#include <float.h>
+#define ilogb(a) ((int)_logb((double)a))
+#endif
 
 /*! Class for writing to a circular buffer from one thread and reading
  *  from another without requiring locking. This code is adapted from
