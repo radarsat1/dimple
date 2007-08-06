@@ -49,7 +49,6 @@
 #include "CODEPrism.h"
 #include "CODESphere.h"
 #include "CODEPotentialProxy.h"
-#include "CForceShadingProxy.h"
 //---------------------------------------------------------------------------
 
 lo_address address_send = lo_address_new("localhost", "7771");
@@ -426,7 +425,7 @@ void ode_hapticsLoop(void* a_pUserData)
     }
 
     // Force-based haptic texture
-    cForceShadingProxy* proxy = dynamic_cast<cForceShadingProxy*>(cursor->m_pointForceAlgos[0]);
+    cODEProxy* proxy = dynamic_cast<cODEProxy*>(cursor->m_pointForceAlgos[0]);
     if (proxy && proxy->getContactObject()) {
         cTriangle *a, *b, *c;
         proxy->getContacts(a, b, c);
