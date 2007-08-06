@@ -49,6 +49,7 @@
 #include "CODEPrism.h"
 #include "CODESphere.h"
 #include "CODEPotentialProxy.h"
+#include "CForceShadingProxy.h"
 //---------------------------------------------------------------------------
 
 lo_address address_send = lo_address_new("localhost", "7771");
@@ -373,6 +374,12 @@ void ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
 	}
 }
 
+inline double cDistancePointLine(cVector3d &point, cVector3d &a, cVector3d &b)
+{
+    cVector3d dif(b-a);
+    return cDot(a-point, dif) / dif.lengthsq();
+}
+
 void ode_hapticsLoop(void* a_pUserData)
 {
     bool cursor_ready = true;
@@ -416,6 +423,41 @@ void ode_hapticsLoop(void* a_pUserData)
             vibroforce * cursor->m_lastComputedGlobalForce.length() / 10.0f,
             vibrovec);
         cursor->m_lastComputedGlobalForce.add(vibrovec);
+    }
+
+    // Force-based haptic texture
+    cForceShadingProxy* proxy = dynamic_cast<cForceShadingProxy*>(cursor->m_pointForceAlgos[0]);
+    if (proxy && proxy->getContactObject()) {
+        cTriangle *a, *b, *c;
+        proxy->getContacts(a, b, c);
+        cMesh *ob = dynamic_cast<cMesh*>(proxy->getContactObject());
+        if (ob && ob->getTexture()) {
+            cImageLoader &img = ob->getTexture()->m_image;
+            /*
+            double distu = cDistancePointLine(proxy->getContactPoint(),
+                                              a->getVertex1()->getPos(),
+                                              a->getVertex0()->getPos());
+            double distv = cDistancePointLine(proxy->getContactPoint(),
+                                              a->getVertex1()->getPos(),
+                                              a->getVertex2()->getPos());
+                                              */
+
+            // TODO: do these computations in triangle-space instead of global space
+            world->computeGlobalPositions(false);
+            double distu = proxy->getContactPoint().y - a->getVertex0()->getGlobalPos().y;
+            double distv = proxy->getContactPoint().x - a->getVertex0()->getGlobalPos().x;
+            printf("%s  ", a->getVertex0()->getGlobalPos().str().c_str(), distu, distv);
+            distu = distu / a->getVertex2()->getGlobalPos().distance(a->getVertex0()->getGlobalPos());
+            distv = distv / a->getVertex1()->getGlobalPos().distance(a->getVertex2()->getGlobalPos());
+            printf("%f  %f  ", distu, distv);
+            cColorb &col = img.getPixelColor(img.getWidth()*distv, img.getHeight()*distu);
+            double intens = (col.getR()+col.getG()+col.getB())/3.0/256.0;
+            printf("%f   \r", intens);
+
+            cVector3d norm(cursor->m_lastComputedGlobalForce);
+            norm.normalize();
+            cursor->m_lastComputedGlobalForce.sub(cursor->m_lastComputedGlobalForce*((1.0-intens)*3/4));
+        }
     }
 
     cursor->applyForces();
@@ -989,8 +1031,8 @@ int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv
     cODEPrism *pr = new cODEPrism(world,ode_world,ode_space,size);
     pr->setDynamicPosition(pos);
     pr->setDynamicMass(0.5);
-    pr->m_material.setStaticFriction(1);
-    pr->m_material.setDynamicFriction(0.5);
+    pr->m_material.setStaticFriction(0.5);
+    pr->m_material.setDynamicFriction(0.2);
     pr->useMaterial(true);
 
     // Track the OSC object

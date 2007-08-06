@@ -1,4 +1,4 @@
-#N canvas 412 205 706 551 10;
+#N canvas 548 355 714 559 10;
 #X msg 504 139 send /world/clear;
 #X obj 456 176 s osc;
 #X obj 281 150 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
@@ -13,7 +13,7 @@
 #X array accel 1000 float 0;
 #X coords 0 1 1000 0 200 140 1;
 #X restore 429 353 graph;
-#N canvas 302 54 695 669 createbox 0;
+#N canvas 302 54 743 717 createbox 0;
 #X obj 34 18 inlet;
 #X obj 34 130 / 2;
 #X obj 34 165 -;
@@ -58,7 +58,7 @@
 #X msg 10 629 send /object/backside/size \$12 \$5 \$8;
 #X msg 10 650 send /object/frontside/size \$12 \$5 \$10;
 #X msg 34 70 0.4 0.4 0.2 0.03 0.03;
-#N canvas 412 303 355 265 texture 0;
+#N canvas 437 318 391 301 texture 0;
 #X obj 40 223 s osc;
 #X msg 40 118 send /object/leftside/texture/image \$1;
 #X msg 40 139 send /object/rightside/texture/image \$1;
@@ -71,6 +71,9 @@
 -1;
 #X obj 40 97 t s s s s s;
 #X msg 40 75 symbol \$1/marble.tga;
+#X msg 172 75 symbol \$1/bw1.tga;
+#X msg 287 75 symbol \$1/bw2.tga;
+#X msg 84 53 symbol ../textures;
 #X connect 1 0 0 0;
 #X connect 2 0 0 0;
 #X connect 3 0 0 0;
@@ -79,12 +82,16 @@
 #X connect 6 0 8 0;
 #X connect 7 0 10 0;
 #X connect 8 0 7 0;
+#X connect 8 0 13 0;
 #X connect 9 0 5 0;
 #X connect 9 1 4 0;
 #X connect 9 2 3 0;
 #X connect 9 3 2 0;
 #X connect 9 4 1 0;
 #X connect 10 0 9 0;
+#X connect 13 0 11 0;
+#X connect 13 0 12 0;
+#X connect 13 0 10 0;
 #X restore 69 282 pd texture;
 #X connect 0 0 29 0;
 #X connect 1 0 2 0;
@@ -131,6 +138,7 @@
 #X connect 20 1 23 0;
 #X connect 20 1 24 0;
 #X connect 20 1 25 0;
+#X connect 20 1 42 0;
 #X connect 20 2 31 0;
 #X connect 20 2 32 0;
 #X connect 20 2 33 0;
@@ -158,7 +166,7 @@
 #X obj 116 79 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
 #X text 139 81 bang to create box;
-#N canvas 291 172 489 381 createmarble 0;
+#N canvas 291 172 493 385 createmarble 0;
 #X obj 314 336 s osc;
 #X floatatom 28 54 5 0 0 0 - - -;
 #X obj 55 25 + 1;
@@ -176,25 +184,28 @@
 #X obj 194 -1 % 8;
 #X obj 157 24 + 10;
 #X msg 6 289 /object/collide/get 1;
-#N canvas 660 564 362 243 texture 0;
+#N canvas 660 564 366 247 texture 0;
 #X obj 27 63 makefilename /object/%ds/texture/image;
 #X obj 150 105 getdir;
 #X obj 150 86 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
-#X obj 150 126 makefilename %s/gradient.tga;
 #X msg 27 181 \$1 \$2;
 #X obj 27 155 pack s s;
 #X obj 27 35 inlet;
 #X obj 27 213 outlet;
 #X obj 148 37 inlet;
-#X connect 0 0 5 0;
-#X connect 1 0 3 0;
+#X msg 194 104 symbol ../textures;
+#X obj 150 126 makefilename %s/grainy.tga;
+#X connect 0 0 4 0;
+#X connect 1 0 9 0;
 #X connect 2 0 1 0;
-#X connect 3 0 5 1;
-#X connect 4 0 7 0;
-#X connect 5 0 4 0;
-#X connect 6 0 0 0;
-#X connect 8 0 2 0;
+#X connect 2 0 8 0;
+#X connect 3 0 6 0;
+#X connect 4 0 3 0;
+#X connect 5 0 0 0;
+#X connect 7 0 2 0;
+#X connect 8 0 9 0;
+#X connect 9 0 4 1;
 #X restore 331 117 pd texture;
 #X msg 58 214 /object/sphere/create \$1s \$3 \$3 \$2;
 #X msg 28 237 /object/\$1s/radius 0.02;
@@ -229,10 +240,10 @@
 #X restore 281 173 pd createmarble;
 #N canvas 530 283 466 316 connect 0;
 #X obj 20 241 sendOSC;
-#X obj 20 64 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
+#X obj 20 64 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
 ;
 #X msg 80 213 disconnect;
-#X obj 20 114 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+#X obj 20 114 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #X msg 20 135 send /graphics/enable \$1;
 #X msg 20 84 send /haptics/enable \$1;
@@ -328,19 +339,8 @@
 #N canvas 0 0 874 532 modal 0;
 #N canvas 0 0 450 300 (subpatch) 0;
 #X array array2 64 float 1;
-#A 0 -9.47387e-006 -9.80454e-006 -1.01322e-005 -1.04564e-005 -1.07764e-005
--1.10918e-005 -1.1402e-005 -1.17066e-005 -1.20051e-005 -1.2297e-005
--1.25821e-005 -1.28598e-005 -1.31298e-005 -1.33919e-005 -1.36457e-005
--1.3891e-005 -1.41275e-005 -1.43551e-005 -1.45735e-005 -1.47826e-005
--1.49823e-005 -1.51725e-005 -1.53531e-005 -1.5524e-005 -1.56853e-005
--1.58369e-005 -1.59789e-005 -1.61112e-005 -1.6234e-005 -1.63473e-005
--1.64512e-005 -1.65459e-005 -1.66313e-005 -1.67078e-005 -1.67754e-005
--1.68342e-005 -1.68845e-005 -1.69264e-005 -1.69601e-005 -1.69857e-005
--1.70035e-005 -1.70137e-005 -1.70165e-005 -1.7012e-005 -1.70004e-005
--1.6982e-005 -1.6957e-005 -1.69255e-005 -1.68877e-005 -1.68439e-005
--1.67942e-005 -1.67389e-005 -1.6678e-005 -1.66119e-005 -1.65406e-005
--1.64644e-005 -1.63834e-005 -1.62978e-005 -1.62078e-005 -1.61135e-005
--1.60152e-005 -1.5913e-005 -1.5807e-005 -1.56975e-005;
+#A 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0;
 #X coords 0 1 63 -1 200 140 1;
 #X restore 134 358 graph;
 #N canvas 0 0 450 300 (subpatch) 0;
@@ -1287,7 +1287,57 @@ PhysicaL Environment;
 #X connect 1 0 0 0;
 #X connect 2 0 0 0;
 #X connect 3 0 0 0;
-#X restore 23 495 pd meshtest;
+#X restore 16 506 pd meshtest;
+#N canvas 223 184 909 241 texturetest 0;
+#X obj 17 44 t b b;
+#X msg 17 125 send /constraint/fixed/create t1c t1 world;
+#X msg 17 98 send /object/t1/size 1 0.3 0.01;
+#X msg 17 154 send /object/t1/texture/image ../marble.tga;
+#X obj 17 17 inlet;
+#X msg 42 73 send /object/prism/create t1 0 -0.3 -0.2;
+#X obj 307 44 t b b;
+#X msg 307 125 send /constraint/fixed/create t2c t2 world;
+#X msg 307 98 send /object/t2/size 1 0.3 0.01;
+#X msg 307 154 send /object/t2/texture/image ../bw2.tga;
+#X msg 332 73 send /object/prism/create t2 0 0 -0.2;
+#X obj 587 46 t b b;
+#X msg 587 100 send /object/t3/size 1 0.3 0.01;
+#X msg 587 127 send /constraint/fixed/create t3c t3 world;
+#X msg 612 75 send /object/prism/create t3 0 0.3 -0.2;
+#X msg 587 156 send /object/t3/texture/image ../bumpy.tga;
+#X obj 17 186 s osc;
+#X obj 307 184 s osc;
+#X obj 587 184 s osc;
+#X connect 0 0 2 0;
+#X connect 0 0 1 0;
+#X connect 0 0 3 0;
+#X connect 0 1 5 0;
+#X connect 1 0 16 0;
+#X connect 2 0 16 0;
+#X connect 3 0 16 0;
+#X connect 4 0 0 0;
+#X connect 4 0 6 0;
+#X connect 4 0 11 0;
+#X connect 5 0 16 0;
+#X connect 6 0 8 0;
+#X connect 6 0 7 0;
+#X connect 6 0 9 0;
+#X connect 6 1 10 0;
+#X connect 7 0 17 0;
+#X connect 8 0 17 0;
+#X connect 9 0 17 0;
+#X connect 10 0 17 0;
+#X connect 11 0 12 0;
+#X connect 11 0 13 0;
+#X connect 11 0 15 0;
+#X connect 11 1 14 0;
+#X connect 12 0 18 0;
+#X connect 13 0 18 0;
+#X connect 14 0 18 0;
+#X connect 15 0 18 0;
+#X restore 89 507 pd texturetest;
+#X obj 89 486 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
 #X connect 0 0 1 0;
 #X connect 2 0 13 0;
 #X connect 3 0 2 0;
@@ -1311,3 +1361,4 @@ PhysicaL Environment;
 #X connect 57 0 54 0;
 #X connect 59 0 58 0;
 #X connect 61 0 58 1;
+#X connect 64 0 63 0;
