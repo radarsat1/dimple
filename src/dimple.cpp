@@ -119,7 +119,18 @@ double force_scale = 0.1;
 
 OscObject *proxyObject=NULL;
 
+#define MAX_SIGNALS 4
 AudioStreamer **audioStreamer=NULL;
+
+class SignalParams {
+public:
+    SignalParams() { type = force; coef = 0; enable = false; }
+    enum { constant, force } type;
+    bool enable;
+    float coef;
+    cVector3d vector;
+};
+SignalParams signal_params[MAX_SIGNALS];
 
 int ode_counter = 0;
 bool bGetCollide = false;
@@ -412,16 +423,39 @@ void ode_hapticsLoop(void* a_pUserData)
         cursor->setShow(false, true);
     }
 
+    // Always read a signal sample if audioStreamer exists.
     float vibroforce;
-    int hapcnt=0;
+    int r=-1;
+    static int cntdown=20;
+    if (cntdown > 0 && audioStreamer && audioStreamer[0]) {
+        cntdown --;
+//        printf("W");
+    } else {
     if (audioStreamer && audioStreamer[0] &&
-        audioStreamer[0]->readSamples(&vibroforce, 1))
+        (r=audioStreamer[0]->readSamples(&vibroforce, 1)))
     {
-        cVector3d vibrovec;
-        cursor->m_lastComputedGlobalForce.mulr(
-            vibroforce * cursor->m_lastComputedGlobalForce.length() / 10.0f,
-            vibrovec);
-        cursor->m_lastComputedGlobalForce.add(vibrovec);
+//        printf("X");
+        // Perform specified action on signal
+        if (signal_params[0].enable && signal_params[0].type == SignalParams::force)
+        {
+            // Multiply the force vector by the signal and a coefficient
+            cVector3d vibrovec;
+            cursor->m_lastComputedGlobalForce.mulr(
+                vibroforce * cursor->m_lastComputedGlobalForce.length() * signal_params[0].coef,
+                vibrovec);
+            cursor->m_lastComputedGlobalForce.add(vibrovec);
+        }
+        else if (signal_params[0].enable && signal_params[0].type == SignalParams::constant)
+        {
+            // Add a given force along a vector to the proxy force
+            cursor->m_lastComputedGlobalForce.add(signal_params[0].vector * vibroforce);
+        }
+    }
+    else
+    {
+//        if (r>-1)
+//            printf("-");
+    }
     }
 
     // Force-based haptic texture
@@ -449,7 +483,7 @@ void ode_hapticsLoop(void* a_pUserData)
             distu = distu / a->getVertex2()->getGlobalPos().distance(a->getVertex0()->getGlobalPos());
             distv = distv / a->getVertex1()->getGlobalPos().distance(a->getVertex2()->getGlobalPos());
             printf("%f  %f  ", distu, distv);
-            cColorb col = img.getPixelColor(img.getWidth()*distv, img.getHeight()*distu);
+            cColorb &col = img.getPixelColor(img.getWidth()*distv, img.getHeight()*distu);
             double intens = (col.getR()+col.getG()+col.getB())/3.0/256.0;
             printf("%f   \r", intens);
 
@@ -1390,6 +1424,52 @@ int objectCollideGet_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
+int signalEnable_handler(const char *path, const char *types, lo_arg **argv,
+                         int argc, void *data, void *user_data)
+{
+    handler_data *hd = (handler_data*)user_data;
+    if (hd->thread != DIMPLE_THREAD_PHYSICS)
+        return 0;
+
+    signal_params[0].enable = ( argv[0]->i != 0 );
+
+    printf("Signal 1 %s\n", signal_params[0].enable ? "enabled" : "disabled");
+}
+
+int signalForce_handler(const char *path, const char *types, lo_arg **argv,
+                        int argc, void *data, void *user_data)
+{
+    handler_data *hd = (handler_data*)user_data;
+    if (hd->thread != DIMPLE_THREAD_PHYSICS)
+        return 0;
+
+    if (argc != 1) return 0;
+    signal_params[0].type = SignalParams::force;
+    signal_params[0].coef = argv[0]->f;
+
+    printf("Signal 1 in force coefficient mode with coefficient %f\n", signal_params[0].coef);
+
+    return 0;
+}
+
+int signalConstant_handler(const char *path, const char *types, lo_arg **argv,
+                           int argc, void *data, void *user_data)
+{
+    handler_data *hd = (handler_data*)user_data;
+    if (hd->thread != DIMPLE_THREAD_PHYSICS)
+        return 0;
+
+    if (argc!=0 && argc!=3) return 0;
+    signal_params[0].type = SignalParams::constant;
+    signal_params[0].vector.set(0, 0, 1);
+    if (argc == 3)
+        signal_params[0].vector.set(argv[0]->f, argv[1]->f, argv[2]->f);
+
+    printf("Signal 1 in constant mode with vector %s\n", signal_params[0].vector.str().c_str());
+
+    return 0;
+}
+
 void liblo_error(int num, const char *msg, const char *path)
 {
     printf("liblo server error %d in path %s: %s\n", num, path, msg);
@@ -1503,6 +1583,10 @@ void initOSC()
      lo_server_add_method(loserver, "/world/gravity", "fff", worldGravity3_handler, NULL);
      lo_server_add_method(loserver, "/object/collide/get", "", objectCollideGet_handler, NULL);
      lo_server_add_method(loserver, "/object/collide/get", "i", objectCollideGet_handler, NULL);
+     lo_server_add_method(loserver, "/haptics/signal/1/enable", "i", signalEnable_handler, NULL);
+     lo_server_add_method(loserver, "/haptics/signal/1/force", "f", signalForce_handler, NULL);
+     lo_server_add_method(loserver, "/haptics/signal/1/constant", "fff", signalConstant_handler, NULL);
+     lo_server_add_method(loserver, "/haptics/signal/1/constant", "", signalConstant_handler, NULL);
 
 	 printf("OSC server initialized on port 7770.\n");
 	 fflush(stdout);

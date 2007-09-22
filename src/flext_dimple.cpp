@@ -101,7 +101,7 @@ dimple::dimple(int argc, t_atom *argv)
 
     // set-up AudioStreamer instances
     audioStreamer = new AudioStreamer*[1];
-    audioStreamer[0] = new AudioStreamer(Samplerate(), 1000, 50, 1);
+    audioStreamer[0] = new AudioStreamer(Samplerate(), 1000, 500, 1);
 }
 
 dimple::~dimple()
@@ -208,5 +208,8 @@ void dimple::m_timer(void*)
 void dimple::m_signal(int n, float *const *in, float *const *out)
 {
     int input_chans = CntInSig();
-    audioStreamer[0]->writeSamples(in[0], n);
+    if (!audioStreamer[0]->writeSamples(in[0], n))
+;//        printf(".");
+    else
+;//        printf(":");
 }
