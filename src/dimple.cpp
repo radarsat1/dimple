@@ -483,7 +483,7 @@ void ode_hapticsLoop(void* a_pUserData)
             distu = distu / a->getVertex2()->getGlobalPos().distance(a->getVertex0()->getGlobalPos());
             distv = distv / a->getVertex1()->getGlobalPos().distance(a->getVertex2()->getGlobalPos());
             printf("%f  %f  ", distu, distv);
-            cColorb &col = img.getPixelColor(img.getWidth()*distv, img.getHeight()*distu);
+            cColorb col = img.getPixelColor(img.getWidth()*distv, img.getHeight()*distu);
             double intens = (col.getR()+col.getG()+col.getB())/3.0/256.0;
             printf("%f   \r", intens);
 
