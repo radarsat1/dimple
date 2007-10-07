@@ -434,7 +434,29 @@ fi
 
 case $(uname) in
 	CYGWIN*)
+    echo Compiling $samplerate_DIR Debug
+    if !( "$COMPILE" $(cygpath -w $samplerate_DIR/Win32/libsamplerate-vs2005exp.sln ) /Build Debug /Project libsamplerate-vs2005exp /Out compile.log ); then
+       echo "Error compiling $samplerate_DIR" Debug
+       cat compile.log
+  	   exit
+    fi
+    rm compile.log >/dev/null 2>&1
+    echo Compiling $samplerate_DIR Release
+    if !( "$COMPILE" /Build Release $(cygpath -w $samplerate_DIR/Win32/libsamplerate-vs2005exp.sln ) /Project libsamplerate-vs2005exp /Out compile.log ); then
+       echo "Error compiling $samplerate_DIR" Release
+       cat compile.log
+  	   exit
+    fi
+    rm compile.log >/dev/null 2>&1
 	;;
+
+	*)
+    echo Compiling $samplerate_DIR
+    if !(cd $samplerate_DIR && make); then
+        echo "Error compiling $samplerate_DIR"
+        exit
+    fi
+    ;;
 esac
 
 fi
@@ -465,7 +487,9 @@ case $(uname) in
 		else
 			vs_VER=2005
 			ode_SLN=build/vs2005/ode.sln
+			ode_PATCH=ode-0.7-vs2005exp.patch
 			liblo_PATCH=liblo-0.23-vs2005exp.patch
+			samplerate_PATCH=libsamplerate-0.1.2-vs2005exp.patch
 			chai_DIR=chai3d/msvc8exp
 		fi
 	else

@@ -1,0 +1,38 @@
+--- ode-0.7.orig/build/vs2005/ode.vcproj	2006-09-01 10:26:28.000000000 -0400
++++ ode-0.7/build/vs2005/ode.vcproj	2007-10-07 16:07:30.562500000 -0400
+@@ -44,7 +44,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;ODE_DLL"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				EnableFunctionLevelLinking="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="3"
+@@ -127,7 +127,7 @@
+ 				AdditionalIncludeDirectories="../../include;../../OPCODE"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;ODE_DLL"
+ 				StringPooling="true"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				EnableFunctionLevelLinking="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="3"
+@@ -211,7 +211,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;ODE_LIB"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				EnableFunctionLevelLinking="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="3"
+@@ -286,7 +286,7 @@
+ 				AdditionalIncludeDirectories="../../include;../../OPCODE"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;ODE_LIB"
+ 				StringPooling="true"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				EnableFunctionLevelLinking="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="3"
