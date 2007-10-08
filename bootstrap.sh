@@ -299,6 +299,48 @@ echo FreeGLUT Done.
 echo
 }
 
+atomicops() {
+atomicops_URL=http://www.hpl.hp.com/research/linux/atomic_ops/download/libatomic_ops-1.2.tar.gz
+atomicops_TAR=libatomic_ops-1.2.tar.gz
+atomicops_DIR=libatomic_ops-1.2
+atomicops_MD5=1b65e48271c81e3fa2d7a9a69bab7504
+
+if ! [ -d $atomicops_DIR ]; then
+
+if [ $($MD5 "$atomicops_TAR" | $MD5CUT)x != ${atomicops_MD5}x ]; then
+    echo Downloading $atomicops_TAR ...
+    rm -v $atomicops_TAR
+    $DL "$atomicops_TAR" $atomicops_URL
+fi
+
+if [ $($MD5 "$atomicops_TAR" | $MD5CUT)x != ${atomicops_MD5}x ]; then
+    echo "Error in MD5 checksum for $atomicops_TAR"
+    exit
+fi
+fi
+
+if ! [ -d $atomicops_DIR ]; then
+echo Extracting "$atomicops_TAR" ...
+if !(tar -xzf "$atomicops_TAR"); then
+    echo "Error in archive.";
+    exit
+fi
+
+if [ ${atomicops_PATCH}x != x ]; then
+echo Patching $atomicops_DIR
+if !(cd $atomicops_DIR && patch -p1 <../$atomicops_PATCH); then
+	echo "Error applying patch" $atomicops_PATCH
+	exit
+fi
+fi
+
+fi
+
+echo
+echo atomic_ops Done.
+echo
+}
+
 
 pthreads() {
 pthreads_URL=ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-8-0-release.tar.gz
@@ -506,6 +548,7 @@ case $(uname) in
     ode
     liblo
 	chai3d
+	atomicops
 
 	cd ..
 	if [ ${vs_VER}x == 2003x ]; then
@@ -551,3 +594,4 @@ case $(uname) in
     exit
     ;;
 esac
+
