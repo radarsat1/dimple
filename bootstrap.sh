@@ -164,9 +164,9 @@ echo
 }
 
 chai3d() {
-chai_URL=http://chai3d.org/builds/chai3d%5Bv1.51%5D.zip
-chai_TAR=chai3d\[v1.51\].zip
-chai_MD5=006c5464dc3c389d87e615c24ccd9696
+chai_URL=http://chai3d.org/builds/chai3d%5Bv1.61%5D.zip
+chai_TAR=chai3d-v1.61.zip
+chai_MD5=516eebf36ca995b9f200b965cc78f002
 
 if ! [ -d $chai_DIR ]; then
 
@@ -518,7 +518,7 @@ case $(uname) in
 	MD5CUT="awk {print\$1}"
 	freeglut_PATCH=freeglut-2.4.0-vs2005exp.patch
 	pthreads_PATCH=pthreads-w32-2-8-0-release-vs2005exp-static.patch
-	chai_PATCH=chai3d-1.51-vs2005exp.patch
+	chai_PATCH=chai3d-1.61-vs2005exp.patch
 
 	COMPILE="$(echo $(cygpath -u $PROGRAMFILES)/Microsoft Visual Studio .NET 2003/Common7/IDE/devenv.exe)"
 	if !( [ -f "$COMPILE" ]); then
