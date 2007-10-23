@@ -28,18 +28,17 @@
 class OscBase
 {
 public:
-    OscBase(const char *name, const char *classname);
+    OscBase(const char *name, OscBase *parent);
     virtual ~OscBase();
 
-    const char* name() { return m_name.c_str(); }
-    const char* classname() { return m_classname.c_str(); }
-    const std::string strname() { return m_name; }
-    const std::string strclassname() { return m_classname; }
+    const char* c_name() { return m_name.c_str(); }
+    const std::string name() { return m_name; }
+    OscBase *parent() { return m_parent; }
 
 protected:
     virtual void addHandler(const char *methodname, const char* type, lo_method_handler h);
     std::string m_name;
-    std::string m_classname;
+    OscBase *m_parent;
 
     struct method_t {
         std::string name;

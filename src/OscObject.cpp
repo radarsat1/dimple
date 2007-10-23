@@ -18,8 +18,8 @@
 #include "valuetimer.h"
 #include <assert.h>
 
-OscValue::OscValue(const char *name, OscBase *owner)
-    : OscBase(name, (owner->strclassname()+"/"+owner->strname()).c_str())
+OscValue::OscValue(const char *name, OscBase *parent)
+    : OscBase(name, parent)
 {
     m_callback = NULL;
     m_callback_data = NULL;
@@ -78,7 +78,7 @@ void OscScalar::set(double value)
 
 void OscScalar::send()
 {
-    lo_send(address_send, ("/" + m_classname +
+    lo_send(address_send, ("/" + m_parent->name() +
                            "/" + m_name).c_str(),
             "f", m_value
         );
@@ -136,7 +136,7 @@ void OscVector3::set(double _x, double _y, double _z)
 
 void OscVector3::send()
 {
-    lo_send(address_send, ("/" + m_classname +
+    lo_send(address_send, ("/" + m_parent->name() +
                            "/" + m_name).c_str(),
             "fff", x, y, z
         );
@@ -191,7 +191,7 @@ OscString::OscString(const char *name, OscBase *owner)
 
 void OscString::send()
 {
-    lo_send(address_send, ("/" + m_classname +
+    lo_send(address_send, ("/" + m_parent->name() +
                            "/" + m_name).c_str(),
             "s", c_str()
         );
@@ -221,7 +221,7 @@ int OscString::_handler(const char *path, const char *types, lo_arg **argv,
 
 //! OscObject has a CHAI/ODE object associated with it. Class name = "object"
 OscObject::OscObject(cGenericObject* p, const char *name)
-    : OscBase(name, "object"),
+    : OscBase(name, NULL),  // was "object"
       m_velocity("velocity", this),
       m_accel("acceleration", this),
       m_position("position", this),
@@ -458,7 +458,7 @@ bool OscObject::collidedWith(OscObject *o)
         rc=true;
         if (m_getCollide) {
             lo_send(address_send, ("/object/"+m_name+"/collide").c_str(),
-                    "s", o->name());
+                    "s", o->c_name());
             // TODO: send collision force
         }
     }
@@ -548,7 +548,7 @@ int OscObject::grab_handler(const char *path, const char *types, lo_arg **argv,
 
     // remove self from haptics contact
     me->chaiObject()->setHapticEnabled(false, true);
-    printf("Disabled haptics for object %s: %d\n", me->name(), me->chaiObject()->getHapticEnabled());
+    printf("Disabled haptics for object %s: %d\n", me->c_name(), me->chaiObject()->getHapticEnabled());
 
     // become the proxy object
     proxyObject = me;
@@ -589,7 +589,7 @@ void *oscillate_thread(void* user)
     float amp = args[2];
     delete args;
     
-    printf("Oscillate thread!  %s, %f, %f\n", ob->name(), hz, amp);
+    printf("Oscillate thread!  %s, %f, %f\n", ob->c_name(), hz, amp);
 
     while (1) {
         wait_ode_request(oscillate_callback, ob->odePrimitive());
@@ -614,7 +614,7 @@ int OscObject::oscillate_handler(const char *path, const char *types, lo_arg **a
 
     pthread_t th;
     pthread_create(&th, NULL, oscillate_thread, args);
-    printf("%s is oscillating at %f Hz, %f amplitude.\n", me->name(), hz, amp);
+    printf("%s is oscillating at %f Hz, %f amplitude.\n", me->c_name(), hz, amp);
 }
 
 // ----------------------------------------------------------------------------------
@@ -647,7 +647,7 @@ void OscComposite::addChild(OscObject *o)
     o->odePrimitive()->m_odeBody = odePrimitive()->m_odeBody;
     dGeomSetBody(o->odePrimitive()->m_odeGeom, odePrimitive()->m_odeBody);
 
-    printf("%s added to %s\n", o->name(), name());
+    printf("%s added to %s\n", o->c_name(), c_name());
 }
 
 // ----------------------------------------------------------------------------------
@@ -756,7 +756,7 @@ int OscMesh::size_handler(const char *path, const char *types, lo_arg **argv,
             me->m_vLastScaled = scale;
             
             printf("(haptics) Scaled %s by %f, %f, %f\n",
-                   me->name(), scale.x, scale.y, scale.z);
+                   me->c_name(), scale.x, scale.y, scale.z);
 
             // Perform similar scaling in the physics thread
             // TODO: should be *post*, need to fix queueing first
@@ -777,7 +777,7 @@ void OscMesh::size_physics_callback(void *self)
                                            me->m_vLastScaled.z);
 
     printf("(physics) Scaled %s by %f, %f, %f\n",
-           me->name(), me->m_vLastScaled.x,
+           me->c_name(), me->m_vLastScaled.x,
            me->m_vLastScaled.y,
            me->m_vLastScaled.z);
 }
@@ -786,7 +786,7 @@ void OscMesh::size_physics_callback(void *self)
 
 //! OscConstraint has two CHAI/ODE object associated with it, though not owned by it. Class name = "constraint"
 OscConstraint::OscConstraint(const char *name, OscObject *object1, OscObject *object2)
-    : OscBase(name, "constraint")
+    : OscBase(name, NULL)  // was "constraint"
 {
     assert(object1);
     m_object1 = object1;
@@ -893,7 +893,7 @@ OscBallJoint::OscBallJoint(const char *name, OscObject *object1, OscObject *obje
     object1->odePrimitive()->ballLink(name, object2?object2->odePrimitive():NULL, anchor);
 
     printf("Ball link created between %s and %s at (%f,%f,%f)\n",
-		   object1->name(), object2?object2->name():"world", x,y,z);
+		   object1->c_name(), object2?object2->c_name():"world", x,y,z);
 }
 
 // ----------------------------------------------------------------------------------
@@ -910,7 +910,7 @@ OscHinge::OscHinge(const char *name, OscObject *object1, OscObject *object2,
     object1->odePrimitive()->hingeLink(name, object2?object2->odePrimitive():NULL, anchor, axis);
 
     printf("Hinge joint created between %s and %s at anchor (%f,%f,%f), axis (%f,%f,%f)\n",
-        object1->name(), object2?object2->name():"world", x,y,z,ax,ay,az);
+        object1->c_name(), object2?object2->c_name():"world", x,y,z,ax,ay,az);
 }
 
 //! This function is called once per simulation step, allowing the
@@ -944,7 +944,7 @@ OscHinge2::OscHinge2(const char *name, OscObject *object1, OscObject *object2,
     object1->odePrimitive()->hinge2Link(name, object2?object2->odePrimitive():NULL, anchor, axis1, axis2);
 
     printf("Hinge2 joint created between %s and %s at anchor (%f,%f,%f), axis1 (%f,%f,%f), axis2 (%f,%f,%f)\n",
-        object1->name(), object2?object2->name():"world", x,y,z,ax,ay,az,bx,by,bz);
+        object1->c_name(), object2?object2->c_name():"world", x,y,z,ax,ay,az,bx,by,bz);
 }
 
 //! This function is called once per simulation step, allowing the
@@ -978,7 +978,7 @@ OscUniversal::OscUniversal(const char *name, OscObject *object1, OscObject *obje
     object1->odePrimitive()->universalLink(name, object2?object2->odePrimitive():NULL, anchor, axis1, axis2);
 
     printf("Universal joint created between %s and %s at anchor (%f,%f,%f), axis1 (%f,%f,%f), axis2 (%f,%f,%f)\n",
-        object1->name(), object2?object2->name():"world", x,y,z,ax,ay,az,bx,by,bz);
+        object1->c_name(), object2?object2->c_name():"world", x,y,z,ax,ay,az,bx,by,bz);
 }
 
 //! This function is called once per simulation step, allowing the
@@ -1023,6 +1023,6 @@ OscFixed::OscFixed(const char *name, OscObject *object1, OscObject *object2)
     }
 
     printf("Fixed joint created between %s and %s\n",
-           object1->name(), object2?object2->name():"world");
+           object1->c_name(), object2?object2->c_name():"world");
 }
 

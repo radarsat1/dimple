@@ -373,7 +373,7 @@ void ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
             bool co1 = p1->collidedWith(p2);
             bool co2 = p2->collidedWith(p1);
             if ( (co1 || co2) && bGetCollide ) {
-                lo_send(address_send, "/object/collide", "ssf", p1->name(), p2->name(),
+                lo_send(address_send, "/object/collide", "ssf", p1->c_name(), p2->c_name(),
                         (double)(p1->getVelocity() + p2->getVelocity()).length());
                 // TODO: send collision force instead of velocity?
             }
@@ -1079,7 +1079,7 @@ int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv
     world->addChild(pr);
     UNLOCK_WORLD();
 
-    printf("Prism %s added at (%f, %f, %f).\n", ob->name(), pos.x, pos.y, pos.z);
+    printf("Prism %s added at (%f, %f, %f).\n", ob->c_name(), pos.x, pos.y, pos.z);
     return 0;
 }
 
@@ -1120,7 +1120,7 @@ int objectSphereCreate_handler(const char *path, const char *types, lo_arg **arg
     world->addChild(sp);
     UNLOCK_WORLD();
 
-    printf("Sphere %s added at (%f, %f, %f).\n", ob->name(), pos.x, pos.y, pos.z);
+    printf("Sphere %s added at (%f, %f, %f).\n", ob->c_name(), pos.x, pos.y, pos.z);
     return 0;
 }
 
@@ -1180,7 +1180,7 @@ int objectMeshCreate_handler(const char *path, const char *types, lo_arg **argv,
     world->addChild(m);
     UNLOCK_WORLD();
 
-    printf("Mesh %s added at (%f, %f, %f).\n", ob->name(), pos.x, pos.y, pos.z);
+    printf("Mesh %s added at (%f, %f, %f).\n", ob->c_name(), pos.x, pos.y, pos.z);
     return 0;
 }
 
@@ -1436,6 +1436,7 @@ int signalEnable_handler(const char *path, const char *types, lo_arg **argv,
     signal_params[0].enable = ( argv[0]->i != 0 );
 
     printf("Signal 1 %s\n", signal_params[0].enable ? "enabled" : "disabled");
+    return 0;
 }
 
 int signalForce_handler(const char *path, const char *types, lo_arg **argv,

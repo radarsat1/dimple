@@ -73,7 +73,7 @@ class cODEPrimitive
     //! Constructor of cODEPrimitive.
     cODEPrimitive(cWorld* a_parent, dWorldID a_odeWorld, dSpaceID a_odeSpace);
     //! Destructor of cODEPrimitive.
-    ~cODEPrimitive();
+    virtual ~cODEPrimitive();
 
     //! Called by destructor in ODE thread
     static void destroyCallback(cODEPrimitive *self);

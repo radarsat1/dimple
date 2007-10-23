@@ -20,8 +20,8 @@
 #include "dimple.h"
 
 //! OscBase objects always have a name. Class name defaults to "".
-OscBase::OscBase(const char *name, const char *classname)
-    : m_name(name), m_classname(classname)
+OscBase::OscBase(const char *name, OscBase *parent)
+    : m_name(name), m_parent(parent)
 {
 }
 
@@ -30,8 +30,8 @@ void OscBase::addHandler(const char *methodname, const char* type, lo_method_han
 {
     // build OSC method name
     std::string n("/");
-    if (m_classname.length()>0)
-        n += m_classname + "/";
+    if (m_parent && m_parent->name().length()>0)
+        n += m_parent->name() + "/";
     n += m_name;
     if (strlen(methodname)>0)
         n = n + "/" + methodname;

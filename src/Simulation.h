@@ -5,10 +5,10 @@
 
 #include "OscObject.h"
 
-class ShapeFactory : OscBase
+class ShapeFactory : public OscBase
 {
 public:
-    ShapeFactory(char *name, char *classname);
+    ShapeFactory(char *name, OscBase *parent);
     virtual ~ShapeFactory();
 
 protected:
@@ -17,21 +17,21 @@ protected:
                               int argc, void *data, void *user_data);
 };
 
-class PrismFactory : ShapeFactory
+class PrismFactory : public ShapeFactory
 {
 public:
-    PrismFactory(char *name, char *classname);
+    PrismFactory(char *name, OscBase *parent);
     virtual ~PrismFactory();
 };
 
-class SphereFactory : ShapeFactory
+class SphereFactory : public ShapeFactory
 {
 public:
-    SphereFactory(char *name, char *classname);
+    SphereFactory(char *name, OscBase *parent);
     virtual ~SphereFactory();
 };
 
-class Simulation : OscBase
+class Simulation : public OscBase
 {
   public:
     Simulation(int port);

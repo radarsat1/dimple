@@ -5,8 +5,8 @@
 #include "Simulation.h"
 #include "OscBase.h"
 
-ShapeFactory::ShapeFactory(char *name, char *classname)
-    : OscBase(name, classname)
+ShapeFactory::ShapeFactory(char *name, OscBase *parent)
+    : OscBase(name, parent)
 {
 }
 
@@ -14,8 +14,8 @@ ShapeFactory::~ShapeFactory()
 {
 }
 
-PrismFactory::PrismFactory(char *name, char *classname)
-    : ShapeFactory(name, classname)
+PrismFactory::PrismFactory(char *name, OscBase *parent)
+    : ShapeFactory(name, parent)
 {
 }
 
@@ -23,8 +23,8 @@ PrismFactory::~PrismFactory()
 {
 }
 
-SphereFactory::SphereFactory(char *name, char *classname)
-    : ShapeFactory(name, classname)
+SphereFactory::SphereFactory(char *name, OscBase *parent)
+    : ShapeFactory(name, parent)
 {
 }
 
@@ -34,8 +34,8 @@ SphereFactory::~SphereFactory()
 
 Simulation::Simulation(int port)
     : OscBase("world", NULL),
-      m_prismFactory("prism", "world"),
-      m_sphereFactory("sphere", "world")
+      m_prismFactory("prism", this),
+      m_sphereFactory("sphere", this)
 {
     char str[10];
     sprintf(str, "%d", port);
