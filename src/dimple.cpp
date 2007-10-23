@@ -50,6 +50,8 @@
 #include "CODESphere.h"
 #include "CODEPotentialProxy.h"
 //---------------------------------------------------------------------------
+#include "Simulation.h"
+//---------------------------------------------------------------------------
 
 lo_address address_send = lo_address_new("localhost", "7771");
 
