@@ -275,7 +275,7 @@ OscObject::OscObject(cGenericObject* p, const char *name)
     // If the new object is supposed to be a part of a
     // composite object, find it and join.
 	const char *s;
-    if (s=strchr(name, '/')) {
+    if ((s=strchr(name, '/'))) {
         char firstname[256];
         int len = (s-name<255)?(s-name):255;
         strncpy(firstname, name, len);
@@ -615,6 +615,7 @@ int OscObject::oscillate_handler(const char *path, const char *types, lo_arg **a
     pthread_t th;
     pthread_create(&th, NULL, oscillate_thread, args);
     printf("%s is oscillating at %f Hz, %f amplitude.\n", me->c_name(), hz, amp);
+    return 0;
 }
 
 // ----------------------------------------------------------------------------------
