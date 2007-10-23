@@ -88,5 +88,7 @@ env.Program( target = 'dimple',
               'OscObject.cpp',
               'valuetimer.cpp',
               'AudioStreamer.cpp',
-              'dimple.cpp']
+              'dimple.cpp',
+              'OscBase.cpp',
+              'Simulation.cpp']
 	)

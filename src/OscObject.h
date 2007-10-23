@@ -21,34 +21,9 @@
 #include <vector>
 #include <map>
 
+#include "OscBase.h"
 #include "CODEPrism.h"
 #include "CODESphere.h"
-
-//! The OscBase class handles basic OSC functions for dealing with LibLo.
-//! It keeps a record of the object's name and classname which becomes
-//! part of all OSC methods for this object.
-class OscBase
-{
-public:
-    OscBase(const char *name, const char *classname);
-    virtual ~OscBase();
-
-    const char* name() { return m_name.c_str(); }
-    const char* classname() { return m_classname.c_str(); }
-    const std::string strname() { return m_name; }
-    const std::string strclassname() { return m_classname; }
-
-protected:
-    virtual void addHandler(const char *methodname, const char* type, lo_method_handler h);
-    std::string m_name;
-    std::string m_classname;
-
-    struct method_t {
-        std::string name;
-        std::string type;
-    };
-    std::vector <method_t> m_methods;
-};
 
 //! The OscValue class is the base class for all OSC-accessible values,
 //! including vectors and scalars.
