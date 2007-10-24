@@ -90,5 +90,6 @@ env.Program( target = 'dimple',
               'AudioStreamer.cpp',
               'dimple.cpp',
               'OscBase.cpp',
-              'Simulation.cpp']
+              'Simulation.cpp',
+              'PhysicsSim.cpp']
 	)

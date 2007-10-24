@@ -50,7 +50,7 @@
 #include "CODESphere.h"
 #include "CODEPotentialProxy.h"
 //---------------------------------------------------------------------------
-#include "Simulation.h"
+#include "PhysicsSim.h"
 //---------------------------------------------------------------------------
 
 lo_address address_send = lo_address_new("localhost", "7771");
@@ -138,6 +138,8 @@ int ode_counter = 0;
 bool bGetCollide = false;
 
 int mousepos[2];
+
+PhysicsSim physics("7771");
 
 // Synchronized class allowing seperate read and write locks & non-block operation
 class sync_lock {

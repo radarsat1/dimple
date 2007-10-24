@@ -5,11 +5,23 @@
 
 #include "OscObject.h"
 
+class Simulation;
+
 class ShapeFactory : public OscBase
 {
 public:
-    ShapeFactory(char *name, OscBase *parent);
+    ShapeFactory(char *name, Simulation *parent);
     virtual ~ShapeFactory();
+
+protected:
+    // message handlers
+};
+
+class PrismFactory : public ShapeFactory
+{
+public:
+    PrismFactory(char *name, Simulation *parent);
+    virtual ~PrismFactory();
 
 protected:
     // message handlers
@@ -17,24 +29,25 @@ protected:
                               int argc, void *data, void *user_data);
 };
 
-class PrismFactory : public ShapeFactory
-{
-public:
-    PrismFactory(char *name, OscBase *parent);
-    virtual ~PrismFactory();
-};
-
 class SphereFactory : public ShapeFactory
 {
 public:
-    SphereFactory(char *name, OscBase *parent);
+    SphereFactory(char *name, Simulation *parent);
     virtual ~SphereFactory();
+
+protected:
+    // message handlers
+    static int create_handler(const char *path, const char *types, lo_arg **argv,
+                              int argc, void *data, void *user_data);
 };
 
+//! A Simulation is an OSC-controlled simulation thread which contains
+//! a scene graph.  It is inherited by the specific simulation, be it
+//! physics, haptics, or other.
 class Simulation : public OscBase
 {
   public:
-    Simulation(int port);
+    Simulation(const char *port);
     virtual ~Simulation();
 
     PrismFactory m_prismFactory;

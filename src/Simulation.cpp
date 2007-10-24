@@ -5,7 +5,7 @@
 #include "Simulation.h"
 #include "OscBase.h"
 
-ShapeFactory::ShapeFactory(char *name, OscBase *parent)
+ShapeFactory::ShapeFactory(char *name, Simulation *parent)
     : OscBase(name, parent)
 {
 }
@@ -14,32 +14,44 @@ ShapeFactory::~ShapeFactory()
 {
 }
 
-PrismFactory::PrismFactory(char *name, OscBase *parent)
+PrismFactory::PrismFactory(char *name, Simulation *parent)
     : ShapeFactory(name, parent)
 {
+    // Name, Width, Height, Depth
+    addHandler("create", "sfff", create_handler);
 }
 
 PrismFactory::~PrismFactory()
 {
 }
 
-SphereFactory::SphereFactory(char *name, OscBase *parent)
+int PrismFactory::create_handler(const char *path, const char *types, lo_arg **argv,
+                                 int argc, void *data, void *user_data)
+{
+}
+
+SphereFactory::SphereFactory(char *name, Simulation *parent)
     : ShapeFactory(name, parent)
 {
+    // Name, Radius
+    addHandler("create", "sf", create_handler);
 }
 
 SphereFactory::~SphereFactory()
 {
 }
 
-Simulation::Simulation(int port)
-    : OscBase("world", NULL),
+int SphereFactory::create_handler(const char *path, const char *types, lo_arg **argv,
+                                  int argc, void *data, void *user_data)
+{
+}
+
+
+Simulation::Simulation(const char *port)
+    : OscBase("world", NULL, lo_server_new(port, NULL)),
       m_prismFactory("prism", this),
       m_sphereFactory("sphere", this)
 {
-    char str[10];
-    sprintf(str, "%d", port);
-    m_server = lo_server_new(str, NULL);
 }
 
 Simulation::~Simulation()

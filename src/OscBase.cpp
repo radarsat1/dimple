@@ -20,8 +20,8 @@
 #include "dimple.h"
 
 //! OscBase objects always have a name. Class name defaults to "".
-OscBase::OscBase(const char *name, OscBase *parent)
-    : m_name(name), m_parent(parent)
+OscBase::OscBase(const char *name, OscBase *parent, lo_server server)
+    : m_name(name), m_parent(parent), m_server(server?server:parent->m_server)
 {
 }
 
@@ -37,7 +37,7 @@ void OscBase::addHandler(const char *methodname, const char* type, lo_method_han
         n = n + "/" + methodname;
 
     // add it to liblo server and store it
-    if (lo_server_add_method(loserver, n.c_str(), type, h, this))
+    if (lo_server_add_method(m_server, n.c_str(), type, h, this))
     {
         method_t m;
         m.name = n;
@@ -52,7 +52,7 @@ OscBase::~OscBase()
     while (m_methods.size()>0) {
         method_t m = m_methods.back();
         m_methods.pop_back();
-        lo_server_del_method(loserver, m.name.c_str(), m.type.c_str());
+        lo_server_del_method(m_server, m.name.c_str(), m.type.c_str());
     }
 }
 

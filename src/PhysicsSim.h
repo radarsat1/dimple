@@ -3,12 +3,12 @@
 #ifndef _PHYSICS_SIM_H_
 #define _PHYSICS_SIM_H_
 
-#include "OscObject.h"
+#include "Simulation.h"
 
-class PhysicsSim : Simulation
+class PhysicsSim : public Simulation
 {
   public:
-    PhysicsSim(int port) : Simulation(port) {};
+    PhysicsSim(const char *port);
     virtual ~PhysicsSim();
 
   protected:
