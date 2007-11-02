@@ -57,7 +57,7 @@ env.Append(
                '../libdeps/chai3d/include',
                '../libdeps/liblo-0.23'],
     CPPDEFINES = ['_POSIX',
-                  'LINUX',
+                  'LINUX', '_LINUX',
                   ('_MAX_PATH','260')],
     LIBPATH = ['../libdeps/ode-0.7/ode/src',
                '../libdeps/liblo-0.23/src/.libs'],
