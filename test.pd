@@ -1,4 +1,4 @@
-#N canvas 489 342 730 575 10;
+#N canvas 523 0 746 591 10;
 #X msg 504 139 send /world/clear;
 #X obj 456 176 s osc;
 #X obj 281 150 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
@@ -166,7 +166,7 @@
 #X obj 116 79 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
 #X text 139 81 bang to create box;
-#N canvas 291 172 493 385 createmarble 0;
+#N canvas 291 172 501 393 createmarble 0;
 #X obj 314 336 s osc;
 #X floatatom 28 54 5 0 0 0 - - -;
 #X obj 55 25 + 1;
@@ -209,7 +209,7 @@
 #X restore 331 117 pd texture;
 #X msg 58 214 /object/sphere/create \$1s \$3 \$3 \$2;
 #X msg 28 237 /object/\$1s/radius 0.02;
-#X msg 46 259 /object/\$1s/mass 0.02;
+#X msg 46 259 /object/\$1s/mass 0.2;
 #X connect 1 0 9 0;
 #X connect 2 0 6 1;
 #X connect 2 0 13 0;
@@ -233,7 +233,6 @@
 #X connect 13 0 14 0;
 #X connect 14 0 7 0;
 #X connect 15 0 3 0;
-#X connect 16 0 3 0;
 #X connect 17 0 3 0;
 #X connect 18 0 3 0;
 #X connect 19 0 3 0;
@@ -323,7 +322,7 @@
 #X obj 56 404 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X text 80 404 audio;
-#N canvas 397 472 478 328 beepcollide 0;
+#N canvas 387 258 482 332 beepcollide 0;
 #X obj 78 47 OSCroute /object;
 #X obj 78 133 print collided;
 #X obj 79 26 r rosc;
@@ -336,11 +335,22 @@
 #X obj 227 149 clip 0 1;
 #X msg 209 14 \; pd dsp 1;
 #X obj 209 -6 select 1;
-#N canvas 0 0 874 532 modal 0;
+#N canvas 0 0 878 536 modal 0;
 #N canvas 0 0 450 300 (subpatch) 0;
 #X array array2 64 float 1;
-#A 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0;
+#A 0 -7.27688e-009 -7.3409e-009 -7.44617e-009 -7.5934e-009 -7.78325e-009
+-8.01638e-009 -8.29337e-009 -8.61472e-009 -8.98093e-009 -9.39236e-009
+-9.84931e-009 -1.0352e-008 -1.09005e-008 -1.14949e-008 -1.21351e-008
+-1.28208e-008 -1.35516e-008 -1.43272e-008 -1.51468e-008 -1.60097e-008
+-1.6915e-008 -1.78616e-008 -1.88482e-008 -1.98735e-008 -2.0936e-008
+-2.20338e-008 -2.3165e-008 -2.43276e-008 -2.55194e-008 -2.67379e-008
+-2.79805e-008 -2.92446e-008 -3.0527e-008 -3.18249e-008 -3.31349e-008
+-3.44538e-008 -3.57778e-008 -3.71035e-008 -3.84269e-008 -3.97442e-008
+-4.10515e-008 -4.23444e-008 -4.36189e-008 -4.48707e-008 -4.60953e-008
+-4.72885e-008 -4.84457e-008 -4.95625e-008 -5.06344e-008 -5.1657e-008
+-5.26257e-008 -5.35362e-008 -5.43841e-008 -5.5165e-008 -5.58747e-008
+-5.65091e-008 -5.70642e-008 -5.75361e-008 -5.79209e-008 -5.82151e-008
+-5.84153e-008 -5.85182e-008 -5.85207e-008 -5.84201e-008;
 #X coords 0 1 63 -1 200 140 1;
 #X restore 134 358 graph;
 #N canvas 0 0 450 300 (subpatch) 0;
@@ -881,6 +891,7 @@
 #X connect 42 0 41 0;
 #X restore 227 182 pd modal;
 #X obj 227 130 * 1;
+#X obj 287 149 inlet;
 #X connect 0 0 6 0;
 #X connect 0 0 7 0;
 #X connect 2 0 0 0;
@@ -896,6 +907,7 @@
 #X connect 11 0 10 0;
 #X connect 12 0 5 1;
 #X connect 13 0 9 0;
+#X connect 14 0 12 1;
 #X restore 56 428 pd beepcollide;
 #X msg 366 149 2;
 #N canvas 71 287 544 400 s3_accel 0;
@@ -1045,7 +1057,7 @@ PhysicaL Environment;
 #X text 115 150 Step 4:;
 #X text 17 217 Other demonstrations:;
 #X text 21 328 Don't forget to turn on DSP!;
-#N canvas 289 164 600 490 grab 0;
+#N canvas 289 164 612 502 grab 0;
 #X obj 35 374 list prepend send;
 #X obj 35 397 list trim;
 #X obj 35 420 s osc;
@@ -1055,7 +1067,6 @@ PhysicaL Environment;
 #X msg 35 136 /object/sphere_proxy/grab;
 #X msg 236 246 /object/prism/create box_proxy 0 0.2 0;
 #X msg 217 276 /object/box_proxy/size 0.1 0.1 0.1;
-#X msg 217 298 /object/box_proxy/mass 0.1;
 #X msg 200 333 /object/box_proxy/grab;
 #X msg 381 57 /object/sphere_proxy/grab 0;
 #X obj 159 16 route sphere box none;
@@ -1070,41 +1081,47 @@ PhysicaL Environment;
 #X msg 72 78 /object/sphere/create sphere_proxy 0 0.1 0.5;
 #X msg -35 284 /object/sphere_proxy/position 0 0 0.5;
 #X msg 68 160 /object/sphere_proxy/mass 0.1;
+#X msg 217 298 /object/box_proxy/mass 1;
+#X msg 315 387 /object/box_proxy/destroy;
+#X msg 227 308 /object/box_proxy/color 0.7 0.4 0.2;
 #X connect 0 0 1 0;
 #X connect 1 0 2 0;
-#X connect 3 0 12 0;
+#X connect 3 0 11 0;
 #X connect 4 0 6 0;
 #X connect 4 1 5 0;
-#X connect 4 1 23 0;
-#X connect 4 2 21 0;
+#X connect 4 1 22 0;
+#X connect 4 2 20 0;
 #X connect 5 0 0 0;
 #X connect 6 0 0 0;
-#X connect 7 0 15 0;
-#X connect 8 0 15 0;
-#X connect 9 0 15 0;
-#X connect 10 0 15 0;
-#X connect 11 0 18 0;
-#X connect 12 0 4 0;
-#X connect 12 1 14 0;
-#X connect 12 2 11 0;
-#X connect 12 2 13 0;
-#X connect 13 0 18 0;
-#X connect 14 0 10 0;
-#X connect 14 1 8 0;
-#X connect 14 1 9 0;
-#X connect 14 2 7 0;
+#X connect 7 0 14 0;
+#X connect 8 0 14 0;
+#X connect 9 0 14 0;
+#X connect 10 0 17 0;
+#X connect 11 0 4 0;
+#X connect 11 1 13 0;
+#X connect 11 2 10 0;
+#X connect 11 2 12 0;
+#X connect 12 0 17 0;
+#X connect 13 0 9 0;
+#X connect 13 1 8 0;
+#X connect 13 1 23 0;
+#X connect 13 1 25 0;
+#X connect 13 2 7 0;
+#X connect 14 0 15 0;
 #X connect 15 0 16 0;
-#X connect 16 0 17 0;
+#X connect 17 0 18 0;
 #X connect 18 0 19 0;
-#X connect 19 0 20 0;
+#X connect 20 0 0 0;
 #X connect 21 0 0 0;
 #X connect 22 0 0 0;
-#X connect 23 0 0 0;
+#X connect 23 0 14 0;
+#X connect 24 0 14 0;
+#X connect 25 0 14 0;
 #X restore 223 304 pd grab;
 #X msg 177 273 sphere;
 #X msg 223 273 box;
 #X msg 251 273 none;
-#N canvas 421 204 655 436 snake 0;
+#N canvas 421 204 691 472 snake 0;
 #X obj 28 14 inlet;
 #X obj 15 400 s osc;
 #N canvas 0 0 450 300 itercount 0;
@@ -1147,9 +1164,7 @@ PhysicaL Environment;
 #X msg 190 186 send /constraint/hinge/create hinge\$1\$2 sn\$1 sn\$2
 0 \$3 0 1 0 0;
 #X msg 75 313 send /object/prism/create sn\$1 0 \$2 0;
-#X obj 60 107 * 0.04;
 #X msg 190 220 send /constraint/hinge\$1\$2/response spring 1 0.1;
-#X msg 53 339 send /object/sn\$1/size 0.1 0.04 0.01;
 #N canvas 253 332 598 330 audio 0;
 #X obj 129 10 r rosc;
 #X floatatom 73 86 5 0 0 0 - - -;
@@ -1244,20 +1259,26 @@ PhysicaL Environment;
 #X msg 139 267 send /object/sn\$1/velocity/magnitude/get 100;
 #X obj 432 11 inlet;
 #X obj 433 43 * 30;
+#X msg 303 338 send /object/sn\$1/mass 0.1;
+#X msg 53 339 send /object/sn\$1/size 0.4 0.1 0.01;
+#X obj 60 107 * 0.1;
+#X msg 63 349 send /object/sn\$1/color 0.5 0.8 0.5;
 #X connect 0 0 16 0;
 #X connect 2 0 4 0;
 #X connect 3 0 5 0;
 #X connect 4 0 3 0;
 #X connect 4 0 6 0;
-#X connect 4 1 19 0;
-#X connect 5 1 21 0;
+#X connect 4 1 26 0;
+#X connect 5 1 25 0;
+#X connect 5 1 24 0;
+#X connect 5 1 27 0;
 #X connect 5 2 18 0;
 #X connect 6 1 7 0;
 #X connect 6 1 8 0;
-#X connect 6 1 23 0;
+#X connect 6 1 21 0;
 #X connect 7 0 8 1;
 #X connect 8 0 17 0;
-#X connect 8 0 20 0;
+#X connect 8 0 19 0;
 #X connect 8 0 11 0;
 #X connect 10 0 1 0;
 #X connect 11 0 9 0;
@@ -1269,14 +1290,16 @@ PhysicaL Environment;
 #X connect 16 0 10 0;
 #X connect 17 0 9 0;
 #X connect 18 0 1 0;
-#X connect 19 0 3 1;
-#X connect 19 0 8 2;
-#X connect 20 0 9 0;
-#X connect 21 0 1 0;
-#X connect 22 0 13 0;
-#X connect 23 0 9 0;
-#X connect 24 0 25 0;
-#X connect 25 0 15 0;
+#X connect 19 0 9 0;
+#X connect 20 0 13 0;
+#X connect 21 0 9 0;
+#X connect 22 0 23 0;
+#X connect 23 0 15 0;
+#X connect 24 0 1 0;
+#X connect 25 0 1 0;
+#X connect 26 0 3 1;
+#X connect 26 0 8 2;
+#X connect 27 0 1 0;
 #X restore 584 284 pd snake;
 #X obj 584 261 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
@@ -1351,7 +1374,7 @@ PhysicaL Environment;
 #X restore 89 507 pd texturetest;
 #X obj 89 486 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
-#N canvas 465 477 478 328 cuberoom 1;
+#N canvas 415 273 486 336 cuberoom 0;
 #X obj 20 10 inlet;
 #X obj 20 34 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
@@ -1510,7 +1533,7 @@ PhysicaL Environment;
 #X connect 55 0 48 0;
 #X connect 56 0 48 0;
 #X restore 20 57 pd createroom;
-#N canvas 120 179 526 316 xbyxbyx 0;
+#N canvas 120 179 530 320 xbyxbyx 0;
 #X obj 65 147 until;
 #X obj 65 175 f;
 #X obj 96 177 + 1;
@@ -1563,7 +1586,6 @@ PhysicaL Environment;
 #X connect 12 1 13 0;
 #X connect 13 0 1 1;
 #X connect 14 0 11 0;
-#X connect 14 1 30 2;
 #X connect 15 0 5 0;
 #X connect 16 0 0 0;
 #X connect 17 0 12 0;
@@ -1624,6 +1646,7 @@ PhysicaL Environment;
 #X connect 16 0 8 0;
 #X connect 17 0 3 0;
 #X restore 181 508 pd cuberoom;
+#X floatatom 135 405 5 0 0 0 - - -;
 #X connect 0 0 1 0;
 #X connect 2 0 13 0;
 #X connect 3 0 2 0;
@@ -1648,3 +1671,4 @@ PhysicaL Environment;
 #X connect 59 0 58 0;
 #X connect 61 0 58 1;
 #X connect 64 0 63 0;
+#X connect 66 0 20 1;
