@@ -96,6 +96,8 @@ class cODEPrimitive
 	  //! Set a force on the dynamic object.
       void setDynamicForce(const cVector3d &a_force);
       //! Set the dynamic object's rotational position.
+      void addDynamicForce(const cVector3d &a_force);
+
       void setDynamicRotation(const cMatrix3d &a_rot);
 	  //! Sync the pose of the ODE object with the pose of the CHAI object
 	  void syncPose();

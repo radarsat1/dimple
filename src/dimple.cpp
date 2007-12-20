@@ -563,7 +563,7 @@ void ode_simStep()
         // When a proxy object is in use, create a spring between cursor position and ODE object position
         cVector3d diff(proxyObject->getPosition() - cursor->m_deviceGlobalPos);
         cVector3d vel(proxyObject->getVelocity());
-        proxyObject->odePrimitive()->setDynamicForce(diff * -100 - vel*10);
+		proxyObject->odePrimitive()->addDynamicForce(diff * -100 - vel*10);
 
         /* TODO: rotation is not correctly set here, seems backwards.
         // Set the object's orientation statically (TODO: also use a spring here)

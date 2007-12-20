@@ -208,6 +208,10 @@ void cODEPrimitive::setDynamicForce(const cVector3d &a_force)
 {
     dBodySetForce(m_odeBody, a_force.x, a_force.y, a_force.z);
 }
+void cODEPrimitive::addDynamicForce(const cVector3d &a_force)
+{
+    dBodyAddForce(m_odeBody, a_force.x, a_force.y, a_force.z);
+}
 
 //===========================================================================
 /*!
