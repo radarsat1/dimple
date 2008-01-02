@@ -64,9 +64,9 @@ env.Append(
     CPPDEFINES = ['_POSIX',
                   'LINUX', '_LINUX',
                   ('_MAX_PATH','260')],
-    LIBPATH = ['../libdeps/ode-0.7/ode/src',
-               '../libdeps/liblo-0.23/src/.libs'],
-    LIBS = ['ode','lo', 'pthread']
+    LIBPATH = ['../libdeps/ode-0.7/ode/src'],
+    LIBS = ['ode', 'pthread'],
+    LINKFLAGS = ['../libdeps/liblo-0.23/src/.libs/liblo.a']
     )
 
 env.Program( target = 'dimple',
