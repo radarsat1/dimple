@@ -1,6 +1,6 @@
-diff -ruN chai3d-orig/darwin/Makefile chai3d/darwin/Makefile
---- chai3d-orig/darwin/Makefile	1969-12-31 19:00:00.000000000 -0500
-+++ chai3d/darwin/Makefile	2007-03-21 19:40:32.000000000 -0400
+diff -ruwN chai3d.orig/darwin/Makefile chai3d.new/darwin/Makefile
+--- chai3d.orig/darwin/Makefile	1969-12-31 19:00:00.000000000 -0500
++++ chai3d.new/darwin/Makefile	2008-01-01 23:39:39.000000000 -0500
 @@ -0,0 +1,55 @@
 +# CHAI makefile for Darwin
 +# Stephen Sinclair
@@ -19,7 +19,7 @@ diff -ruN chai3d-orig/darwin/Makefile chai3d/darwin/Makefile
 +
 +# Optionally add -D_DISABLE_PHANTOM_SUPPORT to compile away SensAble's libraries
 +# We exclude the Delta device because libdhd.a is not available on Darwin
-+DEFS = -D_POSIX -D_MAX_PATH=260 -D_DISABLE_PHANTOM_SUPPORT -DEXCLUDE_DELTA
++DEFS = -D_POSIX -D_MAX_PATH=260 -D_DISABLE_PHANTOM_SUPPORT -D_DISABLE_DELTA_SUPPORT
 +
 +CC   = g++ -c $(DEFS)
 +CFLAGS = -O3 $(INCLUDE)
@@ -57,61 +57,27 @@ diff -ruN chai3d-orig/darwin/Makefile chai3d/darwin/Makefile
 +clean:
 +	\rm -fr *.o *~ libchai3d_darwin.a core GL GLUT
 +
-diff -ruN chai3d-orig/include/CCollisionSpheresGeometry.h chai3d/include/CCollisionSpheresGeometry.h
---- chai3d-orig/include/CCollisionSpheresGeometry.h	2006-07-31 08:50:16.000000000 -0400
-+++ chai3d/include/CCollisionSpheresGeometry.h	2007-03-21 15:13:28.000000000 -0400
-@@ -29,8 +29,10 @@
+diff -ruwN chai3d.orig/include/CCollisionSpheresGeometry.h chai3d.new/include/CCollisionSpheresGeometry.h
+--- chai3d.orig/include/CCollisionSpheresGeometry.h	2006-11-30 10:48:50.000000000 -0500
++++ chai3d.new/include/CCollisionSpheresGeometry.h	2008-01-01 23:40:59.000000000 -0500
+@@ -29,7 +29,7 @@
  #include <list>
  #include <map>
  #include <math.h>
-+#ifdef WIN32
+-#ifndef _LINUX
++#ifdef _WIN32
  #include <windows.h>
--#include <gl/gl.h>
-+#endif
-+#include <GL/gl.h>
- //---------------------------------------------------------------------------
- using std::map;
- using std::less;
-Binary files chai3d-orig/lib/darwin/libchai3d_darwin.a and chai3d/lib/darwin/libchai3d_darwin.a differ
-Binary files chai3d-orig/lib/linux/libchai3d_linux.a and chai3d/lib/linux/libchai3d_linux.a differ
-diff -ruN chai3d-orig/src/collisions/CCollisionSpheresGeometry.h chai3d/src/collisions/CCollisionSpheresGeometry.h
---- chai3d-orig/src/collisions/CCollisionSpheresGeometry.h	2006-07-31 08:50:16.000000000 -0400
-+++ chai3d/src/collisions/CCollisionSpheresGeometry.h	2007-03-21 19:21:34.000000000 -0400
-@@ -29,8 +29,10 @@
+ #endif
+ #include <GL/gl.h>
+diff -ruwN chai3d.orig/src/collisions/CCollisionSpheresGeometry.h chai3d.new/src/collisions/CCollisionSpheresGeometry.h
+--- chai3d.orig/src/collisions/CCollisionSpheresGeometry.h	2006-11-30 10:48:50.000000000 -0500
++++ chai3d.new/src/collisions/CCollisionSpheresGeometry.h	2008-01-01 23:39:41.000000000 -0500
+@@ -29,7 +29,7 @@
  #include <list>
  #include <map>
  #include <math.h>
-+#ifdef WIN32
+-#ifndef _LINUX
++#ifdef _WIN32
  #include <windows.h>
--#include <gl/gl.h>
-+#endif
-+#include <GL/gl.h>
- //---------------------------------------------------------------------------
- using std::map;
- using std::less;
-diff -ruN chai3d-orig/src/devices/CDeltaDevices.cpp chai3d/src/devices/CDeltaDevices.cpp
---- chai3d-orig/src/devices/CDeltaDevices.cpp	2006-05-16 11:30:28.000000000 -0400
-+++ chai3d/src/devices/CDeltaDevices.cpp	2007-03-21 19:37:12.000000000 -0400
-@@ -36,6 +36,17 @@
- const double OMEGA_DEVICE_MAXIMUM_FORCE        = 12.0;  // [newtons]
- //---------------------------------------------------------------------------
- 
-+#ifdef EXCLUDE_DELTA
-+
-+cDeltaDevice::cDeltaDevice(unsigned int a_deviceNumber) {}
-+cDeltaDevice::~cDeltaDevice() {}
-+int cDeltaDevice::open() { return 0; }
-+int cDeltaDevice::close() { return 0; }
-+int cDeltaDevice::initialize(const bool a_resetEncoders) { return 0; }
-+int cDeltaDevice::command(int a_command, void* a_data) { return 0; }
-+
-+#else
-+
- #ifdef _WIN32
- 
- HINSTANCE dhdDLL = NULL;
-@@ -393,3 +404,4 @@
- }
- 
- 
-+#endif
+ #endif
+ #include <GL/gl.h>

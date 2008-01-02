@@ -34,7 +34,12 @@ else:
     env.Append(CPPDEFINES = ['USE_FREEGLUT'],
                LIBS = ['glut'])
 
-conf.CheckLibWithHeader('samplerate', 'samplerate.h', 'C')
+if not conf.CheckLibWithHeader('samplerate', 'samplerate.h', 'C'):
+    env.Append(CPPPATH=['../libdeps/libsamplerate-0.1.2/src'],
+               LIBPATH=['../libdeps/libsamplerate-0.1.2/src/.libs'])
+    if not conf.CheckLibWithHeader('samplerate', 'samplerate.h', 'C'):
+        print 'libsamplerate not found.'
+        env.Exit(-1)
 
 # Platform dependant library names
 if 'linux' in sys.platform:

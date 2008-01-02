@@ -492,13 +492,19 @@ case $(uname) in
     rm compile.log >/dev/null 2>&1
 	;;
 
-	*)
-    echo Compiling $samplerate_DIR
-    if !(cd $samplerate_DIR && make); then
-        echo "Error compiling $samplerate_DIR"
-        exit
-    fi
-    ;;
+   *)
+   echo Configuring $samplerate_DIR
+   if !(cd $samplerate_DIR && ./configure --disable-shared); then
+	  echo "Error configuring $samplerate_DIR"
+	  exit
+   fi
+
+   echo Compiling $samplerate_DIR
+   if !(cd $samplerate_DIR && make); then
+	  echo "Error compiling $samplerate_DIR"
+	  exit
+   fi
+   ;;
 esac
 
 fi
@@ -581,9 +587,10 @@ case $(uname) in
 	DL="curl -o"
     MD5=md5
 	MD5CUT="cut -f2 -d="
-    chai_PATCH=chai3d-1.51-darwin.patch
+    chai_PATCH=chai3d-1.61-darwin.patch
 	chai_DIR=chai3d/darwin
     scons
+    samplerate
     ode
 	liblo
 	chai3d
