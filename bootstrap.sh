@@ -571,7 +571,6 @@ case $(uname) in
 	DL="wget -O"
     MD5=md5sum
 	MD5CUT="awk {print\$1}"
-    chai_PATCH=chai3d-1.51-ubuntu.patch
 	chai_DIR=chai3d/linux
 
     scons
