@@ -41,6 +41,9 @@ if not conf.CheckLibWithHeader('samplerate', 'samplerate.h', 'C'):
         print 'libsamplerate not found.'
         env.Exit(-1)
 
+### CHAI 3D ###
+env.Append(CPPDEFINES = ['_POSIX', 'LINUX', '_LINUX',
+                         ('_MAX_PATH','260')])                  
 # Platform dependant library names
 if 'linux' in sys.platform:
 	env.Append(LIBS = ['chai3d_linux', 'dhd', 'usb', 'pciscan'],
@@ -49,26 +52,33 @@ elif 'darwin' in sys.platform:
 	env.Append(LIBS = ['chai3d_darwin'],
                LIBPATH = ['../libdeps/chai3d/lib/darwin'])
 
+### LibLo ###
+# Link to the library with direct path or using -l option,
+# depending on operating system.
+if 'linux' in sys.platform:
+   env.Append(LIBPATH = ['../libdeps/liblo-0.23/src/.libs'],
+              LIBS = ['lo'])
+else:
+   env.Append(LINKFLAGS = ['../libdeps/liblo-0.23/src/.libs/liblo.a'])
+
 nv = conf.Finish()
 
-# Debug mode
+### Debug mode ###
 if debug:
 	env.Append(CPPFLAGS = ['-ggdb','-Wall'])
 else:
 	env.Append(CPPFLAGS = ['-O3'])
 
+### Libraries which link the same on all systems ###
 env.Append(
     CPPPATH = ['../libdeps/ode-0.7/include',
                '../libdeps/chai3d/include',
                '../libdeps/liblo-0.23'],
-    CPPDEFINES = ['_POSIX',
-                  'LINUX', '_LINUX',
-                  ('_MAX_PATH','260')],
     LIBPATH = ['../libdeps/ode-0.7/ode/src'],
-    LIBS = ['ode', 'pthread'],
-    LINKFLAGS = ['../libdeps/liblo-0.23/src/.libs/liblo.a']
+    LIBS = ['ode', 'pthread']
     )
 
+### Compile the program ###
 env.Program( target = 'dimple',
     source = ['CODEMesh.cpp',
               'CODEPotentialProxy.cpp',
