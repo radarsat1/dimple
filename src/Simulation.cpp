@@ -48,7 +48,17 @@ int SphereFactory::create_handler(const char *path, const char *types, lo_arg **
                                   int argc, void *data, void *user_data)
 {
     SphereFactory *me = static_cast<SphereFactory*>(user_data);
-    me->create(&argv[0]->s, argv[1]->f, argv[2]->f, argv[3]->f);
+
+    // Optional position, default (0,0,0)
+	cVector3d pos;
+	if (argc>0)
+		 pos.x = argv[1]->f;
+	if (argc>1)
+		 pos.y = argv[2]->f;
+	if (argc>2)
+		 pos.z = argv[3]->f;
+
+    me->create(&argv[0]->s, pos.x, pos.y, pos.z);
     return 0;
 }
 
@@ -88,3 +98,11 @@ void* Simulation::run(void* param)
 
     return 0;
 }
+
+bool Simulation::add_object(OscObject& obj)
+{
+    world_objects[obj.name()] = &obj;
+
+    printf("Added object %s\n", obj.c_name());
+}
+

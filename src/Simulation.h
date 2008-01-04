@@ -17,7 +17,7 @@ class Simulation : public OscBase
     Simulation(const char *port);
     virtual ~Simulation();
     
-    bool add_object(OscObject& obj) { printf("Added object %s\n", obj.c_name()); }
+    bool add_object(OscObject& obj);
     bool delete_object(OscObject& obj) {}
 
   protected:

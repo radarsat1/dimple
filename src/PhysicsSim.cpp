@@ -1,5 +1,6 @@
 // -*- mode:c++; indent-tabs-mode:nil; c-basic-offset:4; compile-command:"scons debug=1" -*-
 
+#include "dimple.h"
 #include "PhysicsSim.h"
 
 bool PhysicsPrismFactory::create(const char *name, float x, float y, float z)
@@ -11,7 +12,13 @@ bool PhysicsPrismFactory::create(const char *name, float x, float y, float z)
 
 bool PhysicsSphereFactory::create(const char *name, float x, float y, float z)
 {
-    OscSphere *obj = new OscSphere(NULL, name, m_parent); /* TODO, pass actual ODE object here */
+    cODESphere *sp = new cODESphere(world,ode_world,ode_space,0.01);
+    sp->setDynamicPosition(cVector3d(x, y, z));
+    sp->setDynamicMass(0.5);
+    sp->m_material.setStaticFriction(1);
+    sp->m_material.setDynamicFriction(0.5);
+
+    OscSphere *obj = new OscSphere(sp, name, m_parent);
     if (obj)
         return simulation()->add_object(*obj);
 
