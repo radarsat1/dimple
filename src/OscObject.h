@@ -99,7 +99,7 @@ class OscString : public OscValue, public std::string
 class OscObject : public OscBase
 {
   public:
-	OscObject(cGenericObject* p, const char *name);
+	OscObject(cGenericObject* p, const char *name, OscBase *parent=NULL);
     virtual ~OscObject();
 
 	virtual cODEPrimitive*  odePrimitive() { return dynamic_cast<cODEPrimitive*>(m_objChai); }
@@ -185,7 +185,7 @@ class OscPrism : public OscObject
 class OscSphere : public OscObject
 {
   public:
-	OscSphere(cGenericObject* p, const char *name);
+	OscSphere(cGenericObject* p, const char *name, OscBase *parent=NULL);
 
 	virtual cODESphere*   odePrimitive() { return dynamic_cast<cODESphere*>(m_objChai); }
 	virtual cShapeSphere* chaiObject()   { return dynamic_cast<cShapeSphere*>(m_objChai); }

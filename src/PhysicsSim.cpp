@@ -11,9 +11,11 @@ bool PhysicsPrismFactory::create(const char *name, float x, float y, float z)
 
 bool PhysicsSphereFactory::create(const char *name, float x, float y, float z)
 {
-    printf("PhysicsSphereFactory (%s) is creating a sphere object called '%s'\n",
-           m_parent->c_name(), name);
-    return true;
+    OscSphere *obj = new OscSphere(NULL, name, m_parent); /* TODO, pass actual ODE object here */
+    if (obj)
+        return simulation()->add_object(*obj);
+
+    return false;
 }
 
 PhysicsSim::PhysicsSim(const char *port)

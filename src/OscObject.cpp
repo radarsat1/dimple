@@ -220,8 +220,8 @@ int OscString::_handler(const char *path, const char *types, lo_arg **argv,
 // ----------------------------------------------------------------------------------
 
 //! OscObject has a CHAI/ODE object associated with it. Class name = "object"
-OscObject::OscObject(cGenericObject* p, const char *name)
-    : OscBase(name, NULL),  // was "object"
+OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
+    : OscBase(name, parent),  // was "object"
       m_velocity("velocity", this),
       m_accel("acceleration", this),
       m_position("position", this),
@@ -688,8 +688,8 @@ int OscPrism::size_handler(const char *path, const char *types, lo_arg **argv,
 
 // ----------------------------------------------------------------------------------
 
-OscSphere::OscSphere(cGenericObject* p, const char *name)
-    : OscObject(p, name)
+OscSphere::OscSphere(cGenericObject* p, const char *name, OscBase* parent)
+    : OscObject(p, name, parent)
 {
     addHandler("radius", "f", OscSphere::radius_handler);
 }

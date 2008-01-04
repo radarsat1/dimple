@@ -5,13 +5,43 @@
 
 #include "OscObject.h"
 
-class Simulation;
+class SphereFactory;
+class PrismFactory;
+
+//! A Simulation is an OSC-controlled simulation thread which contains
+//! a scene graph.  It is inherited by the specific simulation, be it
+//! physics, haptics, or other.
+class Simulation : public OscBase
+{
+  public:
+    Simulation(const char *port);
+    virtual ~Simulation();
+    
+    bool add_object(OscObject& obj) { printf("Added object %s\n", obj.c_name()); }
+    bool delete_object(OscObject& obj) {}
+
+  protected:
+    pthread_t m_thread;
+    bool m_bDone;
+
+    PrismFactory *m_pPrismFactory;
+    SphereFactory *m_pSphereFactory;
+
+    //! Function for simulation thread
+    static void* run(void* param);
+
+    // world objects & constraints
+    std::map<std::string,OscObject*> world_objects;
+    std::map<std::string,OscConstraint*> world_constraints;
+};
 
 class ShapeFactory : public OscBase
 {
 public:
     ShapeFactory(char *name, Simulation *parent);
     virtual ~ShapeFactory();
+
+    virtual Simulation* simulation() { return static_cast<Simulation*>(m_parent); }
 
 protected:
     // message handlers
@@ -45,30 +75,6 @@ protected:
 
     // override these functions with a specific factory subclass
     virtual bool create(const char *name, float x, float y, float z) = 0;
-};
-
-//! A Simulation is an OSC-controlled simulation thread which contains
-//! a scene graph.  It is inherited by the specific simulation, be it
-//! physics, haptics, or other.
-class Simulation : public OscBase
-{
-  public:
-    Simulation(const char *port);
-    virtual ~Simulation();
-
-    PrismFactory *m_pPrismFactory;
-    SphereFactory *m_pSphereFactory;
-
-  protected:
-    pthread_t m_thread;
-    bool m_bDone;
-
-    //! Function for simulation thread
-    static void* run(void* param);
-
-    // world objects & constraints
-    std::map<std::string,OscObject*> world_objects;
-    std::map<std::string,OscConstraint*> world_constraints;
 };
 
 #endif // _SIMULATION_H_
