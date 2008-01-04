@@ -1662,7 +1662,7 @@ int main(int argc, char* argv[])
 	 printf ("\n");
 	 printf ("  ==========================================================\n");
 	 printf ("  DIMPLE: Dynamic Interactive Musically PhysicaL Environment\n");
-	 printf ("  Version 0.0.6 (alpha).        Stephen Sinclair, IDMIL 2007\n");
+	 printf ("  Version " DIMPLE_VERSION " (beta).         Stephen Sinclair, IDMIL 2007\n");
 	 printf ("  ==========================================================\n");
 	 printf ("\n");
      fflush(stdout);
