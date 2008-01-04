@@ -14,8 +14,8 @@ ShapeFactory::~ShapeFactory()
 {
 }
 
-PrismFactory::PrismFactory(char *name, Simulation *parent)
-    : ShapeFactory(name, parent)
+PrismFactory::PrismFactory(Simulation *parent)
+    : ShapeFactory("prism", parent)
 {
     // Name, Width, Height, Depth
     addHandler("create", "sfff", create_handler);
@@ -30,8 +30,8 @@ int PrismFactory::create_handler(const char *path, const char *types, lo_arg **a
 {
 }
 
-SphereFactory::SphereFactory(char *name, Simulation *parent)
-    : ShapeFactory(name, parent)
+SphereFactory::SphereFactory(Simulation *parent)
+    : ShapeFactory("sphere", parent)
 {
     // Name, Radius
     addHandler("create", "sf", create_handler);
@@ -44,16 +44,13 @@ SphereFactory::~SphereFactory()
 int SphereFactory::create_handler(const char *path, const char *types, lo_arg **argv,
                                   int argc, void *data, void *user_data)
 {
-    SphereFactory *me = (SphereFactory*)user_data;
-    printf("SphereFactory (%s) is creating a sphere object.\n", me->m_parent->c_name());
+    SphereFactory *me = static_cast<SphereFactory*>(user_data);
+    me->create(&argv[0]->s, argv[1]->f);
     return 0;
 }
 
-
 Simulation::Simulation(const char *port)
-    : OscBase("world", NULL, lo_server_new(port, NULL)),
-      m_prismFactory("prism", this),
-      m_sphereFactory("sphere", this)
+    : OscBase("world", NULL, lo_server_new(port, NULL))
 {
     m_bDone = false;
     if (pthread_create(&m_thread, NULL, Simulation::run, this))
@@ -77,7 +74,7 @@ Simulation::~Simulation()
 
 void* Simulation::run(void* param)
 {
-    Simulation* me = (Simulation*)param;
+    Simulation* me = static_cast<Simulation*>(param);
 
     printf("Simulation running.\n");
 

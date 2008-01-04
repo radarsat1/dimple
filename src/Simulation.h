@@ -20,7 +20,7 @@ protected:
 class PrismFactory : public ShapeFactory
 {
 public:
-    PrismFactory(char *name, Simulation *parent);
+    PrismFactory(Simulation *parent);
     virtual ~PrismFactory();
 
 protected:
@@ -32,13 +32,16 @@ protected:
 class SphereFactory : public ShapeFactory
 {
 public:
-    SphereFactory(char *name, Simulation *parent);
+    SphereFactory(Simulation *parent);
     virtual ~SphereFactory();
 
 protected:
     // message handlers
     static int create_handler(const char *path, const char *types, lo_arg **argv,
                               int argc, void *data, void *user_data);
+
+    // override these functions with a specific factory subclass
+    virtual bool create(const char *name, float radius) = 0;
 };
 
 //! A Simulation is an OSC-controlled simulation thread which contains
@@ -50,8 +53,8 @@ class Simulation : public OscBase
     Simulation(const char *port);
     virtual ~Simulation();
 
-    PrismFactory m_prismFactory;
-    SphereFactory m_sphereFactory;
+    PrismFactory *m_pPrismFactory;
+    SphereFactory *m_pSphereFactory;
 
   protected:
     pthread_t m_thread;
