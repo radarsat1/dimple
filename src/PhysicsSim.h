@@ -5,6 +5,16 @@
 
 #include "Simulation.h"
 
+class PhysicsPrismFactory : public PrismFactory
+{
+public:
+    PhysicsPrismFactory(Simulation *parent) : PrismFactory(parent) {}
+    virtual ~PhysicsPrismFactory() {}
+
+protected:
+    bool create(const char *name, float x, float y, float z);
+};
+
 class PhysicsSphereFactory : public SphereFactory
 {
 public:
@@ -12,7 +22,7 @@ public:
     virtual ~PhysicsSphereFactory() {}
 
 protected:
-    bool create(const char *name, float radius);
+    bool create(const char *name, float x, float y, float z);
 };
 
 class PhysicsSim : public Simulation

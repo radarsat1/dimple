@@ -28,13 +28,16 @@ PrismFactory::~PrismFactory()
 int PrismFactory::create_handler(const char *path, const char *types, lo_arg **argv,
                                  int argc, void *data, void *user_data)
 {
+    PrismFactory *me = static_cast<PrismFactory*>(user_data);
+    me->create(&argv[0]->s, argv[1]->f, argv[2]->f, argv[3]->f);
+    return 0;
 }
 
 SphereFactory::SphereFactory(Simulation *parent)
     : ShapeFactory("sphere", parent)
 {
     // Name, Radius
-    addHandler("create", "sf", create_handler);
+    addHandler("create", "sfff", create_handler);
 }
 
 SphereFactory::~SphereFactory()
@@ -45,7 +48,7 @@ int SphereFactory::create_handler(const char *path, const char *types, lo_arg **
                                   int argc, void *data, void *user_data)
 {
     SphereFactory *me = static_cast<SphereFactory*>(user_data);
-    me->create(&argv[0]->s, argv[1]->f);
+    me->create(&argv[0]->s, argv[1]->f, argv[2]->f, argv[3]->f);
     return 0;
 }
 

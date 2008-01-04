@@ -27,6 +27,9 @@ protected:
     // message handlers
     static int create_handler(const char *path, const char *types, lo_arg **argv,
                               int argc, void *data, void *user_data);
+
+    // override these functions with a specific factory subclass
+    virtual bool create(const char *name, float x, float y, float z) = 0;
 };
 
 class SphereFactory : public ShapeFactory
@@ -41,7 +44,7 @@ protected:
                               int argc, void *data, void *user_data);
 
     // override these functions with a specific factory subclass
-    virtual bool create(const char *name, float radius) = 0;
+    virtual bool create(const char *name, float x, float y, float z) = 0;
 };
 
 //! A Simulation is an OSC-controlled simulation thread which contains

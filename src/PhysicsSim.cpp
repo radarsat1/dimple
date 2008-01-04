@@ -2,7 +2,14 @@
 
 #include "PhysicsSim.h"
 
-bool PhysicsSphereFactory::create(const char *name, float radius)
+bool PhysicsPrismFactory::create(const char *name, float x, float y, float z)
+{
+    printf("PhysicsPrismFactory (%s) is creating a prism object called '%s'\n",
+           m_parent->c_name(), name);
+    return true;
+}
+
+bool PhysicsSphereFactory::create(const char *name, float x, float y, float z)
 {
     printf("PhysicsSphereFactory (%s) is creating a sphere object called '%s'\n",
            m_parent->c_name(), name);
@@ -12,7 +19,7 @@ bool PhysicsSphereFactory::create(const char *name, float radius)
 PhysicsSim::PhysicsSim(const char *port)
     : Simulation(port)
 {
-    m_pPrismFactory = new PrismFactory(this);
+    m_pPrismFactory = new PhysicsPrismFactory(this);
     m_pSphereFactory = new PhysicsSphereFactory(this);
 }
 
