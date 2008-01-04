@@ -44,6 +44,8 @@ SphereFactory::~SphereFactory()
 int SphereFactory::create_handler(const char *path, const char *types, lo_arg **argv,
                                   int argc, void *data, void *user_data)
 {
+    SphereFactory *me = (SphereFactory*)user_data;
+    printf("SphereFactory (%s) is creating a sphere object.\n", me->m_parent->c_name());
 }
 
 
