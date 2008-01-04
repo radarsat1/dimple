@@ -54,7 +54,11 @@ class Simulation : public OscBase
     SphereFactory m_sphereFactory;
 
   protected:
-    lo_server m_server;
+    pthread_t m_thread;
+    bool m_bDone;
+
+    //! Function for simulation thread
+    static void* run(void* param);
 
     // world objects & constraints
     std::map<std::string,OscObject*> world_objects;

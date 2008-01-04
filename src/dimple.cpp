@@ -1677,7 +1677,7 @@ int main(int argc, char* argv[])
 #endif
 
      // initialize all subsystems
-	 initOSC();
+//	 initOSC();
 	 initWorld();
 	 initODE();
 
