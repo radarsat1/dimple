@@ -1,5 +1,5 @@
 
-import sys, os
+import sys, os, commands
 
 # Read environment variables & arguments
 env = Environment(ENV = os.environ)
@@ -15,6 +15,10 @@ except:
 
 # Start configuration
 conf = Configure(env)
+
+# Get current DIMPLE version
+VERSION = commands.getoutput('../util/version.sh')
+env.Append(CPPDEFINES = [('DIMPLE_VERSION', '\\"'+VERSION+'\\"')])
 
 # Check for GL headers
 if conf.CheckHeader('/System/Library/Frameworks/OpenGL.framework/Headers/gl.h'):
