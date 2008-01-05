@@ -38,4 +38,22 @@ protected:
     bool create(const char *name, float x, float y, float z);
 };
 
+class ODEObject
+{
+protected:
+	  dBodyID  m_odeBody;
+	  dMass	   m_odeMass;
+	  dWorldID m_odeWorld;
+	  dSpaceID m_odeSpace;
+};
+
+class OscSphereODE : public OscSphere, public ODEObject
+{
+public:
+    OscSphereODE();
+    virtual ~OscSphereODE() {};
+
+protected:
+};
+
 #endif // _PHYSICS_SIM_H_
