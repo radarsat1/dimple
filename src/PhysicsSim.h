@@ -41,23 +41,22 @@ protected:
 class ODEObject
 {
 public:
-    ODEObject(dWorldID &odeWorld, dSpaceID &odeSpace)
-        : m_odeWorld(odeWorld), m_odeSpace(odeSpace) {}
-    virtual ~ODEObject() {}
+    ODEObject(dWorldID &odeWorld, dSpaceID &odeSpace);
+    virtual ~ODEObject();
 
 protected:
-	  dBodyID  m_odeBody;
-	  dMass	   m_odeMass;
-	  dWorldID m_odeWorld;
-	  dSpaceID m_odeSpace;
+    dBodyID  m_odeBody;
+    dGeomID  m_odeGeom;
+    dMass	 m_odeMass;
+    dWorldID m_odeWorld;
+    dSpaceID m_odeSpace;
 };
 
 class OscSphereODE : public OscSphere, public ODEObject
 {
 public:
-	OscSphereODE(dWorldID &odeWorld, dSpaceID &odeSpace, const char *name, OscBase *parent=NULL)
-        : OscSphere(NULL, name, parent), ODEObject(odeWorld, odeSpace) {}
-    virtual ~OscSphereODE() {};
+	OscSphereODE(dWorldID &odeWorld, dSpaceID &odeSpace, const char *name, OscBase *parent=NULL);
+    virtual ~OscSphereODE() {}
 
 protected:
 };

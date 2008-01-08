@@ -235,7 +235,8 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
 
     // Set user data to point to this object for ODE geom, so that
     // we can identify this OscObject during collision detction
-    odePrimitive()->setGeomData(this);
+    if (odePrimitive())
+        odePrimitive()->setGeomData(this);
 
     // Create handlers for OSC messages
     addHandler("destroy"    , ""   , OscObject::destroy_handler);
