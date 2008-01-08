@@ -21,6 +21,10 @@ bool PhysicsSphereFactory::create(const char *name, float x, float y, float z)
     return false;
 }
 
+/****** PhysicsSim ******/
+
+const int PhysicsSim::MAX_CONTACTS = 30;
+
 PhysicsSim::PhysicsSim(const char *port)
     : Simulation(port)
 {
@@ -41,6 +45,64 @@ PhysicsSim::PhysicsSim(const char *port)
 
 PhysicsSim::~PhysicsSim()
 {
+}
+
+void PhysicsSim::step()
+{
+    // Perform simulation step
+	dSpaceCollide (m_odeSpace, this, &ode_nearCallback);
+	dWorldStepFast1 (m_odeWorld, m_fTimestep, 5);
+    /*
+	for (int j = 0; j < dSpaceGetNumGeoms(ode_space); j++){
+		dSpaceGetGeom(ode_space, j);
+	}
+    */
+	dJointGroupEmpty (m_odeContactGroup);
+}
+
+void PhysicsSim::ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
+{
+    PhysicsSim *me = static_cast<PhysicsSim*>(data);
+
+    int i;
+    // if (o1->body && o2->body) return;
+
+    // exit without doing anything if the two bodies are connected by a joint
+    dBodyID b1 = dGeomGetBody(o1);
+    dBodyID b2 = dGeomGetBody(o2);
+    if (b1 && b2 && dAreConnectedExcluding (b1,b2,dJointTypeContact)) return;
+
+    dContact contact[MAX_CONTACTS];   // up to MAX_CONTACTS contacts per box-box
+    for (i=0; i<MAX_CONTACTS; i++) {
+        contact[i].surface.mode = dContactBounce | dContactSoftCFM;
+        contact[i].surface.mu = dInfinity;
+        contact[i].surface.mu2 = 0;
+        contact[i].surface.bounce = 0.1;
+        contact[i].surface.bounce_vel = 0.1;
+        contact[i].surface.soft_cfm = 0.01;
+    }
+
+	if (int numc = dCollide (o1,o2,MAX_CONTACTS,&contact[0].geom,sizeof(dContact)))
+	{
+        OscObject *p1 = static_cast<OscObject*>(dGeomGetData(o1));
+        OscObject *p2 = static_cast<OscObject*>(dGeomGetData(o2));
+        if (p1 && p2) {
+            bool co1 = p1->collidedWith(p2);
+            bool co2 = p2->collidedWith(p1);
+            if ( (co1 || co2) && me->m_bGetCollide ) {
+                /* TODO
+                lo_send(address_send, "/object/collide", "ssf", p1->c_name(), p2->c_name(),
+                        (double)(p1->getVelocity() + p2->getVelocity()).length());
+                */
+                // TODO: send collision force instead of velocity?
+            }
+            // TODO: this strategy will NOT work for multiple collisions between same objects!!
+        }
+		for (i=0; i<numc; i++) {
+			dJointID c = dJointCreateContact (me->m_odeWorld, me->m_odeContactGroup, contact+i);
+			dJointAttach (c,b1,b2);
+		}
+	}
 }
 
 /****** ODEObject ******/

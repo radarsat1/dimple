@@ -32,6 +32,7 @@ class Simulation : public OscBase
 
     //! Function for simulation thread
     static void* run(void* param);
+    virtual void step() = 0;
 
     // world objects & constraints
     std::map<std::string,OscObject*> world_objects;

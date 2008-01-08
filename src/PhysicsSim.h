@@ -15,13 +15,20 @@ class PhysicsSim : public Simulation
     dSpaceID odeSpace() { return m_odeSpace; }
     dJointGroupID odeContactGroup() { return m_odeContactGroup; }
 
+    static const int MAX_CONTACTS;
+
   protected:
     dWorldID m_odeWorld;
     dSpaceID m_odeSpace;
     dJointGroupID m_odeContactGroup;
 
+    bool m_bGetCollide;
+    
+    virtual void step();
+
     static void ode_errorhandler(int errnum, const char *msg, va_list ap)
         { printf("ODE error %d: %s\n", errnum, msg); }
+    static void ode_nearCallback (void *data, dGeomID o1, dGeomID o2);
 };
 
 class PhysicsPrismFactory : public PrismFactory

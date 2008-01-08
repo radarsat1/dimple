@@ -91,9 +91,12 @@ void* Simulation::run(void* param)
 
     printf("Simulation running.\n");
 
+    int step_ms = (int)(me->m_fTimestep*1000);
     while (!me->m_bDone)
     {
-        lo_server_recv_noblock(me->m_server, 100);
+        /* TODO: timing properly */
+        lo_server_recv_noblock(me->m_server, step_ms);
+        me->step();
     }
 
     return 0;
