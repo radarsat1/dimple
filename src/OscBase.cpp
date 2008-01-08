@@ -29,11 +29,13 @@ OscBase::OscBase(const char *name, OscBase *parent, lo_server server)
 void OscBase::addHandler(const char *methodname, const char* type, lo_method_handler h)
 {
     // build OSC method name
-    std::string n("/");
-    if (m_parent && m_parent->name().length()>0)
-        n += m_parent->name() + "/";
-    n += m_name;
-    if (strlen(methodname)>0)
+    std::string n("/" + m_name);
+    OscBase *p = m_parent;
+    while (p && p->name().length()>0) {
+        n = "/" + p->name() + n;
+        p = p->m_parent;
+    }
+    if (methodname && strlen(methodname)>0)
         n = n + "/" + methodname;
 
     // add it to liblo server and store it
