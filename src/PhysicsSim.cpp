@@ -12,12 +12,6 @@ bool PhysicsPrismFactory::create(const char *name, float x, float y, float z)
 
 bool PhysicsSphereFactory::create(const char *name, float x, float y, float z)
 {
-    cODESphere *sp = new cODESphere(world,ode_world,ode_space,0.01);
-    sp->setDynamicPosition(cVector3d(x, y, z));
-    sp->setDynamicMass(0.5);
-    sp->m_material.setStaticFriction(1);
-    sp->m_material.setDynamicFriction(0.5);
-
     OscSphereODE *obj = new OscSphereODE(ode_world, ode_space, name, m_parent);
     if (obj)
         return simulation()->add_object(*obj);
@@ -42,8 +36,11 @@ ODEObject::ODEObject(dWorldID &odeWorld, dSpaceID &odeSpace)
     : m_odeWorld(odeWorld), m_odeSpace(odeSpace)
 {
     m_odeGeom = NULL;
+    m_odeBody = NULL;
+/*
     m_odeBody = dBodyCreate(m_odeWorld);
     dBodySetPosition(m_odeBody, 0, 0, 0);
+*/
 }
 
 ODEObject::~ODEObject()
@@ -57,9 +54,16 @@ ODEObject::~ODEObject()
 OscSphereODE::OscSphereODE(dWorldID &odeWorld, dSpaceID &odeSpace, const char *name, OscBase *parent)
     : OscSphere(NULL, name, parent), ODEObject(odeWorld, odeSpace)
 {
+/*
     m_odeGeom = dCreateSphere(m_odeSpace, 0.1);
     dMassSetSphere(&m_odeMass, 0.1, 0.1);
     dBodySetMass(m_odeBody, &m_odeMass);
     dGeomSetBody(m_odeGeom, m_odeBody);
     dBodySetPosition(m_odeBody, 0, 0, 0);
+*/
+}
+
+void OscSphereODE::onSetRadius()
+{
+    printf("OscSphereODE::onSetRadius()\n");
 }

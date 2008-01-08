@@ -64,9 +64,9 @@ OscScalar::OscScalar(const char *name, OscBase *owner)
 {
     m_callback = NULL;
     m_callback_data = NULL;
-    
+
     m_value = 0;
-	
+
     addHandler("",              "f", OscScalar::_handler);
 }
 
@@ -87,11 +87,7 @@ void OscScalar::send()
 int OscScalar::_handler(const char *path, const char *types, lo_arg **argv,
                          int argc, void *data, void *user_data)
 {
-	 handler_data *hd = (handler_data*)user_data;
-	 OscScalar *me = (OscScalar*)hd->user_data;
-
-     if (hd->thread != me->m_callback_thread)
-         return 0;
+	 OscScalar *me = (OscScalar*)user_data;
 
 	 if (argc == 1)
 		  me->m_value = argv[0]->f;
@@ -690,9 +686,17 @@ int OscPrism::size_handler(const char *path, const char *types, lo_arg **argv,
 // ----------------------------------------------------------------------------------
 
 OscSphere::OscSphere(cGenericObject* p, const char *name, OscBase* parent)
-    : OscObject(p, name, parent)
+    : OscObject(p, name, parent), m_radius("radius", this)
 {
-    addHandler("radius", "f", OscSphere::radius_handler);
+//    addHandler("radius", "f", OscSphere::radius_handler);
+    m_radius.setCallback((OscScalar::set_callback*)OscSphere::setRadius, this, DIMPLE_THREAD_PHYSICS);
+}
+
+void OscSphere::setRadius(void *data, const OscScalar&)
+{
+    printf ("OscSphere::setRadius()\n");
+    OscSphere *me = (OscSphere*)data;
+    me->onSetRadius();
 }
 
 //! Change the sphere's radius to the given size.

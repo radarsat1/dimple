@@ -1678,8 +1678,8 @@ int main(int argc, char* argv[])
 
      // initialize all subsystems
 //	 initOSC();
-	 initWorld();
-	 initODE();
+//	 initWorld();
+//	 initODE();
 
 #ifndef FLEXT_SYS
 	 // initially loop just waiting for messages

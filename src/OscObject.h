@@ -190,7 +190,13 @@ class OscSphere : public OscObject
 	virtual cODESphere*   odePrimitive() { return dynamic_cast<cODESphere*>(m_objChai); }
 	virtual cShapeSphere* chaiObject()   { return dynamic_cast<cShapeSphere*>(m_objChai); }
 
+    const OscScalar& getRadius();
+
   protected:
+    OscScalar m_radius;
+    static void setRadius(void *data, const OscScalar&);
+    virtual void onSetRadius() {}
+
     static int radius_handler(const char *path, const char *types, lo_arg **argv,
                               int argc, void *data, void *user_data);
 };
