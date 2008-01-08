@@ -139,8 +139,6 @@ bool bGetCollide = false;
 
 int mousepos[2];
 
-PhysicsSim physics("7771");
-
 // Synchronized class allowing seperate read and write locks & non-block operation
 class sync_lock {
 public:
@@ -1682,6 +1680,8 @@ int main(int argc, char* argv[])
 //	 initOSC();
 //	 initWorld();
 //	 initODE();
+
+     PhysicsSim physics("7771");
 
 #ifndef FLEXT_SYS
 	 // initially loop just waiting for messages
