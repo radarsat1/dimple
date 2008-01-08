@@ -51,6 +51,7 @@
 #include "CODEPotentialProxy.h"
 //---------------------------------------------------------------------------
 #include "PhysicsSim.h"
+#include "HapticsSim.h"
 //---------------------------------------------------------------------------
 
 lo_address address_send = lo_address_new("localhost", "7771");
@@ -779,7 +780,7 @@ void startHaptics()
     }
 
     // start haptic timer callback
-    timer.set(HAPTIC_TIMESTEP_MS, ode_hapticsLoop, NULL);
+    timer.set(HAPTICS_TIMESTEP_MS, ode_hapticsLoop, NULL);
 
 	hapticsEnabled = 1;
 	printf("Haptics started.\n");
@@ -1682,6 +1683,7 @@ int main(int argc, char* argv[])
 //	 initODE();
 
      PhysicsSim physics("7771");
+     HapticsSim haptics("7772");
 
 #ifndef FLEXT_SYS
 	 // initially loop just waiting for messages

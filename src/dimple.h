@@ -27,7 +27,7 @@
 #define FPS 30
 #define GLUT_TIMESTEP_MS   (int)((1.0/FPS)*1000.0)
 #define PHYSICS_TIMESTEP_MS 10
-#define HAPTIC_TIMESTEP_MS 1
+#define HAPTICS_TIMESTEP_MS 1
 
 #ifdef _POSIX
 #define Sleep(t) usleep(t*1000)
