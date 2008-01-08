@@ -40,6 +40,11 @@ protected:
 
 class ODEObject
 {
+public:
+    ODEObject(dWorldID &odeWorld, dSpaceID &odeSpace)
+        : m_odeWorld(odeWorld), m_odeSpace(odeSpace) {}
+    virtual ~ODEObject() {}
+
 protected:
 	  dBodyID  m_odeBody;
 	  dMass	   m_odeMass;
@@ -50,7 +55,8 @@ protected:
 class OscSphereODE : public OscSphere, public ODEObject
 {
 public:
-    OscSphereODE();
+	OscSphereODE(dWorldID &odeWorld, dSpaceID &odeSpace, const char *name, OscBase *parent=NULL)
+        : OscSphere(NULL, name, parent), ODEObject(odeWorld, odeSpace) {}
     virtual ~OscSphereODE() {};
 
 protected:
