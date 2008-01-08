@@ -20,9 +20,12 @@ class Simulation : public OscBase
     bool add_object(OscObject& obj);
     bool delete_object(OscObject& obj) {}
 
+    float timestep() { return m_fTimestep; }
+
   protected:
     pthread_t m_thread;
     bool m_bDone;
+    float m_fTimestep;
 
     PrismFactory *m_pPrismFactory;
     SphereFactory *m_pSphereFactory;

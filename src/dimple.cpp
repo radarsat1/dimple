@@ -755,8 +755,10 @@ void initODE()
     ode_space = dSimpleSpaceCreate(0);
     ode_contact_group = dJointGroupCreate(0);
 
+/*
     if (pthread_create(&ode_pthread, NULL, ode_threadproc, NULL))
         printf("Could not start ODE thread.\n");
+*/
 }
 
 void startHaptics()

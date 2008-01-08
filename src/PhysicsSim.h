@@ -11,7 +11,17 @@ class PhysicsSim : public Simulation
     PhysicsSim(const char *port);
     virtual ~PhysicsSim();
 
+    dWorldID odeWorld() { return m_odeWorld; }
+    dSpaceID odeSpace() { return m_odeSpace; }
+    dJointGroupID odeContactGroup() { return m_odeContactGroup; }
+
   protected:
+    dWorldID m_odeWorld;
+    dSpaceID m_odeSpace;
+    dJointGroupID m_odeContactGroup;
+
+    static void ode_errorhandler(int errnum, const char *msg, va_list ap)
+        { printf("ODE error %d: %s\n", errnum, msg); }
 };
 
 class PhysicsPrismFactory : public PrismFactory
@@ -41,7 +51,7 @@ protected:
 class ODEObject
 {
 public:
-    ODEObject(dWorldID &odeWorld, dSpaceID &odeSpace);
+    ODEObject(dWorldID odeWorld, dSpaceID odeSpace);
     virtual ~ODEObject();
 
 protected:
@@ -55,7 +65,7 @@ protected:
 class OscSphereODE : public OscSphere, public ODEObject
 {
 public:
-	OscSphereODE(dWorldID &odeWorld, dSpaceID &odeSpace, const char *name, OscBase *parent=NULL);
+	OscSphereODE(dWorldID odeWorld, dSpaceID odeSpace, const char *name, OscBase *parent=NULL);
     virtual ~OscSphereODE() {}
 
 protected:
