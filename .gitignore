@@ -14,6 +14,7 @@ libdeps/scons.py
 libdeps/sconsign.py
 src/.sconf_temp
 src/.sconsign
+src/.sconsign.dblite
 src/config.log
 src/dimple
 *.o
