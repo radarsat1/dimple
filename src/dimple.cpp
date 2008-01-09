@@ -52,6 +52,7 @@
 //---------------------------------------------------------------------------
 #include "PhysicsSim.h"
 #include "HapticsSim.h"
+#include "VisualSim.h"
 //---------------------------------------------------------------------------
 
 lo_address address_send = lo_address_new("localhost", "7771");
@@ -733,7 +734,7 @@ void initGlutWindow()
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 
     // update display
-    glutTimerFunc(GLUT_TIMESTEP_MS, updateDisplay, 0);
+    glutTimerFunc(VISUAL_TIMESTEP_MS, updateDisplay, 0);
 }
 
 void ode_errorhandler(int errnum, const char *msg, va_list ap)
@@ -1684,6 +1685,7 @@ int main(int argc, char* argv[])
 
      PhysicsSim physics("7771");
      HapticsSim haptics("7772");
+     VisualSim visual("7773");
 
 #ifndef FLEXT_SYS
 	 // initially loop just waiting for messages

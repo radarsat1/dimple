@@ -17,16 +17,12 @@ class HapticsSim : public Simulation
     virtual ~HapticsSim();
 
     cWorld *world() { return m_chaiWorld; }
-    cCamera *camera() { return m_chaiCamera; }
-    cLight *light() { return m_chaiLight; }
     cMeta3dofPointer *cursor() { return m_chaiCursor; }
 
   protected:
     virtual void step();
 
     cWorld* m_chaiWorld;            //! the world in which we will create our environment
-    cCamera* m_chaiCamera;          //! the camera which is used view the environment in a window
-    cLight *m_chaiLight;            //! a light source
     cMeta3dofPointer* m_chaiCursor; //! a 3D cursor which represents the haptic deviec
 };
 

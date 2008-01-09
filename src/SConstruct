@@ -96,5 +96,6 @@ env.Program( target = 'dimple',
               'OscBase.cpp',
               'Simulation.cpp',
               'PhysicsSim.cpp',
-              'HapticsSim.cpp']
+              'HapticsSim.cpp',
+              'VisualSim.cpp']
 	)
