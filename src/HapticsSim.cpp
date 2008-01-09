@@ -67,13 +67,10 @@ void HapticsSim::step()
 
 CHAIObject::CHAIObject(cWorld *world)
 {
-    m_pObject = NULL;
 }
 
 CHAIObject::~CHAIObject()
 {
-    if (m_pObject)
-        delete m_pObject;
 }
 
 /****** OscSphereCHAI ******/
@@ -81,9 +78,22 @@ CHAIObject::~CHAIObject()
 OscSphereCHAI::OscSphereCHAI(cWorld *world, const char *name, OscBase *parent)
     : OscSphere(NULL, name, parent), CHAIObject(world)
 {
+    m_pSphere = new cShapeSphere(0.01);
+    world->addChild(m_pSphere);
+}
+
+OscSphereCHAI::~OscSphereCHAI()
+{
+    if (m_pSphere)
+        delete m_pSphere;
 }
 
 void OscSphereCHAI::onSetRadius()
 {
     printf("OscSphereCHAI::onSetRadius(). radius = %f\n", m_radius.m_value);
+
+    if (!m_pSphere)
+        return;
+
+    m_pSphere->setRadius(m_radius.m_value);
 }

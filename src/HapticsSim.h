@@ -60,18 +60,23 @@ public:
     CHAIObject(cWorld *world);
     virtual ~CHAIObject();
 
+    virtual cGenericObject *object() = 0;
+
 protected:
-    cGenericObject *m_pObject;
 };
 
 class OscSphereCHAI : public OscSphere, public CHAIObject
 {
 public:
     OscSphereCHAI(cWorld *world, const char *name, OscBase *parent=NULL);
-    virtual ~OscSphereCHAI() {}
+    virtual ~OscSphereCHAI();
+
+    virtual cShapeSphere *object() { return m_pSphere; }
 
 protected:
     virtual void onSetRadius();
+
+    cShapeSphere *m_pSphere;
 };
 
 #endif // _HAPTICS_SIM_H_
