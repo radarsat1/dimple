@@ -16,10 +16,10 @@ class HapticsSim : public Simulation
     HapticsSim(const char *port);
     virtual ~HapticsSim();
 
-    cWorld &world() { return *m_pWorld; }
-    cCamera &camera() { return *m_pCamera; }
-    cLight &light() { return *m_pLight; }
-    cMeta3dofPointer &cursor() { return *m_pCursor; }
+    cWorld *world() { return m_pWorld; }
+    cCamera *camera() { return m_pCamera; }
+    cLight *light() { return m_pLight; }
+    cMeta3dofPointer *cursor() { return m_pCursor; }
 
   protected:
     virtual void step();
@@ -57,7 +57,7 @@ protected:
 class CHAIObject
 {
 public:
-    CHAIObject(cWorld &world);
+    CHAIObject(cWorld *world);
     virtual ~CHAIObject();
 
 protected:
@@ -67,7 +67,7 @@ protected:
 class OscSphereCHAI : public OscSphere, public CHAIObject
 {
 public:
-    OscSphereCHAI(cWorld &world, const char *name, OscBase *parent=NULL);
+    OscSphereCHAI(cWorld *world, const char *name, OscBase *parent=NULL);
     virtual ~OscSphereCHAI() {}
 
 protected:

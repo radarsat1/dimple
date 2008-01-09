@@ -43,7 +43,7 @@ void HapticsSim::step()
 
 /****** CHAIObject ******/
 
-CHAIObject::CHAIObject(cWorld &world)
+CHAIObject::CHAIObject(cWorld *world)
 {
     m_pObject = NULL;
 }
@@ -56,7 +56,7 @@ CHAIObject::~CHAIObject()
 
 /****** OscSphereCHAI ******/
 
-OscSphereCHAI::OscSphereCHAI(cWorld &world, const char *name, OscBase *parent)
+OscSphereCHAI::OscSphereCHAI(cWorld *world, const char *name, OscBase *parent)
     : OscSphere(NULL, name, parent), CHAIObject(world)
 {
 }
