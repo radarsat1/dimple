@@ -22,9 +22,23 @@ class VisualSim : public Simulation
   protected:
     virtual void step();
 
+    void initGlutWindow();
+    static void updateDisplay(int data);
+    static void draw();
+
+    int m_nWidth, m_nHeight;
+
     cWorld* m_chaiWorld;            //! the world in which we will create our environment
     cCamera* m_chaiCamera;          //! the camera which is used view the environment in a window
     cLight *m_chaiLight;            //! a light source
+
+    /** GLUT callback functions require a pointer to the VisualSim
+     ** object, but do not have a user-specified data parameter.  On
+     ** the assumption that all callback functions are called
+     ** subsquently after the timer callback, this static pointer is
+     ** used to point to the one and only VisualSim instance to give
+     ** the callback functions context. */
+    static VisualSim *m_pGlobalContext;
 };
 
 class VisualPrismFactory : public PrismFactory
