@@ -19,10 +19,12 @@ bool InterfacePrismFactory::create(const char *name, float x, float y, float z)
 bool InterfaceSphereFactory::create(const char *name, float x, float y, float z)
 {
     OscSphere *obj = new OscSphere(NULL, name, m_parent);
-    if (obj)
-        return simulation()->add_object(*obj);
+    if (!(obj && simulation()->add_object(*obj)))
+            return false;
 
-    return false;
+    simulation()->send("/world/sphere/create", "sfff", name, x, y, z);
+
+    return true;
 }
 
 /****** InterfaceSim ******/

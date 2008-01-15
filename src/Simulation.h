@@ -22,11 +22,16 @@ class Simulation : public OscBase
 
     float timestep() { return m_fTimestep; }
 
-    const std::vector<Simulation*> simulationList()
+    const std::vector<Simulation*>& simulationList()
         { return m_simulationList; }
 
     void add_simulation(Simulation& sim)
         { m_simulationList.push_back(&sim); }
+
+    //! Send a message to all simulations in the list.
+    void send(const char *msg, const char *types, ...);
+
+    const lo_address addr() { return m_addr; }
 
   protected:
     pthread_t m_thread;
@@ -40,6 +45,9 @@ class Simulation : public OscBase
     static void* run(void* param);
     //! Function for a single step of the simulation.
     virtual void step() = 0;
+
+    //! LibLo address for receiving messages here.
+    lo_address m_addr;
 
     // world objects & constraints
     std::map<std::string,OscObject*> world_objects;

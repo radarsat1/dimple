@@ -58,13 +58,16 @@ int SphereFactory::create_handler(const char *path, const char *types, lo_arg **
 	if (argc>2)
 		 pos.z = argv[3]->f;
 
-    me->create(&argv[0]->s, pos.x, pos.y, pos.z);
+    if (!me->create(&argv[0]->s, pos.x, pos.y, pos.z))
+        printf("Error creating sphere '%s'.\n", &argv[0]->s);
     return 0;
 }
 
 Simulation::Simulation(const char *port)
     : OscBase("world", NULL, lo_server_new(port, NULL))
 {
+    m_addr = lo_address_new("localhost", port);
+
     m_bDone = false;
     if (pthread_create(&m_thread, NULL, Simulation::run, this))
     {
@@ -83,6 +86,8 @@ Simulation::~Simulation()
     if (m_server)
         lo_server_free(m_server);
     printf("done.\n");
+
+    lo_address_free(m_addr);
 }
 
 void* Simulation::run(void* param)
@@ -107,4 +112,123 @@ bool Simulation::add_object(OscObject& obj)
     world_objects[obj.name()] = &obj;
 
     printf("Added object %s\n", obj.c_name());
+    return true;
 }
+
+// from liblo internals:
+// eventually this will be a public function in liblo,
+// but for now we'll reproduce it here.
+
+static void add_varargs(/*lo_address t,*/ lo_message msg, va_list ap,
+			const char *types)
+{
+    int count = 0;
+    int i;
+    int64_t i64;
+    float f;
+    char *s;
+    lo_blob b;
+    uint8_t *m;
+    lo_timetag tt;
+    double d;
+
+    while (types && *types) {
+	count++;
+	switch (*types++) {
+
+	case LO_INT32:
+	    i = va_arg(ap, int32_t);
+	    lo_message_add_int32(msg, i);
+	    break;
+
+	case LO_FLOAT:
+	    f = (float)va_arg(ap, double);
+	    lo_message_add_float(msg, f);
+	    break;
+
+	case LO_STRING:
+	    s = va_arg(ap, char *);
+	    if (s == (char *)LO_MARKER_A) { //error
+	    } else
+	    lo_message_add_string(msg, s);
+	    break;
+
+	case LO_BLOB:
+	    b = va_arg(ap, lo_blob);
+	    lo_message_add_blob(msg, b);
+	    break;
+
+	case LO_INT64:
+	    i64 = va_arg(ap, int64_t);
+	    lo_message_add_int64(msg, i64);
+	    break;
+
+	case LO_TIMETAG:
+	    tt = va_arg(ap, lo_timetag);
+	    lo_message_add_timetag(msg, tt);
+	    break;
+
+	case LO_DOUBLE:
+	    d = va_arg(ap, double);
+	    lo_message_add_double(msg, d);
+	    break;
+
+	case LO_SYMBOL:
+	    s = va_arg(ap, char *);
+	    if (s == (char *)LO_MARKER_A) { //error
+	    } else
+	    lo_message_add_symbol(msg, s);
+	    break;
+
+	case LO_CHAR:
+	    i = va_arg(ap, int);
+	    lo_message_add_char(msg, i);
+	    break;
+
+	case LO_MIDI:
+	    m = va_arg(ap, uint8_t *);
+	    lo_message_add_midi(msg, m);
+	    break;
+
+	case LO_TRUE:
+	    lo_message_add_true(msg);
+	    break;
+
+	case LO_FALSE:
+	    lo_message_add_false(msg);
+	    break;
+
+	case LO_NIL:
+	    lo_message_add_nil(msg);
+	    break;
+
+	case LO_INFINITUM:
+	    lo_message_add_infinitum(msg);
+	    break;
+
+	default:
+        //error
+	    break;
+	}
+    }
+}
+
+void Simulation::send(const char *path, const char *types, ...)
+{
+    va_list ap;
+    lo_message msg = lo_message_new();
+    va_start(ap, types);
+    add_varargs(msg, ap, types);
+
+    std::vector<Simulation*>::iterator it;
+    for (it=m_simulationList.begin();
+         it!=m_simulationList.end();
+         it++)
+    {
+        printf("Sending %s\n", path);
+        lo_send_message((*it)->m_addr, path, msg);
+    }
+
+    lo_message_free(msg);
+}
+
