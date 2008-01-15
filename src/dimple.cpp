@@ -1684,6 +1684,8 @@ int main(int argc, char* argv[])
 //	 initWorld();
 //	 initODE();
 
+     try {
+
      PhysicsSim   physics   ("7771");
      HapticsSim   haptics   ("7772");
      VisualSim    visual    ("7773");
@@ -1710,7 +1712,15 @@ int main(int argc, char* argv[])
 	 while (!quit) {
 		  Sleep(100);
 	 }
+#endif
 
+     }
+     catch (const char* s) {
+         printf("Error:  %s\n", s);
+         return 1;
+     }
+
+#ifndef FLEXT_SYS
 	 dimple_cleanup();
 #endif
 
