@@ -53,6 +53,7 @@
 #include "PhysicsSim.h"
 #include "HapticsSim.h"
 #include "VisualSim.h"
+#include "InterfaceSim.h"
 //---------------------------------------------------------------------------
 
 lo_address address_send = lo_address_new("localhost", "7771");
@@ -1686,6 +1687,7 @@ int main(int argc, char* argv[])
      PhysicsSim physics("7771");
      HapticsSim haptics("7772");
      VisualSim visual("7773");
+     InterfaceSim interface("7774");
 
 #ifndef FLEXT_SYS
 	 // initially loop just waiting for messages
