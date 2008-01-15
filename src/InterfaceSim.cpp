@@ -50,8 +50,8 @@ void InterfaceSim::step()
 
 void OscSphereInterface::onSetRadius()
 {
-    InterfaceSphereFactory *factory = static_cast<InterfaceSphereFactory*>(m_parent);
-    factory->simulation()->send((std::string("/world/")
-                                 +m_name+"/radius").c_str(), "f",
-                                m_radius.m_value);
+    InterfaceSim *sim = static_cast<InterfaceSim*>(m_parent);
+    sim->send((std::string("/world/")
+               +m_name+"/radius").c_str(), "f",
+              m_radius.m_value);
 }
