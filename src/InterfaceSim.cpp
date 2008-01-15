@@ -43,4 +43,3 @@ InterfaceSim::~InterfaceSim()
 void InterfaceSim::step()
 {
 }
-

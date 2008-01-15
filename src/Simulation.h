@@ -22,6 +22,12 @@ class Simulation : public OscBase
 
     float timestep() { return m_fTimestep; }
 
+    const std::vector<Simulation*> simulationList()
+        { return m_simulationList; }
+
+    void add_simulation(Simulation& sim)
+        { m_simulationList.push_back(&sim); }
+
   protected:
     pthread_t m_thread;
     bool m_bDone;
@@ -30,13 +36,17 @@ class Simulation : public OscBase
     PrismFactory *m_pPrismFactory;
     SphereFactory *m_pSphereFactory;
 
-    //! Function for simulation thread
+    //! Function for simulation thread.
     static void* run(void* param);
+    //! Function for a single step of the simulation.
     virtual void step() = 0;
 
     // world objects & constraints
     std::map<std::string,OscObject*> world_objects;
     std::map<std::string,OscConstraint*> world_constraints;
+
+    //! List of other simulations that may receive messages from this one.
+    std::vector<Simulation*> m_simulationList;
 };
 
 class ShapeFactory : public OscBase

@@ -108,4 +108,3 @@ bool Simulation::add_object(OscObject& obj)
 
     printf("Added object %s\n", obj.c_name());
 }
-

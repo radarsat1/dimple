@@ -1684,10 +1684,26 @@ int main(int argc, char* argv[])
 //	 initWorld();
 //	 initODE();
 
-     PhysicsSim physics("7771");
-     HapticsSim haptics("7772");
-     VisualSim visual("7773");
-     InterfaceSim interface("7774");
+     PhysicsSim   physics   ("7771");
+     HapticsSim   haptics   ("7772");
+     VisualSim    visual    ("7773");
+     InterfaceSim interface ("7774");
+
+     // Physics can change object positions
+     // in any of the other simulations
+     physics.add_simulation(haptics);
+     physics.add_simulation(visual);
+     physics.add_simulation(interface);
+
+     // Haptics can add force to objects
+     // in the physics simulation.
+     haptics.add_simulation(physics);
+
+     // Interface can modify anything in
+     // any other simulation.
+     interface.add_simulation(physics);
+     interface.add_simulation(haptics);
+     interface.add_simulation(visual);
 
 #ifndef FLEXT_SYS
 	 // initially loop just waiting for messages
