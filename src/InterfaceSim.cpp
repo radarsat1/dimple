@@ -18,7 +18,7 @@ bool InterfacePrismFactory::create(const char *name, float x, float y, float z)
 
 bool InterfaceSphereFactory::create(const char *name, float x, float y, float z)
 {
-    OscSphere *obj = new OscSphere(NULL, name, m_parent);
+    OscSphere *obj = new OscSphereInterface(NULL, name, m_parent);
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
@@ -44,4 +44,14 @@ InterfaceSim::~InterfaceSim()
 
 void InterfaceSim::step()
 {
+}
+
+/****** OscSphereInterface ******/
+
+void OscSphereInterface::onSetRadius()
+{
+    InterfaceSphereFactory *factory = static_cast<InterfaceSphereFactory*>(m_parent);
+    factory->simulation()->send((std::string("/world/")
+                                 +m_name+"/radius").c_str(), "f",
+                                m_radius.m_value);
 }

@@ -39,4 +39,15 @@ protected:
     bool create(const char *name, float x, float y, float z);
 };
 
+class OscSphereInterface : public OscSphere
+{
+public:
+    OscSphereInterface(cGenericObject *p, const char *name, OscBase *parent=NULL)
+        : OscSphere(p, name, parent) {}
+    virtual ~OscSphereInterface() {}
+
+protected:
+    virtual void onSetRadius();
+};
+
 #endif // _INTERFACE_SIM_H_
