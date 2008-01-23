@@ -60,10 +60,10 @@ elif 'darwin' in sys.platform:
 # Link to the library with direct path or using -l option,
 # depending on operating system.
 if 'linux' in sys.platform:
-   env.Append(LIBPATH = ['../libdeps/liblo-0.23/src/.libs'],
+   env.Append(LIBPATH = ['../libdeps/liblo-0.24/src/.libs'],
               LIBS = ['lo'])
 else:
-   env.Append(LINKFLAGS = ['../libdeps/liblo-0.23/src/.libs/liblo.a'])
+   env.Append(LINKFLAGS = ['../libdeps/liblo-0.24/src/.libs/liblo.a'])
 
 nv = conf.Finish()
 
@@ -77,7 +77,7 @@ else:
 env.Append(
     CPPPATH = ['../libdeps/ode-0.7/include',
                '../libdeps/chai3d/include',
-               '../libdeps/liblo-0.23'],
+               '../libdeps/liblo-0.24'],
     LIBPATH = ['../libdeps/ode-0.7/ode/src'],
     LIBS = ['ode', 'pthread']
     )

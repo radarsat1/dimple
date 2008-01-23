@@ -8,11 +8,10 @@
 echo This script bootstraps required libraries for selected environments.
 
 liblo() {
-liblo_URL=http://easynews.dl.sourceforge.net/sourceforge/liblo/liblo-0.23.tar.gz
-liblo_TAR=liblo-0.23.tar.gz
-liblo_DIR=liblo-0.23
-liblo_MD5=e14c9f4fae7ed8d9622d126f6fb9c1d7
-liblo_PATCH2=liblo-0.23-dispatchcallback.patch
+liblo_URL=http://easynews.dl.sourceforge.net/sourceforge/liblo/liblo-0.24.tar.gz
+liblo_TAR=liblo-0.24.tar.gz
+liblo_DIR=liblo-0.24
+liblo_MD5=a9b5e7c6fcc835cd468e26cc95aba91a
 
 if [ $($MD5 $liblo_TAR | $MD5CUT)x != ${liblo_MD5}x ]; then
 	echo Downloading $liblo_TAR ...
@@ -39,12 +38,6 @@ if !(cd $liblo_DIR && patch -p1 <../$liblo_PATCH); then
 	echo "Error applying patch" $liblo_PATCH
 	exit
 fi
-fi
-
-echo Patching $liblo_DIR with dispatchcallback patch
-if !(cd $liblo_DIR && patch -p1 <../$liblo_PATCH2); then
-	echo "Error applying patch" $liblo_PATCH2
-	exit
 fi
 
 case $(uname) in

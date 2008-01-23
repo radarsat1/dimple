@@ -1569,8 +1569,6 @@ void initOSC()
 	 lo_server_thread_start(loserverthr);
 #endif
 
-     lo_server_set_handler_callback(loserver, handler_callback);
-
 	 /* add methods for each message */
 	 lo_server_add_method(loserver, "/haptics/enable", "i", hapticsEnable_handler, NULL);
 	 lo_server_add_method(loserver, "/graphics/enable", "i", graphicsEnable_handler, NULL);
