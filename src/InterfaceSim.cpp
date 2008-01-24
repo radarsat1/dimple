@@ -47,10 +47,3 @@ InterfaceSim::~InterfaceSim()
 void InterfaceSim::step()
 {
 }
-
-/****** OscSphereInterface ******/
-
-void OscSphereInterface::on_radius()
-{
-    simulation()->send(m_radius.c_path(), "f", m_radius.m_value);
-}

@@ -5,6 +5,22 @@
 
 #include "Simulation.h"
 
+// Macros for defining forwarding handlers for OscValue instances to
+// the other simulations.
+
+#define FWD_OSCSCALAR(o)                               \
+    virtual void on_##o() {                              \
+        simulation()->send(m_##o.c_path(), "f",          \
+                           m_##o.m_value); }
+#define FWD_OSCVECTOR3(o)                                \
+    virtual void on_##o() {                              \
+        simulation()->send(m_##o.c_path(), "fff",        \
+                           m_##o.x, m_##o.y, m_##o.z); }
+#define FWD_OSCSTRING(o)                                 \
+    virtual void on_##o() {                              \
+        simulation()->send(m_##o.c_path(), "s",          \
+                           m_##o.m_value); }
+
 class InterfaceSim : public Simulation
 {
   public:
@@ -47,7 +63,11 @@ public:
     virtual ~OscSphereInterface() {}
 
 protected:
-    virtual void on_radius();
+    FWD_OSCVECTOR3(position);
+    FWD_OSCVECTOR3(velocity);
+    FWD_OSCVECTOR3(accel);
+    FWD_OSCVECTOR3(color);
+    FWD_OSCSCALAR(radius);
 };
 
 #endif // _INTERFACE_SIM_H_
