@@ -22,6 +22,8 @@ bool InterfaceSphereFactory::create(const char *name, float x, float y, float z)
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
+    obj->traceOn();
+
     simulation()->send("/world/sphere/create", "sfff", name, x, y, z);
 
     return true;

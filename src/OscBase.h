@@ -37,11 +37,25 @@ public:
 
     lo_server get_lo_server();
 
+#ifdef DEBUG
+    void traceOn() { m_bTrace = true; }
+    void traceOff() { m_bTrace = false; }
+#else
+    void traceOn() {}
+    void traceOff() {}
+#endif
+
 protected:
     virtual void addHandler(const char *methodname, const char* type, lo_method_handler h);
     std::string m_name;
     OscBase *m_parent;
     lo_server m_server;
+
+    /*! True if this object should output trace messages when compiled
+     *  for debug. */
+#ifdef DEBUG
+    bool m_bTrace;
+#endif
 
     struct method_t {
         std::string name;

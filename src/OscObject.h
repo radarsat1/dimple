@@ -25,16 +25,24 @@
 #include "CODEPrism.h"
 #include "CODESphere.h"
 
+// Macro for conditionally including code when compiling for DEBUG
+// (TODO: move this to dimple.h or somewhere else more general.)
+#ifdef DEBUG
+#define ptrace(c,x) if (c) {printf x;}
+#else
+#define ptrace(c,x)
+#endif
+
 // Macros for easily adding member functions with associated callbacks
 #define __dimple_str(x) #x
 #define _dimple_str(x) #x
-#define OSCVALUE(c, t, x) t m_##x;              \
+#define OSCVALUE(c, t, x, p) t m_##x;           \
     static void set_##x(void *data, const t& s) \
-    { ((c*)data)->on_##x(); }                   \
+    { p; ((c*)data)->on_##x(); }                \
     virtual void on_##x()
-#define OSCSCALAR(c, o) OSCVALUE(c, OscScalar, o)
-#define OSCVECTOR3(c, o) OSCVALUE(c, OscVector3, o)
-#define OSCSTRING(c, o) OSCVALUE(c, OscStrings, o)
+#define OSCSCALAR(c, o) OSCVALUE(c, OscScalar, o, ptrace(((c*)data)->m_bTrace, ("%s." _dimple_str(o) " -> %f\n", ((c*)data)->m_name.c_str(), s.m_value)))
+#define OSCVECTOR3(c, o) OSCVALUE(c, OscVector3, o, ptrace(((c*)data)->m_bTrace, ("%s." _dimple_str(o) " -> (%f, %f, %f)\n", ((c*)data)->m_name.c_str(), s.x, s.y, s.z)))
+#define OSCSTRING(c, o) OSCVALUE(c, OscStrings, o, ptrace(((c*)data)->m_bTrace, ("%s." _dimple_str(o) " -> '%s'\n", ((c*)data)->m_name.c_str(), s.c_str())))
 
 //! The OscValue class is the base class for all OSC-accessible values,
 //! including vectors and scalars.

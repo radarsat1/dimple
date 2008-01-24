@@ -23,6 +23,9 @@
 OscBase::OscBase(const char *name, OscBase *parent, lo_server server)
     : m_name(name), m_parent(parent), m_server(server?server:(parent?parent->m_server:NULL))
 {
+#ifdef DEBUG
+    m_bTrace = false;
+#endif
     if (!m_server)
         throw "Object created without valid lo_server.";
 }
