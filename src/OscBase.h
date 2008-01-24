@@ -33,6 +33,10 @@ public:
 
     const char* c_name() { return m_name.c_str(); }
     const std::string name() { return m_name; }
+
+    const char* c_path() { return path().c_str(); }
+    const std::string path() { return (m_parent?m_parent->path():std::string())+"/"+name(); }
+
     OscBase *parent() { return m_parent; }
 
     lo_server get_lo_server();
