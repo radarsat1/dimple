@@ -40,9 +40,9 @@
     static void set_##x(void *data, const t& s) \
     { p; ((c*)data)->on_##x(); }                \
     virtual void on_##x()
-#define OSCSCALAR(c, o) OSCVALUE(c, OscScalar, o, ptrace(((c*)data)->m_bTrace, ("%s." _dimple_str(o) " -> %f\n", ((c*)data)->m_name.c_str(), s.m_value)))
-#define OSCVECTOR3(c, o) OSCVALUE(c, OscVector3, o, ptrace(((c*)data)->m_bTrace, ("%s." _dimple_str(o) " -> (%f, %f, %f)\n", ((c*)data)->m_name.c_str(), s.x, s.y, s.z)))
-#define OSCSTRING(c, o) OSCVALUE(c, OscStrings, o, ptrace(((c*)data)->m_bTrace, ("%s." _dimple_str(o) " -> '%s'\n", ((c*)data)->m_name.c_str(), s.c_str())))
+#define OSCSCALAR(c, o) OSCVALUE(c, OscScalar, o, ptrace(((c*)data)->m_bTrace, ("%s." _dimple_str(o) " -> %f\n", ((c*)data)->c_path(), s.m_value)))
+#define OSCVECTOR3(c, o) OSCVALUE(c, OscVector3, o, ptrace(((c*)data)->m_bTrace, ("%s." _dimple_str(o) " -> (%f, %f, %f)\n", ((c*)data)->c_path(), s.x, s.y, s.z)))
+#define OSCSTRING(c, o) OSCVALUE(c, OscStrings, o, ptrace(((c*)data)->m_bTrace, ("%s." _dimple_str(o) " -> '%s'\n", ((c*)data)->c_path(), s.c_str())))
 
 //! The OscValue class is the base class for all OSC-accessible values,
 //! including vectors and scalars.
