@@ -18,6 +18,7 @@
 
 #include "OscBase.h"
 #include "dimple.h"
+#include "Simulation.h"
 
 //! OscBase objects always have a name. Class name defaults to "".
 OscBase::OscBase(const char *name, OscBase *parent, lo_server server)
@@ -61,6 +62,19 @@ OscBase::~OscBase()
         m_methods.pop_back();
         lo_server_del_method(m_server, m.name.c_str(), m.type.c_str());
     }
+}
+
+Simulation *OscBase::simulation()
+{
+    OscBase *p = parent();
+    while (p) {
+        Simulation *s = dynamic_cast<Simulation*>(p);
+        if (s) return s;
+        p = p->parent();
+    }
+    printf("Internal error, object %s not in a simulation.\n", c_path());
+    exit(1);
+    return NULL;
 }
 
 // ----------------------------------------------------------------------------------

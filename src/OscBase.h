@@ -22,6 +22,8 @@
 #include <vector>
 #include <map>
 
+class Simulation;
+
 //! The OscBase class handles basic OSC functions for dealing with LibLo.
 //! It keeps a record of the object's name and classname which becomes
 //! part of all OSC methods for this object.
@@ -40,6 +42,7 @@ public:
     OscBase *parent() { return m_parent; }
 
     lo_server get_lo_server();
+    Simulation *simulation();
 
 #ifdef DEBUG
     void traceOn() { m_bTrace = true; }
