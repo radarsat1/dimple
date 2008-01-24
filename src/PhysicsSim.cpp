@@ -134,7 +134,7 @@ OscSphereODE::OscSphereODE(dWorldID odeWorld, dSpaceID odeSpace, const char *nam
     dBodySetPosition(m_odeBody, 0, 0, 0);
 }
 
-void OscSphereODE::onSetRadius()
+void OscSphereODE::on_radius()
 {
-    printf("OscSphereODE::onSetRadius(). radius = %f\n", m_radius.m_value);
+    printf("OscSphereODE::on_radius(). radius = %f\n", m_radius.m_value);
 }

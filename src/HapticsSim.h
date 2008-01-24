@@ -70,7 +70,7 @@ public:
     virtual cShapeSphere *object() { return m_pSphere; }
 
 protected:
-    virtual void onSetRadius();
+    virtual void on_radius();
 
     cShapeSphere *m_pSphere;
 };

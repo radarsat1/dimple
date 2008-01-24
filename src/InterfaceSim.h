@@ -47,7 +47,7 @@ public:
     virtual ~OscSphereInterface() {}
 
 protected:
-    virtual void onSetRadius();
+    virtual void on_radius();
 };
 
 #endif // _INTERFACE_SIM_H_

@@ -1,4 +1,4 @@
-
+// -*- mode:c++; indent-tabs-mode:nil; c-basic-offset:4; compile-command:"scons debug=1" -*-
 //======================================================================================
 /*
     This file is part of DIMPLE, the Dynamic Interactive Musically PhysicaL Environment,
@@ -25,6 +25,17 @@
 #include "CODEPrism.h"
 #include "CODESphere.h"
 
+// Macros for easily adding member functions with associated callbacks
+#define __dimple_str(x) #x
+#define _dimple_str(x) #x
+#define OSCVALUE(c, t, x) t m_##x;              \
+    static void set_##x(void *data, const t& s) \
+    { ((c*)data)->on_##x(); }                   \
+    virtual void on_##x()
+#define OSCSCALAR(c, o) OSCVALUE(c, OscScalar, o)
+#define OSCVECTOR3(c, o) OSCVALUE(c, OscVector3, o)
+#define OSCSTRING(c, o) OSCVALUE(c, OscStrings, o)
+
 //! The OscValue class is the base class for all OSC-accessible values,
 //! including vectors and scalars.
 class OscValue : public OscBase
@@ -35,12 +46,12 @@ class OscValue : public OscBase
 	virtual void setChanged() {}
     virtual void send() = 0;
 
-    typedef void set_callback(void*, const OscValue&);
-    void setCallback(set_callback*c, void*d, int thread)
+    typedef void Callback(void*, const OscValue&);
+    void setCallback(Callback*c, void*d, int thread)
       { m_callback = c; m_callback_data = d; m_callback_thread = thread; }
 
   protected:
-    set_callback *m_callback;
+    Callback *m_callback;
     void *m_callback_data;
     int m_callback_thread;
     static int get_handler(const char *path, const char *types, lo_arg **argv,
@@ -57,6 +68,10 @@ class OscScalar : public OscValue
     void send();
 
     double m_value;
+
+    typedef void Callback(void*, const OscScalar&);
+    void setCallback(Callback *c, void *d, int thread)
+        { OscValue::setCallback((OscValue::Callback*)c, d, thread); }
 
   protected:
     static int _handler(const char *path, const char *types, lo_arg **argv,
@@ -75,6 +90,10 @@ class OscVector3 : public OscValue, public cVector3d
 
 	OscScalar m_magnitude;
 
+    typedef void Callback(void*, const OscVector3&);
+    void setCallback(Callback *c, void *d, int thread)
+        { OscValue::setCallback((OscValue::Callback*)c, d, thread); }
+
   protected:
     static void setMagnitude(OscVector3*, const OscScalar&);
     static int _handler(const char *path, const char *types, lo_arg **argv,
@@ -86,6 +105,10 @@ class OscString : public OscValue, public std::string
   public:
     OscString(const char *name, OscBase *owner);
     void send();
+
+    typedef void Callback(void*, const OscString&);
+    void setCallback(Callback *c, void *d, int thread)
+        { OscValue::setCallback((OscValue::Callback*)c, d, thread); }
 
   protected:
     static int _handler(const char *path, const char *types, lo_arg **argv,
@@ -128,8 +151,11 @@ class OscObject : public OscBase
 
     OscVector3 m_velocity;
     OscVector3 m_accel;
+/*
     OscVector3 m_position;
     static void setPosition(OscObject *me, const OscVector3& pos);
+*/
+    OSCVECTOR3(OscObject, position);
     static void setVelocity(OscObject *me, const OscVector3& vel);
 
     OscScalar m_friction_static;
@@ -193,9 +219,16 @@ class OscSphere : public OscObject
     const OscScalar& getRadius();
 
   protected:
+    OSCSCALAR(OscSphere, radius) {};
+    /*
     OscScalar m_radius;
-    static void setRadius(void *data, const OscScalar&);
+    static void setRadius(void *data, const OscScalar&) {
+    printf ("OscSphere::setRadius()\n");
+    OscSphere *me = (OscSphere*)data;
+    me->onSetRadius();
+    }
     virtual void onSetRadius() {}
+    */
 
     static int radius_handler(const char *path, const char *types, lo_arg **argv,
                               int argc, void *data, void *user_data);

@@ -77,7 +77,7 @@ public:
     virtual ~OscSphereODE() {}
 
 protected:
-    virtual void onSetRadius();
+    virtual void on_radius();
 };
 
 #endif // _PHYSICS_SIM_H_

@@ -14,7 +14,6 @@
 //======================================================================================
 
 #include "OscObject.h"
-#include "dimple.h"
 #include "valuetimer.h"
 #include <assert.h>
 
@@ -108,8 +107,7 @@ OscVector3::OscVector3(const char *name, OscBase *owner)
 {
     m_callback = NULL;
     m_callback_data = NULL;
-    m_magnitude.setCallback((OscScalar::set_callback*)OscVector3::setMagnitude, this,
-        DIMPLE_THREAD_PHYSICS);
+    m_magnitude.setCallback((OscScalar::Callback*)setMagnitude, this, DIMPLE_THREAD_PHYSICS);
 
     addHandler("",              "fff", OscVector3::_handler);
 }
@@ -254,18 +252,12 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     m_friction_dynamic.set(0.5);
 
     // Set callbacks for when values change
-    m_position.setCallback((OscVector3::set_callback*)OscObject::setPosition, this,
-                           DIMPLE_THREAD_PHYSICS);
-    m_velocity.setCallback((OscVector3::set_callback*)OscObject::setVelocity, this,
-                           DIMPLE_THREAD_PHYSICS);
-    m_color.setCallback((OscVector3::set_callback*)OscObject::setColor, this,
-                        DIMPLE_THREAD_HAPTICS);
-    m_friction_static.setCallback((OscScalar::set_callback*)OscObject::setFrictionStatic, this,
-                                  DIMPLE_THREAD_HAPTICS);
-    m_friction_dynamic.setCallback((OscScalar::set_callback*)OscObject::setFrictionDynamic, this,
-                                   DIMPLE_THREAD_HAPTICS);
-    m_texture_image.setCallback((OscScalar::set_callback*)OscObject::setTextureImage, this,
-                                DIMPLE_THREAD_HAPTICS);
+    m_position.setCallback(set_position, this, DIMPLE_THREAD_PHYSICS);
+    m_velocity.setCallback((OscVector3::Callback*)setVelocity, this, DIMPLE_THREAD_PHYSICS);
+    m_color.setCallback((OscVector3::Callback*)setColor, this, DIMPLE_THREAD_HAPTICS);
+    m_friction_static.setCallback((OscScalar::Callback*)setFrictionStatic, this, DIMPLE_THREAD_HAPTICS);
+    m_friction_dynamic.setCallback((OscScalar::Callback*)setFrictionDynamic, this, DIMPLE_THREAD_HAPTICS);
+    m_texture_image.setCallback((OscString::Callback*)setTextureImage, this, DIMPLE_THREAD_HAPTICS);
 
     m_getCollide = false;
 
@@ -336,9 +328,9 @@ void OscObject::unlinkConstraint(std::string &name)
 }
 
 //! Set the dynamic object to a new position
-void OscObject::setPosition(OscObject *me, const OscVector3& pos)
+void OscObject::on_position()
 {
-    me->odePrimitive()->setDynamicPosition(pos);
+    odePrimitive()->setDynamicPosition(m_position);
 }
 
 //! Set the dynamic object velocity
@@ -689,15 +681,18 @@ OscSphere::OscSphere(cGenericObject* p, const char *name, OscBase* parent)
     : OscObject(p, name, parent), m_radius("radius", this)
 {
 //    addHandler("radius", "f", OscSphere::radius_handler);
-    m_radius.setCallback((OscScalar::set_callback*)OscSphere::setRadius, this, DIMPLE_THREAD_PHYSICS);
+//    m_radius.setCallback((OscScalar::set_callback*)OscSphere::setRadius, this, DIMPLE_THREAD_PHYSICS);
+    m_radius.setCallback(set_radius, this, DIMPLE_THREAD_PHYSICS);
 }
 
+/*
 void OscSphere::setRadius(void *data, const OscScalar&)
 {
     printf ("OscSphere::setRadius()\n");
     OscSphere *me = (OscSphere*)data;
     me->onSetRadius();
 }
+*/
 
 //! Change the sphere's radius to the given size.
 int OscSphere::radius_handler(const char *path, const char *types, lo_arg **argv,

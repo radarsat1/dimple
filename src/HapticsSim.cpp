@@ -69,9 +69,9 @@ OscSphereCHAI::~OscSphereCHAI()
         delete m_pSphere;
 }
 
-void OscSphereCHAI::onSetRadius()
+void OscSphereCHAI::on_radius()
 {
-    printf("OscSphereCHAI::onSetRadius(). radius = %f\n", m_radius.m_value);
+    printf("OscSphereCHAI::on_radius(). radius = %f\n", m_radius.m_value);
 
     if (!m_pSphere)
         return;

@@ -48,7 +48,7 @@ void InterfaceSim::step()
 
 /****** OscSphereInterface ******/
 
-void OscSphereInterface::onSetRadius()
+void OscSphereInterface::on_radius()
 {
     InterfaceSim *sim = static_cast<InterfaceSim*>(m_parent);
     sim->send((std::string("/world/")
