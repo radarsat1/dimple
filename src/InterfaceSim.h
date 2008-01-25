@@ -59,7 +59,10 @@ class OscSphereInterface : public OscSphere
 {
 public:
     OscSphereInterface(cGenericObject *p, const char *name, OscBase *parent=NULL)
-        : OscSphere(p, name, parent) {}
+        : OscSphere(p, name, parent)
+        {
+            m_radius.setGetCallback((OscScalar::GetCallback*)on_get_radius, this, DIMPLE_THREAD_PHYSICS);
+        }
     virtual ~OscSphereInterface() {}
 
 protected:
@@ -68,6 +71,12 @@ protected:
     FWD_OSCVECTOR3(accel);
     FWD_OSCVECTOR3(color);
     FWD_OSCSCALAR(radius);
+
+    static void on_get_radius(OscSphereInterface* me, OscScalar& radius, int interval)
+        {
+            me->simulation()->send((radius.path()+"/get").c_str(),
+                                   (interval>=0)?"i":"", interval);
+        }
 };
 
 #endif // _INTERFACE_SIM_H_

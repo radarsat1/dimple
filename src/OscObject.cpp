@@ -20,9 +20,12 @@
 OscValue::OscValue(const char *name, OscBase *parent)
     : OscBase(name, parent)
 {
-    m_callback = NULL;
-    m_callback_data = NULL;
-    m_callback_thread = DIMPLE_THREAD_PHYSICS;
+    m_set_callback = NULL;
+    m_set_callback_data = NULL;
+    m_set_callback_thread = DIMPLE_THREAD_PHYSICS;
+    m_get_callback = NULL;
+    m_get_callback_data = NULL;
+    m_get_callback_thread = DIMPLE_THREAD_PHYSICS;
 
     addHandler("get",           "i"  , OscValue::get_handler);
     addHandler("get",           ""   , OscValue::get_handler);
@@ -36,11 +39,12 @@ OscValue::~OscValue()
 int OscValue::get_handler(const char *path, const char *types, lo_arg **argv,
                           int argc, void *data, void *user_data)
 {
-    handler_data *hd = (handler_data*)user_data;
-    OscValue *me = (OscValue*)hd->user_data;
+    OscValue *me = (OscValue*)user_data;
     
-    if (hd->thread != DIMPLE_THREAD_PHYSICS)
+    if (me->m_get_callback) {
+        me->m_get_callback(me->m_get_callback_data, *me, (argc==1)?argv[0]->i:-1);
         return 0;
+    }
 
     if (argc==0) {
         me->send();
@@ -61,11 +65,7 @@ int OscValue::get_handler(const char *path, const char *types, lo_arg **argv,
 OscScalar::OscScalar(const char *name, OscBase *owner)
 	 : OscValue(name, owner)
 {
-    m_callback = NULL;
-    m_callback_data = NULL;
-
     m_value = 0;
-
     addHandler("",              "f", OscScalar::_handler);
 }
 
@@ -91,8 +91,8 @@ int OscScalar::_handler(const char *path, const char *types, lo_arg **argv,
 	 if (argc == 1)
 		  me->m_value = argv[0]->f;
 
-     if (me->m_callback)
-         me->m_callback(me->m_callback_data, *me);
+     if (me->m_set_callback)
+         me->m_set_callback(me->m_set_callback_data, *me);
 
 	 return 0;
 }
@@ -105,9 +105,7 @@ OscVector3::OscVector3(const char *name, OscBase *owner)
 	  m_magnitude("magnitude", this),
       cVector3d()
 {
-    m_callback = NULL;
-    m_callback_data = NULL;
-    m_magnitude.setCallback((OscScalar::Callback*)setMagnitude, this, DIMPLE_THREAD_PHYSICS);
+    m_magnitude.setSetCallback((OscScalar::SetCallback*)setMagnitude, this, DIMPLE_THREAD_PHYSICS);
 
     addHandler("",              "fff", OscVector3::_handler);
 }
@@ -146,8 +144,8 @@ void OscVector3::setMagnitude(OscVector3 *me, const OscScalar& s)
     
     *me *= ratio;
 
-    if (me->m_callback)
-        me->m_callback(me->m_callback_data, *me);
+    if (me->m_set_callback)
+        me->m_set_callback(me->m_set_callback_data, *me);
 }
 
 int OscVector3::_handler(const char *path, const char *types, lo_arg **argv,
@@ -156,7 +154,7 @@ int OscVector3::_handler(const char *path, const char *types, lo_arg **argv,
 	 handler_data *hd = (handler_data*)user_data;
 	 OscVector3 *me = (OscVector3*)hd->user_data;
 
-     if (hd->thread != me->m_callback_thread)
+     if (hd->thread != me->m_set_callback_thread)
          return 0;
 
 	 if (argc == 3) {
@@ -166,8 +164,8 @@ int OscVector3::_handler(const char *path, const char *types, lo_arg **argv,
           me->setChanged();
 	 }
      
-     if (me->m_callback)
-         me->m_callback(me->m_callback_data, *me);
+     if (me->m_set_callback)
+         me->m_set_callback(me->m_set_callback_data, *me);
 
 	 return 0;
 }
@@ -197,7 +195,7 @@ int OscString::_handler(const char *path, const char *types, lo_arg **argv,
 	 handler_data *hd = (handler_data*)user_data;
 	 OscString *me = (OscString*)hd->user_data;
 
-     if (hd->thread != me->m_callback_thread)
+     if (hd->thread != me->m_set_callback_thread)
          return 0;
 
 	 if (argc == 1) {
@@ -205,8 +203,8 @@ int OscString::_handler(const char *path, const char *types, lo_arg **argv,
          me->setChanged();
 	 }
      
-     if (me->m_callback)
-         me->m_callback(me->m_callback_data, *me);
+     if (me->m_set_callback)
+         me->m_set_callback(me->m_set_callback_data, *me);
 
 	 return 0;
 }
@@ -252,12 +250,12 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     m_friction_dynamic.set(0.5);
 
     // Set callbacks for when values change
-    m_position.setCallback(set_position, this, DIMPLE_THREAD_PHYSICS);
-    m_velocity.setCallback((OscVector3::Callback*)setVelocity, this, DIMPLE_THREAD_PHYSICS);
-    m_color.setCallback((OscVector3::Callback*)setColor, this, DIMPLE_THREAD_HAPTICS);
-    m_friction_static.setCallback((OscScalar::Callback*)setFrictionStatic, this, DIMPLE_THREAD_HAPTICS);
-    m_friction_dynamic.setCallback((OscScalar::Callback*)setFrictionDynamic, this, DIMPLE_THREAD_HAPTICS);
-    m_texture_image.setCallback((OscString::Callback*)setTextureImage, this, DIMPLE_THREAD_HAPTICS);
+    m_position.setSetCallback(set_position, this, DIMPLE_THREAD_PHYSICS);
+    m_velocity.setSetCallback((OscVector3::SetCallback*)setVelocity, this, DIMPLE_THREAD_PHYSICS);
+    m_color.setSetCallback((OscVector3::SetCallback*)setColor, this, DIMPLE_THREAD_HAPTICS);
+    m_friction_static.setSetCallback((OscScalar::SetCallback*)setFrictionStatic, this, DIMPLE_THREAD_HAPTICS);
+    m_friction_dynamic.setSetCallback((OscScalar::SetCallback*)setFrictionDynamic, this, DIMPLE_THREAD_HAPTICS);
+    m_texture_image.setSetCallback((OscString::SetCallback*)setTextureImage, this, DIMPLE_THREAD_HAPTICS);
 
     m_getCollide = false;
 
@@ -682,7 +680,7 @@ OscSphere::OscSphere(cGenericObject* p, const char *name, OscBase* parent)
 {
 //    addHandler("radius", "f", OscSphere::radius_handler);
 //    m_radius.setCallback((OscScalar::set_callback*)OscSphere::setRadius, this, DIMPLE_THREAD_PHYSICS);
-    m_radius.setCallback(set_radius, this, DIMPLE_THREAD_PHYSICS);
+    m_radius.setSetCallback(set_radius, this, DIMPLE_THREAD_PHYSICS);
 }
 
 /*

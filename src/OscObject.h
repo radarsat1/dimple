@@ -54,14 +54,20 @@ class OscValue : public OscBase
 	virtual void setChanged() {}
     virtual void send() = 0;
 
-    typedef void Callback(void*, const OscValue&);
-    void setCallback(Callback*c, void*d, int thread)
-      { m_callback = c; m_callback_data = d; m_callback_thread = thread; }
+    typedef void SetCallback(void*, const OscValue&);
+    void setSetCallback(SetCallback*c, void*d, int thread)
+      { m_set_callback = c; m_set_callback_data = d; m_set_callback_thread = thread; }
+    typedef void GetCallback(void*, const OscValue&, int interval);
+    void setGetCallback(GetCallback*c, void*d, int thread)
+      { m_get_callback = c; m_get_callback_data = d; m_get_callback_thread = thread; }
 
   protected:
-    Callback *m_callback;
-    void *m_callback_data;
-    int m_callback_thread;
+    SetCallback *m_set_callback;
+    void *m_set_callback_data;
+    int m_set_callback_thread;
+    GetCallback *m_get_callback;
+    void *m_get_callback_data;
+    int m_get_callback_thread;
     static int get_handler(const char *path, const char *types, lo_arg **argv,
                            int argc, void *data, void *user_data);
 };
@@ -77,9 +83,12 @@ class OscScalar : public OscValue
 
     double m_value;
 
-    typedef void Callback(void*, const OscScalar&);
-    void setCallback(Callback *c, void *d, int thread)
-        { OscValue::setCallback((OscValue::Callback*)c, d, thread); }
+    typedef void SetCallback(void*, const OscScalar&);
+    void setSetCallback(SetCallback *c, void *d, int thread)
+        { OscValue::setSetCallback((OscValue::SetCallback*)c, d, thread); }
+    typedef void GetCallback(void*, const OscScalar&, int interval);
+    void setGetCallback(GetCallback *c, void *d, int thread)
+        { OscValue::setGetCallback((OscValue::GetCallback*)c, d, thread); }
 
   protected:
     static int _handler(const char *path, const char *types, lo_arg **argv,
@@ -98,9 +107,12 @@ class OscVector3 : public OscValue, public cVector3d
 
 	OscScalar m_magnitude;
 
-    typedef void Callback(void*, const OscVector3&);
-    void setCallback(Callback *c, void *d, int thread)
-        { OscValue::setCallback((OscValue::Callback*)c, d, thread); }
+    typedef void SetCallback(void*, const OscVector3&);
+    void setSetCallback(SetCallback *c, void *d, int thread)
+        { OscValue::setSetCallback((OscValue::SetCallback*)c, d, thread); }
+    typedef void GetCallback(void*, const OscVector3&, int interval);
+    void setGetCallback(GetCallback *c, void *d, int thread)
+        { OscValue::setGetCallback((OscValue::GetCallback*)c, d, thread); }
 
   protected:
     static void setMagnitude(OscVector3*, const OscScalar&);
@@ -114,9 +126,12 @@ class OscString : public OscValue, public std::string
     OscString(const char *name, OscBase *owner);
     void send();
 
-    typedef void Callback(void*, const OscString&);
-    void setCallback(Callback *c, void *d, int thread)
-        { OscValue::setCallback((OscValue::Callback*)c, d, thread); }
+    typedef void SetCallback(void*, const OscString&);
+    void setSetCallback(SetCallback *c, void *d, int thread)
+        { OscValue::setSetCallback((OscValue::SetCallback*)c, d, thread); }
+    typedef void GetCallback(void*, const OscString&, int interval);
+    void setGetCallback(GetCallback *c, void *d, int thread)
+        { OscValue::setGetCallback((OscValue::GetCallback*)c, d, thread); }
 
   protected:
     static int _handler(const char *path, const char *types, lo_arg **argv,
