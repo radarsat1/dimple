@@ -14,7 +14,8 @@
 //======================================================================================
 
 #include "OscObject.h"
-#include "valuetimer.h"
+#include "ValueTimer.h"
+#include "Simulation.h"
 #include <assert.h>
 
 OscValue::OscValue(const char *name, OscBase *parent)
@@ -52,9 +53,9 @@ int OscValue::get_handler(const char *path, const char *types, lo_arg **argv,
 
     else if (argc==1) {
         if (argv[0]->i == 0)
-            valuetimer.removeValue(me);
-        else
-            valuetimer.addValue(me, argv[0]->i);
+            me->simulation()->valuetimer().removeValue(me);
+        else if (argv[0]->i > 0)
+            me->simulation()->valuetimer().addValue(me, argv[0]->i);
     }
 
     return 0;

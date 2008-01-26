@@ -43,7 +43,7 @@
 #include "CShapeSphere.h"
 //---------------------------------------------------------------------------
 #include "dimple.h"
-#include "valuetimer.h"
+#include "ValueTimer.h"
 #include "CODEMesh.h"
 #include "CODEProxy.h"
 #include "CODEPrism.h"

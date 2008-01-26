@@ -102,6 +102,7 @@ void* Simulation::run(void* param)
         /* TODO: timing properly */
         lo_server_recv_noblock(me->m_server, step_ms);
         me->step();
+        me->m_valueTimer.onTimer(step_ms);
     }
 
     return 0;

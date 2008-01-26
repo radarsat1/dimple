@@ -4,6 +4,7 @@
 #define _SIMULATION_H_
 
 #include "OscObject.h"
+#include "ValueTimer.h"
 
 class SphereFactory;
 class PrismFactory;
@@ -32,6 +33,7 @@ class Simulation : public OscBase
     void send(const char *msg, const char *types, ...);
 
     const lo_address addr() { return m_addr; }
+    ValueTimer& valuetimer() { return m_valueTimer; }
 
   protected:
     pthread_t m_thread;
@@ -55,6 +57,9 @@ class Simulation : public OscBase
 
     //! List of other simulations that may receive messages from this one.
     std::vector<Simulation*> m_simulationList;
+
+    //! Object to track values that need to be sent at regular intervals.
+    ValueTimer m_valueTimer;
 };
 
 class ShapeFactory : public OscBase
