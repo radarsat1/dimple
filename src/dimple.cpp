@@ -56,7 +56,7 @@
 #include "InterfaceSim.h"
 //---------------------------------------------------------------------------
 
-lo_address address_send = lo_address_new("localhost", "7771");
+lo_address address_send = lo_address_new("localhost", "7775");
 
 // the world in which we will create our environment
 cWorld* world;
