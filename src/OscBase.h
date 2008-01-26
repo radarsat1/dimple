@@ -47,9 +47,11 @@ public:
 #ifdef DEBUG
     void traceOn() { m_bTrace = true; }
     void traceOff() { m_bTrace = false; }
+    bool tracing() { return m_bTrace; }
 #else
     void traceOn() {}
     void traceOff() {}
+    bool tracing() { return false; }
 #endif
 
 protected:
