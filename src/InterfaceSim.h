@@ -8,18 +8,27 @@
 // Macros for defining forwarding handlers for OscValue instances to
 // the other simulations.
 
-#define FWD_OSCSCALAR(o)                               \
-    virtual void on_##o() {                              \
-        simulation()->send(m_##o.c_path(), "f",          \
-                           m_##o.m_value); }
-#define FWD_OSCVECTOR3(o)                                \
-    virtual void on_##o() {                              \
-        simulation()->send(m_##o.c_path(), "fff",        \
-                           m_##o.x, m_##o.y, m_##o.z); }
-#define FWD_OSCSTRING(o)                                 \
-    virtual void on_##o() {                              \
-        simulation()->send(m_##o.c_path(), "s",          \
-                           m_##o.m_value); }
+#define FWD_OSCSCALAR(o)                                                \
+    virtual void on_##o() {                                             \
+        simulation()->send(m_##o.c_path(), "f",                         \
+                           m_##o.m_value); }                            \
+    static void on_get_##o(void *me, const OscScalar &o, int interval) {\
+        ((OscBase*)me)->simulation()->send((o.path()+"/get").c_str(),   \
+                                       (interval>=0)?"i":"", interval); }
+#define FWD_OSCVECTOR3(o)                                               \
+    virtual void on_##o() {                                             \
+        simulation()->send(m_##o.c_path(), "fff",                       \
+                           m_##o.x, m_##o.y, m_##o.z); }                \
+    static void on_get_##o(void *me, const OscVector3 &o, int interval){\
+        ((OscBase*)me)->simulation()->send((o.path()+"/get").c_str(),   \
+                                        (interval>=0)?"i":"", interval);}
+#define FWD_OSCSTRING(o)                                                \
+    virtual void on_##o() {                                             \
+        simulation()->send(m_##o.c_path(), "s",                         \
+                           m_##o.m_value); }                            \
+    static void on_get_##o(void *me, const OscString &o, int interval){ \
+        ((OscBase*)me)->simulation()->send((o.path()+"/get").c_str(),   \
+                                        (interval>=0)?"i":"", interval); }
 
 class InterfaceSim : public Simulation
 {
@@ -61,7 +70,11 @@ public:
     OscSphereInterface(cGenericObject *p, const char *name, OscBase *parent=NULL)
         : OscSphere(p, name, parent)
         {
-            m_radius.setGetCallback((OscScalar::GetCallback*)on_get_radius, this, DIMPLE_THREAD_PHYSICS);
+            m_position.setGetCallback(on_get_position, this, DIMPLE_THREAD_PHYSICS);
+            m_velocity.setGetCallback(on_get_velocity, this, DIMPLE_THREAD_PHYSICS);
+            m_accel.setGetCallback(on_get_accel, this, DIMPLE_THREAD_PHYSICS);
+            m_color.setGetCallback(on_get_color, this, DIMPLE_THREAD_PHYSICS);
+            m_radius.setGetCallback(on_get_radius, this, DIMPLE_THREAD_PHYSICS);
         }
     virtual ~OscSphereInterface() {}
 
@@ -71,12 +84,6 @@ protected:
     FWD_OSCVECTOR3(accel);
     FWD_OSCVECTOR3(color);
     FWD_OSCSCALAR(radius);
-
-    static void on_get_radius(OscSphereInterface* me, OscScalar& radius, int interval)
-        {
-            me->simulation()->send((radius.path()+"/get").c_str(),
-                                   (interval>=0)?"i":"", interval);
-        }
 };
 
 #endif // _INTERFACE_SIM_H_

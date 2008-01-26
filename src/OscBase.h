@@ -33,11 +33,11 @@ public:
     OscBase(const char *name, OscBase *parent, lo_server server=NULL);
     virtual ~OscBase();
 
-    const char* c_name() { return m_name.c_str(); }
-    const std::string name() { return m_name; }
+    const char* c_name() const { return m_name.c_str(); }
+    const std::string name() const { return m_name; }
 
-    const char* c_path() { return path().c_str(); }
-    const std::string path() { return (m_parent?m_parent->path():std::string())+"/"+name(); }
+    const char* c_path() const { return path().c_str(); }
+    const std::string path() const { return (m_parent?m_parent->path():std::string())+"/"+name(); }
 
     OscBase *parent() { return m_parent; }
 
