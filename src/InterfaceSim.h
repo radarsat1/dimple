@@ -75,6 +75,7 @@ public:
             m_accel.setGetCallback(on_get_accel, this, DIMPLE_THREAD_PHYSICS);
             m_color.setGetCallback(on_get_color, this, DIMPLE_THREAD_PHYSICS);
             m_radius.setGetCallback(on_get_radius, this, DIMPLE_THREAD_PHYSICS);
+            m_force.setGetCallback(on_get_force, this, DIMPLE_THREAD_PHYSICS);
         }
     virtual ~OscSphereInterface() {}
 
@@ -84,6 +85,7 @@ protected:
     FWD_OSCVECTOR3(accel);
     FWD_OSCVECTOR3(color);
     FWD_OSCSCALAR(radius);
+    FWD_OSCVECTOR3(force);
 };
 
 #endif // _INTERFACE_SIM_H_

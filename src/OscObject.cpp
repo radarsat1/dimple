@@ -87,7 +87,7 @@ void OscScalar::send()
 int OscScalar::_handler(const char *path, const char *types, lo_arg **argv,
                          int argc, void *data, void *user_data)
 {
-	 OscScalar *me = (OscScalar*)user_data;
+    OscScalar *me = static_cast<OscScalar*>(user_data);
 
 	 if (argc == 1)
 		  me->m_value = argv[0]->f;
@@ -152,11 +152,7 @@ void OscVector3::setMagnitude(OscVector3 *me, const OscScalar& s)
 int OscVector3::_handler(const char *path, const char *types, lo_arg **argv,
                          int argc, void *data, void *user_data)
 {
-	 handler_data *hd = (handler_data*)user_data;
-	 OscVector3 *me = (OscVector3*)hd->user_data;
-
-     if (hd->thread != me->m_set_callback_thread)
-         return 0;
+    OscVector3 *me = static_cast<OscVector3*>(user_data);
 
 	 if (argc == 3) {
 		  me->x = argv[0]->f;
@@ -193,11 +189,7 @@ void OscString::send()
 int OscString::_handler(const char *path, const char *types, lo_arg **argv,
                         int argc, void *data, void *user_data)
 {
-	 handler_data *hd = (handler_data*)user_data;
-	 OscString *me = (OscString*)hd->user_data;
-
-     if (hd->thread != me->m_set_callback_thread)
-         return 0;
+    OscString *me = static_cast<OscString*>(user_data);
 
 	 if (argc == 1) {
          me->assign(&argv[0]->s);
@@ -218,6 +210,7 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
       m_velocity("velocity", this),
       m_accel("acceleration", this),
       m_position("position", this),
+      m_force("force", this),
       m_color("color", this),
       m_friction_static("friction/static", this),
       m_friction_dynamic("friction/dynamic", this),
@@ -234,7 +227,6 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     // Create handlers for OSC messages
     addHandler("destroy"    , ""   , OscObject::destroy_handler);
     addHandler("mass"       , "f"  , OscObject::mass_handler);
-    addHandler("force"      , "fff", OscObject::force_handler);
     addHandler("collide/get", ""   , OscObject::collideGet_handler);
     addHandler("collide/get", "i"  , OscObject::collideGet_handler);
     addHandler("grab"       , ""   , OscObject::grab_handler);
@@ -245,6 +237,7 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     m_accel.set(0,0,0);
     m_velocity.set(0,0,0);
     m_position.set(0,0,0);
+    m_force.set(0,0,0);
 
     // Sane friction defaults
     m_friction_static.set(1);
@@ -252,6 +245,7 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
 
     // Set callbacks for when values change
     m_position.setSetCallback(set_position, this, DIMPLE_THREAD_PHYSICS);
+    m_force.setSetCallback(set_force, this, DIMPLE_THREAD_PHYSICS);
     m_velocity.setSetCallback((OscVector3::SetCallback*)setVelocity, this, DIMPLE_THREAD_PHYSICS);
     m_color.setSetCallback((OscVector3::SetCallback*)setColor, this, DIMPLE_THREAD_HAPTICS);
     m_friction_static.setSetCallback((OscScalar::SetCallback*)setFrictionStatic, this, DIMPLE_THREAD_HAPTICS);
@@ -485,20 +479,6 @@ int OscObject::mass_handler(const char *path, const char *types, lo_arg **argv,
     OscObject *me = (OscObject*)hd->user_data;
 	if (hd->thread == DIMPLE_THREAD_PHYSICS)
 		 me->odePrimitive()->setDynamicMass(argv[0]->f);
-    UNLOCK_WORLD();
-    return 0;
-}
-
-//! Add an instantaneous force to an object
-int OscObject::force_handler(const char *path, const char *types, lo_arg **argv,
-                             int argc, void *data, void *user_data)
-{
-    if (argc!=3) return 0;
-    LOCK_WORLD();
-	handler_data *hd = (handler_data*)user_data;
-    OscObject *me = (OscObject*)hd->user_data;
-	if (hd->thread == DIMPLE_THREAD_PHYSICS)
-        me->odePrimitive()->setDynamicForce(cVector3d(argv[0]->f, argv[1]->f, argv[2]->f));
     UNLOCK_WORLD();
     return 0;
 }

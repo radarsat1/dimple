@@ -78,6 +78,7 @@ public:
 
 protected:
     virtual void on_radius();
+    virtual void on_force();
 };
 
 #endif // _PHYSICS_SIM_H_
