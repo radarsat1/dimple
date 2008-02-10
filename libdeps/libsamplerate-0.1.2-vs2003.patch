@@ -1,10 +1,50 @@
---- libsamplerate-0.1.2.orig/Win32/libsamplerate-vs2005exp.vcproj	1969-12-31 19:00:00.000000000 -0500
-+++ libsamplerate-0.1.2/Win32/libsamplerate-vs2005exp.vcproj	2007-10-07 15:30:04.140625000 -0400
+diff -ruN libsamplerate-0.1.2.orig/Win32/libsamplerate-vs2003.sln libsamplerate-0.1.2/Win32/libsamplerate-vs2003.sln
+--- libsamplerate-0.1.2.orig/Win32/libsamplerate-vs2003.sln	1969-12-31 19:00:00.000000000 -0500
++++ libsamplerate-0.1.2/Win32/libsamplerate-vs2003.sln	2007-10-10 15:48:50.703125000 -0400
+@@ -0,0 +1,35 @@
++﻿
++Microsoft Visual Studio Solution File, Format Version 8.00
++Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libsamplerate-vs2005exp", "libsamplerate-vs2003.vcproj", "{2D3D754E-F0D2-46ED-8559-B69F378606D1}"
++	ProjectSection(ProjectDependencies) = postProject
++	EndProjectSection
++EndProject
++Global
++	GlobalSection(SolutionConfiguration) = preSolution
++		Debug = Debug
++		Release = Release
++	EndGlobalSection
++	GlobalSection(ProjectConfiguration) = postSolution
++		{2D3D754E-F0D2-46ED-8559-B69F378606D1}.Debug.ActiveCfg = Debug|Win32
++		{2D3D754E-F0D2-46ED-8559-B69F378606D1}.Debug.Build.0 = Debug|Win32
++		{2D3D754E-F0D2-46ED-8559-B69F378606D1}.Release.ActiveCfg = Release|Win32
++		{2D3D754E-F0D2-46ED-8559-B69F378606D1}.Release.Build.0 = Release|Win32
++	EndGlobalSection
++	GlobalSection(ExtensibilityGlobals) = postSolution
++	EndGlobalSection
++	GlobalSection(ExtensibilityAddIns) = postSolution
++	EndGlobalSection
++	GlobalSection(SolutionConfigurationPlatforms) = preSolution
++		Debug|Win32 = Debug|Win32
++		Release|Win32 = Release|Win32
++	EndGlobalSection
++	GlobalSection(ProjectConfigurationPlatforms) = postSolution
++		{2D3D754E-F0D2-46ED-8559-B69F378606D1}.Debug|Win32.ActiveCfg = Debug|Win32
++		{2D3D754E-F0D2-46ED-8559-B69F378606D1}.Debug|Win32.Build.0 = Debug|Win32
++		{2D3D754E-F0D2-46ED-8559-B69F378606D1}.Release|Win32.ActiveCfg = Release|Win32
++		{2D3D754E-F0D2-46ED-8559-B69F378606D1}.Release|Win32.Build.0 = Release|Win32
++	EndGlobalSection
++	GlobalSection(SolutionProperties) = preSolution
++		HideSolutionNode = FALSE
++	EndGlobalSection
++EndGlobal
+diff -ruN libsamplerate-0.1.2.orig/Win32/libsamplerate-vs2003.vcproj libsamplerate-0.1.2/Win32/libsamplerate-vs2003.vcproj
+--- libsamplerate-0.1.2.orig/Win32/libsamplerate-vs2003.vcproj	1969-12-31 19:00:00.000000000 -0500
++++ libsamplerate-0.1.2/Win32/libsamplerate-vs2003.vcproj	2007-10-10 15:48:25.343750000 -0400
 @@ -0,0 +1,217 @@
 +﻿<?xml version="1.0" encoding="UTF-8"?>
 +<VisualStudioProject
 +	ProjectType="Visual C++"
-+	Version="8.00"
++	Version="7.10"
 +	Name="libsamplerate"
 +	ProjectGUID="{2D3D754E-F0D2-46ED-8559-B69F378606D1}"
 +	Keyword="Win32Proj"
@@ -218,26 +258,3 @@
 +	<Globals>
 +	</Globals>
 +</VisualStudioProject>
---- libsamplerate-0.1.2.orig/Win32/libsamplerate-vs2005exp.sln	1969-12-31 19:00:00.000000000 -0500
-+++ libsamplerate-0.1.2/Win32/libsamplerate-vs2005exp.sln	2007-10-07 15:26:13.734375000 -0400
-@@ -0,0 +1,20 @@
-+﻿
-+Microsoft Visual Studio Solution File, Format Version 9.00
-+# Visual C++ Express 2005
-+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libsamplerate-vs2005exp", "libsamplerate-vs2005exp.vcproj", "{2D3D754E-F0D2-46ED-8559-B69F378606D1}"
-+EndProject
-+Global
-+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-+		Debug|Win32 = Debug|Win32
-+		Release|Win32 = Release|Win32
-+	EndGlobalSection
-+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-+		{2D3D754E-F0D2-46ED-8559-B69F378606D1}.Debug|Win32.ActiveCfg = Debug|Win32
-+		{2D3D754E-F0D2-46ED-8559-B69F378606D1}.Debug|Win32.Build.0 = Debug|Win32
-+		{2D3D754E-F0D2-46ED-8559-B69F378606D1}.Release|Win32.ActiveCfg = Release|Win32
-+		{2D3D754E-F0D2-46ED-8559-B69F378606D1}.Release|Win32.Build.0 = Release|Win32
-+	EndGlobalSection
-+	GlobalSection(SolutionProperties) = preSolution
-+		HideSolutionNode = FALSE
-+	EndGlobalSection
-+EndGlobal

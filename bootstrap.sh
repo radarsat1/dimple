@@ -477,14 +477,14 @@ fi
 case $(uname) in
 	CYGWIN*)
     echo Compiling $samplerate_DIR Debug
-    if !( "$COMPILE" $(cygpath -w $samplerate_DIR/Win32/libsamplerate-vs2005exp.sln ) /Build Debug /Project libsamplerate-vs2005exp /Out compile.log ); then
+    if !( "$COMPILE" $(cygpath -w $samplerate_DIR/$samplerate_SLN ) /Build Debug /Project libsamplerate /Out compile.log ); then
        echo "Error compiling $samplerate_DIR" Debug
        cat compile.log
   	   exit
     fi
     rm compile.log >/dev/null 2>&1
     echo Compiling $samplerate_DIR Release
-    if !( "$COMPILE" /Build Release $(cygpath -w $samplerate_DIR/Win32/libsamplerate-vs2005exp.sln ) /Project libsamplerate-vs2005exp /Out compile.log ); then
+    if !( "$COMPILE" /Build Release $(cygpath -w $samplerate_DIR/$samplerate_SLN ) /Project libsamplerate /Out compile.log ); then
        echo "Error compiling $samplerate_DIR" Release
        cat compile.log
   	   exit
@@ -538,6 +538,7 @@ case $(uname) in
 			ode_PATCH=ode-0.7-vs2005exp.patch
 			liblo_PATCH=liblo-0.23-vs2005exp.patch
 			samplerate_PATCH=libsamplerate-0.1.2-vs2005exp.patch
+			samplerate_SLN=Win32/libsamplerate-vs2005exp.sln
 			chai_DIR=chai3d/msvc8exp
 		fi
 	else
@@ -545,6 +546,8 @@ case $(uname) in
 		ode_SLN=build/vs2003/ode.sln
 		ode_PATCH=ode-0.7-msvc7.patch
 		liblo_PATCH=liblo-0.23-msvc7.patch
+        samplerate_PATCH=libsamplerate-0.1.2-vs2003.patch
+		samplerate_SLN=Win32/libsamplerate-vs2003.sln
 		chai_DIR=chai3d/msvc7
 	fi
 
@@ -557,14 +560,12 @@ case $(uname) in
 	atomicops
 
 	cd ..
+    SLN=dimple.vs2005exp.sln
 	if [ ${vs_VER}x == 2003x ]; then
-		echo Setting back version of dimple solution \& project for Visual Studio 2003
-		sed 's/Version [0-9,.]*/Version 8.00/' dimple.sln --in-place
-		sed 's/Version="[0-9,.]*"/Version="7.10"/' src/dimple.vcproj --in-place
-		sed 's,chai3d/lib/msvc8exp,chai3d/lib/msvc7,' src/dimple.vcproj --in-place
+        SLN=dimple.vs2003.sln
 	fi
 
-	echo Now open dimple.sln in Visual Studio and build.
+	echo Now open $SLN in Visual Studio and build.
     ;;
 
     Linux*)
