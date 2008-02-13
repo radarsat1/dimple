@@ -105,7 +105,7 @@ void VisualSim::updateDisplay(int data)
     VisualSim *me = (VisualSim*)data;
     VisualSim::m_pGlobalContext = me;
 
-    lo_server_recv_noblock(me->m_server, 0);
+    while (lo_server_recv_noblock(me->m_server, 0)) {}
     if (me->m_bDone) {}  // TODO
 
     glutPostRedisplay();

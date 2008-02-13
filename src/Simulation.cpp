@@ -97,10 +97,19 @@ void* Simulation::run(void* param)
     printf("Simulation running.\n");
 
     int step_ms = (int)(me->m_fTimestep*1000);
+    int step_us = (int)(me->m_fTimestep*1000000);
+    int step_left = step_ms;
     while (!me->m_bDone)
     {
-        /* TODO: timing properly */
-        lo_server_recv_noblock(me->m_server, step_ms);
+        me->m_clock.initialize();
+        me->m_clock.setTimeoutPeriod(step_us);
+        me->m_clock.start();
+        step_left = step_ms;
+        while (lo_server_recv_noblock(me->m_server, step_left) > 0) {
+            step_left = step_ms-(me->m_clock.getCurrentTime()/1000);
+            if (step_left < 0) step_left = 0;
+        }
+        me->m_clock.stop();
         me->step();
         me->m_valueTimer.onTimer(step_ms);
     }

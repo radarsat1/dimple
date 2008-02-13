@@ -5,6 +5,7 @@
 
 #include "OscObject.h"
 #include "ValueTimer.h"
+#include "CPrecisionClock.h"
 
 class SphereFactory;
 class PrismFactory;
@@ -57,6 +58,9 @@ class Simulation : public OscBase
 
     //! List of other simulations that may receive messages from this one.
     std::vector<Simulation*> m_simulationList;
+
+    //! Timer to ensure simulation steps are distributed in real time.
+    cPrecisionClock m_clock;
 
     //! Object to track values that need to be sent at regular intervals.
     ValueTimer m_valueTimer;
