@@ -323,7 +323,6 @@ void OscObject::unlinkConstraint(std::string &name)
 //! Set the dynamic object to a new position
 void OscObject::on_position()
 {
-    odePrimitive()->setDynamicPosition(m_position);
 }
 
 //! Set the dynamic object velocity

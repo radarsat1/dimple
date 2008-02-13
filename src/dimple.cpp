@@ -1693,7 +1693,6 @@ int main(int argc, char* argv[])
      // in any of the other simulations
      physics.add_simulation(haptics);
      physics.add_simulation(visual);
-     physics.add_simulation(interface);
 
      // Haptics can add force to objects
      // in the physics simulation.

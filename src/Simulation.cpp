@@ -226,7 +226,6 @@ void Simulation::send(const char *path, const char *types, ...)
          it!=m_simulationList.end();
          it++)
     {
-        printf("Sending %s\n", path);
         lo_send_message((*it)->m_addr, path, msg);
     }
 

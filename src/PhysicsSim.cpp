@@ -58,6 +58,15 @@ void PhysicsSim::step()
 	}
     */
 	dJointGroupEmpty (m_odeContactGroup);
+
+    /* Update positions of each object in the other simulations */
+    std::map<std::string,OscObject*>::iterator it;
+    for (it=world_objects.begin(); it!=world_objects.end(); it++)
+    {
+        ODEObject *o = static_cast<ODEObject*>((OscSphereODE*)(it->second));
+        cVector3d pos(o->getPosition());
+        send((it->second->path()+"/position").c_str(),"fff",pos.x,pos.y,pos.z);
+    }
 }
 
 void PhysicsSim::ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
@@ -128,6 +137,7 @@ OscSphereODE::OscSphereODE(dWorldID odeWorld, dSpaceID odeSpace, const char *nam
     : OscSphere(NULL, name, parent), ODEObject(odeWorld, odeSpace)
 {
     m_odeGeom = dCreateSphere(m_odeSpace, 0.1);
+    dGeomSetPosition(m_odeGeom, 0, 0, 0);
     dMassSetSphere(&m_odeMass, 0.1, 0.1);
     dBodySetMass(m_odeBody, &m_odeMass);
     dGeomSetBody(m_odeGeom, m_odeBody);

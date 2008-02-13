@@ -62,6 +62,8 @@ public:
     ODEObject(dWorldID odeWorld, dSpaceID odeSpace);
     virtual ~ODEObject();
 
+    cVector3d getPosition() { return cVector3d(dBodyGetPosition(m_odeBody)); }
+
 protected:
     dBodyID  m_odeBody;
     dGeomID  m_odeGeom;
