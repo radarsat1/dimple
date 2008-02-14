@@ -31,7 +31,7 @@ bool VisualSphereFactory::create(const char *name, float x, float y, float z)
 VisualSim *VisualSim::m_pGlobalContext = 0;
 
 VisualSim::VisualSim(const char *port)
-    : Simulation(port)
+    : Simulation(port, ST_VISUAL)
 {
     m_pPrismFactory = new VisualPrismFactory(this);
     m_pSphereFactory = new VisualSphereFactory(this);

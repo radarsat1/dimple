@@ -63,10 +63,11 @@ int SphereFactory::create_handler(const char *path, const char *types, lo_arg **
     return 0;
 }
 
-Simulation::Simulation(const char *port)
+Simulation::Simulation(const char *port, int type)
     : OscBase("world", NULL, lo_server_new(port, NULL))
 {
     m_addr = lo_address_new("localhost", port);
+    m_type = type;
 
     m_bDone = false;
     if (pthread_create(&m_thread, NULL, Simulation::run, this))
@@ -241,3 +242,21 @@ void Simulation::send(const char *path, const char *types, ...)
     lo_message_free(msg);
 }
 
+void Simulation::sendtotype(int type, const char *path, const char *types, ...)
+{
+    va_list ap;
+    lo_message msg = lo_message_new();
+    va_start(ap, types);
+    add_varargs(msg, ap, types);
+
+    std::vector<Simulation*>::iterator it;
+    for (it=m_simulationList.begin();
+         it!=m_simulationList.end();
+         it++)
+    {
+        if ((*it)->type() & type)
+            lo_send_message((*it)->m_addr, path, msg);
+    }
+
+    lo_message_free(msg);
+}

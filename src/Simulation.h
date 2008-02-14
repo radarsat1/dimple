@@ -16,22 +16,40 @@ class PrismFactory;
 class Simulation : public OscBase
 {
   public:
-    Simulation(const char *port);
+    Simulation(const char *port, int type);
     virtual ~Simulation();
+
+    //! An enumeration for the possible inherited types of simulations.
+    enum SimulationType {
+        ST_PHYSICS   = 0x01,
+        ST_HAPTICS   = 0x02,
+        ST_VISUAL    = 0x04,
+        ST_INTERFACE = 0x08,
+        ST_ALL       = 0x0F
+    };
+
+    //! Return the type of this simulation.
+    int type() { return m_type; }
     
     bool add_object(OscObject& obj);
     bool delete_object(OscObject& obj) {}
 
     float timestep() { return m_fTimestep; }
 
+    //! Return the list of receivers for messages from this simulation.
     const std::vector<Simulation*>& simulationList()
         { return m_simulationList; }
 
+    //! Add a simulation to the list of possible receivers for
+    //! messages from this simulation.
     void add_simulation(Simulation& sim)
         { m_simulationList.push_back(&sim); }
 
     //! Send a message to all simulations in the list.
-    void send(const char *msg, const char *types, ...);
+    void send(const char *path, const char *types, ...);
+
+    //! Send a message to all simulations of one or more specific types.
+    void sendtotype(int type, const char *path, const char *types, ...);
 
     const lo_address addr() { return m_addr; }
     ValueTimer& valuetimer() { return m_valueTimer; }
@@ -39,6 +57,7 @@ class Simulation : public OscBase
   protected:
     pthread_t m_thread;
     bool m_bDone;
+    int m_type;
     float m_fTimestep;
 
     PrismFactory *m_pPrismFactory;

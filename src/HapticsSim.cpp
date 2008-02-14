@@ -23,7 +23,7 @@ bool HapticsSphereFactory::create(const char *name, float x, float y, float z)
 /****** HapticsSim ******/
 
 HapticsSim::HapticsSim(const char *port)
-    : Simulation(port)
+    : Simulation(port, ST_HAPTICS)
 {
     m_pPrismFactory = new HapticsPrismFactory(this);
     m_pSphereFactory = new HapticsSphereFactory(this);

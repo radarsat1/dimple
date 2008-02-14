@@ -32,7 +32,7 @@ bool InterfaceSphereFactory::create(const char *name, float x, float y, float z)
 /****** InterfaceSim ******/
 
 InterfaceSim::InterfaceSim(const char *port)
-    : Simulation(port)
+    : Simulation(port, ST_INTERFACE)
 {
     m_pPrismFactory = new InterfacePrismFactory(this);
     m_pSphereFactory = new InterfaceSphereFactory(this);

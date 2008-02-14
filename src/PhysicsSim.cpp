@@ -26,7 +26,7 @@ bool PhysicsSphereFactory::create(const char *name, float x, float y, float z)
 const int PhysicsSim::MAX_CONTACTS = 30;
 
 PhysicsSim::PhysicsSim(const char *port)
-    : Simulation(port)
+    : Simulation(port, ST_PHYSICS)
 {
     m_pPrismFactory = new PhysicsPrismFactory(this);
     m_pSphereFactory = new PhysicsSphereFactory(this);
