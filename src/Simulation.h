@@ -10,6 +10,24 @@
 class SphereFactory;
 class PrismFactory;
 
+//! Simulation info contains copies of information needed to send a
+//! simulation a message or stream of messages.
+class SimulationInfo
+{
+public:
+    SimulationInfo(lo_address addr, float timestep, int type)
+        : m_addr(addr), m_fTimestep(timestep), m_type(type) {}
+
+    lo_address addr() { return m_addr; }
+    float timestep() { return m_fTimestep; }
+    int type() { return m_type; }
+
+protected:
+    lo_address m_addr;
+    float m_fTimestep;
+    int m_type;
+};
+
 //! A Simulation is an OSC-controlled simulation thread which contains
 //! a scene graph.  It is inherited by the specific simulation, be it
 //! physics, haptics, or other.
@@ -37,13 +55,13 @@ class Simulation : public OscBase
     float timestep() { return m_fTimestep; }
 
     //! Return the list of receivers for messages from this simulation.
-    const std::vector<Simulation*>& simulationList()
+    const std::vector<SimulationInfo>& simulationList()
         { return m_simulationList; }
 
     //! Add a simulation to the list of possible receivers for
     //! messages from this simulation.
     void add_simulation(Simulation& sim)
-        { m_simulationList.push_back(&sim); }
+        { m_simulationList.push_back(SimulationInfo(sim.m_addr, sim.m_fTimestep, sim.type())); }
 
     //! Send a message to all simulations in the list.
     void send(const char *path, const char *types, ...);
@@ -76,7 +94,7 @@ class Simulation : public OscBase
     std::map<std::string,OscConstraint*> world_constraints;
 
     //! List of other simulations that may receive messages from this one.
-    std::vector<Simulation*> m_simulationList;
+    std::vector<SimulationInfo> m_simulationList;
 
     //! Timer to ensure simulation steps are distributed in real time.
     cPrecisionClock m_clock;

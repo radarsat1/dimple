@@ -231,12 +231,12 @@ void Simulation::send(const char *path, const char *types, ...)
     va_start(ap, types);
     add_varargs(msg, ap, types);
 
-    std::vector<Simulation*>::iterator it;
+    std::vector<SimulationInfo>::iterator it;
     for (it=m_simulationList.begin();
          it!=m_simulationList.end();
          it++)
     {
-        lo_send_message((*it)->m_addr, path, msg);
+        lo_send_message((*it).addr(), path, msg);
     }
 
     lo_message_free(msg);
@@ -249,13 +249,13 @@ void Simulation::sendtotype(int type, const char *path, const char *types, ...)
     va_start(ap, types);
     add_varargs(msg, ap, types);
 
-    std::vector<Simulation*>::iterator it;
+    std::vector<SimulationInfo>::iterator it;
     for (it=m_simulationList.begin();
          it!=m_simulationList.end();
          it++)
     {
-        if ((*it)->type() & type)
-            lo_send_message((*it)->m_addr, path, msg);
+        if ((*it).type() & type)
+            lo_send_message((*it).addr(), path, msg);
     }
 
     lo_message_free(msg);
