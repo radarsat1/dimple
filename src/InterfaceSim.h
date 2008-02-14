@@ -10,26 +10,26 @@
 
 #define FWD_OSCSCALAR(o,t)                                              \
     virtual void on_##o() {                                             \
-        simulation()->send(m_##o.c_path(), "f",                         \
+        simulation()->send(0,m_##o.c_path(), "f",                       \
                            m_##o.m_value); }                            \
     static void on_get_##o(void *me, const OscScalar &o, int interval) {\
-        ((OscBase*)me)->simulation()->sendtotype(t,                     \
+        ((OscBase*)me)->simulation()->sendtotype(0,t,                   \
                                        (o.path()+"/get").c_str(),       \
                                        (interval>=0)?"i":"", interval); }
 #define FWD_OSCVECTOR3(o,t)                                             \
     virtual void on_##o() {                                             \
-        simulation()->send(m_##o.c_path(), "fff",                       \
+        simulation()->send(0,m_##o.c_path(), "fff",                     \
                            m_##o.x, m_##o.y, m_##o.z); }                \
     static void on_get_##o(void *me, const OscVector3 &o, int interval){\
-        ((OscBase*)me)->simulation()->sendtotype(t,                     \
+        ((OscBase*)me)->simulation()->sendtotype(0,t,                   \
                                         (o.path()+"/get").c_str(),      \
                                         (interval>=0)?"i":"", interval);}
 #define FWD_OSCSTRING(o,t)                                              \
     virtual void on_##o() {                                             \
-        simulation()->send(m_##o.c_path(), "s",                         \
+        simulation()->send(0,m_##o.c_path(), "s",                       \
                            m_##o.m_value); }                            \
     static void on_get_##o(void *me, const OscString &o, int interval){ \
-        ((OscBase*)me)->simulation()->sendtotype(t,                     \
+        ((OscBase*)me)->simulation()->sendtotype(0,t,                   \
                                         (o.path()+"/get").c_str(),      \
                                         (interval>=0)?"i":"", interval);}
 

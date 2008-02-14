@@ -224,7 +224,7 @@ static void add_varargs(/*lo_address t,*/ lo_message msg, va_list ap,
     }
 }
 
-void Simulation::send(const char *path, const char *types, ...)
+void Simulation::send(bool throttle, const char *path, const char *types, ...)
 {
     va_list ap;
     lo_message msg = lo_message_new();
@@ -242,7 +242,7 @@ void Simulation::send(const char *path, const char *types, ...)
     lo_message_free(msg);
 }
 
-void Simulation::sendtotype(int type, const char *path, const char *types, ...)
+void Simulation::sendtotype(int type, bool throttle, const char *path, const char *types, ...)
 {
     va_list ap;
     lo_message msg = lo_message_new();

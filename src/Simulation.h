@@ -64,10 +64,10 @@ class Simulation : public OscBase
         { m_simulationList.push_back(SimulationInfo(sim.m_addr, sim.m_fTimestep, sim.type())); }
 
     //! Send a message to all simulations in the list.
-    void send(const char *path, const char *types, ...);
+    void send(bool throttle, const char *path, const char *types, ...);
 
     //! Send a message to all simulations of one or more specific types.
-    void sendtotype(int type, const char *path, const char *types, ...);
+    void sendtotype(int type, bool throttle, const char *path, const char *types, ...);
 
     const lo_address addr() { return m_addr; }
     ValueTimer& valuetimer() { return m_valueTimer; }

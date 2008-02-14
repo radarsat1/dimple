@@ -65,7 +65,7 @@ void PhysicsSim::step()
     {
         ODEObject *o = static_cast<ODEObject*>((OscSphereODE*)(it->second));
         cVector3d pos(o->getPosition());
-        send((it->second->path()+"/position").c_str(),"fff",pos.x,pos.y,pos.z);
+        send(true, (it->second->path()+"/position").c_str(),"fff",pos.x,pos.y,pos.z);
     }
 }
 

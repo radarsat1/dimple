@@ -24,7 +24,7 @@ bool InterfaceSphereFactory::create(const char *name, float x, float y, float z)
 
     obj->traceOn();
 
-    simulation()->send("/world/sphere/create", "sfff", name, x, y, z);
+    simulation()->send(0, "/world/sphere/create", "sfff", name, x, y, z);
 
     return true;
 }
