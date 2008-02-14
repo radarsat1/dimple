@@ -25,6 +25,7 @@ fi
 DIFF=""
 if [ "$(git-diff | head -n 5)"x != x ]; then
 
+    if false; then
     # determine checksum program to use
     SUM=$(which sha1sum | awk '{print $1}')
     if [ "$SUM"x = x -o "$SUM"x = nox ]; then
@@ -32,6 +33,7 @@ if [ "$(git-diff | head -n 5)"x != x ]; then
     fi
     if [ "$SUM"x = x -o "$SUM"x = nox ]; then
 		SUM=$(which md5 | awk '{print $1}')
+    fi
     fi
 
     # checksum differences between index and HEAD
