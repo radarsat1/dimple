@@ -283,6 +283,20 @@ case $(uname) in
     fi
     rm compile.log >/dev/null 2>&1
 	;;
+
+    *)
+    echo Configuring $freeglut_DIR
+    if !(cd $freeglut_DIR && env CFLAGS=-DFREEGLUT_STATIC ./configure --prefix=/mingw --disable-shared); then
+        echo "Error configuring $freeglut_DIR"
+        exit
+    fi
+
+    echo Compiling $freeglut_DIR
+    if !(cd $freeglut_DIR && make); then
+	    echo "Error compiling $freeglut_DIR"
+    	exit
+    fi    
+    ;;
 esac
 
 fi
@@ -511,6 +525,15 @@ cd libdeps
 
 # System-dependant bootstrapping
 case $(uname) in
+    MINGW32*)
+    DL="wget -O"
+    MD5=md5sum
+	MD5CUT="awk '{print\$1}'"
+    freeglut_PATCH=freeglut-2.4.0-mingw.patch
+
+    freeglut
+    ;;
+
     CYGWIN*)
 	DL="wget -O"
     MD5=md5sum
