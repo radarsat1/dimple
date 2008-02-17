@@ -81,9 +81,11 @@ class Simulation : public OscBase
     PrismFactory *m_pPrismFactory;
     SphereFactory *m_pSphereFactory;
 
-    //! Function for simulation thread.
+    //! Function for simulation thread (thread context).
     static void* run(void* param);
-    //! Function for a single step of the simulation.
+    //! Override for initializing the simulation (thread context).
+    virtual void initialize() {}
+    //! Override for a single step of the simulation (thread context).
     virtual void step() = 0;
 
     //! LibLo address for receiving messages here.

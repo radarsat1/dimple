@@ -38,29 +38,6 @@ VisualSim::VisualSim(const char *port)
 
     m_fTimestep = VISUAL_TIMESTEP_MS/1000.0;
     printf("CHAI/GLUT timestep: %f\n", m_fTimestep);
-
-    // create the world object
-    m_chaiWorld = new cWorld();
-    m_chaiWorld->setBackgroundColor(0.0f,0.0f,0.0f);
-    
-    // create a camera
-    m_chaiCamera = new cCamera(m_chaiWorld);
-    m_chaiWorld->addChild(m_chaiCamera);
-
-    // position a camera
-    m_chaiCamera->set( cVector3d (1.0, 0.0, 0.0),
-                       cVector3d (0.0, 0.0, 0.0),
-                       cVector3d (0.0, 0.0, 1.0));
-
-    // set the near and far clipping planes of the m_chaiCamera
-    m_chaiCamera->setClippingPlanes(0.01, 10.0);
-
-    // Create a light source and attach it to the camera
-    m_chaiLight = new cLight(m_chaiWorld);
-    m_chaiLight->setEnabled(true);
-    m_chaiLight->setPos(cVector3d(2,0.5,1));
-    m_chaiLight->setDir(cVector3d(-2,0.5,1));
-    m_chaiCamera->addChild(m_chaiLight);
 }
 
 VisualSim::~VisualSim()
@@ -112,6 +89,32 @@ void VisualSim::updateDisplay(int data)
 
     // update again in a few ms
     glutTimerFunc(VISUAL_TIMESTEP_MS, updateDisplay, (int)me);
+}
+
+void VisualSim::initialize()
+{
+    // create the world object
+    m_chaiWorld = new cWorld();
+    m_chaiWorld->setBackgroundColor(0.0f,0.0f,0.0f);
+    
+    // create a camera
+    m_chaiCamera = new cCamera(m_chaiWorld);
+    m_chaiWorld->addChild(m_chaiCamera);
+
+    // position a camera
+    m_chaiCamera->set( cVector3d (1.0, 0.0, 0.0),
+                       cVector3d (0.0, 0.0, 0.0),
+                       cVector3d (0.0, 0.0, 1.0));
+
+    // set the near and far clipping planes of the m_chaiCamera
+    m_chaiCamera->setClippingPlanes(0.01, 10.0);
+
+    // Create a light source and attach it to the camera
+    m_chaiLight = new cLight(m_chaiWorld);
+    m_chaiLight->setEnabled(true);
+    m_chaiLight->setPos(cVector3d(2,0.5,1));
+    m_chaiLight->setDir(cVector3d(-2,0.5,1));
+    m_chaiCamera->addChild(m_chaiLight);
 }
 
 void VisualSim::step()

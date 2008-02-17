@@ -31,20 +31,24 @@ PhysicsSim::PhysicsSim(const char *port)
     m_pPrismFactory = new PhysicsPrismFactory(this);
     m_pSphereFactory = new PhysicsSphereFactory(this);
 
+    m_fTimestep = PHYSICS_TIMESTEP_MS/1000.0;
+    printf("ODE timestep: %f\n", m_fTimestep);
+}
+
+PhysicsSim::~PhysicsSim()
+{
+}
+
+void PhysicsSim::initialize()
+{
     dSetDebugHandler(ode_errorhandler);
     dSetErrorHandler(ode_errorhandler);
     dSetMessageHandler(ode_errorhandler);
 
     m_odeWorld = dWorldCreate();
     dWorldSetGravity (m_odeWorld,0,0,0);
-    m_fTimestep = PHYSICS_TIMESTEP_MS/1000.0;
-    printf("ODE timestep: %f\n", m_fTimestep);
     m_odeSpace = dSimpleSpaceCreate(0);
     m_odeContactGroup = dJointGroupCreate(0);
-}
-
-PhysicsSim::~PhysicsSim()
-{
 }
 
 void PhysicsSim::step()

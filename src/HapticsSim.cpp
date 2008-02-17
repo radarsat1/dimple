@@ -30,14 +30,17 @@ HapticsSim::HapticsSim(const char *port)
 
     m_fTimestep = HAPTICS_TIMESTEP_MS/1000.0;
     printf("CHAI timestep: %f\n", m_fTimestep);
-
-    // create the world object
-    m_chaiWorld = new cWorld();
-    m_chaiWorld->setBackgroundColor(0.0f,0.0f,0.0f);
 }
 
 HapticsSim::~HapticsSim()
 {
+}
+
+void HapticsSim::initialize()
+{
+    // create the world object
+    m_chaiWorld = new cWorld();
+    m_chaiWorld->setBackgroundColor(0.0f,0.0f,0.0f);
 }
 
 void HapticsSim::step()

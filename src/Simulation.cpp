@@ -95,6 +95,8 @@ void* Simulation::run(void* param)
 {
     Simulation* me = static_cast<Simulation*>(param);
 
+    me->initialize();
+
     printf("Simulation running.\n");
 
     int step_ms = (int)(me->m_fTimestep*1000);

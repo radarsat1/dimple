@@ -24,7 +24,8 @@ class PhysicsSim : public Simulation
     dJointGroupID m_odeContactGroup;
 
     bool m_bGetCollide;
-    
+
+    virtual void initialize();
     virtual void step();
 
     static void ode_errorhandler(int errnum, const char *msg, va_list ap)

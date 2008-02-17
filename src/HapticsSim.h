@@ -20,6 +20,7 @@ class HapticsSim : public Simulation
     cMeta3dofPointer *cursor() { return m_chaiCursor; }
 
   protected:
+    virtual void initialize();
     virtual void step();
 
     cWorld* m_chaiWorld;            //! the world in which we will create our environment

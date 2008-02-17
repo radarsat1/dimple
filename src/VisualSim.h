@@ -20,6 +20,7 @@ class VisualSim : public Simulation
     cLight *light() { return m_chaiLight; }
 
   protected:
+    virtual void initialize();
     virtual void step();
 
     void initGlutWindow();
