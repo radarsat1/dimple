@@ -60,7 +60,8 @@ case $(uname) in
 
    *)
    echo Configuring $liblo_DIR
-   if !(cd $liblo_DIR && ./configure --disable-shared); then
+   echo env $liblo_CONFIGFLAGS ./configure --disable-shared
+   if !(cd $liblo_DIR && env $liblo_CONFIGFLAGS ./configure --disable-shared); then
 	  echo "Error configuring $liblo_DIR"
 	  exit
    fi
@@ -133,7 +134,7 @@ case $(uname) in
 
 	*)
     echo Configuring $ode_DIR
-    if !(cd $ode_DIR && ./configure --disable-shared); then
+    if !(cd $ode_DIR && env ./configure --disable-shared); then
     	echo "Error configuring $ode_DIR"
 	    exit
     fi
@@ -145,7 +146,7 @@ case $(uname) in
     fi
 
     # Seems to make the shared version anyway.. ?
-    rm -v $ode_DIR/ode/src/libode.so $ode_DIR/ode/src/libode.dylib
+    rm -v $ode_DIR/ode/src/libode.so $ode_DIR/ode/src/libode.dylib $ode_DIR/ode/src/libode.dll
     ;;
 esac
 
@@ -286,7 +287,7 @@ case $(uname) in
 
     *)
     echo Configuring $freeglut_DIR
-    if !(cd $freeglut_DIR && env CFLAGS=-DFREEGLUT_STATIC ./configure --prefix=/mingw --disable-shared); then
+    if !(cd $freeglut_DIR && env CFLAGS=-DFREEGLUT_STATIC ./configure --disable-shared); then
         echo "Error configuring $freeglut_DIR"
         exit
     fi
@@ -407,6 +408,17 @@ case $(uname) in
     fi
     rm compile.log >/dev/null 2>&1
 	;;
+
+    *)
+    echo Compiling $pthreads_DIR
+    if !(cd $pthreads_DIR && make clean GC-static); then
+	    echo "Error compiling $pthreads_DIR"
+    	exit
+    fi
+
+    # needed for liblo build to find it
+    cp $pthreads_DIR/libpthreadGC2.a $pthreads_DIR/libpthread.a
+    ;;
 esac
 
 fi
@@ -501,7 +513,7 @@ case $(uname) in
 
    *)
    echo Configuring $samplerate_DIR
-   if !(cd $samplerate_DIR && ./configure --disable-shared); then
+   if !(cd $samplerate_DIR && env ./configure --disable-shared); then
 	  echo "Error configuring $samplerate_DIR"
 	  exit
    fi
@@ -530,8 +542,13 @@ case $(uname) in
     MD5=md5sum
 	MD5CUT="awk '{print\$1}'"
     freeglut_PATCH=freeglut-2.4.0-mingw.patch
+    liblo_CONFIGFLAGS="CFLAGS='-I../../pthreads-w32-2-8-0-release -include /mingw/include/ws2tcpip.h -D_WIN32_WINNT=0x0501 -Dgai_strerror\(x\)=0 -DPTW32_BUILD_INLINED -DPTW32_STATIC_LIB -DCLEANUP=__CLEANUP_C -DDLL_VER=2' LDFLAGS=-L../../pthreads-w32-2-8-0-release LIBS=-lws2_32"
 
     freeglut
+    pthreads
+    samplerate
+    ode
+    liblo
     ;;
 
     CYGWIN*)
