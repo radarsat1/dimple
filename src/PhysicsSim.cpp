@@ -229,3 +229,4 @@ void OscPrismODE::on_force()
     printf("OscPrismODE::on_force(). force = %f, %f, %f\n", m_force.x, m_force.y, m_force.z);
     dBodyAddForce(m_odeBody, m_force.x, m_force.y, m_force.z);
 }
+

@@ -82,6 +82,8 @@ public:
 protected:
     virtual void on_radius();
     virtual void on_force();
+    virtual void on_position()
+      { dBodySetPosition(m_odeBody, m_position.x, m_position.y, m_position.z); }
 };
 
 class OscPrismODE : public OscPrism, public ODEObject
@@ -93,6 +95,8 @@ public:
 protected:
     virtual void on_size();
     virtual void on_force();
+    virtual void on_position()
+      { dBodySetPosition(m_odeBody, m_position.x, m_position.y, m_position.z); }
 };
 
 #endif // _PHYSICS_SIM_H_
