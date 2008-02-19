@@ -246,8 +246,8 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     // Set callbacks for when values change
     m_position.setSetCallback(set_position, this, DIMPLE_THREAD_PHYSICS);
     m_force.setSetCallback(set_force, this, DIMPLE_THREAD_PHYSICS);
+    m_color.setSetCallback(set_color, this, DIMPLE_THREAD_PHYSICS);
     m_velocity.setSetCallback((OscVector3::SetCallback*)setVelocity, this, DIMPLE_THREAD_PHYSICS);
-    m_color.setSetCallback((OscVector3::SetCallback*)setColor, this, DIMPLE_THREAD_HAPTICS);
     m_friction_static.setSetCallback((OscScalar::SetCallback*)setFrictionStatic, this, DIMPLE_THREAD_HAPTICS);
     m_friction_dynamic.setSetCallback((OscScalar::SetCallback*)setFrictionDynamic, this, DIMPLE_THREAD_HAPTICS);
     m_texture_image.setSetCallback((OscString::SetCallback*)setTextureImage, this, DIMPLE_THREAD_HAPTICS);
@@ -329,20 +329,6 @@ void OscObject::on_position()
 void OscObject::setVelocity(OscObject *me, const OscVector3& vel)
 {
     me->odePrimitive()->setDynamicLinearVelocity(vel);
-}
-
-//! Set the graphical object color
-void OscObject::setColor(OscObject *me, const OscVector3& color)
-{
-    cShapeSphere *sphere = dynamic_cast<cShapeSphere*>(me->chaiObject());
-    if (sphere) {
-        sphere->m_material.m_diffuse.set(color.x, color.y, color.z);
-        return;
-    }
-
-    cMesh *mesh = dynamic_cast<cMesh*>(me->chaiObject());
-    if (mesh)
-        mesh->m_material.m_diffuse.set(color.x, color.y, color.z);
 }
 
 //! Set the haptic object static friction coefficient.

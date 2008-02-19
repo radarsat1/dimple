@@ -73,6 +73,8 @@ public:
 protected:
     virtual void on_position();
     virtual void on_radius();
+    virtual void on_color()
+      { object()->m_material.m_diffuse.set(m_color.x, m_color.y, m_color.z); }
 
     cShapeSphere *m_pSphere;
 };

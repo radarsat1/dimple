@@ -177,15 +177,14 @@ class OscObject : public OscBase
 
     OSCVECTOR3(OscObject, position);
     OSCVECTOR3(OscObject, force) {};
+    OSCVECTOR3(OscObject, color) {};
+
     static void setVelocity(OscObject *me, const OscVector3& vel);
 
     OscScalar m_friction_static;
     OscScalar m_friction_dynamic;
     static void setFrictionStatic(OscObject *me, const OscScalar& value);
     static void setFrictionDynamic(OscObject *me, const OscScalar& value);
-
-    OscVector3 m_color;
-    static void setColor(OscObject *me, const OscVector3& color);
 
     OscString m_texture_image;
     static void setTextureImage(OscObject *me, const OscString& filename);
