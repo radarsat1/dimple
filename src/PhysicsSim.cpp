@@ -7,6 +7,13 @@ bool PhysicsPrismFactory::create(const char *name, float x, float y, float z)
 {
     printf("PhysicsPrismFactory (%s) is creating a prism object called '%s'\n",
            m_parent->c_name(), name);
+
+    OscPrismODE *obj = new OscPrismODE(simulation()->odeWorld(),
+                                         simulation()->odeSpace(),
+                                         name, m_parent);
+    if (obj)
+        return simulation()->add_object(*obj);
+
     return true;
 }
 
@@ -67,9 +74,19 @@ void PhysicsSim::step()
     std::map<std::string,OscObject*>::iterator it;
     for (it=world_objects.begin(); it!=world_objects.end(); it++)
     {
-        ODEObject *o = static_cast<ODEObject*>((OscSphereODE*)(it->second));
-        cVector3d pos(o->getPosition());
-        send(true, (it->second->path()+"/position").c_str(),"fff",pos.x,pos.y,pos.z);
+        // TODO: it would be very nice to do this without involving dynamic_cast
+
+        ODEObject *o=NULL;
+        OscSphereODE *s = dynamic_cast<OscSphereODE*>(it->second);
+        if (s) o = static_cast<ODEObject*>(s);
+        else {
+            OscPrismODE *p = dynamic_cast<OscPrismODE*>(it->second);
+            if (p) o = static_cast<ODEObject*>(p);
+        }
+        if (o) {
+            cVector3d pos(o->getPosition());
+            send(true, (it->second->path()+"/position").c_str(),"fff",pos.x,pos.y,pos.z);
+        }
     }
 }
 
@@ -156,5 +173,59 @@ void OscSphereODE::on_radius()
 void OscSphereODE::on_force()
 {
     printf("OscSphereODE::on_force(). force = %f, %f, %f\n", m_force.x, m_force.y, m_force.z);
+    dBodyAddForce(m_odeBody, m_force.x, m_force.y, m_force.z);
+}
+
+/****** OscPrismODE ******/
+
+OscPrismODE::OscPrismODE(dWorldID odeWorld, dSpaceID odeSpace, const char *name, OscBase *parent)
+    : OscPrism(NULL, name, parent), ODEObject(odeWorld, odeSpace)
+{
+    m_odeGeom = dCreateBox(m_odeSpace, 0.01, 0.01, 0.01);
+    dGeomSetPosition(m_odeGeom, 0, 0, 0);
+    dMassSetBox(&m_odeMass, 1.0, 0.01, 0.01, 0.01);
+    dBodySetMass(m_odeBody, &m_odeMass);
+    dGeomSetBody(m_odeGeom, m_odeBody);
+    dBodySetPosition(m_odeBody, 0, 0, 0);
+}
+
+void OscPrismODE::on_size()
+{
+    if (m_size.x <= 0)
+        m_size.x = 0.0001;
+    if (m_size.y <= 0)
+        m_size.y = 0.0001;
+    if (m_size.z <= 0)
+        m_size.z = 0.0001;
+
+    // TODO: need previous values here!
+#if 0
+
+    // calculate the ratio between the two sizes
+    cVector3d ratio;
+    ratio.x = a_size[0] / m_size[0];
+    ratio.y = a_size[1] / m_size[1];
+    ratio.z = a_size[2] / m_size[2];
+
+    // assign new size
+    m_size = a_size;
+
+    // remember original mass
+    dMass mass;
+    dReal m;
+    dBodyGetMass(m_odeBody, &mass);
+    m = mass.mass;
+
+    // scale the mass accordingly
+    setDynamicMass(m*ratio.x*ratio.y*ratio.z);
+#endif
+
+    // resize ODE geom
+    dGeomBoxSetLengths (m_odeGeom, m_size[0], m_size[1], m_size[2]);
+}
+
+void OscPrismODE::on_force()
+{
+    printf("OscPrismODE::on_force(). force = %f, %f, %f\n", m_force.x, m_force.y, m_force.z);
     dBodyAddForce(m_odeBody, m_force.x, m_force.y, m_force.z);
 }

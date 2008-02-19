@@ -216,14 +216,13 @@ class OscComposite : public OscObject
 class OscPrism : public OscObject
 {
   public:
-	OscPrism(cGenericObject* p, const char *name);
+	OscPrism(cGenericObject* p, const char *name, OscBase *parent=NULL);
 
 	virtual cODEPrism* odePrimitive() { return dynamic_cast<cODEPrism*>(m_objChai); }
 	virtual cMesh*     chaiObject()   { return dynamic_cast<cMesh*>(m_objChai); }
 
   protected:
-    static int size_handler(const char *path, const char *types, lo_arg **argv,
-                            int argc, void *data, void *user_data);
+    OSCVECTOR3(OscPrism, size) {};
 };
 
 class OscSphere : public OscObject

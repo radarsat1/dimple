@@ -84,4 +84,15 @@ protected:
     virtual void on_force();
 };
 
+class OscPrismODE : public OscPrism, public ODEObject
+{
+public:
+	OscPrismODE(dWorldID odeWorld, dSpaceID odeSpace, const char *name, OscBase *parent=NULL);
+    virtual ~OscPrismODE() {}
+
+protected:
+    virtual void on_size();
+    virtual void on_force();
+};
+
 #endif // _PHYSICS_SIM_H_

@@ -91,4 +91,28 @@ protected:
     FWD_OSCVECTOR3(force,Simulation::ST_PHYSICS);
 };
 
+class OscPrismInterface : public OscPrism
+{
+public:
+    OscPrismInterface(cGenericObject *p, const char *name, OscBase *parent=NULL)
+        : OscPrism(p, name, parent)
+        {
+            m_position.setGetCallback(on_get_position, this, DIMPLE_THREAD_PHYSICS);
+            m_velocity.setGetCallback(on_get_velocity, this, DIMPLE_THREAD_PHYSICS);
+            m_accel.setGetCallback(on_get_accel, this, DIMPLE_THREAD_PHYSICS);
+            m_color.setGetCallback(on_get_color, this, DIMPLE_THREAD_PHYSICS);
+            m_force.setGetCallback(on_get_force, this, DIMPLE_THREAD_PHYSICS);
+            m_size.setGetCallback(on_get_size, this, DIMPLE_THREAD_PHYSICS);
+        }
+    virtual ~OscPrismInterface() {}
+
+protected:
+    FWD_OSCVECTOR3(position,Simulation::ST_PHYSICS);
+    FWD_OSCVECTOR3(velocity,Simulation::ST_PHYSICS);
+    FWD_OSCVECTOR3(accel,Simulation::ST_PHYSICS);
+    FWD_OSCVECTOR3(color,Simulation::ST_VISUAL);
+    FWD_OSCVECTOR3(force,Simulation::ST_PHYSICS);
+    FWD_OSCVECTOR3(size,Simulation::ST_PHYSICS);
+};
+
 #endif // _INTERFACE_SIM_H_

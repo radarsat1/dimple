@@ -606,37 +606,10 @@ void OscComposite::addChild(OscObject *o)
 
 // ----------------------------------------------------------------------------------
 
-OscPrism::OscPrism(cGenericObject* p, const char *name)
-    : OscObject(p, name)
+OscPrism::OscPrism(cGenericObject* p, const char *name, OscBase* parent)
+    : OscObject(p, name, parent), m_size("size", this)
 {
-    addHandler("size", "fff", OscPrism::size_handler);
-}
-
-//! Resize the prism to the given dimensions.
-int OscPrism::size_handler(const char *path, const char *types, lo_arg **argv,
-                           int argc, void *data, void *user_data)
-{
-    if (argc!=3)
-        return 0;
-
-	handler_data *hd = (handler_data*)user_data;
-    OscPrism* me = (OscPrism*)hd->user_data;
-	cODEPrism *prism = me->odePrimitive();
-	if (prism)
-	{
-		 cVector3d size;
-		 size.x = argv[0]->f;
-		 size.y = argv[1]->f;
-		 size.z = argv[2]->f;
-		 LOCK_WORLD();
-		 if (hd->thread == DIMPLE_THREAD_HAPTICS)
-			  prism->setSize(size);
-		 else if (hd->thread == DIMPLE_THREAD_PHYSICS)
-			  prism->setDynamicSize(size);
-		 UNLOCK_WORLD();
-	}
-
-	return 0;
+    m_size.setSetCallback(set_size, this, DIMPLE_THREAD_PHYSICS);
 }
 
 // ----------------------------------------------------------------------------------

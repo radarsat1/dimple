@@ -79,4 +79,25 @@ protected:
     cShapeSphere *m_pSphere;
 };
 
+class OscPrismCHAI : public OscPrism, public CHAIObject
+{
+public:
+    OscPrismCHAI(cWorld *world, const char *name, OscBase *parent=NULL);
+    virtual ~OscPrismCHAI();
+
+    virtual cMesh *object() { return m_pPrism; }
+
+protected:
+    virtual void on_position()
+      { object()->setPos(m_position.x, m_position.y, m_position.z); }
+    virtual void on_color()
+      { object()->m_material.m_diffuse.set(m_color.x, m_color.y, m_color.z); }
+    virtual void on_size();
+
+    //! Create a cMesh with a prism structure.
+    void createPrism(bool openbox=false);
+
+    cMesh *m_pPrism;
+};
+
 #endif // _HAPTICS_SIM_H_

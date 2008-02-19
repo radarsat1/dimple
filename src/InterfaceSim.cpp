@@ -13,6 +13,15 @@ bool InterfacePrismFactory::create(const char *name, float x, float y, float z)
 {
     printf("InterfacePrismFactory (%s) is creating a prism object called '%s'\n",
            m_parent->c_name(), name);
+
+    OscPrism *obj = new OscPrismInterface(NULL, name, m_parent);
+    if (!(obj && simulation()->add_object(*obj)))
+            return false;
+
+    obj->traceOn();
+
+    simulation()->send(0, "/world/prism/create", "sfff", name, x, y, z);
+
     return true;
 }
 

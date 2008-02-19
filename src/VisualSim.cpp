@@ -13,6 +13,12 @@ bool VisualPrismFactory::create(const char *name, float x, float y, float z)
 {
     printf("VisualPrismFactory (%s) is creating a prism object called '%s'\n",
            m_parent->c_name(), name);
+
+    OscPrismCHAI *obj = new OscPrismCHAI(simulation()->world(),
+                                         name, m_parent);
+    if (obj)
+        return simulation()->add_object(*obj);
+
     return true;
 }
 
