@@ -79,6 +79,7 @@ class Simulation : public OscBase
 
   protected:
     pthread_t m_thread;
+    bool m_bStarted;
     bool m_bDone;
     int m_type;
     float m_fTimestep;

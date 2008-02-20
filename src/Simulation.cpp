@@ -113,18 +113,18 @@ Simulation::Simulation(const char *port, int type)
     m_type = type;
 
     m_bDone = false;
+    m_bStarted = false;
     if (pthread_create(&m_thread, NULL, Simulation::run, this))
-    {
         printf("Error creating simulation thread.");
-        m_thread = 0;
-    }
+    else
+        m_bStarted = true;
 }
 
 Simulation::~Simulation()
 {
     printf("Ending simulation... ");
     m_bDone = true;
-    if (m_thread)
+    if (m_bStarted)
         pthread_join(m_thread, NULL);
 
     if (m_server)

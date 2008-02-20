@@ -29,7 +29,7 @@
 #define PHYSICS_TIMESTEP_MS 10
 #define HAPTICS_TIMESTEP_MS 1
 
-#ifdef _POSIX
+#ifndef WIN32
 #define Sleep(t) usleep(t*1000)
 #endif
 

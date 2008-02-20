@@ -523,6 +523,15 @@ case $(uname) in
 	  echo "Error compiling $samplerate_DIR"
 	  exit
    fi
+   
+   # Note refuses to compile static version, so...
+   echo Creating static lib for $samplerate_DIR
+   cd $samplerate_DIR
+   rm -vf libsamplerate.{dll,lib,so,dylib}
+   mkdir src/.libs
+   ar -ruv src/libs/libsamplerate.a src/src_linear.o src/src_sinc.o \
+       src/src_zoh.o src/samplerate.o
+   cd ..
    ;;
 esac
 
@@ -543,12 +552,16 @@ case $(uname) in
 	MD5CUT="awk '{print\$1}'"
     freeglut_PATCH=freeglut-2.4.0-mingw.patch
     liblo_CONFIGFLAGS="CFLAGS='-I../../pthreads-w32-2-8-0-release -include /mingw/include/ws2tcpip.h -D_WIN32_WINNT=0x0501 -Dgai_strerror\(x\)=0 -DPTW32_BUILD_INLINED -DPTW32_STATIC_LIB -DCLEANUP=__CLEANUP_C -DDLL_VER=2' LDFLAGS=-L../../pthreads-w32-2-8-0-release LIBS=-lws2_32"
+    chai_DIR=chai3d/cygwin #works for mingw
+	chai_PATCH=chai3d-1.61-mingw.patch
 
     freeglut
     pthreads
     samplerate
     ode
     liblo
+    chai3d
+    scons
     ;;
 
     CYGWIN*)
