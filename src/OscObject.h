@@ -272,7 +272,7 @@ class OscMesh : public OscObject
 class OscConstraint : public OscBase
 {
 public:
-    OscConstraint(const char *name, OscObject *object1, OscObject *object2);
+    OscConstraint(const char *name, OscBase *parent, OscObject *object1, OscObject *object2);
     ~OscConstraint();
 
     OscObject *object1() { return m_object1; }
@@ -322,7 +322,7 @@ public:
 class OscHinge : public OscConstraint
 {
 public:
-    OscHinge(const char *name, OscObject *object1, OscObject *object2,
+    OscHinge(const char *name, OscBase *parent, OscObject *object1, OscObject *object2,
              double x, double y, double z, double ax, double ay, double az);
 
     virtual void simulationCallback();

@@ -9,6 +9,7 @@
 
 class SphereFactory;
 class PrismFactory;
+class HingeFactory;
 
 //! Simulation info contains copies of information needed to send a
 //! simulation a message or stream of messages.
@@ -51,6 +52,10 @@ class Simulation : public OscBase
     
     bool add_object(OscObject& obj);
     bool delete_object(OscObject& obj) {}
+    OscObject* find_object(const char* name);
+
+    bool add_constraint(OscConstraint& obj);
+    bool delete_constraint(OscConstraint& obj) {}
 
     float timestep() { return m_fTimestep; }
 
@@ -80,6 +85,7 @@ class Simulation : public OscBase
 
     PrismFactory *m_pPrismFactory;
     SphereFactory *m_pSphereFactory;
+    HingeFactory *m_pHingeFactory;
 
     //! Function for simulation thread (thread context).
     static void* run(void* param);
@@ -94,6 +100,9 @@ class Simulation : public OscBase
     // world objects & constraints
     std::map<std::string,OscObject*> world_objects;
     std::map<std::string,OscConstraint*> world_constraints;
+
+    typedef std::map<std::string,OscObject*>::iterator object_iterator;
+    typedef std::map<std::string,OscConstraint*>::iterator constraint_iterator;
 
     //! List of other simulations that may receive messages from this one.
     std::vector<SimulationInfo> m_simulationList;
@@ -145,6 +154,22 @@ protected:
 
     // override these functions with a specific factory subclass
     virtual bool create(const char *name, float x, float y, float z) = 0;
+};
+
+class HingeFactory : public ShapeFactory
+{
+public:
+    HingeFactory(Simulation *parent);
+    virtual ~HingeFactory();
+
+protected:
+    // message handlers
+    static int create_handler(const char *path, const char *types, lo_arg **argv,
+                              int argc, void *data, void *user_data);
+
+    // override these functions with a specific factory subclass
+    virtual bool create(const char *name, OscObject *object1, OscObject *object2,
+                        double x, double y, double z, double ax, double ay, double az) = 0;
 };
 
 #endif // _SIMULATION_H_

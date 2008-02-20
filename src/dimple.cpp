@@ -1270,7 +1270,7 @@ int constraintHingeCreate_handler(const char *path, const char *types, lo_arg **
     WAIT_WORLD_LOCK();
     LOCK_WORLD();
     OscHinge *cons=NULL;
-    cons = new OscHinge(&argv[0]->s, ob1, ob2, argv[3]->f, argv[4]->f, argv[5]->f, argv[6]->f, argv[7]->f, argv[8]->f);
+    cons = new OscHinge(&argv[0]->s, NULL, ob1, ob2, argv[3]->f, argv[4]->f, argv[5]->f, argv[6]->f, argv[7]->f, argv[8]->f);
     world_constraints[&argv[0]->s] = cons;
     UNLOCK_WORLD();
 

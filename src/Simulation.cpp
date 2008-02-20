@@ -63,6 +63,49 @@ int SphereFactory::create_handler(const char *path, const char *types, lo_arg **
     return 0;
 }
 
+HingeFactory::HingeFactory(Simulation *parent)
+    : ShapeFactory("hinge", parent)
+{
+    // Name, object1, object2, x, y, z, axis x, y, z
+    addHandler("create", "sssffffff", create_handler);
+}
+
+HingeFactory::~HingeFactory()
+{
+}
+
+int HingeFactory::create_handler(const char *path, const char *types, lo_arg **argv,
+                                  int argc, void *data, void *user_data)
+{
+    HingeFactory *me = static_cast<HingeFactory*>(user_data);
+    OscObject *object1=0, *object2=0;
+
+    if (argc != 9) return -1;
+
+    if (strcmp(&argv[1]->s, "world")!=0)
+        object1 = me->simulation()->find_object(&argv[1]->s);
+    if (strcmp(&argv[2]->s, "world")!=0)
+        object2 = me->simulation()->find_object(&argv[2]->s);
+
+    // Swap objects if one is world
+    if (object2 && !object1) {
+        object1 = object2;
+        object2 = 0;
+    }
+
+    // At least one object must exist
+    if (!object1)
+        return -1;
+
+    if (!me->create(&argv[0]->s, object1, object2,
+                    argv[3]->f, argv[4]->f, argv[5]->f,
+                    argv[6]->f, argv[7]->f, argv[8]->f))
+        printf("Error creating hinge '%s'.\n", &argv[0]->s);
+    return 0;
+}
+
+/****** Simulation *******/
+
 Simulation::Simulation(const char *port, int type)
     : OscBase("world", NULL, lo_server_new(port, NULL))
 {
@@ -125,6 +168,22 @@ bool Simulation::add_object(OscObject& obj)
     world_objects[obj.name()] = &obj;
 
     printf("Added object %s\n", obj.c_name());
+    return true;
+}
+
+OscObject* Simulation::find_object(const char* name)
+{
+    object_iterator it = world_objects.find(name);
+    if (it!=world_objects.end()) return it->second;
+    else
+        return 0;
+}
+
+bool Simulation::add_constraint(OscConstraint& obj)
+{
+    world_constraints[obj.name()] = &obj;
+
+    printf("Added constraint %s\n", obj.c_name());
     return true;
 }
 

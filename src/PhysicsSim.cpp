@@ -28,6 +28,22 @@ bool PhysicsSphereFactory::create(const char *name, float x, float y, float z)
     return false;
 }
 
+bool PhysicsHingeFactory::create(const char *name, OscObject *object1, OscObject *object2,
+                                 double x, double y, double z, double ax, double ay, double az)
+{
+    printf("PhysicsHingeFactory (%s) is creating a hinge constraint called '%s'\n",
+           m_parent->c_name(), name);
+
+    OscHinge *cons=NULL;
+    cons = new OscHingeODE(simulation()->odeWorld(),
+                           simulation()->odeSpace(),
+                           name, m_parent, object1, object2,
+                           x, y, z, ax, ay, az);
+
+    if (cons)
+        return simulation()->add_constraint(*cons);
+}
+
 /****** PhysicsSim ******/
 
 const int PhysicsSim::MAX_CONTACTS = 30;
@@ -37,6 +53,7 @@ PhysicsSim::PhysicsSim(const char *port)
 {
     m_pPrismFactory = new PhysicsPrismFactory(this);
     m_pSphereFactory = new PhysicsSphereFactory(this);
+    m_pHingeFactory = new PhysicsHingeFactory(this);
 
     m_fTimestep = PHYSICS_TIMESTEP_MS/1000.0;
     printf("ODE timestep: %f\n", m_fTimestep);
@@ -152,6 +169,33 @@ ODEObject::~ODEObject()
     if (m_odeGeom)  dGeomDestroy(m_odeGeom);
 }
 
+/****** ODEConstraint ******/
+
+ODEConstraint::ODEConstraint(dWorldID odeWorld, dSpaceID odeSpace,
+                             OscObject *object1, OscObject *object2)
+{
+    m_odeWorld = odeWorld;
+    m_odeSpace = odeSpace;
+    m_odeBody1 = 0;
+    m_odeBody2 = 0;
+
+    ODEObject *o = dynamic_cast<ODEObject*>(object1);
+    if (o)
+        m_odeBody1 = o->m_odeBody;
+
+    if (!object2) {
+        printf("constraint created with bodies %#x and world", m_odeBody1);
+        return;
+    }
+
+    o = dynamic_cast<ODEObject*>(object2);
+    if (o)
+        m_odeBody2 = o->m_odeBody;
+
+    printf("constraint created with bodies %#x and %#x\n", m_odeBody1, m_odeBody2);
+}
+
+
 /****** OscSphereODE ******/
 
 OscSphereODE::OscSphereODE(dWorldID odeWorld, dSpaceID odeSpace, const char *name, OscBase *parent)
@@ -230,3 +274,38 @@ void OscPrismODE::on_force()
     dBodyAddForce(m_odeBody, m_force.x, m_force.y, m_force.z);
 }
 
+//! A hinge requires a fixed anchor point and an axis
+OscHingeODE::OscHingeODE(dWorldID odeWorld, dSpaceID odeSpace,
+                         const char *name, OscBase* parent,
+                         OscObject *object1, OscObject *object2,
+                         double x, double y, double z, double ax, double ay, double az)
+    : OscHinge(name, parent, object1, object2, x, y, z, ax, ay, az),
+      ODEConstraint(odeWorld, odeSpace, object1, object2)
+{
+	// create the constraint for object1
+    cVector3d anchor(x,y,z);
+    cVector3d axis(ax,ay,az);
+    
+    m_odeJoint = dJointCreateHinge(m_odeWorld,0);
+    dJointAttach(m_odeJoint, m_odeBody1, m_odeBody2);
+    dJointSetHingeAnchor(m_odeJoint, anchor.x, anchor.y, anchor.z);
+    dJointSetHingeAxis(m_odeJoint, axis.x, axis.y, axis.z);
+
+    printf("Hinge joint created between %s and %s at anchor (%f,%f,%f), axis (%f,%f,%f)\n",
+        object1->c_name(), object2?object2->c_name():"world", x,y,z,ax,ay,az);
+}
+
+//! This function is called once per simulation step, allowing the
+//! constraint to be "motorized" according to some response.
+//! It runs in the physics thread.
+void OscHingeODE::simulationCallback()
+{
+    dJointID *id;
+    if (!m_object1->odePrimitive()->getJoint(m_name, id))
+        return;
+
+    dReal angle = dJointGetHingeAngle(*id);
+    dReal rate = dJointGetHingeAngleRate(*id);
+    m_torque.set(-m_stiffness*angle - m_damping*rate);
+    dJointAddHingeTorque(*id, m_torque.m_value);
+}

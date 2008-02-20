@@ -38,6 +38,26 @@ bool InterfaceSphereFactory::create(const char *name, float x, float y, float z)
     return true;
 }
 
+bool InterfaceHingeFactory::create(const char *name, OscObject *object1, OscObject *object2,
+                                   double x, double y, double z,
+                                   double ax, double ay, double az)
+{
+    if (!object1) return false;
+
+    OscHinge *cons = new OscHingeInterface(name, m_parent, object1, object2,
+                                           x, y, z, ax, ay, az);
+    if (!(cons && simulation()->add_constraint(*cons)))
+            return false;
+
+    cons->traceOn();
+
+    simulation()->send(0, "/world/hinge/create", "sssffffff",
+                       name, object1->c_name(), object2?object1->c_name():"world",
+                       x, y, z, ax, ay, az);
+
+    return true;
+}
+
 /****** InterfaceSim ******/
 
 InterfaceSim::InterfaceSim(const char *port)
@@ -45,6 +65,7 @@ InterfaceSim::InterfaceSim(const char *port)
 {
     m_pPrismFactory = new InterfacePrismFactory(this);
     m_pSphereFactory = new InterfaceSphereFactory(this);
+    m_pHingeFactory = new InterfaceHingeFactory(this);
 
     m_fTimestep = 1;
 }

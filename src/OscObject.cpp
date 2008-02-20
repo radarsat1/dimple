@@ -723,8 +723,9 @@ void OscMesh::size_physics_callback(void *self)
 // ----------------------------------------------------------------------------------
 
 //! OscConstraint has two CHAI/ODE object associated with it, though not owned by it. Class name = "constraint"
-OscConstraint::OscConstraint(const char *name, OscObject *object1, OscObject *object2)
-    : OscBase(name, NULL)  // was "constraint"
+OscConstraint::OscConstraint(const char *name, OscBase *parent,
+                             OscObject *object1, OscObject *object2)
+    : OscBase(name, parent)
 {
     assert(object1);
     m_object1 = object1;
@@ -824,7 +825,7 @@ int OscConstraint::responsePluck_handler(const char *path, const char *types, lo
 //! A ball joint requires a single fixed anchor point
 OscBallJoint::OscBallJoint(const char *name, OscObject *object1, OscObject *object2,
                            double x, double y, double z)
-    : OscConstraint(name, object1, object2)
+    : OscConstraint(name, NULL, object1, object2)
 {
 	// create the constraint for object1
     cVector3d anchor(x,y,z);
@@ -837,18 +838,12 @@ OscBallJoint::OscBallJoint(const char *name, OscObject *object1, OscObject *obje
 // ----------------------------------------------------------------------------------
 
 //! A hinge requires a fixed anchor point and an axis
-OscHinge::OscHinge(const char *name, OscObject *object1, OscObject *object2,
+OscHinge::OscHinge(const char *name, OscBase* parent,
+                   OscObject *object1, OscObject *object2,
                    double x, double y, double z, double ax, double ay, double az)
-    : OscConstraint(name, object1, object2),
+    : OscConstraint(name, parent, object1, object2),
       m_torque("torque", this)
 {
-	// create the constraint for object1
-    cVector3d anchor(x,y,z);
-    cVector3d axis(ax,ay,az);
-    object1->odePrimitive()->hingeLink(name, object2?object2->odePrimitive():NULL, anchor, axis);
-
-    printf("Hinge joint created between %s and %s at anchor (%f,%f,%f), axis (%f,%f,%f)\n",
-        object1->c_name(), object2?object2->c_name():"world", x,y,z,ax,ay,az);
 }
 
 //! This function is called once per simulation step, allowing the
@@ -873,7 +868,7 @@ OscHinge2::OscHinge2(const char *name, OscObject *object1, OscObject *object2,
                      double x, double y, double z,
                      double ax, double ay, double az,
                      double bx, double by, double bz)
-    : OscConstraint(name, object1, object2)
+    : OscConstraint(name, NULL, object1, object2)
 {
 	// create the constraint for object1
     cVector3d anchor(x,y,z);
@@ -907,7 +902,7 @@ OscUniversal::OscUniversal(const char *name, OscObject *object1, OscObject *obje
                            double x, double y, double z,
                            double ax, double ay, double az,
                            double bx, double by, double bz)
-    : OscConstraint(name, object1, object2)
+    : OscConstraint(name, NULL, object1, object2)
 {
 	// create the constraint for object1
     cVector3d anchor(x,y,z);
@@ -943,7 +938,7 @@ void OscUniversal::simulationCallback()
 
 //! A fixed joint requires only an anchor point
 OscFixed::OscFixed(const char *name, OscObject *object1, OscObject *object2)
-    : OscConstraint(name, object1, object2)
+    : OscConstraint(name, NULL, object1, object2)
 {
 	// create the constraint for object1
     if (object2)

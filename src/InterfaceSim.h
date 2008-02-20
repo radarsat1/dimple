@@ -67,6 +67,19 @@ protected:
     bool create(const char *name, float x, float y, float z);
 };
 
+class InterfaceHingeFactory : public HingeFactory
+{
+public:
+    InterfaceHingeFactory(Simulation *parent) : HingeFactory(parent) {}
+    virtual ~InterfaceHingeFactory() {}
+
+    virtual InterfaceSim* simulation() { return static_cast<InterfaceSim*>(m_parent); }
+
+protected:
+    bool create(const char *name, OscObject *object1, OscObject *object2,
+                double x, double y, double z, double ax, double ay, double az);
+};
+
 class OscSphereInterface : public OscSphere
 {
 public:
@@ -113,6 +126,19 @@ protected:
     FWD_OSCVECTOR3(color,Simulation::ST_VISUAL);
     FWD_OSCVECTOR3(force,Simulation::ST_PHYSICS);
     FWD_OSCVECTOR3(size,Simulation::ST_PHYSICS);
+};
+
+class OscHingeInterface : public OscHinge
+{
+public:
+    OscHingeInterface(const char *name, OscBase *parent,
+                      OscObject *object1, OscObject *object2,
+                      double x, double y, double z, double ax, double ay, double az)
+        : OscHinge(name, parent, object1, object2, x, y, z, ax, ay, az) {}
+
+    virtual ~OscHingeInterface() {}
+
+protected:
 };
 
 #endif // _INTERFACE_SIM_H_

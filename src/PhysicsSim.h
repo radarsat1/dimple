@@ -57,6 +57,19 @@ protected:
     bool create(const char *name, float x, float y, float z);
 };
 
+class PhysicsHingeFactory : public HingeFactory
+{
+public:
+    PhysicsHingeFactory(Simulation *parent) : HingeFactory(parent) {}
+    virtual ~PhysicsHingeFactory() {}
+
+    virtual PhysicsSim* simulation() { return static_cast<PhysicsSim*>(m_parent); }
+
+protected:
+    bool create(const char *name, OscObject *object1, OscObject *object2,
+                double x, double y, double z, double ax, double ay, double az);
+};
+
 class ODEObject
 {
 public:
@@ -71,6 +84,22 @@ protected:
     dMass	 m_odeMass;
     dWorldID m_odeWorld;
     dSpaceID m_odeSpace;
+
+    friend class ODEConstraint;
+};
+
+class ODEConstraint
+{
+public:
+    ODEConstraint(dWorldID odeWorld, dSpaceID odeSpace, OscObject *object1, OscObject *object2);
+    virtual ~ODEConstraint() {}
+
+protected:
+    dWorldID m_odeWorld;
+    dSpaceID m_odeSpace;
+    dJointID m_odeJoint;
+    dBodyID  m_odeBody1;
+    dBodyID  m_odeBody2;
 };
 
 class OscSphereODE : public OscSphere, public ODEObject
@@ -98,5 +127,19 @@ protected:
     virtual void on_position()
       { dBodySetPosition(m_odeBody, m_position.x, m_position.y, m_position.z); }
 };
+
+class OscHingeODE : public OscHinge, public ODEConstraint
+{
+public:
+    OscHingeODE(dWorldID odeWorld, dSpaceID odeSpace,
+                const char *name, OscBase *parent, OscObject *object1, OscObject *object2,
+                double x, double y, double z, double ax, double ay, double az);
+
+    virtual void simulationCallback();
+
+protected:
+    virtual void on_torque() {}
+};
+
 
 #endif // _PHYSICS_SIM_H_
