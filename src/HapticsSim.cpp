@@ -10,8 +10,11 @@ bool HapticsPrismFactory::create(const char *name, float x, float y, float z)
 
     OscPrismCHAI *obj = new OscPrismCHAI(simulation()->world(),
                                          name, m_parent);
-    if (obj)
-        return simulation()->add_object(*obj);
+
+    if (!(obj && simulation()->add_object(*obj)))
+            return false;
+
+    obj->m_position.set(x, y, z);
 
     return true;
 }
@@ -20,10 +23,13 @@ bool HapticsSphereFactory::create(const char *name, float x, float y, float z)
 {
     OscSphereCHAI *obj = new OscSphereCHAI(simulation()->world(),
                                            name, m_parent);
-    if (obj)
-        return simulation()->add_object(*obj);
 
-    return false;
+    if (!(obj && simulation()->add_object(*obj)))
+            return false;
+
+    obj->m_position.set(x, y, z);
+
+    return true;
 }
 
 /****** HapticsSim ******/

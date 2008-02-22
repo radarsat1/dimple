@@ -11,8 +11,11 @@ bool PhysicsPrismFactory::create(const char *name, float x, float y, float z)
     OscPrismODE *obj = new OscPrismODE(simulation()->odeWorld(),
                                          simulation()->odeSpace(),
                                          name, m_parent);
-    if (obj)
-        return simulation()->add_object(*obj);
+
+    if (!(obj && simulation()->add_object(*obj)))
+            return false;
+
+    obj->m_position.set(x, y, z);
 
     return true;
 }
@@ -22,10 +25,13 @@ bool PhysicsSphereFactory::create(const char *name, float x, float y, float z)
     OscSphereODE *obj = new OscSphereODE(simulation()->odeWorld(),
                                          simulation()->odeSpace(),
                                          name, m_parent);
-    if (obj)
-        return simulation()->add_object(*obj);
 
-    return false;
+    if (!(obj && simulation()->add_object(*obj)))
+            return false;
+
+    obj->m_position.set(x, y, z);
+
+    return true;
 }
 
 bool PhysicsHingeFactory::create(const char *name, OscObject *object1, OscObject *object2,

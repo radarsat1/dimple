@@ -15,9 +15,11 @@ bool InterfacePrismFactory::create(const char *name, float x, float y, float z)
            m_parent->c_name(), name);
 
     OscPrism *obj = new OscPrismInterface(NULL, name, m_parent);
+
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
+    obj->m_position.set(x, y, z);
     obj->traceOn();
 
     simulation()->send(0, "/world/prism/create", "sfff", name, x, y, z);
@@ -28,9 +30,11 @@ bool InterfacePrismFactory::create(const char *name, float x, float y, float z)
 bool InterfaceSphereFactory::create(const char *name, float x, float y, float z)
 {
     OscSphere *obj = new OscSphereInterface(NULL, name, m_parent);
+
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
+    obj->m_position.set(x, y, z);
     obj->traceOn();
 
     simulation()->send(0, "/world/sphere/create", "sfff", name, x, y, z);

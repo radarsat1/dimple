@@ -167,6 +167,8 @@ class OscObject : public OscBase
 
     void ungrab(int thread);
 
+    OSCVECTOR3(OscObject, position);
+
   protected:
 	cGenericObject* m_objChai;
 	std::vector<std::string> m_constraintLinks;
@@ -177,7 +179,6 @@ class OscObject : public OscBase
     OscVector3 m_velocity;
     OscVector3 m_accel;
 
-    OSCVECTOR3(OscObject, position);
     OSCVECTOR3(OscObject, force) {};
     OSCVECTOR3(OscObject, color) {};
 
