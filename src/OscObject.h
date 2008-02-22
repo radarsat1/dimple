@@ -51,7 +51,6 @@ class OscValue : public OscBase
   public:
     OscValue(const char *name, OscBase *owner);
     virtual ~OscValue();
-	virtual void setChanged() {}
     virtual void send() = 0;
 
     typedef void SetCallback(void*, const OscValue&);
@@ -115,7 +114,7 @@ class OscVector3 : public OscValue, public cVector3d
         { OscValue::setGetCallback((OscValue::GetCallback*)c, d, thread); }
 
   protected:
-    static void setMagnitude(OscVector3*, const OscScalar&);
+    static void set_magnitude_callback(OscVector3*, const OscScalar&);
     static int _handler(const char *path, const char *types, lo_arg **argv,
                         int argc, void *data, void *user_data);
 };
@@ -125,6 +124,9 @@ class OscString : public OscValue, public std::string
   public:
     OscString(const char *name, OscBase *owner);
     void send();
+
+    void set(const std::string& s);
+    void set(const char* s);
 
     typedef void SetCallback(void*, const OscString&);
     void setSetCallback(SetCallback *c, void *d, int thread)

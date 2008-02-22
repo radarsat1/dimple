@@ -73,7 +73,8 @@ OscScalar::OscScalar(const char *name, OscBase *owner)
 void OscScalar::set(double value)
 {
 	 m_value = value;
-	 setChanged();
+     if (m_set_callback)
+         m_set_callback(m_set_callback_data, *this);
 }
 
 void OscScalar::send()
@@ -106,17 +107,9 @@ OscVector3::OscVector3(const char *name, OscBase *owner)
 	  m_magnitude("magnitude", this),
       cVector3d()
 {
-    m_magnitude.setSetCallback((OscScalar::SetCallback*)setMagnitude, this, DIMPLE_THREAD_PHYSICS);
+    m_magnitude.setSetCallback((OscScalar::SetCallback*)set_magnitude_callback, this, DIMPLE_THREAD_PHYSICS);
 
     addHandler("",              "fff", OscVector3::_handler);
-}
-
-void OscVector3::setChanged()
-{
-	 // TODO: this would be more efficient if it was only
-	 // calculated when asked for, but only the first time
-     // if it hasn't changed.
-	 m_magnitude.set(sqrt(x*x + y*y + z*z));
 }
 
 void OscVector3::set(double _x, double _y, double _z)
@@ -124,7 +117,9 @@ void OscVector3::set(double _x, double _y, double _z)
     x = _x;
     y = _y;
     z = _z;
-    setChanged();
+    m_magnitude.set(sqrt(x*x + y*y + z*z));
+    if (m_set_callback)
+        m_set_callback(m_set_callback_data, *this);
 }
 
 void OscVector3::send()
@@ -135,7 +130,7 @@ void OscVector3::send()
         );
 }
 
-void OscVector3::setMagnitude(OscVector3 *me, const OscScalar& s)
+void OscVector3::set_magnitude_callback(OscVector3 *me, const OscScalar& s)
 {
     double ratio;
     if (me->x==0 && me->y==0 && me->z==0)
@@ -154,16 +149,17 @@ int OscVector3::_handler(const char *path, const char *types, lo_arg **argv,
 {
     OscVector3 *me = static_cast<OscVector3*>(user_data);
 
-	 if (argc == 3) {
-		  me->x = argv[0]->f;
-		  me->y = argv[1]->f;
-		  me->z = argv[2]->f;
-          me->setChanged();
-	 }
-     
+	 if (argc != 3)
+         return 0;
+
+     me->x = argv[0]->f;
+     me->y = argv[1]->f;
+     me->z = argv[2]->f;
+     me->m_magnitude.set(sqrt(me->x*me->x + me->y*me->y + me->z*me->z));
+
      if (me->m_set_callback)
          me->m_set_callback(me->m_set_callback_data, *me);
-
+     
 	 return 0;
 }
 
@@ -186,6 +182,20 @@ void OscString::send()
         );
 }
 
+void OscString::set(const std::string& s)
+{
+    assign(s);
+    if (m_set_callback)
+        m_set_callback(m_set_callback_data, *this);
+}
+
+void OscString::set(const char* s)
+{
+    assign(s);
+    if (m_set_callback)
+        m_set_callback(m_set_callback_data, *this);
+}
+
 int OscString::_handler(const char *path, const char *types, lo_arg **argv,
                         int argc, void *data, void *user_data)
 {
@@ -193,7 +203,6 @@ int OscString::_handler(const char *path, const char *types, lo_arg **argv,
 
 	 if (argc == 1) {
          me->assign(&argv[0]->s);
-         me->setChanged();
 	 }
      
      if (me->m_set_callback)
@@ -397,23 +406,17 @@ void OscObject::setTextureImage(OscObject *me, const OscString& filename)
 //! Update the position extracted from the dynamic simulation
 void OscObject::updateDynamicPosition(const dReal* pos)
 {
-    m_position[0] = pos[0];
-    m_position[1] = pos[1];
-    m_position[2] = pos[2];
-	m_position.setChanged();
+    m_position.set(pos[0], pos[1], pos[2]);
 }
 
 //! Update the velocity extracted from the dynamic simulation
 void OscObject::updateDynamicVelocity(const dReal* vel)
 {
-    m_accel[0] = m_velocity[0] - vel[0];
-    m_accel[1] = m_velocity[1] - vel[1];
-    m_accel[2] = m_velocity[2] - vel[2];
-	m_accel.setChanged();
-    m_velocity[0] = vel[0];
-    m_velocity[1] = vel[1];
-    m_velocity[2] = vel[2];
-	m_velocity.setChanged();
+    m_accel.set(
+        m_velocity[0] - vel[0],
+        m_velocity[1] - vel[1],
+        m_velocity[2] - vel[2]);
+    m_velocity.set(vel[0], vel[1], vel[2]);
 }
 
 //! Inform object that it is in collision with another object.
