@@ -97,6 +97,10 @@ int HingeFactory::create_handler(const char *path, const char *types, lo_arg **a
     if (!object1)
         return -1;
 
+    // The objects cannot be the same.
+    if (object1==object2)
+        return -1;
+
     if (!me->create(&argv[0]->s, object1, object2,
                     argv[3]->f, argv[4]->f, argv[5]->f,
                     argv[6]->f, argv[7]->f, argv[8]->f))
