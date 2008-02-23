@@ -4,6 +4,7 @@
 #define _INTERFACE_SIM_H_
 
 #include "Simulation.h"
+#include "OscObject.h"
 
 // Macros for defining forwarding handlers for OscValue instances to
 // the other simulations.

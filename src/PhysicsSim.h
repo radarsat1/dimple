@@ -4,6 +4,7 @@
 #define _PHYSICS_SIM_H_
 
 #include "Simulation.h"
+#include "OscObject.h"
 #include <ode/ode.h>
 
 class PhysicsSim : public Simulation

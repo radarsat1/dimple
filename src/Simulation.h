@@ -3,13 +3,16 @@
 #ifndef _SIMULATION_H_
 #define _SIMULATION_H_
 
-#include "OscObject.h"
+#include "OscBase.h"
 #include "ValueTimer.h"
 #include "CPrecisionClock.h"
 
 class SphereFactory;
 class PrismFactory;
 class HingeFactory;
+
+class OscObject;
+class OscConstraint;
 
 //! Simulation info contains copies of information needed to send a
 //! simulation a message or stream of messages.
@@ -49,7 +52,10 @@ class Simulation : public OscBase
 
     //! Return the type of this simulation.
     int type() { return m_type; }
-    
+
+    //! Return a string giving the type of this simulation.
+    const char* type_str();
+
     bool add_object(OscObject& obj);
     bool delete_object(OscObject& obj) {}
     OscObject* find_object(const char* name);

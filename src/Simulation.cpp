@@ -3,7 +3,7 @@
 #include <lo/lo.h>
 #include "dimple.h"
 #include "Simulation.h"
-#include "OscBase.h"
+#include "OscObject.h"
 
 ShapeFactory::ShapeFactory(char *name, Simulation *parent)
     : OscBase(name, parent)
@@ -59,7 +59,8 @@ int SphereFactory::create_handler(const char *path, const char *types, lo_arg **
 		 pos.z = argv[3]->f;
 
     if (!me->create(&argv[0]->s, pos.x, pos.y, pos.z))
-        printf("Error creating sphere '%s'.\n", &argv[0]->s);
+        printf("[%s] Error creating sphere '%s'.\n",
+               me->simulation()->type_str(), &argv[0]->s);
     return 0;
 }
 
@@ -104,7 +105,8 @@ int HingeFactory::create_handler(const char *path, const char *types, lo_arg **a
     if (!me->create(&argv[0]->s, object1, object2,
                     argv[3]->f, argv[4]->f, argv[5]->f,
                     argv[6]->f, argv[7]->f, argv[8]->f))
-        printf("Error creating hinge '%s'.\n", &argv[0]->s);
+        printf("[%s] Error creating hinge '%s'.\n",
+               me->simulation()->type_str(), &argv[0]->s);
     return 0;
 }
 
@@ -119,14 +121,14 @@ Simulation::Simulation(const char *port, int type)
     m_bDone = false;
     m_bStarted = false;
     if (pthread_create(&m_thread, NULL, Simulation::run, this))
-        printf("Error creating simulation thread.");
+        printf("[%s] Error creating simulation thread.", type_str());
     else
         m_bStarted = true;
 }
 
 Simulation::~Simulation()
 {
-    printf("Ending simulation... ");
+    printf("[%s] Ending simulation... ", type_str());
     m_bDone = true;
     if (m_bStarted)
         pthread_join(m_thread, NULL);
@@ -144,7 +146,7 @@ void* Simulation::run(void* param)
 
     me->initialize();
 
-    printf("Simulation running.\n");
+    printf("[%s] Simulation running.\n", me->type_str());
 
     int step_ms = (int)(me->m_fTimestep*1000);
     int step_us = (int)(me->m_fTimestep*1000000);
@@ -171,7 +173,7 @@ bool Simulation::add_object(OscObject& obj)
 {
     world_objects[obj.name()] = &obj;
 
-    printf("Added object %s\n", obj.c_name());
+    printf("[%s] Added object %s\n", type_str(), obj.c_name());
     return true;
 }
 
@@ -187,7 +189,7 @@ bool Simulation::add_constraint(OscConstraint& obj)
 {
     world_constraints[obj.name()] = &obj;
 
-    printf("Added constraint %s\n", obj.c_name());
+    printf("[%s] Added constraint %s\n", type_str(), obj.c_name());
     return true;
 }
 
@@ -324,4 +326,18 @@ void Simulation::sendtotype(int type, bool throttle, const char *path, const cha
     }
 
     lo_message_free(msg);
+}
+
+const char* Simulation::type_str()
+{
+    switch (m_type) {
+    case ST_PHYSICS:
+        return "physics";
+    case ST_HAPTICS:
+        return "haptics";
+    case ST_VISUAL:
+        return "visual";
+    case ST_INTERFACE:
+        return "interface";
+    }
 }

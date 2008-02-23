@@ -21,8 +21,10 @@
 #endif
 #define _WINSOCK2API_
 #include "lo/lo.h"
-#include "OscObject.h"
 #include "AudioStreamer.h"
+#include <map>
+#include <CWorld.h>
+#include <ode/ode.h>
 
 #define FPS 30
 #define VISUAL_TIMESTEP_MS   (int)((1.0/FPS)*1000.0)
@@ -37,6 +39,10 @@
 extern lo_server_thread loserverthr;
 extern lo_server        loserver;
 extern lo_address       address_send;
+
+class OscObject;
+class OscConstraint;
+class cODEPrimitive;
 
 // world objects
 extern std::map<std::string,OscObject*> world_objects;

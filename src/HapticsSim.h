@@ -4,6 +4,7 @@
 #define _HAPTICS_SIM_H_
 
 #include "Simulation.h"
+#include "OscObject.h"
 
 #include <CWorld.h>
 #include <CCamera.h>
