@@ -56,7 +56,7 @@ bool InterfaceHingeFactory::create(const char *name, OscObject *object1, OscObje
     cons->traceOn();
 
     simulation()->send(0, "/world/hinge/create", "sssffffff",
-                       name, object1->c_name(), object2?object1->c_name():"world",
+                       name, object1->c_name(), object2?object2->c_name():"world",
                        x, y, z, ax, ay, az);
 
     return true;
