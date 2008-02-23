@@ -297,6 +297,7 @@ void Simulation::send(bool throttle, const char *path, const char *types, ...)
     lo_message msg = lo_message_new();
     va_start(ap, types);
     add_varargs(msg, ap, types);
+    va_end(ap);
 
     std::vector<SimulationInfo>::iterator it;
     for (it=m_simulationList.begin();
@@ -315,6 +316,7 @@ void Simulation::sendtotype(int type, bool throttle, const char *path, const cha
     lo_message msg = lo_message_new();
     va_start(ap, types);
     add_varargs(msg, ap, types);
+    va_end(ap);
 
     std::vector<SimulationInfo>::iterator it;
     for (it=m_simulationList.begin();
