@@ -130,7 +130,7 @@ void OscVector3::send()
         );
 }
 
-void OscVector3::set_magnitude_callback(OscVector3 *me, const OscScalar& s)
+void OscVector3::set_magnitude_callback(OscVector3 *me, OscScalar& s)
 {
     double ratio;
     if (me->x==0 && me->y==0 && me->z==0)

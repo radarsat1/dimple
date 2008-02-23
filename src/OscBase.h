@@ -36,8 +36,8 @@ public:
     const char* c_name() const { return m_name.c_str(); }
     const std::string name() const { return m_name; }
 
-    const char* c_path() const { return path().c_str(); }
-    const std::string path() const { return (m_parent?m_parent->path():std::string())+"/"+name(); }
+    const char* c_path() { return path().c_str(); }
+    const std::string path() { if (m_path.empty()) m_path=(m_parent?m_parent->path():std::string())+"/"+name(); return m_path; }
 
     OscBase *parent() { return m_parent; }
 
@@ -57,6 +57,7 @@ public:
 protected:
     virtual void addHandler(const char *methodname, const char* type, lo_method_handler h);
     std::string m_name;
+    std::string m_path; // generated on demand, but we cache it here
     OscBase *m_parent;
     lo_server m_server;
 
