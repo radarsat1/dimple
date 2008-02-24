@@ -53,10 +53,16 @@ void HapticsSim::initialize()
     // create the world object
     m_chaiWorld = new cWorld();
     m_chaiWorld->setBackgroundColor(0.0f,0.0f,0.0f);
+
+    // create the cursor object
+    m_chaiCursor = new cMeta3dofPointer(m_chaiWorld, 0);
 }
 
 void HapticsSim::step()
 {
+    m_chaiCursor->updatePose();
+    m_chaiCursor->computeForces();
+    m_chaiCursor->applyForces();
 }
 
 /****** CHAIObject ******/
