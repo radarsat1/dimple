@@ -43,6 +43,7 @@
     virtual void on_##x()
 #define OSCSCALAR(c, o) OSCVALUE(c, OscScalar, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> %f\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.m_value)))
 #define OSCVECTOR3(c, o) OSCVALUE(c, OscVector3, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> (%f, %f, %f)\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.x, s.y, s.z)))
+#define OSCMATRIX3(c, o) OSCVALUE(c, OscMatrix3, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> (%f, %f, %f; %f, %f, %f; %f, %f, %f)\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.m[0][0], s.m[0][1], s.m[0][2], s.m[1][0], s.m[1][1], s.m[1][2], s.m[2][0], s.m[2][1], s.m[2][2])))
 #define OSCSTRING(c, o) OSCVALUE(c, OscStrings, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> '%s'\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.c_str())))
 
 //! The OscValue class is the base class for all OSC-accessible values,
@@ -101,7 +102,6 @@ class OscVector3 : public OscValue, public cVector3d
 {
   public:
     OscVector3(const char *name, OscBase *owner);
-	void setChanged();
 	void set(double x, double y, double z);
     void send();
 
@@ -116,6 +116,29 @@ class OscVector3 : public OscValue, public cVector3d
 
   protected:
     static void set_magnitude_callback(OscVector3*, OscScalar&);
+    static int _handler(const char *path, const char *types, lo_arg **argv,
+                        int argc, void *data, void *user_data);
+};
+
+//! The OscMatrix3 class is used to maintain information about 3-matrix values
+//! used throughout the OSC interface.
+class OscMatrix3 : public OscValue, public cMatrix3d
+{
+  public:
+    OscMatrix3(const char *name, OscBase *owner);
+	void set(double m00, double m01, double m02,
+             double m10, double m11, double m12,
+             double m20, double m21, double m22);
+    void send();
+
+    typedef void SetCallback(void*, OscMatrix3&);
+    void setSetCallback(SetCallback *c, void *d, int thread)
+        { OscValue::setSetCallback((OscValue::SetCallback*)c, d, thread); }
+    typedef void GetCallback(void*, OscMatrix3&, int interval);
+    void setGetCallback(GetCallback *c, void *d, int thread)
+        { OscValue::setGetCallback((OscValue::GetCallback*)c, d, thread); }
+
+  protected:
     static int _handler(const char *path, const char *types, lo_arg **argv,
                         int argc, void *data, void *user_data);
 };
@@ -168,7 +191,8 @@ class OscObject : public OscBase
 
     void ungrab(int thread);
 
-    OSCVECTOR3(OscObject, position);
+    OSCVECTOR3(OscObject, position) {};
+    OSCMATRIX3(OscObject, rotation) {};
 
   protected:
 	cGenericObject* m_objChai;

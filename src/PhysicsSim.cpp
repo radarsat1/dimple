@@ -108,7 +108,13 @@ void PhysicsSim::step()
         }
         if (o) {
             cVector3d pos(o->getPosition());
-            send(true, (it->second->path()+"/position").c_str(),"fff",pos.x,pos.y,pos.z);
+            cMatrix3d rot(o->getRotation());
+            send(true, (it->second->path()+"/position").c_str(), "fff",
+                 pos.x,pos.y,pos.z);
+            send(true, (it->second->path()+"/rotation").c_str(), "fffffffff",
+                 rot.m[0][0], rot.m[0][1], rot.m[0][2],
+                 rot.m[1][0], rot.m[1][1], rot.m[1][2],
+                 rot.m[2][0], rot.m[2][1], rot.m[2][2]);
         }
     }
 }

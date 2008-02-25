@@ -72,7 +72,10 @@ public:
     virtual cShapeSphere *object() { return m_pSphere; }
 
 protected:
-    virtual void on_position();
+    virtual void on_position()
+      { object()->setPos(m_position); }
+    virtual void on_rotation()
+      { object()->setRot(m_rotation); }
     virtual void on_radius();
     virtual void on_color()
       { object()->m_material.m_diffuse.set(m_color.x, m_color.y, m_color.z); }
@@ -90,7 +93,9 @@ public:
 
 protected:
     virtual void on_position()
-      { object()->setPos(m_position.x, m_position.y, m_position.z); }
+      { object()->setPos(m_position); }
+    virtual void on_rotation()
+      { object()->setRot(m_rotation); }
     virtual void on_color()
       { object()->m_material.m_diffuse.set(m_color.x, m_color.y, m_color.z); }
     virtual void on_size();

@@ -78,6 +78,10 @@ public:
     virtual ~ODEObject();
 
     cVector3d getPosition() { return cVector3d(dBodyGetPosition(m_odeBody)); }
+    cMatrix3d getRotation() {
+      const dReal *r = dBodyGetRotation(m_odeBody); cMatrix3d m;
+      m.set(r[0], r[1], r[2], r[4], r[5], r[6], r[8], r[9], r[10]);
+      return m; }
 
 protected:
     dBodyID  m_odeBody;

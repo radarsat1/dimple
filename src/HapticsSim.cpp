@@ -90,14 +90,6 @@ OscSphereCHAI::~OscSphereCHAI()
         delete m_pSphere;
 }
 
-void OscSphereCHAI::on_position()
-{
-    if (!m_pSphere)
-        return;
-
-    m_pSphere->setPos(m_position.x, m_position.y, m_position.z);
-}
-
 void OscSphereCHAI::on_radius()
 {
     printf("OscSphereCHAI::on_radius(). radius = %f\n", m_radius.m_value);

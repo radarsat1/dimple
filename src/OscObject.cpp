@@ -165,6 +165,54 @@ int OscVector3::_handler(const char *path, const char *types, lo_arg **argv,
 
 // ----------------------------------------------------------------------------------
 
+//! OscMatrix3 is a 3-matrix which can report its magnitude.
+OscMatrix3::OscMatrix3(const char *name, OscBase *owner)
+    : OscValue(name, owner),
+      cMatrix3d()
+{
+    addHandler("",              "fffffffff", OscMatrix3::_handler);
+}
+
+void OscMatrix3::set(double m00, double m01, double m02,
+                     double m10, double m11, double m12,
+                     double m20, double m21, double m22)
+{
+    cMatrix3d::set(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+    if (m_set_callback)
+        m_set_callback(m_set_callback_data, *this);
+}
+
+void OscMatrix3::send()
+{
+    lo_send(address_send, ("/" + m_parent->name() +
+                           "/" + m_name).c_str(),
+            "fffffffff",
+            m[0][0], m[0][1], m[0][2],
+            m[1][0], m[1][1], m[1][2],
+            m[2][0], m[2][1], m[2][2]
+        );
+}
+
+int OscMatrix3::_handler(const char *path, const char *types, lo_arg **argv,
+                         int argc, void *data, void *user_data)
+{
+    OscMatrix3 *me = static_cast<OscMatrix3*>(user_data);
+
+	 if (argc != 9)
+         return 0;
+
+     me->set(argv[0]->f, argv[1]->f, argv[2]->f,
+             argv[3]->f, argv[4]->f, argv[5]->f,
+             argv[6]->f, argv[7]->f, argv[8]->f);
+
+     if (me->m_set_callback)
+         me->m_set_callback(me->m_set_callback_data, *me);
+     
+	 return 0;
+}
+
+// ----------------------------------------------------------------------------------
+
 //! OscString is an OSC-accessible and -settable string value.
 OscString::OscString(const char *name, OscBase *owner)
     : OscValue(name, owner)
@@ -223,7 +271,8 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
       m_color("color", this),
       m_friction_static("friction/static", this),
       m_friction_dynamic("friction/dynamic", this),
-      m_texture_image("texture/image", this)
+      m_texture_image("texture/image", this),
+      m_rotation("rotation", this)
 {
     // Track pointer for ODE/Chai object
     m_objChai = p;
@@ -254,6 +303,7 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
 
     // Set callbacks for when values change
     m_position.setSetCallback(set_position, this, DIMPLE_THREAD_PHYSICS);
+    m_rotation.setSetCallback(set_rotation, this, DIMPLE_THREAD_PHYSICS);
     m_force.setSetCallback(set_force, this, DIMPLE_THREAD_PHYSICS);
     m_color.setSetCallback(set_color, this, DIMPLE_THREAD_PHYSICS);
     m_velocity.setSetCallback((OscVector3::SetCallback*)setVelocity, this, DIMPLE_THREAD_PHYSICS);
@@ -327,11 +377,6 @@ void OscObject::unlinkConstraint(std::string &name)
 	 std::vector<std::string>::iterator it=m_constraintLinks.begin();
 	 for (; it<m_constraintLinks.end(); it++)
 		  if ((*it)==name) m_constraintLinks.erase(it);
-}
-
-//! Set the dynamic object to a new position
-void OscObject::on_position()
-{
 }
 
 //! Set the dynamic object velocity
