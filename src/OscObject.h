@@ -193,6 +193,8 @@ class OscObject : public OscBase
 
     OSCVECTOR3(OscObject, position) {};
     OSCMATRIX3(OscObject, rotation) {};
+    OSCVECTOR3(OscObject, force) {};
+    OSCVECTOR3(OscObject, color) {};
 
   protected:
 	cGenericObject* m_objChai;
@@ -204,8 +206,6 @@ class OscObject : public OscBase
     OscVector3 m_velocity;
     OscVector3 m_accel;
 
-    OSCVECTOR3(OscObject, force) {};
-    OSCVECTOR3(OscObject, color) {};
 
     static void setVelocity(OscObject *me, const OscVector3& vel);
 

@@ -127,6 +127,17 @@ void VisualSim::initialize()
     m_chaiLight->setPos(cVector3d(2,0.5,1));
     m_chaiLight->setDir(cVector3d(-2,0.5,1));
     m_chaiCamera->addChild(m_chaiLight);
+
+    // Create an object to represent the cursor
+    OscSphereCHAI *pCursor = new OscSphereCHAI(m_chaiWorld, "cursor", this);
+    if (pCursor) {
+        if (add_object(*pCursor)) {
+            pCursor->m_position.set(0, 0, 0);
+            pCursor->m_color.set(1, 1, 0);
+        }
+        else
+            delete pCursor;
+    }
 }
 
 void VisualSim::step()

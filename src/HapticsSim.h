@@ -24,6 +24,9 @@ class HapticsSim : public Simulation
     virtual void initialize();
     virtual void step();
 
+    //! A step count for dividing down to the visual timestep
+    int m_nVisualStepCount;
+
     cWorld* m_chaiWorld;            //! the world in which we will create our environment
     cMeta3dofPointer* m_chaiCursor; //! a 3D cursor which represents the haptic deviec
 };

@@ -56,11 +56,25 @@ void HapticsSim::initialize()
 
     // create the cursor object
     m_chaiCursor = new cMeta3dofPointer(m_chaiWorld, 0);
+
+    // initialize visual step count
+    m_nVisualStepCount = 0;
 }
 
 void HapticsSim::step()
 {
     m_chaiCursor->updatePose();
+
+    if (++m_nVisualStepCount >= (VISUAL_TIMESTEP_MS/HAPTICS_TIMESTEP_MS))
+    {
+        sendtotype(Simulation::ST_VISUAL, true,
+                   "/world/cursor/position","fff",
+                   m_chaiCursor->getPos().x,
+                   m_chaiCursor->getPos().y,
+                   m_chaiCursor->getPos().z);
+        m_nVisualStepCount = 0;
+    }
+
     m_chaiCursor->computeForces();
     m_chaiCursor->applyForces();
 }
