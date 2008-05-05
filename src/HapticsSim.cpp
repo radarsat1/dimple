@@ -71,9 +71,9 @@ void HapticsSim::step()
     {
         sendtotype(Simulation::ST_VISUAL, true,
                    "/world/cursor/position","fff",
-                   m_chaiCursor->getPos().x,
-                   m_chaiCursor->getPos().y,
-                   m_chaiCursor->getPos().z);
+                   m_chaiCursor->m_deviceLocalPos.x,
+                   m_chaiCursor->m_deviceLocalPos.y,
+                   m_chaiCursor->m_deviceLocalPos.z);
         m_nVisualStepCount = 0;
     }
 
