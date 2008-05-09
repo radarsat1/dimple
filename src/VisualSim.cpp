@@ -113,8 +113,9 @@ void VisualSim::initialize()
     m_chaiCamera = new cCamera(m_chaiWorld);
     m_chaiWorld->addChild(m_chaiCamera);
 
-    // position a camera
-    m_chaiCamera->set( cVector3d (1.0, 0.0, 0.0),
+    // position a camera such that X increases to the right, Y
+    // increases into the screen, and Z is up.
+    m_chaiCamera->set( cVector3d (0.0, -1.0, 0.0),
                        cVector3d (0.0, 0.0, 0.0),
                        cVector3d (0.0, 0.0, 1.0));
 
