@@ -14,7 +14,7 @@
         simulation()->send(0,m_##o.c_path(), "f",                       \
                            m_##o.m_value); }                            \
     static void on_get_##o(void *me, OscScalar &o, int interval) {      \
-        ((OscBase*)me)->simulation()->sendtotype(0,t,                   \
+        ((OscBase*)me)->simulation()->sendtotype(t,0,                   \
                                        (o.path()+"/get").c_str(),       \
                                        (interval>=0)?"i":"", interval); }
 #define FWD_OSCVECTOR3(o,t)                                             \
@@ -22,7 +22,7 @@
         simulation()->send(0,m_##o.c_path(), "fff",                     \
                            m_##o.x, m_##o.y, m_##o.z); }                \
     static void on_get_##o(void *me, OscVector3 &o, int interval){      \
-        ((OscBase*)me)->simulation()->sendtotype(0,t,                   \
+        ((OscBase*)me)->simulation()->sendtotype(t,0,                   \
                                         (o.path()+"/get").c_str(),      \
                                         (interval>=0)?"i":"", interval);}
 #define FWD_OSCSTRING(o,t)                                              \
@@ -30,7 +30,7 @@
         simulation()->send(0,m_##o.c_path(), "s",                       \
                            m_##o.m_value); }                            \
     static void on_get_##o(void *me, OscString &o, int interval){       \
-        ((OscBase*)me)->simulation()->sendtotype(0,t,                   \
+        ((OscBase*)me)->simulation()->sendtotype(t,0,                   \
                                         (o.path()+"/get").c_str(),      \
                                         (interval>=0)?"i":"", interval);}
 
