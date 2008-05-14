@@ -79,6 +79,8 @@ void PhysicsSim::initialize()
     dWorldSetGravity (m_odeWorld,0,0,0);
     m_odeSpace = dSimpleSpaceCreate(0);
     m_odeContactGroup = dJointGroupCreate(0);
+
+    Simulation::initialize();
 }
 
 void PhysicsSim::step()

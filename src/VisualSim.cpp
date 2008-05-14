@@ -139,6 +139,8 @@ void VisualSim::initialize()
         else
             delete pCursor;
     }
+
+    Simulation::initialize();
 }
 
 void VisualSim::step()
@@ -183,4 +185,18 @@ void VisualSim::draw()
     if (err != GL_NO_ERROR) printf("Error:  %s\n", gluErrorString(err));
 
     glutSwapBuffers();
+}
+
+void VisualSim::on_clear()
+{
+    object_iterator it = world_objects.begin();
+    while (it != world_objects.end())
+    {
+        if (it->second->name() == "cursor")
+            it++;
+        else {
+            it->second->on_destroy();
+            it = world_objects.begin();
+        }
+    }
 }

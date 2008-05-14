@@ -140,6 +140,11 @@ Simulation::~Simulation()
     lo_address_free(m_addr);
 }
 
+void Simulation::initialize()
+{
+    addHandler("clear", "", Simulation::clear_handler);
+}
+
 void* Simulation::run(void* param)
 {
     Simulation* me = static_cast<Simulation*>(param);
@@ -351,5 +356,15 @@ const char* Simulation::type_str()
         return "visual";
     case ST_INTERFACE:
         return "interface";
+    }
+}
+
+void Simulation::on_clear()
+{
+    object_iterator it = world_objects.begin();
+    while (it != world_objects.end())
+    {
+        it->second->on_destroy();
+        it = world_objects.begin();
     }
 }

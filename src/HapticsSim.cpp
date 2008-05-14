@@ -59,6 +59,8 @@ void HapticsSim::initialize()
 
     // initialize visual step count
     m_nVisualStepCount = 0;
+
+    Simulation::initialize();
 }
 
 void HapticsSim::step()

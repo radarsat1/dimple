@@ -83,6 +83,8 @@ class Simulation : public OscBase
     const lo_address addr() { return m_addr; }
     ValueTimer& valuetimer() { return m_valueTimer; }
 
+    OSCMETHOD0(Simulation, clear);
+
   protected:
     pthread_t m_thread;
     bool m_bStarted;
@@ -97,7 +99,7 @@ class Simulation : public OscBase
     //! Function for simulation thread (thread context).
     static void* run(void* param);
     //! Override for initializing the simulation (thread context).
-    virtual void initialize() {}
+    virtual void initialize();
     //! Override for a single step of the simulation (thread context).
     virtual void step() = 0;
 

@@ -19,6 +19,8 @@ class VisualSim : public Simulation
     cCamera *camera() { return m_chaiCamera; }
     cLight *light() { return m_chaiLight; }
 
+    virtual void on_clear();
+
   protected:
     virtual void initialize();
     virtual void step();

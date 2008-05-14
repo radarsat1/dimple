@@ -40,6 +40,11 @@ class InterfaceSim : public Simulation
     InterfaceSim(const char *port);
     virtual ~InterfaceSim();
 
+    virtual void on_clear() {
+        send(0, "/world/clear", "");
+        Simulation::on_clear();
+    }
+
   protected:
     virtual void step();
 };
