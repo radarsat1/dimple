@@ -96,6 +96,11 @@ public:
         }
     virtual ~OscSphereInterface() {}
 
+    virtual void on_destroy() {
+        simulation()->send(0, (path()+"/destroy").c_str(), "");
+        OscObject::on_destroy();
+    }
+
 protected:
     FWD_OSCVECTOR3(position,Simulation::ST_PHYSICS);
     FWD_OSCVECTOR3(velocity,Simulation::ST_PHYSICS);
@@ -119,6 +124,11 @@ public:
             m_size.setGetCallback(on_get_size, this, DIMPLE_THREAD_PHYSICS);
         }
     virtual ~OscPrismInterface() {}
+
+    virtual void on_destroy() {
+        simulation()->send(0, (path()+"/destroy").c_str(), "");
+        OscObject::on_destroy();
+    }
 
 protected:
     FWD_OSCVECTOR3(position,Simulation::ST_PHYSICS);

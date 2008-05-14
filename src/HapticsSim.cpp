@@ -101,7 +101,7 @@ OscSphereCHAI::OscSphereCHAI(cWorld *world, const char *name, OscBase *parent)
 OscSphereCHAI::~OscSphereCHAI()
 {
     if (m_pSphere)
-        delete m_pSphere;
+        m_pSphere->getParent()->deleteChild(m_pSphere);
 }
 
 void OscSphereCHAI::on_radius()
@@ -128,7 +128,7 @@ OscPrismCHAI::OscPrismCHAI(cWorld *world, const char *name, OscBase *parent)
 OscPrismCHAI::~OscPrismCHAI()
 {
     if (m_pPrism)
-        delete m_pPrism;
+        m_pPrism->getParent()->deleteChild(m_pPrism);
 }
 
 // This function borrowed from dynamic_ode example in CHAI.

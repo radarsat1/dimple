@@ -334,33 +334,11 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     }
 }
 
-//! OscObject destructor is responsible for deleting the object from the CHAI world.
-//! ODE removal is taken care of in the cODEPrimitive destructor.
-//! Any constraints associated with the object are destroyed as well.
+//! OscObject destructor.
 OscObject::~OscObject()
 {
-    // Destroy any constraints associated with the object
-    while (odePrimitive()->m_Joint.size() > 0) {
-        std::string jointname = odePrimitive()->m_Joint.begin()->first;
-        if (world_constraints.find(jointname)!=world_constraints.end())
-            delete world_constraints[jointname];
-        world_constraints.erase(jointname);
-    }
-    
-    // Destroy any constraints to which this object is linked
-    while (m_constraintLinks.size() > 0)
-    {
-        std::string jointname = m_constraintLinks.back();
-        m_constraintLinks.pop_back();
-        
-        if (world_constraints.find(jointname)!=world_constraints.end())
-            delete world_constraints[jointname];
-        world_constraints.erase(jointname);
-    }
-    
-    // Remove object from CHAI world
-    cGenericObject *p = m_objChai->getParent();
-    p->deleteChild(m_objChai);
+    ptrace(m_bTrace, ("[%s] %s.~OscObject()\n",
+                      simulation()->type_str(), c_name()));
 }
 
 //! This function must be called if the object becomes linked to another object's constraint
@@ -483,22 +461,15 @@ bool OscObject::collidedWith(OscObject *o)
 }
 
 //! Destroy the object
-int OscObject::destroy_handler(const char *path, const char *types, lo_arg **argv,
-							   int argc, void *data, void *user_data)
+void OscObject::on_destroy()
 {
-	 handler_data *hd = (handler_data*)user_data;
-	 OscObject *me = (OscObject*)hd->user_data;
+    simulation()->delete_object(*this);
 
-     if (hd->thread != DIMPLE_THREAD_PHYSICS)
-         return 0;
+    /* The object's memory is freed in the above delete_object call.
+     * Should it be done here instead? Or perhaps moved to a deleted
+     * objects pool for later garbage collection. */
 
-    if (me) {
-        LOCK_WORLD();
-        world_objects.erase(me->m_name);
-        delete me;
-        UNLOCK_WORLD();
-    }
-    return 0;
+    return;
 }
 
 //! Set the object's mass

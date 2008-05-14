@@ -57,7 +57,7 @@ class Simulation : public OscBase
     const char* type_str();
 
     bool add_object(OscObject& obj);
-    bool delete_object(OscObject& obj) {}
+    bool delete_object(OscObject& obj);
     OscObject* find_object(const char* name);
 
     bool add_constraint(OscConstraint& obj);

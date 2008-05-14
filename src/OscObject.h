@@ -45,6 +45,12 @@
 #define OSCVECTOR3(c, o) OSCVALUE(c, OscVector3, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> (%f, %f, %f)\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.x, s.y, s.z)))
 #define OSCMATRIX3(c, o) OSCVALUE(c, OscMatrix3, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> (%f, %f, %f; %f, %f, %f; %f, %f, %f)\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.m[0][0], s.m[0][1], s.m[0][2], s.m[1][0], s.m[1][1], s.m[1][2], s.m[2][0], s.m[2][1], s.m[2][2])))
 #define OSCSTRING(c, o) OSCVALUE(c, OscStrings, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> '%s'\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.c_str())))
+#define OSCMETHOD0(t, x)                                                \
+    static int x##_handler(const char *path, const char *types,         \
+                           lo_arg **argv, int argc, void *data,         \
+                           void *user_data) {((t*)user_data)->on_##x();}\
+    virtual void on_##x()
+
 
 //! The OscValue class is the base class for all OSC-accessible values,
 //! including vectors and scalars.
@@ -196,6 +202,8 @@ class OscObject : public OscBase
     OSCVECTOR3(OscObject, force) {};
     OSCVECTOR3(OscObject, color) {};
 
+    OSCMETHOD0(OscObject, destroy);
+
   protected:
 	cGenericObject* m_objChai;
 	std::vector<std::string> m_constraintLinks;
@@ -217,8 +225,6 @@ class OscObject : public OscBase
     OscString m_texture_image;
     static void setTextureImage(OscObject *me, const OscString& filename);
 
-    static int destroy_handler(const char *path, const char *types, lo_arg **argv,
-                               int argc, void *data, void *user_data);
     static int mass_handler(const char *path, const char *types, lo_arg **argv,
                             int argc, void *data, void *user_data);
     static int collideGet_handler(const char *path, const char *types, lo_arg **argv,

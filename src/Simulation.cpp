@@ -177,6 +177,16 @@ bool Simulation::add_object(OscObject& obj)
     return true;
 }
 
+bool Simulation::delete_object(OscObject& obj)
+{
+    printf("[%s] Removing object %s\n", type_str(), obj.c_name());
+
+    world_objects.erase(obj.name());
+    delete &obj;
+
+    return true;
+}
+
 OscObject* Simulation::find_object(const char* name)
 {
     object_iterator it = world_objects.find(name);
