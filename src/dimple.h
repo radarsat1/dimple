@@ -35,6 +35,16 @@
 #define Sleep(t) usleep(t*1000)
 #endif
 
+// Macro for conditionally including code when compiling for DEBUG
+#ifdef DEBUG
+#define ptrace(c,x) if (c) {printf x;}
+#else
+#define ptrace(c,x)
+#endif
+
+#define __dimple_str(x) #x
+#define _dimple_str(x) #x
+
 // LibLo server
 extern lo_server_thread loserverthr;
 extern lo_server        loserver;
