@@ -66,7 +66,7 @@ OscBase::~OscBase()
 
 Simulation *OscBase::simulation()
 {
-    OscBase *p = parent();
+    OscBase *p = this;
     while (p) {
         Simulation *s = dynamic_cast<Simulation*>(p);
         if (s) return s;
