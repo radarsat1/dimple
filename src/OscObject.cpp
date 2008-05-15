@@ -155,7 +155,7 @@ int OscVector3::_handler(const char *path, const char *types, lo_arg **argv,
      me->x = argv[0]->f;
      me->y = argv[1]->f;
      me->z = argv[2]->f;
-     me->m_magnitude.set(sqrt(me->x*me->x + me->y*me->y + me->z*me->z));
+     me->m_magnitude.m_value = sqrt(me->x*me->x + me->y*me->y + me->z*me->z);
 
      if (me->m_set_callback)
          me->m_set_callback(me->m_set_callback_data, *me);
