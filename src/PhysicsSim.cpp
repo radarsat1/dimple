@@ -226,6 +226,7 @@ OscSphereODE::OscSphereODE(dWorldID odeWorld, dSpaceID odeSpace, const char *nam
 void OscSphereODE::on_radius()
 {
     printf("OscSphereODE::on_radius(). radius = %f\n", m_radius.m_value);
+    dGeomSphereSetRadius(m_odeGeom, m_radius.m_value);
 }
 
 void OscSphereODE::on_force()
