@@ -144,24 +144,43 @@ Simulation::Simulation(const char *port, int type)
 
     m_bDone = false;
     m_bStarted = false;
-    if (pthread_create(&m_thread, NULL, Simulation::run, this))
-        printf("[%s] Error creating simulation thread.", type_str());
-    else
-        m_bStarted = true;
 }
 
 Simulation::~Simulation()
+{
+    stop();
+
+    if (m_server)
+        lo_server_free(m_server);
+
+    lo_address_free(m_addr);
+}
+
+bool Simulation::start()
+{
+    if (m_bStarted)
+        return true;
+
+    m_bDone = false;
+
+    if (pthread_create(&m_thread, NULL, Simulation::run, this)) {
+        printf("[%s] Error creating simulation thread.", type_str());
+        return false;
+    }
+    else
+        m_bStarted = true;
+
+    return true;
+}
+
+void Simulation::stop()
 {
     printf("[%s] Ending simulation... ", type_str());
     m_bDone = true;
     if (m_bStarted)
         pthread_join(m_thread, NULL);
-
-    if (m_server)
-        lo_server_free(m_server);
+    m_bStarted = false;
     printf("done.\n");
-
-    lo_address_free(m_addr);
 }
 
 void Simulation::initialize()

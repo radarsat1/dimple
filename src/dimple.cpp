@@ -1705,6 +1705,12 @@ int main(int argc, char* argv[])
      interface.add_simulation(haptics);
      interface.add_simulation(visual);
 
+     // Start all simulations
+     physics.start();
+     haptics.start();
+     visual.start();
+     interface.start();
+
 #ifndef FLEXT_SYS
 	 // initially loop just waiting for messages
 	 while (!quit) {

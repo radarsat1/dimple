@@ -41,6 +41,9 @@ class Simulation : public OscBase
     Simulation(const char *port, int type);
     virtual ~Simulation();
 
+    bool start();
+    void stop();
+
     //! An enumeration for the possible inherited types of simulations.
     enum SimulationType {
         ST_PHYSICS   = 0x01,
