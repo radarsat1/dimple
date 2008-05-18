@@ -3,18 +3,28 @@ Development map:
 
 v0.1:
 
-* Composite objects
-* Parameter request timer
-* Determine collision force
+* Finish internal_osc branch, get back basic functionality with new
+  class structure.  Includes:
+  - Parameter request timer
+  - Determine collision force
+  - Real-time object information
 
 v0.2:
 
-* Fix locking/threading issues (move to processes?)
-* Mesh objects
-* More proxy information
-* Proxy object "grab"
+* Re-implement extra functionality that was lost in the regression:
+  - Textures
+  - Composite objects
+  - Mesh objects
+  - Signal connections for Pd/Max version
+  - More proxy information
+  - Proxy object "grab"
 
 v1.0:
 
-* Finish the OSC for Haptics specification
-* Complete implementation of the OSC for Haptics specification
+* Allow run-time configuration of simulation synchroneity
+* Embedded implementation of haptics thread for Toro DSP (Ergos)
+* Process-oriented model
+* Implement Introsca library to improve speed of inter-thread
+  communication
+* Support for libnifalcon
+* More examples
