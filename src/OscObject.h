@@ -83,6 +83,7 @@ class OscVector3 : public OscValue, public cVector3d
   public:
     OscVector3(const char *name, OscBase *owner);
 	void set(double x, double y, double z);
+	void set(const cVector3d& vec) { set(vec.x, vec.y, vec.z); }
     void send();
 
 	OscScalar m_magnitude;
@@ -173,6 +174,8 @@ class OscObject : public OscBase
 
     OSCVECTOR3(OscObject, position) {};
     OSCMATRIX3(OscObject, rotation) {};
+    OSCVECTOR3(OscObject, velocity) {};
+    OSCVECTOR3(OscObject, accel) {};
     OSCVECTOR3(OscObject, force) {};
     OSCVECTOR3(OscObject, color) {};
 
@@ -184,10 +187,6 @@ class OscObject : public OscBase
     std::map<OscObject*,int> m_collisions;
 
     bool m_getCollide;
-
-    OscVector3 m_velocity;
-    OscVector3 m_accel;
-
 
     static void setVelocity(OscObject *me, const OscVector3& vel);
 

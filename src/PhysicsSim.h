@@ -83,6 +83,9 @@ public:
       m.set(r[0], r[1], r[2], r[4], r[5], r[6], r[8], r[9], r[10]);
       return m; }
 
+    //! Update ODE dynamics information for this object.
+    void update();
+
 protected:
     dBodyID  m_odeBody;
     dGeomID  m_odeGeom;

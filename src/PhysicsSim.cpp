@@ -102,6 +102,7 @@ void PhysicsSim::step()
         // TODO: it would be very nice to do this without involving dynamic_cast
         ODEObject *o = dynamic_cast<ODEObject*>(it->second);
         if (o) {
+            o->update();
             cVector3d pos(o->getPosition());
             cMatrix3d rot(o->getRotation());
             send(true, (it->second->path()+"/position").c_str(), "fff",
@@ -174,6 +175,19 @@ ODEObject::~ODEObject()
 {
     if (m_odeBody)  dBodyDestroy(m_odeBody);
     if (m_odeGeom)  dGeomDestroy(m_odeGeom);
+}
+
+void ODEObject::update()
+{
+    /* TODO: Again, would be nice to avoid dynamic_cast here! */
+    OscObject *o = dynamic_cast<OscObject*>(this);
+    if (!o) return;
+
+    cVector3d pos(getPosition());
+    cVector3d vel(o->m_position - pos);
+    o->m_accel.set(o->m_velocity - vel);
+    o->m_velocity.set(vel);
+    o->m_position.set(pos);
 }
 
 /****** ODEConstraint ******/
