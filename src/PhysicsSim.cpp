@@ -100,14 +100,7 @@ void PhysicsSim::step()
     for (it=world_objects.begin(); it!=world_objects.end(); it++)
     {
         // TODO: it would be very nice to do this without involving dynamic_cast
-
-        ODEObject *o=NULL;
-        OscSphereODE *s = dynamic_cast<OscSphereODE*>(it->second);
-        if (s) o = static_cast<ODEObject*>(s);
-        else {
-            OscPrismODE *p = dynamic_cast<OscPrismODE*>(it->second);
-            if (p) o = static_cast<ODEObject*>(p);
-        }
+        ODEObject *o = dynamic_cast<ODEObject*>(it->second);
         if (o) {
             cVector3d pos(o->getPosition());
             cMatrix3d rot(o->getRotation());
