@@ -214,6 +214,7 @@ ODEConstraint::ODEConstraint(dWorldID odeWorld, dSpaceID odeSpace,
     m_odeSpace = odeSpace;
     m_odeBody1 = 0;
     m_odeBody2 = 0;
+    m_odeJoint = 0;
 
     ODEObject *o = dynamic_cast<ODEObject*>(object1);
     if (o)
@@ -233,7 +234,8 @@ ODEConstraint::ODEConstraint(dWorldID odeWorld, dSpaceID odeSpace,
 
 ODEConstraint::~ODEConstraint()
 {
-    dJointDestroy(m_odeJoint);
+    if (m_odeJoint)
+        dJointDestroy(m_odeJoint);
 }
 
 /****** OscSphereODE ******/
@@ -357,9 +359,16 @@ OscFixedODE::OscFixedODE(dWorldID odeWorld, dSpaceID odeSpace,
     : OscFixed(name, parent, object1, object2),
       ODEConstraint(odeWorld, odeSpace, object1, object2)
 {
-    m_odeJoint = dJointCreateFixed(m_odeWorld,0);
-    dJointAttach(m_odeJoint, m_odeBody1, m_odeBody2);
-    dJointSetFixed(m_odeJoint);
+    if (m_odeBody2) {
+        m_odeJoint = dJointCreateFixed(m_odeWorld,0);
+        dJointAttach(m_odeJoint, m_odeBody1, m_odeBody2);
+        dJointSetFixed(m_odeJoint);
+    }
+    else {
+        ODEObject *o = dynamic_cast<ODEObject*>(object1);
+        if (o)
+            o->disconnectBody();
+    }
 
     printf("[%s] Fixed joint created between %s and %s.\n",
            simulation()->type_str(),

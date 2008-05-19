@@ -97,6 +97,14 @@ public:
 
     //! Update ODE dynamics information for this object.
     void update();
+    
+    //! Remove the association between the body and geom.
+    void disconnectBody()
+        { dGeomSetBody(m_odeGeom, 0); }
+    
+    //! Create the association between the body and geom.
+    void connectBody()
+        { dGeomSetBody(m_odeGeom, m_odeBody); }
 
 protected:
     dBodyID  m_odeBody;
