@@ -334,9 +334,25 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     }
 }
 
-//! OscObject destructor.
+//! OscObject destructor.  Destoys any associated constraints.
 OscObject::~OscObject()
 {
+    constraint_list_iterator it = m_constraintList.begin();
+    while (it!=m_constraintList.end()) {
+        /* Remove the constraint from the other object's constraint
+           list before deleting. */
+        OscConstraint *o = *it;
+        if (o->object2()) {
+            if (this==o->object1())
+                o->object2()->m_constraintList.remove(o);
+            else if (this==o->object2())
+                o->object1()->m_constraintList.remove(o);
+        }
+
+        (**it).on_destroy();
+        it++;
+    }
+
     ptrace(m_bTrace, ("[%s] %s.~OscObject()\n",
                       simulation()->type_str(), c_name()));
 }
@@ -749,6 +765,9 @@ OscConstraint::OscConstraint(const char *name, OscBase *parent,
     assert(object1);
     m_object1 = object1;
     m_object2 = object2;
+
+    if (object1) object1->m_constraintList.push_back(this);
+    if (object2) object2->m_constraintList.push_back(this);
 
     m_stiffness = 0;
     m_damping = 0;

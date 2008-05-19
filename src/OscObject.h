@@ -181,6 +181,10 @@ class OscObject : public OscBase
 
     OSCMETHOD0(OscObject, destroy);
 
+    std::list<OscConstraint*> m_constraintList;
+    typedef std::list<OscConstraint*>::iterator
+      constraint_list_iterator;
+
   protected:
 	cGenericObject* m_objChai;
 	std::vector<std::string> m_constraintLinks;
