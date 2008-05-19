@@ -3,7 +3,7 @@
 #ifndef _SIMULATION_H_
 #define _SIMULATION_H_
 
-#include "OscBase.h"
+#include "OscValue.h"
 #include "ValueTimer.h"
 #include "CPrecisionClock.h"
 
