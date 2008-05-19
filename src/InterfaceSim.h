@@ -103,7 +103,7 @@ public:
 
     virtual void on_destroy() {
         simulation()->send(0, (path()+"/destroy").c_str(), "");
-        OscObject::on_destroy();
+        OscSphere::on_destroy();
     }
 
 protected:
@@ -132,7 +132,7 @@ public:
 
     virtual void on_destroy() {
         simulation()->send(0, (path()+"/destroy").c_str(), "");
-        OscObject::on_destroy();
+        OscPrism::on_destroy();
     }
 
 protected:
