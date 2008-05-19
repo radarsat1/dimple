@@ -131,6 +131,7 @@ protected:
     FWD_OSCVECTOR3(color,Simulation::ST_VISUAL);
     FWD_OSCSCALAR(radius,Simulation::ST_PHYSICS);
     FWD_OSCVECTOR3(force,Simulation::ST_PHYSICS);
+    FWD_OSCSCALAR(collide,Simulation::ST_PHYSICS);
 };
 
 class OscPrismInterface : public OscPrism
@@ -160,6 +161,7 @@ protected:
     FWD_OSCVECTOR3(color,Simulation::ST_VISUAL);
     FWD_OSCVECTOR3(force,Simulation::ST_PHYSICS);
     FWD_OSCVECTOR3(size,Simulation::ST_PHYSICS);
+    FWD_OSCSCALAR(collide,Simulation::ST_PHYSICS);
 };
 
 class OscHingeInterface : public OscHinge

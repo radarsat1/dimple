@@ -19,6 +19,7 @@ oscsend localhost 7774 /world/sphere1/radius f 0.03
 oscsend localhost 7774 /world/sphere2/radius f 0.03
 
 oscsend localhost 7774 /world/collide i 1
+oscsend localhost 7774 /world/sphere1/collide i 1
 
 # Push them slowly towards each other
 oscsend localhost 7774 /world/sphere1/force fff 0.003 0 0

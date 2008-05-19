@@ -31,7 +31,8 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
       m_friction_static("friction/static", this),
       m_friction_dynamic("friction/dynamic", this),
       m_texture_image("texture/image", this),
-      m_rotation("rotation", this)
+      m_rotation("rotation", this),
+      m_collide("collide", this)
 {
     // Track pointer for ODE/Chai object
     m_objChai = p;
@@ -69,6 +70,7 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     m_friction_static.setSetCallback((OscScalar::SetCallback*)setFrictionStatic, this, DIMPLE_THREAD_HAPTICS);
     m_friction_dynamic.setSetCallback((OscScalar::SetCallback*)setFrictionDynamic, this, DIMPLE_THREAD_HAPTICS);
     m_texture_image.setSetCallback((OscString::SetCallback*)setTextureImage, this, DIMPLE_THREAD_HAPTICS);
+    m_collide.setSetCallback(set_collide, this, DIMPLE_THREAD_PHYSICS);
 
     m_getCollide = false;
 
@@ -224,10 +226,10 @@ bool OscObject::collidedWith(OscObject *o, int count)
     bool rc=false;
     if (m_collisions[o] != count-1) {
         rc=true;
-        if (m_getCollide) {
+        if (m_collide.m_value) {
             lo_send(address_send, ("/world/"+m_name+"/collide").c_str(),
-                    "s", o->c_name());
-            // TODO: send collision force
+                    "sf", o->c_name(),
+                    (double)(m_velocity - o->m_velocity).length());
         }
     }
     m_collisions[o] = count;

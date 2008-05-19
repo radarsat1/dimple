@@ -59,6 +59,7 @@ class OscObject : public OscBase
     OSCVECTOR3(OscObject, accel) {};
     OSCVECTOR3(OscObject, force) {};
     OSCVECTOR3(OscObject, color) {};
+    OSCSCALAR(OscObject, collide) {};
 
     OSCMETHOD0(OscObject, destroy);
 
