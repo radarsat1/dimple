@@ -19,6 +19,10 @@ class PhysicsSim : public Simulation
 
     static const int MAX_CONTACTS;
 
+    virtual void on_gravity()
+        { dWorldSetGravity(m_odeWorld, m_gravity.x,
+                           m_gravity.y, m_gravity.z); }
+
   protected:
     dWorldID m_odeWorld;
     dSpaceID m_odeSpace;

@@ -51,6 +51,12 @@ class InterfaceSim : public Simulation
         Simulation::on_collide();
     }
 
+    virtual void on_gravity() {
+        sendtotype(Simulation::ST_PHYSICS, 0, "/world/gravity",
+                   "fff", m_gravity.x, m_gravity.y, m_gravity.z);
+        Simulation::on_gravity();
+    }
+
   protected:
     virtual void step();
 };

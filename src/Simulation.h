@@ -88,6 +88,7 @@ class Simulation : public OscBase
     ValueTimer& valuetimer() { return m_valueTimer; }
 
     OSCSCALAR(Simulation, collide) {};
+    OSCVECTOR3(Simulation, gravity) {};
     OSCMETHOD0(Simulation, clear);
 
   protected:
