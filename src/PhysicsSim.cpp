@@ -77,6 +77,7 @@ PhysicsSim::PhysicsSim(const char *port)
     m_pFixedFactory = new PhysicsFixedFactory(this);
 
     m_fTimestep = PHYSICS_TIMESTEP_MS/1000.0;
+    m_counter = 0;
     printf("ODE timestep: %f\n", m_fTimestep);
 }
 
@@ -128,6 +129,8 @@ void PhysicsSim::step()
                  rot.m[2][0], rot.m[2][1], rot.m[2][2]);
         }
     }
+
+    m_counter++;
 }
 
 void PhysicsSim::ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
@@ -157,14 +160,12 @@ void PhysicsSim::ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
         OscObject *p1 = static_cast<OscObject*>(dGeomGetData(o1));
         OscObject *p2 = static_cast<OscObject*>(dGeomGetData(o2));
         if (p1 && p2) {
-            bool co1 = p1->collidedWith(p2);
-            bool co2 = p2->collidedWith(p1);
-            if ( (co1 || co2) && me->m_bGetCollide ) {
-                /* TODO
-                lo_send(address_send, "/object/collide", "ssf", p1->c_name(), p2->c_name(),
-                        (double)(p1->getVelocity() + p2->getVelocity()).length());
-                */
-                // TODO: send collision force instead of velocity?
+            bool co1 = p1->collidedWith(p2, me->m_counter);
+            bool co2 = p2->collidedWith(p1, me->m_counter);
+            if ( (co1 || co2) && me->m_collide.m_value ) {
+                lo_send(address_send, "/world/collide", "ssf",
+                        p1->c_name(), p2->c_name(),
+                        (double)(p1->m_velocity - p2->m_velocity).length());
             }
             // TODO: this strategy will NOT work for multiple collisions between same objects!!
         }
@@ -249,6 +250,7 @@ OscSphereODE::OscSphereODE(dWorldID odeWorld, dSpaceID odeSpace, const char *nam
     dBodySetMass(m_odeBody, &m_odeMass);
     dGeomSetBody(m_odeGeom, m_odeBody);
     dBodySetPosition(m_odeBody, 0, 0, 0);
+    dGeomSetData(m_odeGeom, static_cast<OscObject*>(this));
 }
 
 void OscSphereODE::on_radius()
@@ -274,6 +276,7 @@ OscPrismODE::OscPrismODE(dWorldID odeWorld, dSpaceID odeSpace, const char *name,
     dBodySetMass(m_odeBody, &m_odeMass);
     dGeomSetBody(m_odeGeom, m_odeBody);
     dBodySetPosition(m_odeBody, 0, 0, 0);
+    dGeomSetData(m_odeGeom, static_cast<OscObject*>(this));
 }
 
 void OscPrismODE::on_size()

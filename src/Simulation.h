@@ -87,6 +87,7 @@ class Simulation : public OscBase
     const lo_address addr() { return m_addr; }
     ValueTimer& valuetimer() { return m_valueTimer; }
 
+    OSCSCALAR(Simulation, collide) {};
     OSCMETHOD0(Simulation, clear);
 
   protected:

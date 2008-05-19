@@ -45,6 +45,12 @@ class InterfaceSim : public Simulation
         Simulation::on_clear();
     }
 
+    virtual void on_collide() {
+        sendtotype(Simulation::ST_PHYSICS, 0, "/world/collide",
+                   "f", m_collide.m_value);
+        Simulation::on_collide();
+    }
+
   protected:
     virtual void step();
 };

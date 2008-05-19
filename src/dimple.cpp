@@ -373,8 +373,8 @@ void ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
         OscObject *p1 = static_cast<OscObject*>(dGeomGetData(o1));
         OscObject *p2 = static_cast<OscObject*>(dGeomGetData(o2));
         if (p1 && p2) {
-            bool co1 = p1->collidedWith(p2);
-            bool co2 = p2->collidedWith(p1);
+            bool co1 = p1->collidedWith(p2, ode_counter);
+            bool co2 = p2->collidedWith(p1, ode_counter);
             if ( (co1 || co2) && bGetCollide ) {
                 lo_send(address_send, "/object/collide", "ssf", p1->c_name(), p2->c_name(),
                         (double)(p1->getVelocity() + p2->getVelocity()).length());

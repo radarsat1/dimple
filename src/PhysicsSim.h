@@ -25,6 +25,7 @@ class PhysicsSim : public Simulation
     dJointGroupID m_odeContactGroup;
 
     bool m_bGetCollide;
+    int m_counter;
 
     virtual void initialize();
     virtual void step();

@@ -45,7 +45,7 @@ class OscObject : public OscBase
     void updateDynamicVelocity(const dReal* vel);
     void updateDynamicPosition(const dReal* pos);
 
-    bool collidedWith(OscObject *o);
+    bool collidedWith(OscObject *o, int count);
 
     const OscVector3& getPosition() { return m_position; }
     const OscVector3& getVelocity() { return m_velocity; }

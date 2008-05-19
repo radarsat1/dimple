@@ -219,18 +219,18 @@ void OscObject::updateDynamicVelocity(const dReal* vel)
 
 //! Inform object that it is in collision with another object.
 //! \return True if this is a new collision
-bool OscObject::collidedWith(OscObject *o)
+bool OscObject::collidedWith(OscObject *o, int count)
 {
     bool rc=false;
-    if (m_collisions[o] != ode_counter-1) {
+    if (m_collisions[o] != count-1) {
         rc=true;
         if (m_getCollide) {
-            lo_send(address_send, ("/object/"+m_name+"/collide").c_str(),
+            lo_send(address_send, ("/world/"+m_name+"/collide").c_str(),
                     "s", o->c_name());
             // TODO: send collision force
         }
     }
-    m_collisions[o] = ode_counter;
+    m_collisions[o] = count;
 
     return rc;
 }

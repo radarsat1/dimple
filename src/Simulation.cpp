@@ -181,13 +181,16 @@ int FixedFactory::create_handler(const char *path, const char *types, lo_arg **a
 /****** Simulation *******/
 
 Simulation::Simulation(const char *port, int type)
-    : OscBase("world", NULL, lo_server_new(port, NULL))
+    : OscBase("world", NULL, lo_server_new(port, NULL)),
+      m_collide("collide", this)
 {
     m_addr = lo_address_new("localhost", port);
     m_type = type;
 
     m_bDone = false;
     m_bStarted = false;
+
+    m_collide.setSetCallback(set_collide, this, DIMPLE_THREAD_PHYSICS);
 }
 
 Simulation::~Simulation()
