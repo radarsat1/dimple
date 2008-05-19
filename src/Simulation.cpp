@@ -251,6 +251,16 @@ bool Simulation::add_constraint(OscConstraint& obj)
     return true;
 }
 
+bool Simulation::delete_constraint(OscConstraint& obj)
+{
+    printf("[%s] Removing constraint %s\n", type_str(), obj.c_name());
+
+    world_constraints.erase(obj.name());
+    delete &obj;
+
+    return true;
+}
+
 // from liblo internals:
 // eventually this will be a public function in liblo,
 // but for now we'll reproduce it here.

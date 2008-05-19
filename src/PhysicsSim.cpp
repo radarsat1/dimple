@@ -216,6 +216,10 @@ ODEConstraint::ODEConstraint(dWorldID odeWorld, dSpaceID odeSpace,
     printf("constraint created with bodies %#x and %#x\n", m_odeBody1, m_odeBody2);
 }
 
+ODEConstraint::~ODEConstraint()
+{
+    dJointDestroy(m_odeJoint);
+}
 
 /****** OscSphereODE ******/
 

@@ -766,27 +766,16 @@ OscConstraint::OscConstraint(const char *name, OscBase *parent,
     addHandler("response/pluck",    "ff", OscConstraint::responsePluck_handler);
 }
 
-OscConstraint::~OscConstraint()
+//! Destroy the constraint
+void OscConstraint::on_destroy()
 {
-    if (!m_object1) return;
-    m_object1->odePrimitive()->destroyJoint(m_name);
-	if (m_object2) m_object2->unlinkConstraint(m_name);
-	printf("Constraint %s destroyed.\n", m_name.c_str());
-}
+    simulation()->delete_constraint(*this);
 
-int OscConstraint::destroy_handler(const char *path, const char *types, lo_arg **argv,
-							   int argc, void *data, void *user_data)
-{
-	 handler_data *hd = (handler_data*)user_data;
-	 OscConstraint *me = (OscConstraint*)hd->user_data;
+    /* The constraint's memory is freed in the above delete_object
+     * call.  Should it be done here instead? Or perhaps moved to a
+     * deleted objects pool for later garbage collection. */
 
-    if (me) {
-        LOCK_WORLD();
-        world_constraints.erase(me->m_name);
-        delete me;
-        UNLOCK_WORLD();
-    }
-    return 0;
+    return;
 }
 
 int OscConstraint::responseCenter_handler(const char *path, const char *types, lo_arg **argv,

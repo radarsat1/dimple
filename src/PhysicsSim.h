@@ -100,7 +100,7 @@ class ODEConstraint
 {
 public:
     ODEConstraint(dWorldID odeWorld, dSpaceID odeSpace, OscObject *object1, OscObject *object2);
-    virtual ~ODEConstraint() {}
+    virtual ~ODEConstraint();
 
 protected:
     dWorldID m_odeWorld;

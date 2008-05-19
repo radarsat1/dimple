@@ -280,7 +280,7 @@ class OscConstraint : public OscBase
 {
 public:
     OscConstraint(const char *name, OscBase *parent, OscObject *object1, OscObject *object2);
-    ~OscConstraint();
+    virtual ~OscConstraint() {};
 
     OscObject *object1() { return m_object1; }
     OscObject *object2() { return m_object2; }
@@ -289,6 +289,8 @@ public:
     //! constraint to be "motorized" according to some response.
     virtual void simulationCallback() {};
 
+    OSCMETHOD0(OscConstraint, destroy);
+
   protected:
       OscObject *m_object1;
       OscObject *m_object2;
@@ -296,9 +298,6 @@ public:
       // hooke's law response coefficients
       double m_stiffness;
       double m_damping;
-
-	  static int destroy_handler(const char *path, const char *types, lo_arg **argv,
-								 int argc, void *data, void *user_data);
 
       static int responseCenter_handler(const char *path, const char *types, lo_arg **argv,
                                         int argc, void *data, void *user_data);

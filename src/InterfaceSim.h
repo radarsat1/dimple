@@ -154,6 +154,11 @@ public:
 
     virtual ~OscHingeInterface() {}
 
+    virtual void on_destroy() {
+        simulation()->send(0, (path()+"/destroy").c_str(), "");
+        OscHinge::on_destroy();
+    }
+
 protected:
 };
 

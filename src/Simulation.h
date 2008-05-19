@@ -64,7 +64,7 @@ class Simulation : public OscBase
     OscObject* find_object(const char* name);
 
     bool add_constraint(OscConstraint& obj);
-    bool delete_constraint(OscConstraint& obj) {}
+    bool delete_constraint(OscConstraint& obj);
 
     float timestep() { return m_fTimestep; }
 
