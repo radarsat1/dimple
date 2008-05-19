@@ -366,7 +366,8 @@ public:
 class OscFixed : public OscConstraint
 {
 public:
-    OscFixed(const char *name, OscObject *object1, OscObject *object2);
+    OscFixed(const char *name, OscBase *parent, OscObject *object1, OscObject *object2)
+        : OscConstraint(name, parent, object1, object2) {}
 };
 
 #endif // _OSC_OBJECT_H_

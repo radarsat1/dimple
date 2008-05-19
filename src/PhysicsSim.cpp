@@ -50,6 +50,20 @@ bool PhysicsHingeFactory::create(const char *name, OscObject *object1, OscObject
         return simulation()->add_constraint(*cons);
 }
 
+bool PhysicsFixedFactory::create(const char *name, OscObject *object1, OscObject *object2)
+{
+    printf("PhysicsFixedFactory (%s) is creating a fixed constraint called '%s'\n",
+           m_parent->c_name(), name);
+
+    OscFixed *cons=NULL;
+    cons = new OscFixedODE(simulation()->odeWorld(),
+                           simulation()->odeSpace(),
+                           name, m_parent, object1, object2);
+
+    if (cons)
+        return simulation()->add_constraint(*cons);
+}
+
 /****** PhysicsSim ******/
 
 const int PhysicsSim::MAX_CONTACTS = 30;
@@ -60,6 +74,7 @@ PhysicsSim::PhysicsSim(const char *port)
     m_pPrismFactory = new PhysicsPrismFactory(this);
     m_pSphereFactory = new PhysicsSphereFactory(this);
     m_pHingeFactory = new PhysicsHingeFactory(this);
+    m_pFixedFactory = new PhysicsFixedFactory(this);
 
     m_fTimestep = PHYSICS_TIMESTEP_MS/1000.0;
     printf("ODE timestep: %f\n", m_fTimestep);
@@ -205,7 +220,7 @@ ODEConstraint::ODEConstraint(dWorldID odeWorld, dSpaceID odeSpace,
         m_odeBody1 = o->m_odeBody;
 
     if (!object2) {
-        printf("constraint created with bodies %#x and world", m_odeBody1);
+        printf("constraint created with bodies %#x and world.\n", m_odeBody1);
         return;
     }
 
@@ -213,7 +228,7 @@ ODEConstraint::ODEConstraint(dWorldID odeWorld, dSpaceID odeSpace,
     if (o)
         m_odeBody2 = o->m_odeBody;
 
-    printf("constraint created with bodies %#x and %#x\n", m_odeBody1, m_odeBody2);
+    printf("constraint created with bodies %#x and %#x.\n", m_odeBody1, m_odeBody2);
 }
 
 ODEConstraint::~ODEConstraint()
@@ -334,4 +349,19 @@ void OscHingeODE::simulationCallback()
     dReal rate = dJointGetHingeAngleRate(*id);
     m_torque.set(-m_stiffness*angle - m_damping*rate);
     dJointAddHingeTorque(*id, m_torque.m_value);
+}
+
+OscFixedODE::OscFixedODE(dWorldID odeWorld, dSpaceID odeSpace,
+                         const char *name, OscBase* parent,
+                         OscObject *object1, OscObject *object2)
+    : OscFixed(name, parent, object1, object2),
+      ODEConstraint(odeWorld, odeSpace, object1, object2)
+{
+    m_odeJoint = dJointCreateFixed(m_odeWorld,0);
+    dJointAttach(m_odeJoint, m_odeBody1, m_odeBody2);
+    dJointSetFixed(m_odeJoint);
+
+    printf("[%s] Fixed joint created between %s and %s.\n",
+           simulation()->type_str(),
+        object1->c_name(), object2?object2->c_name():"world");
 }

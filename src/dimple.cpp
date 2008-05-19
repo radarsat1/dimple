@@ -1408,7 +1408,7 @@ int constraintFixedCreate_handler(const char *path, const char *types, lo_arg **
     WAIT_WORLD_LOCK();
     LOCK_WORLD();
     OscFixed *cons=NULL;
-    cons = new OscFixed(&argv[0]->s, ob1, ob2);
+    cons = new OscFixed(&argv[0]->s, NULL, ob1, ob2);
     world_constraints[&argv[0]->s] = cons;
     UNLOCK_WORLD();
 

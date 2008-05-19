@@ -62,6 +62,22 @@ bool InterfaceHingeFactory::create(const char *name, OscObject *object1, OscObje
     return true;
 }
 
+bool InterfaceFixedFactory::create(const char *name, OscObject *object1, OscObject *object2)
+{
+    if (!object1) return false;
+
+    OscFixed *cons = new OscFixedInterface(name, m_parent, object1, object2);
+    if (!(cons && simulation()->add_constraint(*cons)))
+            return false;
+
+    cons->traceOn();
+
+    simulation()->send(0, "/world/fixed/create", "sss",
+                       name, object1->c_name(), object2?object2->c_name():"world");
+
+    return true;
+}
+
 /****** InterfaceSim ******/
 
 InterfaceSim::InterfaceSim(const char *port)
@@ -70,6 +86,7 @@ InterfaceSim::InterfaceSim(const char *port)
     m_pPrismFactory = new InterfacePrismFactory(this);
     m_pSphereFactory = new InterfaceSphereFactory(this);
     m_pHingeFactory = new InterfaceHingeFactory(this);
+    m_pFixedFactory = new InterfaceFixedFactory(this);
 
     m_fTimestep = 1;
 }

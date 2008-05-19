@@ -961,28 +961,3 @@ void OscUniversal::simulationCallback()
         -m_stiffness*angle2 - m_damping*rate2);
 }
 
-// ----------------------------------------------------------------------------------
-
-//! A fixed joint requires only an anchor point
-OscFixed::OscFixed(const char *name, OscObject *object1, OscObject *object2)
-    : OscConstraint(name, NULL, object1, object2)
-{
-	// create the constraint for object1
-    if (object2)
-        object1->odePrimitive()->fixedLink(name, object2?object2->odePrimitive():NULL);
-
-    // if object2 is world, then simply make the object have no "body"
-    // this ensures it will not react to any interaction, and is thus fixed in place
-    // (other objects will still collide with it, but it won't budge.)
-    if (!object2) {
-        object1->odePrimitive()->removeBody();
-        
-        // track this constraint
-        std::string s(name);
-        object1->linkConstraint(s);
-    }
-
-    printf("Fixed joint created between %s and %s\n",
-           object1->c_name(), object2?object2->c_name():"world");
-}
-

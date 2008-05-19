@@ -10,6 +10,7 @@
 class SphereFactory;
 class PrismFactory;
 class HingeFactory;
+class FixedFactory;
 
 class OscObject;
 class OscConstraint;
@@ -98,6 +99,7 @@ class Simulation : public OscBase
     PrismFactory *m_pPrismFactory;
     SphereFactory *m_pSphereFactory;
     HingeFactory *m_pHingeFactory;
+    FixedFactory *m_pFixedFactory;
 
     //! Function for simulation thread (thread context).
     static void* run(void* param);
@@ -182,6 +184,21 @@ protected:
     // override these functions with a specific factory subclass
     virtual bool create(const char *name, OscObject *object1, OscObject *object2,
                         double x, double y, double z, double ax, double ay, double az) = 0;
+};
+
+class FixedFactory : public ShapeFactory
+{
+public:
+    FixedFactory(Simulation *parent);
+    virtual ~FixedFactory();
+
+protected:
+    // message handlers
+    static int create_handler(const char *path, const char *types, lo_arg **argv,
+                              int argc, void *data, void *user_data);
+
+    // override these functions with a specific factory subclass
+    virtual bool create(const char *name, OscObject *object1, OscObject *object2) = 0;
 };
 
 #endif // _SIMULATION_H_

@@ -86,6 +86,18 @@ protected:
                 double x, double y, double z, double ax, double ay, double az);
 };
 
+class InterfaceFixedFactory : public FixedFactory
+{
+public:
+    InterfaceFixedFactory(Simulation *parent) : FixedFactory(parent) {}
+    virtual ~InterfaceFixedFactory() {}
+
+    virtual InterfaceSim* simulation() { return static_cast<InterfaceSim*>(m_parent); }
+
+protected:
+    bool create(const char *name, OscObject *object1, OscObject *object2);
+};
+
 class OscSphereInterface : public OscSphere
 {
 public:
@@ -157,6 +169,23 @@ public:
     virtual void on_destroy() {
         simulation()->send(0, (path()+"/destroy").c_str(), "");
         OscHinge::on_destroy();
+    }
+
+protected:
+};
+
+class OscFixedInterface : public OscFixed
+{
+public:
+    OscFixedInterface(const char *name, OscBase *parent,
+                      OscObject *object1, OscObject *object2)
+        : OscFixed(name, parent, object1, object2) {}
+
+    virtual ~OscFixedInterface() {}
+
+    virtual void on_destroy() {
+        simulation()->send(0, (path()+"/destroy").c_str(), "");
+        OscFixed::on_destroy();
     }
 
 protected:

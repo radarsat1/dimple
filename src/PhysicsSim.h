@@ -71,6 +71,18 @@ protected:
                 double x, double y, double z, double ax, double ay, double az);
 };
 
+class PhysicsFixedFactory : public FixedFactory
+{
+public:
+    PhysicsFixedFactory(Simulation *parent) : FixedFactory(parent) {}
+    virtual ~PhysicsFixedFactory() {}
+
+    virtual PhysicsSim* simulation() { return static_cast<PhysicsSim*>(m_parent); }
+
+protected:
+    bool create(const char *name, OscObject *object1, OscObject *object2);
+};
+
 class ODEObject
 {
 public:
@@ -147,6 +159,15 @@ public:
 
 protected:
     virtual void on_torque() {}
+};
+
+class OscFixedODE : public OscFixed, public ODEConstraint
+{
+public:
+    OscFixedODE(dWorldID odeWorld, dSpaceID odeSpace,
+                const char *name, OscBase *parent, OscObject *object1, OscObject *object2);
+
+protected:
 };
 
 
