@@ -24,6 +24,12 @@ class HapticsSim : public Simulation
     virtual void initialize();
     virtual void step();
 
+    void findContactObject();
+
+    OscObject *m_pContactObject;
+    cVector3d m_lastContactPoint;
+    cVector3d m_lastForce;
+
     //! A step count for dividing down to the visual timestep
     int m_nVisualStepCount;
 

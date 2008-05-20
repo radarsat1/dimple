@@ -107,8 +107,57 @@ void HapticsSim::step()
         m_nVisualStepCount = 0;
     }
 
+    findContactObject();
+
+    if (m_pContactObject) {
+        float scale = ((float)HAPTICS_TIMESTEP_MS)/VISUAL_TIMESTEP_MS;
+        sendtotype(Simulation::ST_PHYSICS, true,
+                   (m_pContactObject->path()+"/force").c_str(), "fff",
+                   -m_lastForce.x * scale * 0.00001,
+                   -m_lastForce.y * scale * 0.00001,
+                   -m_lastForce.z * scale * 0.00001);
+
+        /* TODO: the above 0.00001 scaling are just temporary
+           coefficients observed to work (somewhat) with the example
+           patch.  They are to be removed when mass scaling is
+           properly implemented. */
+    }
+
     m_chaiCursor->computeForces();
     m_chaiCursor->applyForces();
+}
+
+void HapticsSim::findContactObject()
+{
+    m_pContactObject = NULL;
+    cGenericObject *obj = NULL;
+
+    for (unsigned int i=0; i<m_chaiCursor->m_pointForceAlgos.size(); i++)
+    {
+        cProxyPointForceAlgo* pointforce_proxy = dynamic_cast<cProxyPointForceAlgo*>(m_chaiCursor->m_pointForceAlgos[i]);
+        if ((pointforce_proxy != NULL)
+            && (pointforce_proxy->getContactObject() != NULL))
+        {
+            m_lastContactPoint = pointforce_proxy->getContactPoint();
+            m_lastForce = m_chaiCursor->m_lastComputedGlobalForce;
+            obj = pointforce_proxy->getContactObject();
+            break;
+        }
+
+        cODEPotentialProxy* potential_proxy = dynamic_cast<cODEPotentialProxy*>(m_chaiCursor->m_pointForceAlgos[i]);
+        if ((potential_proxy != NULL)
+            && (potential_proxy->getContactObject() != NULL))
+        {
+            m_lastContactPoint = potential_proxy->getContactPoint();
+            m_lastForce = m_chaiCursor->m_lastComputedGlobalForce;
+            obj = potential_proxy->getContactObject();
+            break;
+        }
+    }
+
+    // User data is set in the Osc*ODE constructors
+    if (obj)
+        m_pContactObject = (OscObject*)obj->m_userData;
 }
 
 /****** CHAIObject ******/
@@ -129,6 +178,10 @@ OscSphereCHAI::OscSphereCHAI(cWorld *world, const char *name, OscBase *parent)
     m_pSphere = new cShapeSphere(0.01);
     world->addChild(m_pSphere);
     m_pSphere->computeGlobalPositions();
+
+    // User data points to the OscObject, used for identification
+    // during object contact.
+    m_pSphere->setUserData(this, 1);
 }
 
 OscSphereCHAI::~OscSphereCHAI()
@@ -157,6 +210,10 @@ OscPrismCHAI::OscPrismCHAI(cWorld *world, const char *name, OscBase *parent)
     createPrism();
     world->addChild(m_pPrism);
     m_pPrism->computeGlobalPositions();
+
+    // User data points to the OscObject, used for identification
+    // during object contact.
+    m_pPrism->setUserData(this, 1);
 }
 
 OscPrismCHAI::~OscPrismCHAI()
