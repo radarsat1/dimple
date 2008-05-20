@@ -2,7 +2,7 @@
 import sys, os
 
 def getoutput(cmd):
-    w, r = os.popen4(cmd)
+    w, r = os.popen4(' '.join(cmd))
     result = r.read()
     r.close()
     w.close()
