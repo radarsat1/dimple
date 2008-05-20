@@ -1,9 +1,12 @@
 
-import sys, os, subprocess
+import sys, os
 
 def getoutput(cmd):
-    return (subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        .communicate()[0].strip())
+    w, r = os.popen4(cmd)
+    result = r.read()
+    r.close()
+    w.close()
+    return result.strip()
 
 uname = getoutput('uname')
 
