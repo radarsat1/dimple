@@ -55,13 +55,10 @@ if 'MINGW' in uname:
                LIBPATH = ['../libdeps/chai3d/lib/cygwin'])
 
 ### LibLo ###
-# Link to the library with direct path or using -l option,
-# depending on operating system.
-if 'linux' in sys.platform or 'MINGW' in uname:
-    env.Append(LIBPATH = ['../libdeps/liblo-0.24/src/.libs'],
-               LIBS = ['lo'])
-else:
-    env.Append(LINKFLAGS = ['../libdeps/liblo-0.24/src/.libs/liblo.a'])
+
+# Link to the library using -l option,
+env.Append(LIBPATH = ['../libdeps/liblo-0.24/src/.libs'], LIBS = ['lo'])
+
 if 'win32' in sys.platform:
     env.Append(LIBS = ['wsock32'])
 
