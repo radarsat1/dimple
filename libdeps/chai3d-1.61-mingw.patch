@@ -5,7 +5,7 @@
  
  CC   = g++ -c $(DEFS)
 -CFLAGS = -O3 $(INCLUDE)
-+CFLAGS = -O3 $(INCLUDE) -DPTW32_STATIC_LIB -I../../pthreads-w32-2-8-0-release
++CFLAGS = -O3 $(INCLUDE) -DPTW32_STATIC_LIB -I../../pthreads-w32-2-8-0-release -I../../freeglut-2.4.0/include
  LD   = g++ -o
  AR   = ar rc
  RANLIB = ranlib

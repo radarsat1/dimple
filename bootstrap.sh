@@ -60,8 +60,7 @@ case $(uname) in
 
    *)
    echo Configuring $liblo_DIR
-   echo env $liblo_CONFIGFLAGS ./configure --disable-shared
-   if !(cd $liblo_DIR && env $liblo_CONFIGFLAGS ./configure --disable-shared); then
+   if !(cd $liblo_DIR && env CFLAGS="$liblo_CFLAGS" LDFLAGS="$liblo_LDFLAGS" LIBS="$liblo_LIBS" ./configure --disable-shared); then
 	  echo "Error configuring $liblo_DIR"
 	  exit
    fi
@@ -415,7 +414,7 @@ case $(uname) in
     fi
 
     # needed for liblo build to find it
-    cp $pthreads_DIR/libpthreadGC2.a $pthreads_DIR/libpthread.a
+    cp -v $pthreads_DIR/libpthreadGC2.a $pthreads_DIR/libpthread.a
     ;;
 esac
 
@@ -527,7 +526,7 @@ case $(uname) in
    cd $samplerate_DIR
    rm -vf libsamplerate.{dll,lib,so,dylib}
    mkdir src/.libs
-   ar -ruv src/libs/libsamplerate.a src/src_linear.o src/src_sinc.o \
+   ar -ruv src/.libs/libsamplerate.a src/src_linear.o src/src_sinc.o \
        src/src_zoh.o src/samplerate.o
    cd ..
    ;;
@@ -545,11 +544,14 @@ cd libdeps
 # System-dependant bootstrapping
 case $(uname) in
     MINGW32*)
-    DL="wget -O"
+    DL="curl -L -o"
     MD5=md5sum
-	MD5CUT="awk '{print\$1}'"
+	MD5CUT="cut -d\  -f1"
     freeglut_PATCH=freeglut-2.4.0-mingw.patch
-    liblo_CONFIGFLAGS="CFLAGS='-I../../pthreads-w32-2-8-0-release -include /mingw/include/ws2tcpip.h -D_WIN32_WINNT=0x0501 -Dgai_strerror\(x\)=0 -DPTW32_BUILD_INLINED -DPTW32_STATIC_LIB -DCLEANUP=__CLEANUP_C -DDLL_VER=2' LDFLAGS=-L../../pthreads-w32-2-8-0-release LIBS=-lws2_32"
+    liblo_CFLAGS="-I$PWD/pthreads-w32-2-8-0-release -include /mingw/include/ws2tcpip.h -D_WIN32_WINNT=0x0501 -DPTW32_BUILD_INLINED -DPTW32_STATIC_LIB -DCLEANUP=__CLEANUP_C -DDLL_VER=2"
+    liblo_LDFLAGS="-L$PWD/pthreads-w32-2-8-0-release"
+    liblo_LIBS="-lws2_32"
+    liblo_PATCH=liblo-0.24-mingw.patch
     chai_DIR=chai3d/cygwin #works for mingw
 	chai_PATCH=chai3d-1.61-mingw.patch
 

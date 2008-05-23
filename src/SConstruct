@@ -8,7 +8,7 @@ def getoutput(cmd):
     w.close()
     return result.strip()
 
-uname = getoutput('uname')
+uname = getoutput(['uname'])
 
 # Read environment variables & arguments
 env = Environment(ENV = os.environ)
@@ -66,10 +66,10 @@ if 'win32' in sys.platform:
 if conf.CheckHeader('/System/Library/Frameworks/OpenGL.framework/Headers/gl.h'):
     env.Append(CPPPATH=['../libdeps/chai3d/darwin/GL'],
                LINKFLAGS=['-framework','OpenGL'])
-elif conf.CheckHeader('/mingw/include/GL/gl.h'):
+elif (''.join(getoutput(['ls','/mingw/include/GL/gl.h'])).strip()
+      =='/mingw/include/GL/gl.h'
+      and conf.CheckHeader('GL/gl.h')):
     env.Append(LIBS=['opengl32', 'glu32'])
-elif conf.CheckHeader('c:/MSYS/MingW/include/GL/gl.h'):
-    env.Append(CPPPATH=['c:/MSYS/MingW/include'], LIBS=['opengl32', 'glu32'])
 elif not conf.CheckHeader('/usr/include/GL/gl.h'):
     print "Coudln't find OpenGL header (GL/gl.h)."
     sys.exit(1)
@@ -81,12 +81,13 @@ if conf.CheckHeader('/System/Library/Frameworks/GLUT.framework/Headers/glut.h'):
 else:
     if conf.CheckHeader('/mingw/include/GL/glut.h'):
         env.Append(CPPPATH=['/mingw/include'], LIBS=['glut'])
-    elif conf.CheckHeader('../libdeps/freeglut-2.4.0/include/GL/glut.h'):
+    elif conf.CheckHeader('../../libdeps/freeglut-2.4.0/include/GL/glut.h',
+                          include_quotes='""'):
         env.Append(CPPPATH=['../libdeps/freeglut-2.4.0/include'],
-                   LIBS=['glut'])
-    elif conf.CheckHeader('c:/MSYS/MingW/include/GL/glut.h'):
-        env.Append(CPPPATH=['c:/MSYS/MingW/include'],
-                   LIBS=['glut'])
+                   LIBS=['glut'],
+                   LIBPATH=['../libdeps/freeglut-2.4.0/src/.libs'])
+    elif conf.CheckHeader('GL/glut.h'):
+        env.Append(LIBS=['glut'])
     elif not conf.CheckHeader('/usr/include/GL/glut.h'):
         print "Couldn't find GLUT header (GL/glut.h)."
         sys.exit(1)
@@ -102,20 +103,6 @@ if 'MINGW' in uname:
                CPPFLAGS=['-DWIN32','-DPTW32_STATIC_LIB','-DFREEGLUT_STATIC'],
                LIBS=['opengl32','glu32','pthread','wsock32','ws2_32','winmm',
                      'gdi32'])
-
-""" Note:, this works for linking under MingW:
-
-g++ -o dimple.exe CODEMesh.o CODEPotentialProxy.o CODEPrimitive.o CODEPrism.o 
-CODESphere.o OscObject.o ValueTimer.o AudioStreamer.o dimple.o OscBase.o Simulat
-ion.o PhysicsSim.o HapticsSim.o VisualSim.o InterfaceSim.o -LC:\\Docume~1\\sincl
-airs\\MyDocu~1\\projects\\dimple\\libdeps\\libsamplerate-0.1.2\\src\\.libs -LC:\
-\Docume~1\\sinclairs\\MyDocu~1\\projects\\dimple\\libdeps\\pthreads-w32-2-8-0-re
-lease -LC:\\Docume~1\\sinclairs\\MyDocu~1\\projects\\dimple\\libdeps\\chai3d\\li
-b\\cygwin -LC:\\Docume~1\\sinclairs\\MyDocu~1\\projects\\dimple\\libdeps\\liblo-
-0.24\\src\\.libs -LC:\\Docume~1\\sinclairs\\MyDocu~1\\projects\\dimple\\libdeps\
-\ode-0.7\\ode\\src -lsamplerate -lchai3d_cygwin -llo -lode -lpthread -lglut -lop
-engl32 -lglu32 -lwsock32 -lws2_32 -lpthread -lwinmm -lgdi32
-"""
 
 nv = conf.Finish()
 
