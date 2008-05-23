@@ -105,11 +105,11 @@ public:
     
     //! Remove the association between the body and geom.
     void disconnectBody()
-        { dGeomSetBody(m_odeGeom, 0); }
+        { dGeomSetBody(m_odeGeom, 0); dBodyDisable(m_odeBody); }
     
     //! Create the association between the body and geom.
     void connectBody()
-        { dGeomSetBody(m_odeGeom, m_odeBody); }
+        { dGeomSetBody(m_odeGeom, m_odeBody); dBodyEnable(m_odeBody); }
 
 protected:
     dBodyID  m_odeBody;
