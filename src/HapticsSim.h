@@ -96,9 +96,11 @@ public:
 
 protected:
     virtual void on_position()
-      { object()->setPos(m_position); }
+        { object()->setPos(m_position);
+          object()->computeGlobalPositions(); }
     virtual void on_rotation()
-      { object()->setRot(m_rotation); }
+        { object()->setRot(m_rotation);
+          object()->computeGlobalPositions(); }
     virtual void on_color()
       { object()->m_material.m_diffuse.set(m_color.x, m_color.y, m_color.z); }
     virtual void on_size();

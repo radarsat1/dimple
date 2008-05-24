@@ -104,6 +104,7 @@ OscSphereCHAI::OscSphereCHAI(cWorld *world, const char *name, OscBase *parent)
 {
     m_pSphere = new cShapeSphere(0.01);
     world->addChild(m_pSphere);
+    m_pSphere->computeGlobalPositions();
 }
 
 OscSphereCHAI::~OscSphereCHAI()
@@ -131,6 +132,7 @@ OscPrismCHAI::OscPrismCHAI(cWorld *world, const char *name, OscBase *parent)
     m_size.set(0.01, 0.01, 0.01);
     createPrism();
     world->addChild(m_pPrism);
+    m_pPrism->computeGlobalPositions();
 }
 
 OscPrismCHAI::~OscPrismCHAI()
