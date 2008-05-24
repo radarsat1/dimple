@@ -63,6 +63,12 @@ void HapticsSim::initialize()
     else
         m_chaiCursor->start();
 
+    // rotate the cursor to match visual rotation
+    m_chaiCursor->rotate(cVector3d(0,0,1),-90.0*M_PI/180.0);
+
+    // this is necessary for the above rotation to take effect
+    m_chaiCursor->computeGlobalPositions();
+
     // initialize visual step count
     m_nVisualStepCount = 0;
 
