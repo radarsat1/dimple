@@ -2,6 +2,7 @@
 
 #include "dimple.h"
 #include "HapticsSim.h"
+#include "CODEPotentialProxy.h"
 
 bool HapticsPrismFactory::create(const char *name, float x, float y, float z)
 {
@@ -56,7 +57,16 @@ void HapticsSim::initialize()
 
     // create the cursor object
     m_chaiCursor = new cMeta3dofPointer(m_chaiWorld);
-    ((cProxyPointForceAlgo*)m_chaiCursor->m_pointForceAlgos[0])->enableDynamicProxy(true);
+    ((cProxyPointForceAlgo*)m_chaiCursor->m_pointForceAlgos[0])
+        ->enableDynamicProxy(true);
+
+    // replace the potential proxy algorithm with our own
+    cGenericPointForceAlgo *old_proxy, *new_proxy;
+    old_proxy = m_chaiCursor->m_pointForceAlgos[1];
+    new_proxy = new cODEPotentialProxy(
+        dynamic_cast<cPotentialFieldForceAlgo*>(old_proxy));
+    m_chaiCursor->m_pointForceAlgos[1] = new_proxy;
+    delete old_proxy;
 
     if (m_chaiCursor->initialize())
         printf("Could not initialize haptics.\n");
