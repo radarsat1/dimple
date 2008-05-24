@@ -55,7 +55,13 @@ void HapticsSim::initialize()
     m_chaiWorld->setBackgroundColor(0.0f,0.0f,0.0f);
 
     // create the cursor object
-    m_chaiCursor = new cMeta3dofPointer(m_chaiWorld, 0);
+    m_chaiCursor = new cMeta3dofPointer(m_chaiWorld);
+    ((cProxyPointForceAlgo*)m_chaiCursor->m_pointForceAlgos[0])->enableDynamicProxy(true);
+
+    if (m_chaiCursor->initialize())
+        printf("Could not initialize haptics.\n");
+    else
+        m_chaiCursor->start();
 
     // initialize visual step count
     m_nVisualStepCount = 0;
