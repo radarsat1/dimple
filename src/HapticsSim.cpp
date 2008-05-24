@@ -75,11 +75,19 @@ void HapticsSim::step()
 
     if (++m_nVisualStepCount >= (VISUAL_TIMESTEP_MS/HAPTICS_TIMESTEP_MS))
     {
+        /* If in contact with an object, display the cursor at the
+         * proxy location instead of the device location, so that it
+         * does not show it penetrating the object. */
+        cVector3d pos(m_chaiCursor->m_deviceGlobalPos);
+        cProxyPointForceAlgo *algo = (cProxyPointForceAlgo*)
+            m_chaiCursor->m_pointForceAlgos[0];
+        if (algo->getContactObject())
+            pos = algo->getProxyGlobalPosition();
+
         sendtotype(Simulation::ST_VISUAL, true,
                    "/world/cursor/position","fff",
-                   m_chaiCursor->m_deviceLocalPos.x,
-                   m_chaiCursor->m_deviceLocalPos.y,
-                   m_chaiCursor->m_deviceLocalPos.z);
+                   pos.x, pos.y, pos.z);
+
         m_nVisualStepCount = 0;
     }
 
