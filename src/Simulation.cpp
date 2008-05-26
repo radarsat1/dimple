@@ -421,6 +421,9 @@ void Simulation::send(bool throttle, const char *path, const char *types, ...)
          it!=m_simulationList.end();
          it++)
     {
+        if (throttle && should_throttle(path, *it))
+            continue;
+
         lo_send_message((*it).addr(), path, msg);
     }
 
@@ -440,6 +443,9 @@ void Simulation::sendtotype(int type, bool throttle, const char *path, const cha
          it!=m_simulationList.end();
          it++)
     {
+        if (throttle && should_throttle(path, *it))
+            continue;
+
         if ((*it).type() & type)
             lo_send_message((*it).addr(), path, msg);
     }
@@ -469,4 +475,21 @@ void Simulation::on_clear()
         it->second->on_destroy();
         it = world_objects.begin();
     }
+}
+
+bool Simulation::should_throttle(const char *path, SimulationInfo& sim_to)
+{
+    sent_messages_iterator it = sent_messages.find(path);
+    if (it!=sent_messages.end())
+    {
+        it->second ++;
+        if (it->second < (sim_to.timestep()/timestep()))
+            return true;
+        else
+            it->second = 0;
+    }
+    else
+        sent_messages[path] = 0;
+
+    return false;
 }

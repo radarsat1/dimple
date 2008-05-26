@@ -128,6 +128,13 @@ class Simulation : public OscBase
 
     //! Object to track values that need to be sent at regular intervals.
     ValueTimer m_valueTimer;
+
+    //! Map for collecting sent messages, for the purpose of throttling.
+    std::map<std::string, int> sent_messages;
+    typedef std::map<std::string, int>::iterator sent_messages_iterator;
+
+    //! Decide whether or not to send a message or throttle it.
+    bool should_throttle(const char *path, SimulationInfo& sim_to);
 };
 
 class ShapeFactory : public OscBase
