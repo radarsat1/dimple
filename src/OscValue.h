@@ -33,7 +33,7 @@
 #define OSCMETHOD0(t, x)                                                \
     static int x##_handler(const char *path, const char *types,         \
                            lo_arg **argv, int argc, void *data,         \
-                           void *user_data) {((t*)user_data)->on_##x();}\
+                           void *user_data) {((t*)user_data)->on_##x();return 0;}\
     virtual void on_##x()
 
 /* === End of macro definitions. */
