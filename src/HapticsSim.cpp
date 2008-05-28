@@ -110,12 +110,11 @@ void HapticsSim::step()
     findContactObject();
 
     if (m_pContactObject) {
-        float scale = ((float)HAPTICS_TIMESTEP_MS)/VISUAL_TIMESTEP_MS;
         sendtotype(Simulation::ST_PHYSICS, true,
                    (m_pContactObject->path()+"/force").c_str(), "fff",
-                   -m_lastForce.x * scale * 0.00001,
-                   -m_lastForce.y * scale * 0.00001,
-                   -m_lastForce.z * scale * 0.00001);
+                   -m_lastForce.x * 0.00001,
+                   -m_lastForce.y * 0.00001,
+                   -m_lastForce.z * 0.00001);
 
         /* TODO: the above 0.00001 scaling are just temporary
            coefficients observed to work (somewhat) with the example
