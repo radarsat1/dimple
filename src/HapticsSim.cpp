@@ -89,7 +89,7 @@ void HapticsSim::step()
 {
     m_chaiCursor->updatePose();
 
-    if (++m_nVisualStepCount >= (VISUAL_TIMESTEP_MS/HAPTICS_TIMESTEP_MS))
+    if (1 || ++m_nVisualStepCount >= (VISUAL_TIMESTEP_MS/HAPTICS_TIMESTEP_MS))
     {
         /* If in contact with an object, display the cursor at the
          * proxy location instead of the device location, so that it

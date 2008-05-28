@@ -421,8 +421,13 @@ void Simulation::send(bool throttle, const char *path, const char *types, ...)
          it!=m_simulationList.end();
          it++)
     {
+        /* TODO: throttling must take into account the destination as
+         * well as the message path. Until then it can't be used in
+         * the general case. */
+#if 0
         if (throttle && should_throttle(path, *it))
             continue;
+#endif
 
         lo_send_message((*it).addr(), path, msg);
     }
@@ -443,11 +448,13 @@ void Simulation::sendtotype(int type, bool throttle, const char *path, const cha
          it!=m_simulationList.end();
          it++)
     {
-        if (throttle && should_throttle(path, *it))
-            continue;
-
         if ((*it).type() & type)
+        {
+            if (throttle && should_throttle(path, *it))
+                continue;
+
             lo_send_message((*it).addr(), path, msg);
+        }
     }
 
     lo_message_free(msg);
