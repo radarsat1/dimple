@@ -45,8 +45,6 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     // Create handlers for OSC messages
     addHandler("destroy"    , ""   , OscObject::destroy_handler);
     addHandler("mass"       , "f"  , OscObject::mass_handler);
-    addHandler("collide/get", ""   , OscObject::collideGet_handler);
-    addHandler("collide/get", "i"  , OscObject::collideGet_handler);
     addHandler("grab"       , ""   , OscObject::grab_handler);
     addHandler("grab"       , "i"  , OscObject::grab_handler);
     addHandler("oscillate"  , "ff" , OscObject::oscillate_handler);
@@ -71,8 +69,6 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     m_friction_dynamic.setSetCallback((OscScalar::SetCallback*)setFrictionDynamic, this, DIMPLE_THREAD_HAPTICS);
     m_texture_image.setSetCallback((OscString::SetCallback*)setTextureImage, this, DIMPLE_THREAD_HAPTICS);
     m_collide.setSetCallback(set_collide, this, DIMPLE_THREAD_PHYSICS);
-
-    m_getCollide = false;
 
     // If the new object is supposed to be a part of a
     // composite object, find it and join.
@@ -261,22 +257,6 @@ int OscObject::mass_handler(const char *path, const char *types, lo_arg **argv,
 	if (hd->thread == DIMPLE_THREAD_PHYSICS)
 		 me->odePrimitive()->setDynamicMass(argv[0]->f);
     UNLOCK_WORLD();
-    return 0;
-}
-
-int OscObject::collideGet_handler(const char *path, const char *types, lo_arg **argv,
-                                  int argc, void *data, void *user_data)
-{
-	 handler_data *hd = (handler_data*)user_data;
-	 OscObject *me = (OscObject*)hd->user_data;
-
-    int interval=-1;
-    if (argc > 0) {
-        interval = argv[0]->i;
-    }
-    me->m_getCollide = (interval>0);
-    // TODO: only report one collision if multiple collisions occur within given interval
-
     return 0;
 }
 

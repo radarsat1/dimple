@@ -72,8 +72,6 @@ class OscObject : public OscBase
 	std::vector<std::string> m_constraintLinks;
     std::map<OscObject*,int> m_collisions;
 
-    bool m_getCollide;
-
     static void setVelocity(OscObject *me, const OscVector3& vel);
 
     OscScalar m_friction_static;
@@ -86,8 +84,6 @@ class OscObject : public OscBase
 
     static int mass_handler(const char *path, const char *types, lo_arg **argv,
                             int argc, void *data, void *user_data);
-    static int collideGet_handler(const char *path, const char *types, lo_arg **argv,
-                                  int argc, void *data, void *user_data);
     static int grab_handler(const char *path, const char *types, lo_arg **argv,
                             int argc, void *data, void *user_data);
     static int oscillate_handler(const char *path, const char *types, lo_arg **argv,
