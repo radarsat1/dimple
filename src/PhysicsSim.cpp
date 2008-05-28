@@ -265,6 +265,12 @@ void OscSphereODE::on_force()
     dBodyAddForce(m_odeBody, m_force.x, m_force.y, m_force.z);
 }
 
+void OscSphereODE::on_mass()
+{
+    printf("sphere mass = %f\n", m_mass.m_value);
+    dMassSetSphere(&m_odeMass, m_mass.m_value, m_radius.m_value);
+}
+
 /****** OscPrismODE ******/
 
 OscPrismODE::OscPrismODE(dWorldID odeWorld, dSpaceID odeSpace, const char *name, OscBase *parent)
@@ -318,6 +324,12 @@ void OscPrismODE::on_force()
 {
     printf("OscPrismODE::on_force(). force = %f, %f, %f\n", m_force.x, m_force.y, m_force.z);
     dBodyAddForce(m_odeBody, m_force.x, m_force.y, m_force.z);
+}
+
+void OscPrismODE::on_mass()
+{
+    dMassSetBox(&m_odeMass, m_mass.m_value,
+                m_size.x, m_size.y, m_size.z);
 }
 
 //! A hinge requires a fixed anchor point and an axis

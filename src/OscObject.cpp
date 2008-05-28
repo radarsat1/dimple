@@ -32,6 +32,7 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
       m_friction_dynamic("friction/dynamic", this),
       m_texture_image("texture/image", this),
       m_rotation("rotation", this),
+      m_mass("mass", this),
       m_collide("collide", this)
 {
     // Track pointer for ODE/Chai object
@@ -44,7 +45,6 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
 
     // Create handlers for OSC messages
     addHandler("destroy"    , ""   , OscObject::destroy_handler);
-    addHandler("mass"       , "f"  , OscObject::mass_handler);
     addHandler("grab"       , ""   , OscObject::grab_handler);
     addHandler("grab"       , "i"  , OscObject::grab_handler);
     addHandler("oscillate"  , "ff" , OscObject::oscillate_handler);
@@ -68,6 +68,7 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     m_friction_static.setSetCallback((OscScalar::SetCallback*)setFrictionStatic, this, DIMPLE_THREAD_HAPTICS);
     m_friction_dynamic.setSetCallback((OscScalar::SetCallback*)setFrictionDynamic, this, DIMPLE_THREAD_HAPTICS);
     m_texture_image.setSetCallback((OscString::SetCallback*)setTextureImage, this, DIMPLE_THREAD_HAPTICS);
+    m_mass.setSetCallback(set_mass, this, DIMPLE_THREAD_PHYSICS);
     m_collide.setSetCallback(set_collide, this, DIMPLE_THREAD_PHYSICS);
 
     // If the new object is supposed to be a part of a
@@ -243,21 +244,6 @@ void OscObject::on_destroy()
      * objects pool for later garbage collection. */
 
     return;
-}
-
-//! Set the object's mass
-int OscObject::mass_handler(const char *path, const char *types, lo_arg **argv,
-                             int argc, void *data, void *user_data)
-{
-    if (argc!=1) return 0;
-
-    LOCK_WORLD();
-	handler_data *hd = (handler_data*)user_data;
-    OscObject *me = (OscObject*)hd->user_data;
-	if (hd->thread == DIMPLE_THREAD_PHYSICS)
-		 me->odePrimitive()->setDynamicMass(argv[0]->f);
-    UNLOCK_WORLD();
-    return 0;
 }
 
 int OscObject::grab_handler(const char *path, const char *types, lo_arg **argv,

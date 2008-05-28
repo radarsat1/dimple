@@ -146,6 +146,7 @@ protected:
     virtual void on_force();
     virtual void on_position()
       { dBodySetPosition(m_odeBody, m_position.x, m_position.y, m_position.z); }
+    virtual void on_mass();
 };
 
 class OscPrismODE : public OscPrism, public ODEObject
@@ -159,6 +160,7 @@ protected:
     virtual void on_force();
     virtual void on_position()
       { dBodySetPosition(m_odeBody, m_position.x, m_position.y, m_position.z); }
+    virtual void on_mass();
 };
 
 class OscHingeODE : public OscHinge, public ODEConstraint
