@@ -5,9 +5,6 @@
 
 bool PhysicsPrismFactory::create(const char *name, float x, float y, float z)
 {
-    printf("PhysicsPrismFactory (%s) is creating a prism object called '%s'\n",
-           m_parent->c_name(), name);
-
     OscPrismODE *obj = new OscPrismODE(simulation()->odeWorld(),
                                          simulation()->odeSpace(),
                                          name, m_parent);
@@ -37,9 +34,6 @@ bool PhysicsSphereFactory::create(const char *name, float x, float y, float z)
 bool PhysicsHingeFactory::create(const char *name, OscObject *object1, OscObject *object2,
                                  double x, double y, double z, double ax, double ay, double az)
 {
-    printf("PhysicsHingeFactory (%s) is creating a hinge constraint called '%s'\n",
-           m_parent->c_name(), name);
-
     OscHinge *cons=NULL;
     cons = new OscHingeODE(simulation()->odeWorld(),
                            simulation()->odeSpace(),
@@ -52,9 +46,6 @@ bool PhysicsHingeFactory::create(const char *name, OscObject *object1, OscObject
 
 bool PhysicsFixedFactory::create(const char *name, OscObject *object1, OscObject *object2)
 {
-    printf("PhysicsFixedFactory (%s) is creating a fixed constraint called '%s'\n",
-           m_parent->c_name(), name);
-
     OscFixed *cons=NULL;
     cons = new OscFixedODE(simulation()->odeWorld(),
                            simulation()->odeSpace(),
@@ -255,19 +246,16 @@ OscSphereODE::OscSphereODE(dWorldID odeWorld, dSpaceID odeSpace, const char *nam
 
 void OscSphereODE::on_radius()
 {
-    printf("OscSphereODE::on_radius(). radius = %f\n", m_radius.m_value);
     dGeomSphereSetRadius(m_odeGeom, m_radius.m_value);
 }
 
 void OscSphereODE::on_force()
 {
-    printf("OscSphereODE::on_force(). force = %f, %f, %f\n", m_force.x, m_force.y, m_force.z);
     dBodyAddForce(m_odeBody, m_force.x, m_force.y, m_force.z);
 }
 
 void OscSphereODE::on_mass()
 {
-    printf("sphere mass = %f\n", m_mass.m_value);
     dMassSetSphere(&m_odeMass, m_mass.m_value, m_radius.m_value);
 }
 
@@ -322,7 +310,6 @@ void OscPrismODE::on_size()
 
 void OscPrismODE::on_force()
 {
-    printf("OscPrismODE::on_force(). force = %f, %f, %f\n", m_force.x, m_force.y, m_force.z);
     dBodyAddForce(m_odeBody, m_force.x, m_force.y, m_force.z);
 }
 
