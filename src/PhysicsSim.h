@@ -161,6 +161,9 @@ protected:
     virtual void on_position()
       { dBodySetPosition(m_odeBody, m_position.x, m_position.y, m_position.z); }
     virtual void on_mass();
+
+    static int push_handler(const char *path, const char *types, lo_arg **argv,
+                            int argc, void *data, void *user_data);
 };
 
 class OscHingeODE : public OscHinge, public ODEConstraint

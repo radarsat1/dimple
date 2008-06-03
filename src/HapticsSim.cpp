@@ -111,10 +111,13 @@ void HapticsSim::step()
 
     if (m_pContactObject) {
         sendtotype(Simulation::ST_PHYSICS, true,
-                   (m_pContactObject->path()+"/force").c_str(), "fff",
+                   (m_pContactObject->path()+"/push").c_str(), "ffffff",
                    -m_lastForce.x * 0.00001,
                    -m_lastForce.y * 0.00001,
-                   -m_lastForce.z * 0.00001);
+                   -m_lastForce.z * 0.00001,
+                   m_lastContactPoint.x,
+                   m_lastContactPoint.y,
+                   m_lastContactPoint.z);
 
         /* TODO: the above 0.00001 scaling are just temporary
            coefficients observed to work (somewhat) with the example

@@ -271,6 +271,8 @@ OscPrismODE::OscPrismODE(dWorldID odeWorld, dSpaceID odeSpace, const char *name,
     dGeomSetBody(m_odeGeom, m_odeBody);
     dBodySetPosition(m_odeBody, 0, 0, 0);
     dGeomSetData(m_odeGeom, static_cast<OscObject*>(this));
+
+    addHandler("push", "ffffff", OscPrismODE::push_handler);
 }
 
 void OscPrismODE::on_size()
@@ -317,6 +319,17 @@ void OscPrismODE::on_mass()
 {
     dMassSetBox(&m_odeMass, m_mass.m_value,
                 m_size.x, m_size.y, m_size.z);
+}
+
+int OscPrismODE::push_handler(const char *path, const char *types, lo_arg **argv,
+                              int argc, void *data, void *user_data)
+{
+    OscPrismODE *me = static_cast<OscPrismODE*>(user_data);
+    me->m_force.set(argv[0]->f, argv[1]->f, argv[2]->f);
+    dBodyAddForceAtPos(me->m_odeBody,
+                       argv[0]->f, argv[1]->f, argv[2]->f,
+                       argv[3]->f, argv[4]->f, argv[5]->f);
+    return 0;
 }
 
 //! A hinge requires a fixed anchor point and an axis
