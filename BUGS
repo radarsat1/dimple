@@ -1,4 +1,5 @@
 Known Bugs
 ----------
 
-1. Prisms disappear when one /size argument is 0.
+1. Crash when touched object is destroyed.
+2. High CPU usage for inter-thread messaging.
