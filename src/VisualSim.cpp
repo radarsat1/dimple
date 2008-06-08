@@ -71,8 +71,8 @@ void VisualSim::initGlutWindow()
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
     glutCreateWindow("Dimple");
     glutDisplayFunc(draw);
-    /*
     glutKeyboardFunc(key);
+    /*
     glutMouseFunc(mouse);
     glutMotionFunc(motion);
     glutReshapeFunc(rezizeWindow);
@@ -198,5 +198,17 @@ void VisualSim::on_clear()
             it->second->on_destroy();
             it = world_objects.begin();
         }
+    }
+}
+
+void VisualSim::key(unsigned char key, int x, int y)
+{
+    VisualSim* me = VisualSim::m_pGlobalContext;
+    if (key == 27)
+    {
+        me->m_bDone = true;
+#ifdef USE_FREEGLUT
+        glutLeaveMainLoop();
+#endif
     }
 }

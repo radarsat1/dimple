@@ -28,6 +28,7 @@ class VisualSim : public Simulation
     void initGlutWindow();
     static void updateDisplay(int data);
     static void draw();
+    static void key(unsigned char key, int x, int y);
 
     int m_nWidth, m_nHeight;
 
