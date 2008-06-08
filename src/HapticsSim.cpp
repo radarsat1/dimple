@@ -68,9 +68,10 @@ void HapticsSim::initialize()
     m_chaiCursor->m_pointForceAlgos[1] = new_proxy;
     delete old_proxy;
 
-    if (m_chaiCursor->initialize())
+    if (m_chaiCursor->initialize()) {
         printf("Could not initialize haptics.\n");
-    else
+        m_bDone = true;
+    } else
         m_chaiCursor->start();
 
     // rotate the cursor to match visual rotation

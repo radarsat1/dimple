@@ -263,6 +263,9 @@ void* Simulation::run(void* param)
         me->m_valueTimer.onTimer(step_ms);
     }
 
+    printf("[%s] Simulation done.\n", me->type_str());
+    me->m_bStarted = 0;
+
     return 0;
 }
 
