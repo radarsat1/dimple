@@ -43,7 +43,8 @@ bool VisualSphereFactory::create(const char *name, float x, float y, float z)
 VisualSim *VisualSim::m_pGlobalContext = 0;
 
 VisualSim::VisualSim(const char *port)
-    : Simulation(port, ST_VISUAL)
+    : Simulation(port, ST_VISUAL),
+      m_bFullScreen(false)
 {
     m_pPrismFactory = new VisualPrismFactory(this);
     m_pSphereFactory = new VisualSphereFactory(this);
@@ -72,10 +73,10 @@ void VisualSim::initGlutWindow()
     glutCreateWindow("Dimple");
     glutDisplayFunc(draw);
     glutKeyboardFunc(key);
+    glutReshapeFunc(reshape);
     /*
     glutMouseFunc(mouse);
     glutMotionFunc(motion);
-    glutReshapeFunc(rezizeWindow);
     */
 
     // create a mouse menu
@@ -204,11 +205,36 @@ void VisualSim::on_clear()
 void VisualSim::key(unsigned char key, int x, int y)
 {
     VisualSim* me = VisualSim::m_pGlobalContext;
-    if (key == 27)
+    switch (key)
     {
-        me->m_bDone = true;
+        case (27):
+        {
+            me->m_bDone = true;
 #ifdef USE_FREEGLUT
-        glutLeaveMainLoop();
+            glutLeaveMainLoop();
 #endif
+            break;
+        }
+        case ('f'):
+        {
+            if (me->m_bFullScreen) {
+                glutReshapeWindow(500, 500);
+                glutInitWindowPosition(100, 100);
+            }
+            else
+                glutFullScreen();
+            me->m_bFullScreen = !me->m_bFullScreen;
+            break;
+        }
     }
+}
+
+void VisualSim::reshape(int w, int h)
+{
+    VisualSim* me = VisualSim::m_pGlobalContext;
+
+    // update the size of the viewport
+    me->m_nWidth = w;
+    me->m_nHeight = h;
+    glViewport(0, 0, w, h);
 }

@@ -29,6 +29,7 @@ class VisualSim : public Simulation
     static void updateDisplay(int data);
     static void draw();
     static void key(unsigned char key, int x, int y);
+    static void reshape(int w, int h);
 
     int m_nWidth, m_nHeight;
 
@@ -43,6 +44,8 @@ class VisualSim : public Simulation
      ** used to point to the one and only VisualSim instance to give
      ** the callback functions context. */
     static VisualSim *m_pGlobalContext;
+
+    bool m_bFullScreen;
 };
 
 class VisualPrismFactory : public PrismFactory
