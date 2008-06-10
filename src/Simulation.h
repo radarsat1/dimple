@@ -91,6 +91,9 @@ class Simulation : public OscBase
     OSCVECTOR3(Simulation, gravity) {};
     OSCMETHOD0(Simulation, clear);
 
+    void run_unthreaded()
+      { run(this); }
+
   protected:
     pthread_t m_thread;
     bool m_bStarted;

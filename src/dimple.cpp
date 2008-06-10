@@ -1708,8 +1708,8 @@ int main(int argc, char* argv[])
      // Start all simulations
      physics.start();
      haptics.start();
-     visual.start();
      interface.start();
+     visual.run_unthreaded();
 
 #ifndef FLEXT_SYS
 	 // initially loop just waiting for messages
