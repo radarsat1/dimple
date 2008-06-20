@@ -80,10 +80,7 @@ void OscScalar::set(double value)
 
 void OscScalar::send()
 {
-    lo_send(address_send, ("/" + m_parent->name() +
-                           "/" + m_name).c_str(),
-            "f", m_value
-        );
+    lo_send(address_send, c_path(), "f", m_value);
 }
 
 int OscScalar::_handler(const char *path, const char *types, lo_arg **argv,
@@ -125,10 +122,7 @@ void OscVector3::set(double _x, double _y, double _z)
 
 void OscVector3::send()
 {
-    lo_send(address_send, ("/" + m_parent->name() +
-                           "/" + m_name).c_str(),
-            "fff", x, y, z
-        );
+    lo_send(address_send, c_path(), "fff", x, y, z);
 }
 
 void OscVector3::set_magnitude_callback(OscVector3 *me, OscScalar& s)
@@ -185,9 +179,7 @@ void OscMatrix3::set(double m00, double m01, double m02,
 
 void OscMatrix3::send()
 {
-    lo_send(address_send, ("/" + m_parent->name() +
-                           "/" + m_name).c_str(),
-            "fffffffff",
+    lo_send(address_send, c_path(), "fffffffff",
             m[0][0], m[0][1], m[0][2],
             m[1][0], m[1][1], m[1][2],
             m[2][0], m[2][1], m[2][2]
@@ -225,10 +217,7 @@ OscString::OscString(const char *name, OscBase *owner)
 
 void OscString::send()
 {
-    lo_send(address_send, ("/" + m_parent->name() +
-                           "/" + m_name).c_str(),
-            "s", c_str()
-        );
+    lo_send(address_send, c_path(), "s", c_str());
 }
 
 void OscString::set(const std::string& s)
