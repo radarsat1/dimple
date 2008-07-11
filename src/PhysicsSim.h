@@ -88,6 +88,19 @@ protected:
     bool create(const char *name, OscObject *object1, OscObject *object2);
 };
 
+class PhysicsBallJointFactory : public BallJointFactory
+{
+public:
+    PhysicsBallJointFactory(Simulation *parent) : BallJointFactory(parent) {}
+    virtual ~PhysicsBallJointFactory() {}
+
+    virtual PhysicsSim* simulation() { return static_cast<PhysicsSim*>(m_parent); }
+
+protected:
+    bool create(const char *name, OscObject *object1, OscObject *object2,
+                double x, double y, double z);
+};
+
 class ODEObject
 {
 public:
@@ -188,5 +201,13 @@ public:
 protected:
 };
 
+class OscBallJointODE : public OscBallJoint, public ODEConstraint
+{
+public:
+    OscBallJointODE(dWorldID odeWorld, dSpaceID odeSpace,
+                    const char *name, OscBase *parent,
+                    OscObject *object1, OscObject *object2,
+                    double x, double y, double z);
+};
 
 #endif // _PHYSICS_SIM_H_

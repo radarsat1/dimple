@@ -78,6 +78,27 @@ bool InterfaceFixedFactory::create(const char *name, OscObject *object1, OscObje
     return true;
 }
 
+bool InterfaceBallJointFactory::create(const char *name, OscObject *object1,
+                                       OscObject *object2, double x,
+                                       double y, double z)
+{
+    if (!object1) return false;
+
+    OscBallJoint *cons = new OscBallJointInterface(name, m_parent, object1,
+                                                   object2, x, y, z);
+    if (!(cons && simulation()->add_constraint(*cons)))
+            return false;
+
+    cons->traceOn();
+
+    simulation()->send(0, "/world/ball/create", "sssfff",
+                       name, object1->c_name(),
+                       object2?object2->c_name():"world",
+                       x, y, z);
+
+    return true;
+}
+
 /****** InterfaceSim ******/
 
 InterfaceSim::InterfaceSim(const char *port)
@@ -87,6 +108,7 @@ InterfaceSim::InterfaceSim(const char *port)
     m_pSphereFactory = new InterfaceSphereFactory(this);
     m_pHingeFactory = new InterfaceHingeFactory(this);
     m_pFixedFactory = new InterfaceFixedFactory(this);
+    m_pBallJointFactory = new InterfaceBallJointFactory(this);
 
     m_fTimestep = 1;
 }

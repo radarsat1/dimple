@@ -204,7 +204,8 @@ public:
 class OscBallJoint : public OscConstraint
 {
 public:
-    OscBallJoint(const char *name, OscObject *object1, OscObject *object2,
+    OscBallJoint(const char *name, OscBase *parent,
+                 OscObject *object1, OscObject *object2,
                  double x, double y, double z);
 };
 

@@ -577,16 +577,11 @@ int OscConstraint::responsePluck_handler(const char *path, const char *types, lo
 // ----------------------------------------------------------------------------------
 
 //! A ball joint requires a single fixed anchor point
-OscBallJoint::OscBallJoint(const char *name, OscObject *object1, OscObject *object2,
+OscBallJoint::OscBallJoint(const char *name, OscBase *parent,
+                           OscObject *object1, OscObject *object2,
                            double x, double y, double z)
-    : OscConstraint(name, NULL, object1, object2)
+    : OscConstraint(name, parent, object1, object2)
 {
-	// create the constraint for object1
-    cVector3d anchor(x,y,z);
-    object1->odePrimitive()->ballLink(name, object2?object2->odePrimitive():NULL, anchor);
-
-    printf("Ball link created between %s and %s at (%f,%f,%f)\n",
-		   object1->c_name(), object2?object2->c_name():"world", x,y,z);
 }
 
 // ----------------------------------------------------------------------------------

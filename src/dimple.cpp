@@ -1226,7 +1226,7 @@ int constraintBallCreate_handler(const char *path, const char *types, lo_arg **a
     WAIT_WORLD_LOCK();
     LOCK_WORLD();
     OscBallJoint *cons=NULL;
-    cons = new OscBallJoint(&argv[0]->s, ob1, ob2, argv[3]->f, argv[4]->f, argv[5]->f);
+    cons = new OscBallJoint(&argv[0]->s, NULL, ob1, ob2, argv[3]->f, argv[4]->f, argv[5]->f);
     world_constraints[&argv[0]->s] = cons;
     UNLOCK_WORLD();
 

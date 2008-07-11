@@ -55,6 +55,20 @@ bool PhysicsFixedFactory::create(const char *name, OscObject *object1, OscObject
         return simulation()->add_constraint(*cons);
 }
 
+bool PhysicsBallJointFactory::create(const char *name, OscObject *object1,
+                                     OscObject *object2, double x, double y,
+                                     double z)
+{
+    OscBallJoint *cons=NULL;
+    cons = new OscBallJointODE(simulation()->odeWorld(),
+                               simulation()->odeSpace(),
+                               name, m_parent, object1, object2,
+                               x, y, z);
+
+    if (cons)
+        return simulation()->add_constraint(*cons);
+}
+
 /****** PhysicsSim ******/
 
 const int PhysicsSim::MAX_CONTACTS = 30;
@@ -66,6 +80,7 @@ PhysicsSim::PhysicsSim(const char *port)
     m_pSphereFactory = new PhysicsSphereFactory(this);
     m_pHingeFactory = new PhysicsHingeFactory(this);
     m_pFixedFactory = new PhysicsFixedFactory(this);
+    m_pBallJointFactory = new PhysicsBallJointFactory(this);
 
     m_fTimestep = PHYSICS_TIMESTEP_MS/1000.0;
     m_counter = 0;
@@ -388,4 +403,22 @@ OscFixedODE::OscFixedODE(dWorldID odeWorld, dSpaceID odeSpace,
     printf("[%s] Fixed joint created between %s and %s.\n",
            simulation()->type_str(),
         object1->c_name(), object2?object2->c_name():"world");
+}
+
+
+OscBallJointODE::OscBallJointODE(dWorldID odeWorld, dSpaceID odeSpace,
+                                 const char *name, OscBase *parent,
+                                 OscObject *object1, OscObject *object2,
+                                 double x, double y, double z)
+    : OscBallJoint(name, parent, object1, object2, x, y, z),
+      ODEConstraint(odeWorld, odeSpace, object1, object2)
+{
+    m_odeJoint = dJointCreateBall(m_odeWorld,0);
+    dJointAttach(m_odeJoint, m_odeBody1, m_odeBody2);
+    dJointSetBallAnchor(m_odeJoint, x, y, z);
+
+    printf("[%s] Ball joint created between %s and %s at (%f,%f,%f)\n",
+           simulation()->type_str(),
+           object1->c_name(), object2?object2->c_name():"world",
+           x, y, z);
 }
