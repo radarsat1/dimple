@@ -119,8 +119,13 @@ int HingeFactory::create_handler(const char *path, const char *types, lo_arg **a
     }
 
     // At least one object must exist
-    if (!object1)
+    if (!object1) {
+        printf("[%s] Error creating hinge constraint '%s', "
+               "object '%s' not found.\n",
+               me->simulation()->type_str(), &argv[0]->s,
+               &argv[1]->s);
         return -1;
+    }
 
     // The objects cannot be the same.
     if (object1==object2)
@@ -165,8 +170,13 @@ int FixedFactory::create_handler(const char *path, const char *types, lo_arg **a
     }
 
     // At least one object must exist
-    if (!object1)
+    if (!object1) {
+        printf("[%s] Error creating fixed constraint '%s', "
+               "object '%s' not found.\n",
+               me->simulation()->type_str(), &argv[0]->s,
+               &argv[1]->s);
         return -1;
+    }
 
     // The objects cannot be the same.
     if (object1==object2)
@@ -209,8 +219,13 @@ int BallJointFactory::create_handler(const char *path, const char *types, lo_arg
     }
 
     // At least one object must exist
-    if (!object1)
+    if (!object1) {
+        printf("[%s] Error creating ball constraint '%s', "
+               "object '%s' not found.\n",
+               me->simulation()->type_str(), &argv[0]->s,
+               &argv[1]->s);
         return -1;
+    }
 
     // The objects cannot be the same.
     if (object1==object2)
