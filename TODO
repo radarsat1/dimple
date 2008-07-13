@@ -5,9 +5,15 @@ v0.1:
 
 * Finish internal_osc branch, get back basic functionality with new
   class structure.  Includes:
-  - Parameter request timer
-  - Determine collision force
-  - Real-time object information
+  - Full set of joint types:
+     . Slider
+     . Universal
+     . Hinge-2
+     . Prismatic and Rotoide
+     . Prismatic - Universal
+     . Piston
+     . Plane 2D
+  - Spring responses for all joints
 
 v0.2:
 
