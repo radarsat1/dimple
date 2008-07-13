@@ -114,6 +114,20 @@ protected:
                 double ax, double ay, double az);
 };
 
+class PhysicsUniversalFactory : public UniversalFactory
+{
+public:
+    PhysicsUniversalFactory(Simulation *parent) : UniversalFactory(parent) {}
+    virtual ~PhysicsUniversalFactory() {}
+
+    virtual PhysicsSim* simulation() { return static_cast<PhysicsSim*>(m_parent); }
+
+protected:
+    bool create(const char *name, OscObject *object1, OscObject *object2,
+                double x, double y, double z, double a1x, double a1y,
+                double a1z, double a2x, double a2y, double a2z);
+};
+
 class ODEObject
 {
 public:
@@ -230,6 +244,17 @@ public:
                 const char *name, OscBase *parent,
                 OscObject *object1, OscObject *object2,
                 double ax, double ay, double az);
+};
+
+class OscUniversalODE : public OscUniversal, public ODEConstraint
+{
+public:
+    OscUniversalODE(dWorldID odeWorld, dSpaceID odeSpace,
+                    const char *name, OscBase *parent,
+                    OscObject *object1, OscObject *object2,
+                    double x, double y, double z,
+                    double a1x, double a1y, double a1z,
+                    double a2x, double a2y, double a2z);
 };
 
 #endif // _PHYSICS_SIM_H_

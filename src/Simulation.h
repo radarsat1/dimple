@@ -13,6 +13,7 @@ class HingeFactory;
 class FixedFactory;
 class BallJointFactory;
 class SlideFactory;
+class UniversalFactory;
 
 class OscObject;
 class OscConstraint;
@@ -109,6 +110,7 @@ class Simulation : public OscBase
     FixedFactory *m_pFixedFactory;
     BallJointFactory *m_pBallJointFactory;
     SlideFactory *m_pSlideFactory;
+    UniversalFactory *m_pUniversalFactory;
 
     //! Function for simulation thread (thread context).
     static void* run(void* param);
@@ -247,6 +249,24 @@ protected:
     // override these functions with a specific factory subclass
     virtual bool create(const char *name, OscObject *object1, OscObject *object2,
                         double ax, double ay, double az) = 0;
+};
+
+class UniversalFactory : public ShapeFactory
+{
+public:
+    UniversalFactory(Simulation *parent);
+    virtual ~UniversalFactory();
+
+protected:
+    // message handlers
+    static int create_handler(const char *path, const char *types, lo_arg **argv,
+                              int argc, void *data, void *user_data);
+
+    // override these functions with a specific factory subclass
+    virtual bool create(const char *name, OscObject *object1, OscObject *object2,
+                        double x, double y, double z,
+                        double a1x, double a1y, double a1z,
+                        double a2x, double a2y, double a2z) = 0;
 };
 
 #endif // _SIMULATION_H_

@@ -83,6 +83,22 @@ bool PhysicsSlideFactory::create(const char *name, OscObject *object1,
         return simulation()->add_constraint(*cons);
 }
 
+bool PhysicsUniversalFactory::create(const char *name, OscObject *object1,
+                                     OscObject *object2, double x,
+                                     double y, double z, double a1x,
+                                     double a1y, double a1z, double a2x,
+                                     double a2y, double a2z)
+{
+    OscUniversal *cons=NULL;
+    cons = new OscUniversalODE(simulation()->odeWorld(),
+                               simulation()->odeSpace(),
+                               name, m_parent, object1, object2,
+                               x, y, z, a1x, a1y, a1z, a2x, a2y, a2z);
+
+    if (cons)
+        return simulation()->add_constraint(*cons);
+}
+
 /****** PhysicsSim ******/
 
 const int PhysicsSim::MAX_CONTACTS = 30;
@@ -96,6 +112,7 @@ PhysicsSim::PhysicsSim(const char *port)
     m_pFixedFactory = new PhysicsFixedFactory(this);
     m_pBallJointFactory = new PhysicsBallJointFactory(this);
     m_pSlideFactory = new PhysicsSlideFactory(this);
+    m_pUniversalFactory = new PhysicsUniversalFactory(this);
 
     m_fTimestep = PHYSICS_TIMESTEP_MS/1000.0;
     m_counter = 0;
@@ -454,4 +471,26 @@ OscSlideODE::OscSlideODE(dWorldID odeWorld, dSpaceID odeSpace,
            simulation()->type_str(),
            object1->c_name(), object2?object2->c_name():"world",
            ax, ay, az);
+}
+
+OscUniversalODE::OscUniversalODE(dWorldID odeWorld, dSpaceID odeSpace,
+                                 const char *name, OscBase *parent,
+                                 OscObject *object1, OscObject *object2,
+                                 double x, double y, double z, double a1x,
+                                 double a1y, double a1z, double a2x,
+                                 double a2y, double a2z)
+    : OscUniversal(name, parent, object1, object2, x, y, z,
+                   a1x, a1y, a1z, a2x, a2y, a2z),
+      ODEConstraint(odeWorld, odeSpace, object1, object2)
+{
+    m_odeJoint = dJointCreateUniversal(m_odeWorld,0);
+    dJointAttach(m_odeJoint, m_odeBody1, m_odeBody2);
+    dJointSetUniversalAnchor(m_odeJoint, x, y, z);
+    dJointSetUniversalAxis1(m_odeJoint, a1x, a1y, a1z);
+    dJointSetUniversalAxis2(m_odeJoint, a2x, a2y, a2z);
+
+    printf("[%s] Universal joint created between %s and %s at (%f, %f, %f) for axes (%f, %f, %f) and (%f,%f,%f)\n",
+           simulation()->type_str(),
+           object1->c_name(), object2?object2->c_name():"world",
+           x, y, z, a1x, a1y, a1z, a2x, a2y, a2z);
 }

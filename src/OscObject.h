@@ -235,10 +235,11 @@ public:
 class OscUniversal : public OscConstraint
 {
 public:
-    OscUniversal(const char *name, OscObject *object1, OscObject *object2,
+    OscUniversal(const char *name, OscBase *parent,
+                 OscObject *object1, OscObject *object2,
                  double x, double y, double z,
-                 double ax, double ay, double az,
-                 double bx, double by, double bz);
+                 double a1x, double a1y, double a1z,
+                 double a2x, double a2y, double a2z);
 
     virtual void simulationCallback();
 };

@@ -294,6 +294,68 @@ int SlideFactory::create_handler(const char *path, const char *types, lo_arg **a
     return 0;
 }
 
+UniversalFactory::UniversalFactory(Simulation *parent)
+    : ShapeFactory("universal", parent)
+{
+    // Name, object1, object2, x, y, z, a1x, a1y, a1z, a2x, a2y, a2z
+    addHandler("create", "sssfffffffff", create_handler);
+}
+
+UniversalFactory::~UniversalFactory()
+{
+}
+
+int UniversalFactory::create_handler(const char *path, const char *types, lo_arg **argv,
+                                  int argc, void *data, void *user_data)
+{
+    UniversalFactory *me = static_cast<UniversalFactory*>(user_data);
+    OscObject *object1=0, *object2=0;
+
+    printf("here.0\n");
+
+    if (argc != 12) return -1;
+
+    if (strcmp(&argv[1]->s, "world")!=0)
+        object1 = me->simulation()->find_object(&argv[1]->s);
+    if (strcmp(&argv[2]->s, "world")!=0)
+        object2 = me->simulation()->find_object(&argv[2]->s);
+
+    // Swap objects if one is world
+    if (object2 && !object1) {
+        object1 = object2;
+        object2 = 0;
+    }
+
+    // At least one object must exist
+    if (!object1) {
+        printf("[%s] Error creating universal constraint '%s', "
+               "object '%s' not found.\n",
+               me->simulation()->type_str(), &argv[0]->s,
+               &argv[1]->s);
+        return -1;
+    }
+
+    // The objects cannot be the same.
+    if (object1==object2)
+        return -1;
+
+    double x   = argv[3]->f;
+    double y   = argv[4]->f;
+    double z   = argv[5]->f;
+    double a1x = argv[6]->f;
+    double a1y = argv[7]->f;
+    double a1z = argv[8]->f;
+    double a2x = argv[9]->f;
+    double a2y = argv[10]->f;
+    double a2z = argv[11]->f;
+
+    if (!me->create(&argv[0]->s, object1, object2,
+                    x, y, z, a1x, a1y, a1z, a2x, a2y, a2z))
+        printf("[%s] Error creating universal constraint '%s'.\n",
+               me->simulation()->type_str(), &argv[0]->s);
+    return 0;
+}
+
 /****** Simulation *******/
 
 Simulation::Simulation(const char *port, int type)

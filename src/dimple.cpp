@@ -1361,7 +1361,7 @@ int constraintUniversalCreate_handler(const char *path, const char *types, lo_ar
     WAIT_WORLD_LOCK();
     LOCK_WORLD();
     OscUniversal *cons=NULL;
-    cons = new OscUniversal(&argv[0]->s, ob1, ob2,
+    cons = new OscUniversal(&argv[0]->s, NULL, ob1, ob2,
                             argv[3]->f, argv[ 4]->f, argv[ 5]->f,
                             argv[6]->f, argv[ 7]->f, argv[ 8]->f,
                             argv[9]->f, argv[10]->f, argv[11]->f);

@@ -136,6 +136,21 @@ protected:
                 double ax, double ay, double az);
 };
 
+class InterfaceUniversalFactory : public UniversalFactory
+{
+public:
+    InterfaceUniversalFactory(Simulation *parent) : UniversalFactory(parent) {}
+    virtual ~InterfaceUniversalFactory() {}
+
+    virtual InterfaceSim* simulation() { return static_cast<InterfaceSim*>(m_parent); }
+
+protected:
+    bool create(const char *name, OscObject *object1, OscObject *object2,
+                double x,   double y,   double z,
+                double a1x, double a1y, double a1z,
+                double a2x, double a2y, double a2z);
+};
+
 class OscSphereInterface : public OscSphere
 {
 public:
@@ -264,6 +279,27 @@ public:
     virtual void on_destroy() {
         simulation()->send(0, (path()+"/destroy").c_str(), "");
         OscSlide::on_destroy();
+    }
+
+protected:
+};
+
+class OscUniversalInterface : public OscUniversal
+{
+public:
+    OscUniversalInterface(const char *name, OscBase *parent,
+                          OscObject *object1, OscObject *object2,
+                          double x,   double y,   double z,
+                          double a1x, double a1y, double a1z,
+                          double a2x, double a2y, double a2z)
+        : OscUniversal(name, parent, object1, object2, x, y, z,
+                       a1x, a1y, a1z, a2x, a2y, a2z) {}
+
+    virtual ~OscUniversalInterface() {}
+
+    virtual void on_destroy() {
+        simulation()->send(0, (path()+"/destroy").c_str(), "");
+        OscUniversal::on_destroy();
     }
 
 protected:

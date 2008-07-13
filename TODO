@@ -6,7 +6,6 @@ v0.1:
 * Finish internal_osc branch, get back basic functionality with new
   class structure.  Includes:
   - Full set of joint types:
-     . Universal
      . Hinge-2
      . Prismatic and Rotoide
      . Prismatic - Universal

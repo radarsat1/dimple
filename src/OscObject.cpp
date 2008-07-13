@@ -647,20 +647,13 @@ void OscHinge2::simulationCallback()
 // ----------------------------------------------------------------------------------
 
 //! A hinge requires a fixed anchor point and an axis
-OscUniversal::OscUniversal(const char *name, OscObject *object1, OscObject *object2,
-                           double x, double y, double z,
-                           double ax, double ay, double az,
-                           double bx, double by, double bz)
-    : OscConstraint(name, NULL, object1, object2)
+OscUniversal::OscUniversal(const char *name, OscBase *parent,
+                           OscObject *object1, OscObject *object2,
+                           double x,   double y,   double z,
+                           double a1x, double a1y, double a1z,
+                           double a2x, double a2y, double a2z)
+    : OscConstraint(name, parent, object1, object2)
 {
-	// create the constraint for object1
-    cVector3d anchor(x,y,z);
-    cVector3d axis1(ax,ay,az);
-    cVector3d axis2(bx,by,bz);
-    object1->odePrimitive()->universalLink(name, object2?object2->odePrimitive():NULL, anchor, axis1, axis2);
-
-    printf("Universal joint created between %s and %s at anchor (%f,%f,%f), axis1 (%f,%f,%f), axis2 (%f,%f,%f)\n",
-        object1->c_name(), object2?object2->c_name():"world", x,y,z,ax,ay,az,bx,by,bz);
 }
 
 //! This function is called once per simulation step, allowing the

@@ -120,6 +120,31 @@ bool InterfaceSlideFactory::create(const char *name, OscObject *object1,
     return true;
 }
 
+bool InterfaceUniversalFactory::create(const char *name, OscObject *object1,
+                                       OscObject *object2, double x,
+                                       double y, double z, double a1x,
+                                       double a1y, double a1z, double a2x,
+                                       double a2y, double a2z)
+{
+    if (!object1) return false;
+
+    OscUniversal *cons = new OscUniversalInterface(name, m_parent, object1,
+                                                   object2, x, y, z,
+                                                   a1x, a1y, a1z,
+                                                   a2x, a2y, a2z);
+    if (!(cons && simulation()->add_constraint(*cons)))
+            return false;
+
+    cons->traceOn();
+
+    simulation()->send(0, "/world/universal/create", "sssfffffffff",
+                       name, object1->c_name(),
+                       object2?object2->c_name():"world",
+                       x, y, z, a1x, a1y, a1z, a2x, a2y, a2z);
+
+    return true;
+}
+
 /****** InterfaceSim ******/
 
 InterfaceSim::InterfaceSim(const char *port)
@@ -131,6 +156,7 @@ InterfaceSim::InterfaceSim(const char *port)
     m_pFixedFactory = new InterfaceFixedFactory(this);
     m_pBallJointFactory = new InterfaceBallJointFactory(this);
     m_pSlideFactory = new InterfaceSlideFactory(this);
+    m_pUniversalFactory = new InterfaceUniversalFactory(this);
 
     m_fTimestep = 1;
 }
