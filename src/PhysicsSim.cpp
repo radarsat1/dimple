@@ -69,6 +69,20 @@ bool PhysicsBallJointFactory::create(const char *name, OscObject *object1,
         return simulation()->add_constraint(*cons);
 }
 
+bool PhysicsSlideFactory::create(const char *name, OscObject *object1,
+                                 OscObject *object2, double ax,
+                                 double ay, double az)
+{
+    OscSlide *cons=NULL;
+    cons = new OscSlideODE(simulation()->odeWorld(),
+                           simulation()->odeSpace(),
+                           name, m_parent, object1, object2,
+                           ax, ay, az);
+
+    if (cons)
+        return simulation()->add_constraint(*cons);
+}
+
 /****** PhysicsSim ******/
 
 const int PhysicsSim::MAX_CONTACTS = 30;
@@ -81,6 +95,7 @@ PhysicsSim::PhysicsSim(const char *port)
     m_pHingeFactory = new PhysicsHingeFactory(this);
     m_pFixedFactory = new PhysicsFixedFactory(this);
     m_pBallJointFactory = new PhysicsBallJointFactory(this);
+    m_pSlideFactory = new PhysicsSlideFactory(this);
 
     m_fTimestep = PHYSICS_TIMESTEP_MS/1000.0;
     m_counter = 0;
@@ -421,4 +436,22 @@ OscBallJointODE::OscBallJointODE(dWorldID odeWorld, dSpaceID odeSpace,
            simulation()->type_str(),
            object1->c_name(), object2?object2->c_name():"world",
            x, y, z);
+}
+
+OscSlideODE::OscSlideODE(dWorldID odeWorld, dSpaceID odeSpace,
+                         const char *name, OscBase *parent,
+                         OscObject *object1, OscObject *object2,
+                         double ax, double ay, double az)
+    : OscSlide(name, parent, object1, object2, ax, ay, az),
+      ODEConstraint(odeWorld, odeSpace, object1, object2)
+{
+    m_odeJoint = dJointCreateSlider(m_odeWorld,0);
+    dJointAttach(m_odeJoint, m_odeBody1, m_odeBody2);
+    dJointSetSliderAxis(m_odeJoint, ax, ay, az);
+    /* TODO access to dJointGetSliderPosition */
+
+    printf("[%s] Sliding joint created between %s and %s on axis (%f,%f,%f)\n",
+           simulation()->type_str(),
+           object1->c_name(), object2?object2->c_name():"world",
+           ax, ay, az);
 }

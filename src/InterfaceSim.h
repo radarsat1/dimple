@@ -123,6 +123,19 @@ protected:
                 double x, double y, double z);
 };
 
+class InterfaceSlideFactory : public SlideFactory
+{
+public:
+    InterfaceSlideFactory(Simulation *parent) : SlideFactory(parent) {}
+    virtual ~InterfaceSlideFactory() {}
+
+    virtual InterfaceSim* simulation() { return static_cast<InterfaceSim*>(m_parent); }
+
+protected:
+    bool create(const char *name, OscObject *object1, OscObject *object2,
+                double ax, double ay, double az);
+};
+
 class OscSphereInterface : public OscSphere
 {
 public:
@@ -233,6 +246,24 @@ public:
     virtual void on_destroy() {
         simulation()->send(0, (path()+"/destroy").c_str(), "");
         OscBallJoint::on_destroy();
+    }
+
+protected:
+};
+
+class OscSlideInterface : public OscSlide
+{
+public:
+    OscSlideInterface(const char *name, OscBase *parent,
+                          OscObject *object1, OscObject *object2,
+                          double ax, double ay, double az)
+        : OscSlide(name, parent, object1, object2, ax, ay, az) {}
+
+    virtual ~OscSlideInterface() {}
+
+    virtual void on_destroy() {
+        simulation()->send(0, (path()+"/destroy").c_str(), "");
+        OscSlide::on_destroy();
     }
 
 protected:

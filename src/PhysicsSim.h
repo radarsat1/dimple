@@ -101,6 +101,19 @@ protected:
                 double x, double y, double z);
 };
 
+class PhysicsSlideFactory : public SlideFactory
+{
+public:
+    PhysicsSlideFactory(Simulation *parent) : SlideFactory(parent) {}
+    virtual ~PhysicsSlideFactory() {}
+
+    virtual PhysicsSim* simulation() { return static_cast<PhysicsSim*>(m_parent); }
+
+protected:
+    bool create(const char *name, OscObject *object1, OscObject *object2,
+                double ax, double ay, double az);
+};
+
 class ODEObject
 {
 public:
@@ -208,6 +221,15 @@ public:
                     const char *name, OscBase *parent,
                     OscObject *object1, OscObject *object2,
                     double x, double y, double z);
+};
+
+class OscSlideODE : public OscSlide, public ODEConstraint
+{
+public:
+    OscSlideODE(dWorldID odeWorld, dSpaceID odeSpace,
+                const char *name, OscBase *parent,
+                OscObject *object1, OscObject *object2,
+                double ax, double ay, double az);
 };
 
 #endif // _PHYSICS_SIM_H_

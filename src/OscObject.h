@@ -250,5 +250,14 @@ public:
         : OscConstraint(name, parent, object1, object2) {}
 };
 
+class OscSlide : public OscConstraint
+{
+public:
+    OscSlide(const char *name, OscBase *parent,
+             OscObject *object1, OscObject *object2,
+             double ax, double ay, double az)
+        : OscConstraint(name, parent, object1, object2) {}
+};
+
 #endif // _OSC_OBJECT_H_
 
