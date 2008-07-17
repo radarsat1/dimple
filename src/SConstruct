@@ -45,7 +45,7 @@ env.Append(CPPDEFINES = ['_POSIX', 'LINUX', '_LINUX',
                          ('_MAX_PATH','260')])                  
 # Platform dependant library names
 if 'linux' in sys.platform:
-	env.Append(LIBS = ['chai3d_linux', 'dhd', 'usb', 'pciscan'],
+	env.Append(LIBS = ['chai3d_linux'],
                LIBPATH = ['../libdeps/chai3d/lib/linux'])
 elif 'darwin' in sys.platform:
 	env.Append(LIBS = ['chai3d_darwin'],
