@@ -87,13 +87,12 @@ void VisualSim::initGlutWindow()
     glutAttachMenu(GLUT_RIGHT_BUTTON);
     */
 
-    glutTimerFunc(VISUAL_TIMESTEP_MS, updateDisplay, (int)this);
+    glutTimerFunc(VISUAL_TIMESTEP_MS, updateDisplay, 0);
 }
 
 void VisualSim::updateDisplay(int data)
 {
-    VisualSim *me = (VisualSim*)data;
-    VisualSim::m_pGlobalContext = me;
+    VisualSim *me = VisualSim::m_pGlobalContext;
 
     while (lo_server_recv_noblock(me->m_server, 0)) {}
     if (me->m_bDone) {}  // TODO
@@ -101,7 +100,7 @@ void VisualSim::updateDisplay(int data)
     glutPostRedisplay();
 
     // update again in a few ms
-    glutTimerFunc(VISUAL_TIMESTEP_MS, updateDisplay, (int)me);
+    glutTimerFunc(VISUAL_TIMESTEP_MS, updateDisplay, 0);
 }
 
 void VisualSim::initialize()
