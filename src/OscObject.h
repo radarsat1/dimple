@@ -224,10 +224,11 @@ protected:
 class OscHinge2 : public OscConstraint
 {
 public:
-    OscHinge2(const char *name, OscObject *object1, OscObject *object2,
+    OscHinge2(const char *name, OscBase *parent,
+              OscObject *object1, OscObject *object2,
               double x, double y, double z,
-              double ax, double ay, double az,
-              double bx, double by, double bz);
+              double a1x, double a2y, double a3z,
+              double a2x, double a2y, double a3z);
 
     virtual void simulationCallback();
 };

@@ -44,6 +44,22 @@ bool PhysicsHingeFactory::create(const char *name, OscObject *object1, OscObject
         return simulation()->add_constraint(*cons);
 }
 
+bool PhysicsHinge2Factory::create(const char *name, OscObject *object1,
+                                  OscObject *object2, double x,
+                                  double y, double z, double a1x,
+                                  double a1y, double a1z, double a2x,
+                                  double a2y, double a2z)
+{
+    OscHinge2 *cons=NULL;
+    cons = new OscHinge2ODE(simulation()->odeWorld(),
+                            simulation()->odeSpace(),
+                            name, m_parent, object1, object2,
+                            x, y, z, a1x, a1y, a1z, a2x, a2y, a2z);
+
+    if (cons)
+        return simulation()->add_constraint(*cons);
+}
+
 bool PhysicsFixedFactory::create(const char *name, OscObject *object1, OscObject *object2)
 {
     OscFixed *cons=NULL;
@@ -109,6 +125,7 @@ PhysicsSim::PhysicsSim(const char *port)
     m_pPrismFactory = new PhysicsPrismFactory(this);
     m_pSphereFactory = new PhysicsSphereFactory(this);
     m_pHingeFactory = new PhysicsHingeFactory(this);
+    m_pHinge2Factory = new PhysicsHinge2Factory(this);
     m_pFixedFactory = new PhysicsFixedFactory(this);
     m_pBallJointFactory = new PhysicsBallJointFactory(this);
     m_pSlideFactory = new PhysicsSlideFactory(this);
@@ -413,6 +430,28 @@ void OscHingeODE::simulationCallback()
     dReal rate = dJointGetHingeAngleRate(*id);
     m_torque.set(-m_stiffness*angle - m_damping*rate);
     dJointAddHingeTorque(*id, m_torque.m_value);
+}
+
+OscHinge2ODE::OscHinge2ODE(dWorldID odeWorld, dSpaceID odeSpace,
+                           const char *name, OscBase *parent,
+                           OscObject *object1, OscObject *object2,
+                           double x, double y, double z, double a1x,
+                           double a1y, double a1z, double a2x,
+                           double a2y, double a2z)
+    : OscHinge2(name, parent, object1, object2, x, y, z,
+                a1x, a1y, a1z, a2x, a2y, a2z),
+      ODEConstraint(odeWorld, odeSpace, object1, object2)
+{
+    m_odeJoint = dJointCreateHinge2(m_odeWorld,0);
+    dJointAttach(m_odeJoint, m_odeBody1, m_odeBody2);
+    dJointSetHinge2Anchor(m_odeJoint, x, y, z);
+    dJointSetHinge2Axis1(m_odeJoint, a1x, a1y, a1z);
+    dJointSetHinge2Axis2(m_odeJoint, a2x, a2y, a2z);
+
+    printf("[%s] Hinge2 joint created between %s and %s at (%f, %f, %f) for axes (%f, %f, %f) and (%f,%f,%f)\n",
+           simulation()->type_str(),
+           object1->c_name(), object2?object2->c_name():"world",
+           x, y, z, a1x, a1y, a1z, a2x, a2y, a2z);
 }
 
 OscFixedODE::OscFixedODE(dWorldID odeWorld, dSpaceID odeSpace,

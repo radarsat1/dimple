@@ -98,6 +98,21 @@ protected:
                 double x, double y, double z, double ax, double ay, double az);
 };
 
+class InterfaceHinge2Factory : public Hinge2Factory
+{
+public:
+    InterfaceHinge2Factory(Simulation *parent) : Hinge2Factory(parent) {}
+    virtual ~InterfaceHinge2Factory() {}
+
+    virtual InterfaceSim* simulation() { return static_cast<InterfaceSim*>(m_parent); }
+
+protected:
+    bool create(const char *name, OscObject *object1, OscObject *object2,
+                double x,   double y,   double z,
+                double a1x, double a1y, double a1z,
+                double a2x, double a2y, double a2z);
+};
+
 class InterfaceFixedFactory : public FixedFactory
 {
 public:
@@ -226,6 +241,27 @@ public:
     virtual void on_destroy() {
         simulation()->send(0, (path()+"/destroy").c_str(), "");
         OscHinge::on_destroy();
+    }
+
+protected:
+};
+
+class OscHinge2Interface : public OscHinge2
+{
+public:
+    OscHinge2Interface(const char *name, OscBase *parent,
+                       OscObject *object1, OscObject *object2,
+                       double x,   double y,   double z,
+                       double a1x, double a1y, double a1z,
+                       double a2x, double a2y, double a2z)
+        : OscHinge2(name, parent, object1, object2, x, y, z,
+                    a1x, a1y, a1z, a2x, a2y, a2z) {}
+
+    virtual ~OscHinge2Interface() {}
+
+    virtual void on_destroy() {
+        simulation()->send(0, (path()+"/destroy").c_str(), "");
+        OscHinge2::on_destroy();
     }
 
 protected:

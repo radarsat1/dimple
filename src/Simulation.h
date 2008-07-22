@@ -10,6 +10,7 @@
 class SphereFactory;
 class PrismFactory;
 class HingeFactory;
+class Hinge2Factory;
 class FixedFactory;
 class BallJointFactory;
 class SlideFactory;
@@ -107,6 +108,7 @@ class Simulation : public OscBase
     PrismFactory *m_pPrismFactory;
     SphereFactory *m_pSphereFactory;
     HingeFactory *m_pHingeFactory;
+    Hinge2Factory *m_pHinge2Factory;
     FixedFactory *m_pFixedFactory;
     BallJointFactory *m_pBallJointFactory;
     SlideFactory *m_pSlideFactory;
@@ -202,6 +204,24 @@ protected:
     // override these functions with a specific factory subclass
     virtual bool create(const char *name, OscObject *object1, OscObject *object2,
                         double x, double y, double z, double ax, double ay, double az) = 0;
+};
+
+class Hinge2Factory : public ShapeFactory
+{
+public:
+    Hinge2Factory(Simulation *parent);
+    virtual ~Hinge2Factory();
+
+protected:
+    // message handlers
+    static int create_handler(const char *path, const char *types, lo_arg **argv,
+                              int argc, void *data, void *user_data);
+
+    // override these functions with a specific factory subclass
+    virtual bool create(const char *name, OscObject *object1, OscObject *object2,
+                        double x, double y, double z,
+                        double a1x, double a1y, double a1z,
+                        double a2x, double a2y, double a2z) = 0;
 };
 
 class FixedFactory : public ShapeFactory

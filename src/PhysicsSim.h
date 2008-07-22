@@ -76,6 +76,20 @@ protected:
                 double x, double y, double z, double ax, double ay, double az);
 };
 
+class PhysicsHinge2Factory : public Hinge2Factory
+{
+public:
+    PhysicsHinge2Factory(Simulation *parent) : Hinge2Factory(parent) {}
+    virtual ~PhysicsHinge2Factory() {}
+
+    virtual PhysicsSim* simulation() { return static_cast<PhysicsSim*>(m_parent); }
+
+protected:
+    bool create(const char *name, OscObject *object1, OscObject *object2,
+                double x, double y, double z, double a1x, double a1y,
+                double a1z, double a2x, double a2y, double a2z);
+};
+
 class PhysicsFixedFactory : public FixedFactory
 {
 public:
@@ -217,6 +231,17 @@ public:
 
 protected:
     virtual void on_torque() {}
+};
+
+class OscHinge2ODE : public OscHinge2, public ODEConstraint
+{
+public:
+    OscHinge2ODE(dWorldID odeWorld, dSpaceID odeSpace,
+                 const char *name, OscBase *parent,
+                 OscObject *object1, OscObject *object2,
+                 double x, double y, double z,
+                 double a1x, double a1y, double a1z,
+                 double a2x, double a2y, double a2z);
 };
 
 class OscFixedODE : public OscFixed, public ODEConstraint

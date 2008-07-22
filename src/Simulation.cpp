@@ -139,6 +139,68 @@ int HingeFactory::create_handler(const char *path, const char *types, lo_arg **a
     return 0;
 }
 
+Hinge2Factory::Hinge2Factory(Simulation *parent)
+    : ShapeFactory("hinge2", parent)
+{
+    // Name, object1, object2, x, y, z, a1x, a1y, a1z, a2x, a2y, a2z
+    addHandler("create", "sssfffffffff", create_handler);
+}
+
+Hinge2Factory::~Hinge2Factory()
+{
+}
+
+int Hinge2Factory::create_handler(const char *path, const char *types, lo_arg **argv,
+                                  int argc, void *data, void *user_data)
+{
+    Hinge2Factory *me = static_cast<Hinge2Factory*>(user_data);
+    OscObject *object1=0, *object2=0;
+
+    if (argc != 12) return -1;
+
+    // For Hinge2, both must be objects, 'world' is invalid
+    if (   strcmp(&argv[1]->s, "world")==0
+        || strcmp(&argv[2]->s, "world")==0)
+    {
+        printf("[%s] Cannot create hinge2 constraint with 'world', "
+               "two objects are required.\n",
+               me->simulation()->type_str());
+        return -1;
+    }
+
+    object1 = me->simulation()->find_object(&argv[1]->s);
+    object2 = me->simulation()->find_object(&argv[2]->s);
+
+    // For Hinge2, both objects must exist
+    if (!object1 || !object2) {
+        printf("[%s] Error creating hinge2 constraint '%s', "
+               "object '%s' not found.\n",
+               me->simulation()->type_str(), &argv[0]->s,
+               object1 ? &argv[2]->s : &argv[1]->s);
+        return -1;
+    }
+
+    // The objects cannot be the same.
+    if (object1==object2)
+        return -1;
+
+    double x   = argv[3]->f;
+    double y   = argv[4]->f;
+    double z   = argv[5]->f;
+    double a1x = argv[6]->f;
+    double a1y = argv[7]->f;
+    double a1z = argv[8]->f;
+    double a2x = argv[9]->f;
+    double a2y = argv[10]->f;
+    double a2z = argv[11]->f;
+
+    if (!me->create(&argv[0]->s, object1, object2,
+                    x, y, z, a1x, a1y, a1z, a2x, a2y, a2z))
+        printf("[%s] Error creating hinge2 constraint '%s'.\n",
+               me->simulation()->type_str(), &argv[0]->s);
+    return 0;
+}
+
 FixedFactory::FixedFactory(Simulation *parent)
     : ShapeFactory("fixed", parent)
 {
@@ -310,8 +372,6 @@ int UniversalFactory::create_handler(const char *path, const char *types, lo_arg
 {
     UniversalFactory *me = static_cast<UniversalFactory*>(user_data);
     OscObject *object1=0, *object2=0;
-
-    printf("here.0\n");
 
     if (argc != 12) return -1;
 
