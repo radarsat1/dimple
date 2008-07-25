@@ -261,5 +261,14 @@ public:
         : OscConstraint(name, parent, object1, object2) {}
 };
 
+class OscPiston : public OscConstraint
+{
+public:
+    OscPiston(const char *name, OscBase *parent, OscObject *object1,
+              OscObject *object2, double x, double y, double z,
+              double ax, double ay, double az)
+        : OscConstraint(name, parent, object1, object2) {}
+};
+
 #endif // _OSC_OBJECT_H_
 

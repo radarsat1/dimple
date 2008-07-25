@@ -145,6 +145,26 @@ bool InterfaceSlideFactory::create(const char *name, OscObject *object1,
     return true;
 }
 
+bool InterfacePistonFactory::create(const char *name, OscObject *object1, OscObject *object2,
+                                    double x, double y, double z,
+                                    double ax, double ay, double az)
+{
+    if (!object1) return false;
+
+    OscPiston *cons = new OscPistonInterface(name, m_parent, object1, object2,
+                                             x, y, z, ax, ay, az);
+    if (!(cons && simulation()->add_constraint(*cons)))
+        return false;
+
+    cons->traceOn();
+
+    simulation()->send(0, "/world/piston/create", "sssffffff",
+                       name, object1->c_name(), object2?object2->c_name():"world",
+                       x, y, z, ax, ay, az);
+
+    return true;
+}
+
 bool InterfaceUniversalFactory::create(const char *name, OscObject *object1,
                                        OscObject *object2, double x,
                                        double y, double z, double a1x,
@@ -182,6 +202,7 @@ InterfaceSim::InterfaceSim(const char *port)
     m_pFixedFactory = new InterfaceFixedFactory(this);
     m_pBallJointFactory = new InterfaceBallJointFactory(this);
     m_pSlideFactory = new InterfaceSlideFactory(this);
+    m_pPistonFactory = new InterfacePistonFactory(this);
     m_pUniversalFactory = new InterfaceUniversalFactory(this);
 
     m_fTimestep = 1;

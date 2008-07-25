@@ -8,7 +8,6 @@ v0.1:
   - Full set of joint types:
      . Prismatic and Rotoide
      . Prismatic - Universal
-     . Piston
      . Plane 2D
   - Spring responses for all joints
 

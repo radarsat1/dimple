@@ -356,6 +356,57 @@ int SlideFactory::create_handler(const char *path, const char *types, lo_arg **a
     return 0;
 }
 
+PistonFactory::PistonFactory(Simulation *parent)
+    : ShapeFactory("piston", parent)
+{
+    // Name, object1, object2, x, y, z, axis x, y, z
+    addHandler("create", "sssffffff", create_handler);
+}
+
+PistonFactory::~PistonFactory()
+{
+}
+
+int PistonFactory::create_handler(const char *path, const char *types, lo_arg **argv,
+                                  int argc, void *data, void *user_data)
+{
+    PistonFactory *me = static_cast<PistonFactory*>(user_data);
+    OscObject *object1=0, *object2=0;
+
+    if (argc != 9) return -1;
+
+    if (strcmp(&argv[1]->s, "world")!=0)
+        object1 = me->simulation()->find_object(&argv[1]->s);
+    if (strcmp(&argv[2]->s, "world")!=0)
+        object2 = me->simulation()->find_object(&argv[2]->s);
+
+    // Swap objects if one is world
+    if (object2 && !object1) {
+        object1 = object2;
+        object2 = 0;
+    }
+
+    // At least one object must exist
+    if (!object1) {
+        printf("[%s] Error creating piston constraint '%s', "
+               "object '%s' not found.\n",
+               me->simulation()->type_str(), &argv[0]->s,
+               &argv[1]->s);
+        return -1;
+    }
+
+    // The objects cannot be the same.
+    if (object1==object2)
+        return -1;
+
+    if (!me->create(&argv[0]->s, object1, object2,
+                    argv[3]->f, argv[4]->f, argv[5]->f,
+                    argv[6]->f, argv[7]->f, argv[8]->f))
+        printf("[%s] Error creating piston '%s'.\n",
+               me->simulation()->type_str(), &argv[0]->s);
+    return 0;
+}
+
 UniversalFactory::UniversalFactory(Simulation *parent)
     : ShapeFactory("universal", parent)
 {

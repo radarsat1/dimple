@@ -668,4 +668,3 @@ void OscUniversal::simulationCallback()
         -m_stiffness*angle1 - m_damping*rate1,
         -m_stiffness*angle2 - m_damping*rate2);
 }
-

@@ -128,6 +128,19 @@ protected:
                 double ax, double ay, double az);
 };
 
+class PhysicsPistonFactory : public PistonFactory
+{
+public:
+    PhysicsPistonFactory(Simulation *parent) : PistonFactory(parent) {}
+    virtual ~PhysicsPistonFactory() {}
+
+    virtual PhysicsSim* simulation() { return static_cast<PhysicsSim*>(m_parent); }
+
+protected:
+    bool create(const char *name, OscObject *object1, OscObject *object2,
+                double x, double y, double z, double ax, double ay, double az);
+};
+
 class PhysicsUniversalFactory : public UniversalFactory
 {
 public:
@@ -269,6 +282,15 @@ public:
                 const char *name, OscBase *parent,
                 OscObject *object1, OscObject *object2,
                 double ax, double ay, double az);
+};
+
+class OscPistonODE : public OscPiston, public ODEConstraint
+{
+public:
+    OscPistonODE(dWorldID odeWorld, dSpaceID odeSpace,
+                 const char *name, OscBase *parent, OscObject *object1,
+                 OscObject *object2, double x, double y, double z,
+                 double ax, double ay, double az);
 };
 
 class OscUniversalODE : public OscUniversal, public ODEConstraint

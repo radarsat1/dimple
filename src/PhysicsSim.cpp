@@ -99,6 +99,20 @@ bool PhysicsSlideFactory::create(const char *name, OscObject *object1,
         return simulation()->add_constraint(*cons);
 }
 
+bool PhysicsPistonFactory::create(const char *name, OscObject *object1,
+                                  OscObject *object2, double x, double y,
+                                  double z, double ax, double ay, double az)
+{
+    OscPiston *cons=NULL;
+    cons = new OscPistonODE(simulation()->odeWorld(),
+                            simulation()->odeSpace(),
+                            name, m_parent, object1, object2,
+                            x, y, z, ax, ay, az);
+
+    if (cons)
+        return simulation()->add_constraint(*cons);
+}
+
 bool PhysicsUniversalFactory::create(const char *name, OscObject *object1,
                                      OscObject *object2, double x,
                                      double y, double z, double a1x,
@@ -129,6 +143,7 @@ PhysicsSim::PhysicsSim(const char *port)
     m_pFixedFactory = new PhysicsFixedFactory(this);
     m_pBallJointFactory = new PhysicsBallJointFactory(this);
     m_pSlideFactory = new PhysicsSlideFactory(this);
+    m_pPistonFactory = new PhysicsPistonFactory(this);
     m_pUniversalFactory = new PhysicsUniversalFactory(this);
 
     m_fTimestep = PHYSICS_TIMESTEP_MS/1000.0;
@@ -510,6 +525,28 @@ OscSlideODE::OscSlideODE(dWorldID odeWorld, dSpaceID odeSpace,
            simulation()->type_str(),
            object1->c_name(), object2?object2->c_name():"world",
            ax, ay, az);
+}
+
+//! A piston requires a fixed anchor point and an axis
+OscPistonODE::OscPistonODE(dWorldID odeWorld, dSpaceID odeSpace,
+                           const char *name, OscBase* parent,
+                           OscObject *object1, OscObject *object2,
+                           double x, double y, double z,
+                           double ax, double ay, double az)
+    : OscPiston(name, parent, object1, object2, x, y, z, ax, ay, az),
+      ODEConstraint(odeWorld, odeSpace, object1, object2)
+{
+	// create the constraint for object1
+    cVector3d anchor(x,y,z);
+    cVector3d axis(ax,ay,az);
+
+    m_odeJoint = dJointCreatePiston(m_odeWorld,0);
+    dJointAttach(m_odeJoint, m_odeBody1, m_odeBody2);
+    dJointSetPistonAnchor(m_odeJoint, anchor.x, anchor.y, anchor.z);
+    dJointSetPistonAxis(m_odeJoint, axis.x, axis.y, axis.z);
+
+    printf("Piston joint created between %s and %s at anchor (%f,%f,%f), axis (%f,%f,%f)\n",
+        object1->c_name(), object2?object2->c_name():"world", x,y,z,ax,ay,az);
 }
 
 OscUniversalODE::OscUniversalODE(dWorldID odeWorld, dSpaceID odeSpace,

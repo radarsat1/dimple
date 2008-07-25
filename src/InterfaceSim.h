@@ -151,6 +151,19 @@ protected:
                 double ax, double ay, double az);
 };
 
+class InterfacePistonFactory : public PistonFactory
+{
+public:
+    InterfacePistonFactory(Simulation *parent) : PistonFactory(parent) {}
+    virtual ~InterfacePistonFactory() {}
+
+    virtual InterfaceSim* simulation() { return static_cast<InterfaceSim*>(m_parent); }
+
+protected:
+    bool create(const char *name, OscObject *object1, OscObject *object2,
+                double x, double y, double z, double ax, double ay, double az);
+};
+
 class InterfaceUniversalFactory : public UniversalFactory
 {
 public:
@@ -315,6 +328,24 @@ public:
     virtual void on_destroy() {
         simulation()->send(0, (path()+"/destroy").c_str(), "");
         OscSlide::on_destroy();
+    }
+
+protected:
+};
+
+class OscPistonInterface : public OscPiston
+{
+public:
+    OscPistonInterface(const char *name, OscBase *parent,
+                       OscObject *object1, OscObject *object2,
+                       double x, double y, double z, double ax, double ay, double az)
+        : OscPiston(name, parent, object1, object2, x, y, z, ax, ay, az) {}
+
+    virtual ~OscPistonInterface() {}
+
+    virtual void on_destroy() {
+        simulation()->send(0, (path()+"/destroy").c_str(), "");
+        OscPiston::on_destroy();
     }
 
 protected:
