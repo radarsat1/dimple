@@ -157,6 +157,8 @@ PhysicsSim::~PhysicsSim()
 
 void PhysicsSim::initialize()
 {
+    dInitODE();
+
     dSetDebugHandler(ode_errorhandler);
     dSetErrorHandler(ode_errorhandler);
     dSetMessageHandler(ode_errorhandler);
