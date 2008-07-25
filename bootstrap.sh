@@ -546,7 +546,7 @@ case $(uname) in
     MINGW32*)
     DL="curl -L -o"
     MD5=md5sum
-	MD5CUT="cut -d\  -f1"
+    MD5CUT="awk {print\$1}"
     freeglut_PATCH=freeglut-2.4.0-mingw.patch
     liblo_CFLAGS="-I$PWD/pthreads-w32-2-8-0-release -include /mingw/include/ws2tcpip.h -D_WIN32_WINNT=0x0501 -DPTW32_BUILD_INLINED -DPTW32_STATIC_LIB -DCLEANUP=__CLEANUP_C -DDLL_VER=2"
     liblo_LDFLAGS="-L$PWD/pthreads-w32-2-8-0-release"
