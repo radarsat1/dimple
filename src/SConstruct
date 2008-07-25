@@ -128,10 +128,10 @@ else:
 
 ### Libraries which link the same on all systems ###
 env.Append(
-    CPPPATH = ['../libdeps/ode-0.7/include',
+    CPPPATH = ['../libdeps/ode-0.10.1/include',
                '../libdeps/chai3d/include',
                '../libdeps/liblo-0.24'],
-    LIBPATH = ['../libdeps/ode-0.7/ode/src'],
+    LIBPATH = ['../libdeps/ode-0.10.1/ode/src/.libs'],
     LIBS = ['ode', 'pthread']
     )
 

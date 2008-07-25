@@ -82,10 +82,10 @@ echo
 }
 
 ode() {
-ode_URL=http://internap.dl.sourceforge.net/sourceforge/opende/ode-src-0.7.zip
-ode_TAR=ode-src-0.7.zip
-ode_DIR=ode-0.7
-ode_MD5=b6727fef2cbb9ca812438bb774c9d6ec
+ode_URL=http://downloads.sourceforge.net/opende/ode-0.10.1.tar.bz2
+ode_TAR=ode-0.10.1.tar.bz2
+ode_DIR=ode-0.10.1
+ode_MD5=91c396b915539a760617437d56eb1681
 
 if [ $($MD5 $ode_TAR | $MD5CUT)x != ${ode_MD5}x ]; then
 	echo Downloading $ode_TAR ...
@@ -101,7 +101,7 @@ fi
 if ! [ -d $ode_DIR ]; then
 
 echo Extracting $ode_TAR ...
-if !(unzip -o $ode_TAR); then
+if !(tar -xjf $ode_TAR); then
 	echo "Error in archive.";
 	exit
 fi
@@ -145,8 +145,6 @@ case $(uname) in
     	exit
     fi
 
-    # Seems to make the shared version anyway.. ?
-    rm -v $ode_DIR/ode/src/libode.so $ode_DIR/ode/src/libode.dylib $ode_DIR/ode/src/libode.dll
     ;;
 esac
 
@@ -629,7 +627,7 @@ case $(uname) in
 	;;
 
 	Darwin*)
-	DL="curl -o"
+	DL="curl -Lo"
     MD5=md5
 	MD5CUT="cut -f2 -d="
     chai_PATCH=chai3d-1.61-darwin.patch
