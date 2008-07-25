@@ -8,10 +8,10 @@
 echo This script bootstraps required libraries for selected environments.
 
 liblo() {
-liblo_URL=http://easynews.dl.sourceforge.net/sourceforge/liblo/liblo-0.24.tar.gz
-liblo_TAR=liblo-0.24.tar.gz
-liblo_DIR=liblo-0.24
-liblo_MD5=a9b5e7c6fcc835cd468e26cc95aba91a
+liblo_URL=http://easynews.dl.sourceforge.net/sourceforge/liblo/liblo-0.25.tar.gz
+liblo_TAR=liblo-0.25.tar.gz
+liblo_DIR=liblo-0.25
+liblo_MD5=e8b8f6542cdecd6ad5f42dd4d4d81023
 
 if [ $($MD5 $liblo_TAR | $MD5CUT)x != ${liblo_MD5}x ]; then
 	echo Downloading $liblo_TAR ...
@@ -38,6 +38,12 @@ if !(cd $liblo_DIR && patch -p1 <../$liblo_PATCH); then
 	echo "Error applying patch" $liblo_PATCH
 	exit
 fi
+# patch requires running autoconf
+echo Running autoconf for $liblo_DIR
+if !(cd $liblo_DIR && autoconf); then
+	echo "Error applying patch" $liblo_PATCH
+	exit
+fi
 fi
 
 case $(uname) in
@@ -60,7 +66,7 @@ case $(uname) in
 
    *)
    echo Configuring $liblo_DIR
-   if !(cd $liblo_DIR && env CFLAGS="$liblo_CFLAGS" LDFLAGS="$liblo_LDFLAGS" LIBS="$liblo_LIBS" ./configure --disable-shared); then
+   if !(cd $liblo_DIR && env CFLAGS="$liblo_CFLAGS" LDFLAGS="$liblo_LDFLAGS" LIBS="$liblo_LIBS" ./configure --disable-shared $liblo_CONFIGEXTRA); then
 	  echo "Error configuring $liblo_DIR"
 	  exit
    fi
@@ -551,7 +557,8 @@ case $(uname) in
     liblo_CFLAGS="-I$PWD/pthreads-w32-2-8-0-release -include /mingw/include/ws2tcpip.h -D_WIN32_WINNT=0x0501 -DPTW32_BUILD_INLINED -DPTW32_STATIC_LIB -DCLEANUP=__CLEANUP_C -DDLL_VER=2"
     liblo_LDFLAGS="-L$PWD/pthreads-w32-2-8-0-release"
     liblo_LIBS="-lws2_32"
-    liblo_PATCH=liblo-0.24-mingw.patch
+    liblo_PATCH=liblo-mingw.patch
+    liblo_CONFIGEXTRA=--disable-ipv6
     chai_DIR=chai3d/cygwin #works for mingw
 	chai_PATCH=chai3d-1.61-mingw.patch
 
