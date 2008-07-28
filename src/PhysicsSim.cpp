@@ -323,6 +323,8 @@ OscSphereODE::OscSphereODE(dWorldID odeWorld, dSpaceID odeSpace, const char *nam
     dGeomSetBody(m_odeGeom, m_odeBody);
     dBodySetPosition(m_odeBody, 0, 0, 0);
     dGeomSetData(m_odeGeom, static_cast<OscObject*>(this));
+
+    addHandler("push", "ffffff", OscSphereODE::push_handler);
 }
 
 void OscSphereODE::on_radius()
@@ -338,6 +340,18 @@ void OscSphereODE::on_force()
 void OscSphereODE::on_mass()
 {
     dMassSetSphere(&m_odeMass, m_mass.m_value, m_radius.m_value);
+}
+
+int OscSphereODE::push_handler(const char *path, const char *types,
+                               lo_arg **argv, int argc,
+                               void *data, void *user_data)
+{
+    OscSphereODE *me = static_cast<OscSphereODE*>(user_data);
+    me->m_force.set(argv[0]->f, argv[1]->f, argv[2]->f);
+    dBodyAddForceAtPos(me->m_odeBody,
+                       argv[0]->f, argv[1]->f, argv[2]->f,
+                       argv[3]->f, argv[4]->f, argv[5]->f);
+    return 0;
 }
 
 /****** OscPrismODE ******/
