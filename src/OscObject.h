@@ -218,7 +218,7 @@ public:
     virtual void simulationCallback();
 
 protected:
-    OscScalar m_torque;
+    OSCSCALAR(OscHinge, torque) {};
 };
 
 class OscHinge2 : public OscConstraint

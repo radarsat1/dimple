@@ -246,7 +246,8 @@ public:
     virtual void simulationCallback();
 
 protected:
-    virtual void on_torque() {}
+    virtual void on_torque()
+        { dJointAddHingeTorque(m_odeJoint, m_torque.m_value); }
 };
 
 class OscHinge2ODE : public OscHinge2, public ODEConstraint

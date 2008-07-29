@@ -267,6 +267,7 @@ public:
     }
 
 protected:
+    FWD_OSCSCALAR(torque,Simulation::ST_PHYSICS);
 };
 
 class OscHinge2Interface : public OscHinge2

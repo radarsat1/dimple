@@ -593,6 +593,7 @@ OscHinge::OscHinge(const char *name, OscBase* parent,
     : OscConstraint(name, parent, object1, object2),
       m_torque("torque", this)
 {
+    m_torque.setSetCallback(set_torque, this, DIMPLE_THREAD_PHYSICS);
 }
 
 //! This function is called once per simulation step, allowing the
