@@ -191,6 +191,8 @@ public:
             m_color.setGetCallback(on_get_color, this, DIMPLE_THREAD_PHYSICS);
             m_radius.setGetCallback(on_get_radius, this, DIMPLE_THREAD_PHYSICS);
             m_force.setGetCallback(on_get_force, this, DIMPLE_THREAD_PHYSICS);
+
+            addHandler("push", "ffffff", OscSphereInterface::push_handler);
         }
     virtual ~OscSphereInterface() {}
 
@@ -198,6 +200,9 @@ public:
         simulation()->send(0, (path()+"/destroy").c_str(), "");
         OscSphere::on_destroy();
     }
+
+    static int push_handler(const char *path, const char *types, lo_arg **argv,
+                            int argc, void *data, void *user_data);
 
 protected:
     FWD_OSCVECTOR3(position,Simulation::ST_PHYSICS);
@@ -222,6 +227,8 @@ public:
             m_color.setGetCallback(on_get_color, this, DIMPLE_THREAD_PHYSICS);
             m_force.setGetCallback(on_get_force, this, DIMPLE_THREAD_PHYSICS);
             m_size.setGetCallback(on_get_size, this, DIMPLE_THREAD_PHYSICS);
+
+            addHandler("push", "ffffff", OscPrismInterface::push_handler);
         }
     virtual ~OscPrismInterface() {}
 
@@ -229,6 +236,9 @@ public:
         simulation()->send(0, (path()+"/destroy").c_str(), "");
         OscPrism::on_destroy();
     }
+
+    static int push_handler(const char *path, const char *types, lo_arg **argv,
+                            int argc, void *data, void *user_data);
 
 protected:
     FWD_OSCVECTOR3(position,Simulation::ST_PHYSICS);

@@ -215,3 +215,25 @@ InterfaceSim::~InterfaceSim()
 void InterfaceSim::step()
 {
 }
+
+int OscPrismInterface::push_handler(const char *path, const char *types,
+                                    lo_arg **argv, int argc, void *data,
+                                    void *user_data)
+{
+    OscPrismInterface *me = static_cast<OscPrismInterface*>(user_data);
+    me->simulation()->sendtotype(Simulation::ST_PHYSICS, 0,
+                                 (me->path()+"/push").c_str(), "ffffff",
+                                 argv[0]->f, argv[1]->f, argv[2]->f,
+                                 argv[3]->f, argv[4]->f, argv[5]->f);
+}
+
+int OscSphereInterface::push_handler(const char *path, const char *types,
+                                     lo_arg **argv, int argc, void *data,
+                                     void *user_data)
+{
+    OscSphereInterface *me = static_cast<OscSphereInterface*>(user_data);
+    me->simulation()->sendtotype(Simulation::ST_PHYSICS, 0,
+                                 (me->path()+"/push").c_str(), "ffffff",
+                                 argv[0]->f, argv[1]->f, argv[2]->f,
+                                 argv[3]->f, argv[4]->f, argv[5]->f);
+}
