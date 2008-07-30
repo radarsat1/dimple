@@ -227,8 +227,8 @@ public:
     OscHinge2(const char *name, OscBase *parent,
               OscObject *object1, OscObject *object2,
               double x, double y, double z,
-              double a1x, double a2y, double a3z,
-              double a2x, double a2y, double a3z);
+              double a1x, double a1y, double a1z,
+              double a2x, double a2y, double a2z);
 
     virtual void simulationCallback();
 };
