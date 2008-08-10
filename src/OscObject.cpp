@@ -482,6 +482,28 @@ void OscMesh::size_physics_callback(void *self)
            me->m_vLastScaled.z);
 }
 
+// ------------------------------------------------------------------------
+
+OscResponse::OscResponse(const char* name, OscBase *parent)
+    : OscBase(name, parent),
+      m_stiffness("stiffness", this),
+      m_damping("damping", this),
+      m_offset("offset", this)
+{
+    m_stiffness.setSetCallback(set_stiffness, this, DIMPLE_THREAD_PHYSICS);
+    m_damping.setSetCallback(set_damping, this, DIMPLE_THREAD_PHYSICS);
+    m_offset.setSetCallback(set_offset, this, DIMPLE_THREAD_PHYSICS);
+
+    addHandler("spring", "ff", OscResponse::spring_handler);
+}
+
+double OscResponse::response(double position, double velocity)
+{
+    // Damped spring
+    return (-m_stiffness.m_value*(position-m_offset.m_value)
+            -m_damping.m_value*velocity);
+}
+
 // ----------------------------------------------------------------------------------
 
 //! OscConstraint has two CHAI/ODE object associated with it, though not owned by it. Class name = "constraint"
@@ -506,7 +528,6 @@ OscConstraint::OscConstraint(const char *name, OscBase *parent,
     addHandler("response/center",   "f", OscConstraint::responseCenter_handler);
     addHandler("response/constant", "f", OscConstraint::responseConstant_handler);
     addHandler("response/linear",   "f", OscConstraint::responseLinear_handler);
-    addHandler("response/spring",   "ff", OscConstraint::responseSpring_handler);
     addHandler("response/wall",     "ff", OscConstraint::responseWall_handler);
     addHandler("response/wall",     "ffi", OscConstraint::responseWall_handler);
     addHandler("response/pluck",    "ff", OscConstraint::responsePluck_handler);
@@ -594,21 +615,6 @@ OscHinge::OscHinge(const char *name, OscBase* parent,
       m_torque("torque", this)
 {
     m_torque.setSetCallback(set_torque, this, DIMPLE_THREAD_PHYSICS);
-}
-
-//! This function is called once per simulation step, allowing the
-//! constraint to be "motorized" according to some response.
-//! It runs in the physics thread.
-void OscHinge::simulationCallback()
-{
-    dJointID *id;
-    if (!m_object1->odePrimitive()->getJoint(m_name, id))
-        return;
-
-    dReal angle = dJointGetHingeAngle(*id);
-    dReal rate = dJointGetHingeAngleRate(*id);
-    m_torque.set(-m_stiffness*angle - m_damping*rate);
-    dJointAddHingeTorque(*id, m_torque.m_value);
 }
 
 // ----------------------------------------------------------------------------------

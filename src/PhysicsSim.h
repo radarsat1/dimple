@@ -194,6 +194,8 @@ public:
     ODEConstraint(dWorldID odeWorld, dSpaceID odeSpace, OscObject *object1, OscObject *object2);
     virtual ~ODEConstraint();
 
+    dJointID joint() { return m_odeJoint; }
+
 protected:
     dWorldID m_odeWorld;
     dSpaceID m_odeSpace;
@@ -242,6 +244,7 @@ public:
     OscHingeODE(dWorldID odeWorld, dSpaceID odeSpace,
                 const char *name, OscBase *parent, OscObject *object1, OscObject *object2,
                 double x, double y, double z, double ax, double ay, double az);
+    virtual ~OscHingeODE();
 
     virtual void simulationCallback();
 

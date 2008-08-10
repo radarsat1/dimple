@@ -251,15 +251,31 @@ protected:
     FWD_OSCSCALAR(collide,Simulation::ST_PHYSICS);
 };
 
+class OscResponseInterface : public OscResponse
+{
+public:
+    OscResponseInterface(const char *name, OscBase *parent)
+        : OscResponse(name, parent) {}
+
+    virtual void on_spring(float arg1, float arg2) {
+        simulation()->send(0, (path()+"/spring").c_str(), "ff", arg1, arg2);
+    }
+
+protected:
+    FWD_OSCSCALAR(stiffness,Simulation::ST_PHYSICS);
+    FWD_OSCSCALAR(damping,Simulation::ST_PHYSICS);
+};
+
 class OscHingeInterface : public OscHinge
 {
 public:
     OscHingeInterface(const char *name, OscBase *parent,
                       OscObject *object1, OscObject *object2,
                       double x, double y, double z, double ax, double ay, double az)
-        : OscHinge(name, parent, object1, object2, x, y, z, ax, ay, az) {}
+        : OscHinge(name, parent, object1, object2, x, y, z, ax, ay, az)
+        { m_response = new OscResponseInterface("response",this); }
 
-    virtual ~OscHingeInterface() {}
+    virtual ~OscHingeInterface() { delete m_response; }
 
     virtual void on_destroy() {
         simulation()->send(0, (path()+"/destroy").c_str(), "");

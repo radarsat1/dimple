@@ -156,6 +156,23 @@ class OscMesh : public OscObject
 	cVector3d m_vLastScaled;
 };
 
+//! The OscResponse class is used by the free axes of each OscConstraint
+//! subclass to dictate how they will respond to external forces.
+class OscResponse : public OscBase
+{
+public:
+    OscResponse(const char* name, OscBase *parent);
+
+    double response(double position, double velocity);
+
+    OSCSCALAR(OscResponse, stiffness) {};
+    OSCSCALAR(OscResponse, damping) {};
+    OSCSCALAR(OscResponse, offset) {};
+
+    OSCMETHOD2(OscResponse, spring)
+        { m_stiffness.set(arg1); m_damping.set(arg2); }
+};
+
 //! The OscConstraint class keeps track of ODE constraints between two
 //! objects in the world, or between one object and some point in the
 //! coordinate space.
@@ -215,7 +232,9 @@ public:
     OscHinge(const char *name, OscBase *parent, OscObject *object1, OscObject *object2,
              double x, double y, double z, double ax, double ay, double az);
 
-    virtual void simulationCallback();
+    OscResponse* m_response;
+
+    virtual void simulationCallback() {};
 
 protected:
     OSCSCALAR(OscHinge, torque) {};

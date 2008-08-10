@@ -40,6 +40,8 @@ bool PhysicsHingeFactory::create(const char *name, OscObject *object1, OscObject
                            name, m_parent, object1, object2,
                            x, y, z, ax, ay, az);
 
+    cons->m_response->traceOn();
+
     if (cons)
         return simulation()->add_constraint(*cons);
 }
@@ -200,6 +202,13 @@ void PhysicsSim::step()
                  rot.m[1][0], rot.m[1][1], rot.m[1][2],
                  rot.m[2][0], rot.m[2][1], rot.m[2][2]);
         }
+    }
+
+    /* Update the responses of each constraint. */
+    std::map<std::string,OscConstraint*>::iterator cit;
+    for (cit=world_constraints.begin(); cit!=world_constraints.end(); cit++)
+    {
+        cit->second->simulationCallback();
     }
 
     m_counter++;
@@ -435,6 +444,8 @@ OscHingeODE::OscHingeODE(dWorldID odeWorld, dSpaceID odeSpace,
     : OscHinge(name, parent, object1, object2, x, y, z, ax, ay, az),
       ODEConstraint(odeWorld, odeSpace, object1, object2)
 {
+    m_response = new OscResponse("response",this);
+
 	// create the constraint for object1
     cVector3d anchor(x,y,z);
     cVector3d axis(ax,ay,az);
@@ -448,19 +459,32 @@ OscHingeODE::OscHingeODE(dWorldID odeWorld, dSpaceID odeSpace,
         object1->c_name(), object2?object2->c_name():"world", x,y,z,ax,ay,az);
 }
 
+OscHingeODE::~OscHingeODE()
+{
+    delete m_response;
+}
+
 //! This function is called once per simulation step, allowing the
-//! constraint to be "motorized" according to some response.
-//! It runs in the physics thread.
+//! constraint to be "motorized" according to some response.  It runs
+//! in the physics thread.
 void OscHingeODE::simulationCallback()
 {
-    dJointID *id;
-    if (!m_object1->odePrimitive()->getJoint(m_name, id))
-        return;
+    ODEConstraint& me = *static_cast<ODEConstraint*>(this);
 
-    dReal angle = dJointGetHingeAngle(*id);
-    dReal rate = dJointGetHingeAngleRate(*id);
-    m_torque.set(-m_stiffness*angle - m_damping*rate);
-    dJointAddHingeTorque(*id, m_torque.m_value);
+    dReal angle = dJointGetHingeAngle(me.joint());
+    dReal rate = dJointGetHingeAngleRate(me.joint());
+
+    dReal addtorque =
+        - m_response->m_stiffness.m_value*angle
+        - m_response->m_damping.m_value*rate;
+
+    // Limit the torque otherwise we get ODE assertions.
+    if (addtorque >  1000) addtorque =  1000;
+    if (addtorque < -1000) addtorque = -1000;
+
+    m_torque.set(addtorque);
+
+    dJointAddHingeTorque(me.joint(), addtorque);
 }
 
 OscHinge2ODE::OscHinge2ODE(dWorldID odeWorld, dSpaceID odeSpace,
