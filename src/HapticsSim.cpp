@@ -122,6 +122,12 @@ void HapticsSim::step()
                    m_lastContactPoint.y,
                    m_lastContactPoint.z);
 
+        if (m_pContactObject->m_collide.m_value) {
+            lo_send(address_send, "/world/collide", "ssf",
+                    m_pContactObject->c_name(), "cursor",
+                    (double)(m_lastForce.length() * 0.00001));
+        }
+
         /* TODO: the above 0.00001 scaling are just temporary
            coefficients observed to work (somewhat) with the example
            patch.  They are to be removed when mass scaling is
