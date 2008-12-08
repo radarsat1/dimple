@@ -158,7 +158,7 @@ void HapticsSim::findContactObject()
         }
     }
 
-    // User data is set in the Osc*ODE constructors
+    // User data is set in the Osc*CHAI constructors
     if (obj)
         m_pContactObject = (OscObject*)obj->m_userData;
 }
