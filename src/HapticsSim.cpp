@@ -89,6 +89,8 @@ void HapticsSim::initialize()
 void HapticsSim::step()
 {
     m_chaiCursor->updatePose();
+    m_chaiCursor->computeForces();
+    m_chaiCursor->applyForces();
 
     if (1 || ++m_nVisualStepCount >= (VISUAL_TIMESTEP_MS/HAPTICS_TIMESTEP_MS))
     {
@@ -125,9 +127,6 @@ void HapticsSim::step()
            patch.  They are to be removed when mass scaling is
            properly implemented. */
     }
-
-    m_chaiCursor->computeForces();
-    m_chaiCursor->applyForces();
 }
 
 void HapticsSim::findContactObject()
