@@ -34,7 +34,7 @@ class HapticsSim : public Simulation
     int m_nVisualStepCount;
 
     cWorld* m_chaiWorld;            //! the world in which we will create our environment
-    cMeta3dofPointer* m_chaiCursor; //! a 3D cursor which represents the haptic deviec
+    cMeta3dofPointer* m_chaiCursor; //! a 3D cursor which represents the haptic device
 };
 
 class HapticsPrismFactory : public PrismFactory
