@@ -20,7 +20,6 @@ class HapticsSim : public Simulation
     virtual ~HapticsSim();
 
     cWorld *world() { return m_chaiWorld; }
-    cMeta3dofPointer *cursor() { return m_chaiCursor; }
 
   protected:
     virtual void initialize();
@@ -39,7 +38,6 @@ class HapticsSim : public Simulation
     int m_counter;
 
     cWorld* m_chaiWorld;            //! the world in which we will create our environment
-    cMeta3dofPointer* m_chaiCursor; //! a 3D cursor which represents the haptic device
     OscCursorCHAI* m_cursor;    //! An OscObject representing the 3D cursor.
 };
 
@@ -126,11 +124,15 @@ protected:
 class OscCursorCHAI : public OscSphere, public CHAIObject
 {
 public:
-    OscCursorCHAI(cMeta3dofPointer *pointer, cWorld *world,
-                  const char *name, OscBase *parent=NULL);
+    OscCursorCHAI(cWorld *world, const char *name, OscBase *parent=NULL);
     virtual ~OscCursorCHAI();
 
     virtual cMeta3dofPointer *object() { return m_pCursor; }
+
+    bool is_initialized() { return m_bInitialized; }
+
+    int start() { return m_pCursor->start(); }
+    int stop()  { return m_pCursor->stop(); }
 
 protected:
     virtual void on_position()
@@ -142,6 +144,8 @@ protected:
       { object()->m_colorProxy.set(m_color.x, m_color.y, m_color.z); }
 
     cMeta3dofPointer *m_pCursor;
+
+    bool m_bInitialized;
 };
 
 #endif // _HAPTICS_SIM_H_

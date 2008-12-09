@@ -55,33 +55,12 @@ void HapticsSim::initialize()
     m_chaiWorld = new cWorld();
     m_chaiWorld->setBackgroundColor(0.0f,0.0f,0.0f);
 
-    // create the cursor object
-    m_chaiCursor = new cMeta3dofPointer(m_chaiWorld);
-    ((cProxyPointForceAlgo*)m_chaiCursor->m_pointForceAlgos[0])
-        ->enableDynamicProxy(true);
-
-    // replace the potential proxy algorithm with our own
-    cGenericPointForceAlgo *old_proxy, *new_proxy;
-    old_proxy = m_chaiCursor->m_pointForceAlgos[1];
-    new_proxy = new cODEPotentialProxy(
-        dynamic_cast<cPotentialFieldForceAlgo*>(old_proxy));
-    m_chaiCursor->m_pointForceAlgos[1] = new_proxy;
-    delete old_proxy;
-
-    if (m_chaiCursor->initialize()) {
-        printf("Could not initialize haptics.\n");
-        m_bDone = true;
-    } else
-        m_chaiCursor->start();
-
-    // rotate the cursor to match visual rotation
-    m_chaiCursor->rotate(cVector3d(0,0,1),-90.0*M_PI/180.0);
-
-    // this is necessary for the above rotation to take effect
-    m_chaiCursor->computeGlobalPositions();
-
     // create an OscObject to point to the cursor
-    m_cursor = new OscCursorCHAI(m_chaiCursor, m_chaiWorld, "cursor", this);
+    m_cursor = new OscCursorCHAI(m_chaiWorld, "cursor", this);
+
+    // quit the haptics simulation if the cursor couldn't be initialized.
+    if (!m_cursor->is_initialized())
+        m_bDone = true;
 
     // initialize visual step count
     m_nVisualStepCount = 0;
@@ -94,9 +73,10 @@ void HapticsSim::initialize()
 
 void HapticsSim::step()
 {
-    m_chaiCursor->updatePose();
-    m_chaiCursor->computeForces();
-    m_chaiCursor->applyForces();
+    cMeta3dofPointer *cursor = m_cursor->object();
+    cursor->updatePose();
+    cursor->computeForces();
+    cursor->applyForces();
 
     m_counter++;
 
@@ -105,9 +85,9 @@ void HapticsSim::step()
         /* If in contact with an object, display the cursor at the
          * proxy location instead of the device location, so that it
          * does not show it penetrating the object. */
-        cVector3d pos(m_chaiCursor->m_deviceGlobalPos);
-        cProxyPointForceAlgo *algo = (cProxyPointForceAlgo*)
-            m_chaiCursor->m_pointForceAlgos[0];
+        cVector3d pos(cursor->m_deviceGlobalPos);
+        cProxyPointForceAlgo *algo =
+            (cProxyPointForceAlgo*) cursor->m_pointForceAlgos[0];
         if (algo->getContactObject())
             pos = algo->getProxyGlobalPosition();
 
@@ -160,24 +140,27 @@ void HapticsSim::findContactObject()
     m_pContactObject = NULL;
     cGenericObject *obj = NULL;
 
-    for (unsigned int i=0; i<m_chaiCursor->m_pointForceAlgos.size(); i++)
+    cMeta3dofPointer *cursor = m_cursor->object();
+    for (unsigned int i=0; i<cursor->m_pointForceAlgos.size(); i++)
     {
-        cProxyPointForceAlgo* pointforce_proxy = dynamic_cast<cProxyPointForceAlgo*>(m_chaiCursor->m_pointForceAlgos[i]);
+        cProxyPointForceAlgo* pointforce_proxy =
+            dynamic_cast<cProxyPointForceAlgo*>(cursor->m_pointForceAlgos[i]);
         if ((pointforce_proxy != NULL)
             && (pointforce_proxy->getContactObject() != NULL))
         {
             m_lastContactPoint = pointforce_proxy->getContactPoint();
-            m_lastForce = m_chaiCursor->m_lastComputedGlobalForce;
+            m_lastForce = cursor->m_lastComputedGlobalForce;
             obj = pointforce_proxy->getContactObject();
             break;
         }
 
-        cODEPotentialProxy* potential_proxy = dynamic_cast<cODEPotentialProxy*>(m_chaiCursor->m_pointForceAlgos[i]);
+        cODEPotentialProxy* potential_proxy =
+            dynamic_cast<cODEPotentialProxy*>(cursor->m_pointForceAlgos[i]);
         if ((potential_proxy != NULL)
             && (potential_proxy->getContactObject() != NULL))
         {
             m_lastContactPoint = potential_proxy->getContactPoint();
-            m_lastForce = m_chaiCursor->m_lastComputedGlobalForce;
+            m_lastForce = cursor->m_lastComputedGlobalForce;
             obj = potential_proxy->getContactObject();
             break;
         }
@@ -448,17 +431,42 @@ void OscPrismCHAI::on_size()
 
 /****** OscCursorCHAI ******/
 
-OscCursorCHAI::OscCursorCHAI(cMeta3dofPointer *cursor, cWorld *world,
-                             const char *name, OscBase *parent)
+OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
     : OscSphere(NULL, name, parent), CHAIObject(world)
 {
-    m_pCursor = cursor;
+    // create the cursor object
+    m_pCursor = new cMeta3dofPointer(world);
     world->addChild(m_pCursor);
-    m_pCursor->computeGlobalPositions();
 
     // User data points to the OscObject, used for identification
     // during object contact.
     m_pCursor->setUserData(this, 1);
+
+    // replace the potential proxy algorithm with our own
+    cGenericPointForceAlgo *old_proxy, *new_proxy;
+    old_proxy = m_pCursor->m_pointForceAlgos[1];
+    new_proxy = new cODEPotentialProxy(
+        dynamic_cast<cPotentialFieldForceAlgo*>(old_proxy));
+    m_pCursor->m_pointForceAlgos[1] = new_proxy;
+    delete old_proxy;
+
+    if (m_pCursor->initialize()) {
+        m_bInitialized = false;
+        printf("Could not initialize haptics.\n");
+    } else {
+        m_bInitialized = false;
+        m_pCursor->start();
+    }
+
+    // rotate the cursor to match visual rotation
+    m_pCursor->rotate(cVector3d(0,0,1),-90.0*M_PI/180.0);
+
+    // make it a cursor tuned for a dynamic environment
+    ((cProxyPointForceAlgo*)m_pCursor->m_pointForceAlgos[0])
+        ->enableDynamicProxy(true);
+
+    // this is necessary for the above rotation to take effect
+    m_pCursor->computeGlobalPositions();
 }
 
 OscCursorCHAI::~OscCursorCHAI()
