@@ -11,6 +11,8 @@
 #include <CLight.h>
 #include <CMeta3dofPointer.h>
 
+class OscCursorCHAI;
+
 class HapticsSim : public Simulation
 {
   public:
@@ -33,8 +35,12 @@ class HapticsSim : public Simulation
     //! A step count for dividing down to the visual timestep
     int m_nVisualStepCount;
 
+    //! A step counter
+    int m_counter;
+
     cWorld* m_chaiWorld;            //! the world in which we will create our environment
     cMeta3dofPointer* m_chaiCursor; //! a 3D cursor which represents the haptic device
+    OscCursorCHAI* m_cursor;    //! An OscObject representing the 3D cursor.
 };
 
 class HapticsPrismFactory : public PrismFactory
@@ -115,6 +121,27 @@ protected:
     void createPrism(bool openbox=false);
 
     cMesh *m_pPrism;
+};
+
+class OscCursorCHAI : public OscSphere, public CHAIObject
+{
+public:
+    OscCursorCHAI(cMeta3dofPointer *pointer, cWorld *world,
+                  const char *name, OscBase *parent=NULL);
+    virtual ~OscCursorCHAI();
+
+    virtual cMeta3dofPointer *object() { return m_pCursor; }
+
+protected:
+    virtual void on_position()
+      { object()->setPos(m_position); }
+    virtual void on_rotation()
+      { object()->setRot(m_rotation); }
+    virtual void on_radius();
+    virtual void on_color()
+      { object()->m_colorProxy.set(m_color.x, m_color.y, m_color.z); }
+
+    cMeta3dofPointer *m_pCursor;
 };
 
 #endif // _HAPTICS_SIM_H_

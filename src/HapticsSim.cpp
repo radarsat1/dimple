@@ -80,8 +80,14 @@ void HapticsSim::initialize()
     // this is necessary for the above rotation to take effect
     m_chaiCursor->computeGlobalPositions();
 
+    // create an OscObject to point to the cursor
+    m_cursor = new OscCursorCHAI(m_chaiCursor, m_chaiWorld, "cursor", this);
+
     // initialize visual step count
     m_nVisualStepCount = 0;
+
+    // initialize step count
+    m_counter = 0;
 
     Simulation::initialize();
 }
@@ -91,6 +97,8 @@ void HapticsSim::step()
     m_chaiCursor->updatePose();
     m_chaiCursor->computeForces();
     m_chaiCursor->applyForces();
+
+    m_counter++;
 
     if (1 || ++m_nVisualStepCount >= (VISUAL_TIMESTEP_MS/HAPTICS_TIMESTEP_MS))
     {
@@ -122,10 +130,22 @@ void HapticsSim::step()
                    m_lastContactPoint.y,
                    m_lastContactPoint.z);
 
-        if (m_pContactObject->m_collide.m_value) {
+        bool co1 = m_pContactObject->collidedWith(m_cursor, m_counter);
+        bool co2 = m_cursor->collidedWith(m_pContactObject, m_counter);
+        if ( (co1 || co2) && m_collide.m_value ) {
             lo_send(address_send, "/world/collide", "ssf",
-                    m_pContactObject->c_name(), "cursor",
-                    (double)(m_lastForce.length() * 0.00001));
+                    m_pContactObject->c_name(), m_cursor->c_name(),
+                    (double)(m_pContactObject->m_velocity
+                             - m_cursor->m_velocity).length());
+
+            /*
+             * TODO: The above should perhaps be derived from force
+             * instead of velocity:
+             *
+             * lo_send(address_send, "/world/collide", "ssf",
+             *      m_pContactObject->c_name(), "cursor",
+             *      (double)(m_lastForce.length() * 0.00001));
+            */
         }
 
         /* TODO: the above 0.00001 scaling are just temporary
@@ -424,4 +444,35 @@ void OscPrismCHAI::on_size()
 		 pos.elementMul(m_size/2.0);
 		 m_pPrism->getVertex(i)->setPos(pos);
     }
+}
+
+/****** OscCursorCHAI ******/
+
+OscCursorCHAI::OscCursorCHAI(cMeta3dofPointer *cursor, cWorld *world,
+                             const char *name, OscBase *parent)
+    : OscSphere(NULL, name, parent), CHAIObject(world)
+{
+    m_pCursor = cursor;
+    world->addChild(m_pCursor);
+    m_pCursor->computeGlobalPositions();
+
+    // User data points to the OscObject, used for identification
+    // during object contact.
+    m_pCursor->setUserData(this, 1);
+}
+
+OscCursorCHAI::~OscCursorCHAI()
+{
+    if (m_pCursor)
+        m_pCursor->getParent()->deleteChild(m_pCursor);
+}
+
+void OscCursorCHAI::on_radius()
+{
+    printf("OscCursorCHAI::on_radius(). radius = %f\n", m_radius.m_value);
+
+    if (!m_pCursor)
+        return;
+
+    m_pCursor->setRadius(m_radius.m_value);
 }
