@@ -76,6 +76,10 @@ void HapticsSim::step()
     cMeta3dofPointer *cursor = m_cursor->object();
     cursor->updatePose();
     cursor->computeForces();
+
+    m_cursor->m_position.set(cursor->m_deviceGlobalPos);
+    m_cursor->m_velocity.set(cursor->m_deviceGlobalVel);
+
     cursor->applyForces();
 
     m_counter++;
