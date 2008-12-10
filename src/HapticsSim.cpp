@@ -458,7 +458,7 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
         m_bInitialized = false;
         printf("Could not initialize haptics.\n");
     } else {
-        m_bInitialized = false;
+        m_bInitialized = true;
         m_pCursor->start();
     }
 
