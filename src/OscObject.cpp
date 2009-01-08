@@ -629,21 +629,6 @@ OscHinge2::OscHinge2(const char *name, OscBase *parent,
 {
 }
 
-//! This function is called once per simulation step, allowing the
-//! constraint to be "motorized" according to some response.
-//! It runs in the haptics thread.
-void OscHinge2::simulationCallback()
-{
-    dJointID *id;
-    if (!m_object1->odePrimitive()->getJoint(m_name, id))
-        return;
-
-    // TODO: This will present difficulties until dJointGetHinge2Angle2 is defined in ODE
-    dReal angle = dJointGetHinge2Angle1(*id);
-    dReal rate = dJointGetHinge2Angle1Rate(*id);
-    dJointAddHinge2Torques(*id, m_stiffness*angle - m_damping*rate, 0);
-}
-
 // ----------------------------------------------------------------------------------
 
 //! A hinge requires a fixed anchor point and an axis

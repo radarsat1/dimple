@@ -497,6 +497,8 @@ OscHinge2ODE::OscHinge2ODE(dWorldID odeWorld, dSpaceID odeSpace,
                 a1x, a1y, a1z, a2x, a2y, a2z),
       ODEConstraint(odeWorld, odeSpace, object1, object2)
 {
+    m_response = new OscResponse("response",this);
+
     m_odeJoint = dJointCreateHinge2(m_odeWorld,0);
     dJointAttach(m_odeJoint, m_odeBody1, m_odeBody2);
     dJointSetHinge2Anchor(m_odeJoint, x, y, z);
@@ -507,6 +509,38 @@ OscHinge2ODE::OscHinge2ODE(dWorldID odeWorld, dSpaceID odeSpace,
            simulation()->type_str(),
            object1->c_name(), object2?object2->c_name():"world",
            x, y, z, a1x, a1y, a1z, a2x, a2y, a2z);
+}
+
+OscHinge2ODE::~OscHinge2ODE()
+{
+    delete m_response;
+}
+
+//! This function is called once per simulation step, allowing the
+//! constraint to be "motorized" according to some response.
+void OscHinge2ODE::simulationCallback()
+{
+    ODEConstraint& me = *static_cast<ODEConstraint*>(this);
+
+    dReal angle1 = dJointGetHinge2Angle1(me.joint());
+    dReal rate1 = dJointGetHinge2Angle1Rate(me.joint());
+
+    dReal addtorque1 =
+        - m_response->m_stiffness.m_value*angle1
+        - m_response->m_damping.m_value*rate1;
+
+#if 0  // TODO: dJointGetHinge2Angle2 is not yet available in ODE.
+    dReal angle2 = dJointGetHinge2Angle2(me.joint());
+#else
+    dReal angle2 = 0;
+#endif
+    dReal rate2 = dJointGetHinge2Angle2Rate(me.joint());
+
+    dReal addtorque2 =
+        - m_response->m_stiffness.m_value*angle2
+        - m_response->m_damping.m_value*rate2;
+
+    dJointAddHinge2Torques(me.joint(), addtorque1, addtorque2);
 }
 
 OscFixedODE::OscFixedODE(dWorldID odeWorld, dSpaceID odeSpace,
