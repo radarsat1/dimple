@@ -261,7 +261,7 @@ public:
                  double a1x, double a1y, double a1z,
                  double a2x, double a2y, double a2z);
 
-    virtual void simulationCallback();
+    OscResponse* m_response;
 };
 
 class OscFixed : public OscConstraint

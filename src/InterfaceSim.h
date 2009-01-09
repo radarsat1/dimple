@@ -388,7 +388,8 @@ public:
                           double a1x, double a1y, double a1z,
                           double a2x, double a2y, double a2z)
         : OscUniversal(name, parent, object1, object2, x, y, z,
-                       a1x, a1y, a1z, a2x, a2y, a2z) {}
+                       a1x, a1y, a1z, a2x, a2y, a2z)
+        { m_response = new OscResponseInterface("response",this); }
 
     virtual ~OscUniversalInterface() {}
 

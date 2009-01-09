@@ -633,6 +633,8 @@ OscUniversalODE::OscUniversalODE(dWorldID odeWorld, dSpaceID odeSpace,
                    a1x, a1y, a1z, a2x, a2y, a2z),
       ODEConstraint(odeWorld, odeSpace, object1, object2)
 {
+    m_response = new OscResponse("response",this);
+
     m_odeJoint = dJointCreateUniversal(m_odeWorld,0);
     dJointAttach(m_odeJoint, m_odeBody1, m_odeBody2);
     dJointSetUniversalAnchor(m_odeJoint, x, y, z);
@@ -643,4 +645,32 @@ OscUniversalODE::OscUniversalODE(dWorldID odeWorld, dSpaceID odeSpace,
            simulation()->type_str(),
            object1->c_name(), object2?object2->c_name():"world",
            x, y, z, a1x, a1y, a1z, a2x, a2y, a2z);
+}
+
+OscUniversalODE::~OscUniversalODE()
+{
+    delete m_response;
+}
+
+//! This function is called once per simulation step, allowing the
+//! constraint to be "motorized" according to some response.
+void OscUniversalODE::simulationCallback()
+{
+    ODEConstraint& me = *static_cast<ODEConstraint*>(this);
+
+    dReal angle1 = dJointGetUniversalAngle1(me.joint());
+    dReal rate1 = dJointGetUniversalAngle1Rate(me.joint());
+
+    dReal addtorque1 =
+        - m_response->m_stiffness.m_value*angle1
+        - m_response->m_damping.m_value*rate1;
+
+    dReal angle2 = dJointGetUniversalAngle2(me.joint());
+    dReal rate2 = dJointGetUniversalAngle2Rate(me.joint());
+
+    dReal addtorque2 =
+        - m_response->m_stiffness.m_value*angle2
+        - m_response->m_damping.m_value*rate2;
+
+    dJointAddUniversalTorques(me.joint(), addtorque1, addtorque2);
 }

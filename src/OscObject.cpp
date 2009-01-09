@@ -640,23 +640,3 @@ OscUniversal::OscUniversal(const char *name, OscBase *parent,
     : OscConstraint(name, parent, object1, object2)
 {
 }
-
-//! This function is called once per simulation step, allowing the
-//! constraint to be "motorized" according to some response.
-//! It runs in the haptics thread.
-void OscUniversal::simulationCallback()
-{
-    dJointID *id;
-    if (!m_object1->odePrimitive()->getJoint(m_name, id))
-        return;
-
-    // TODO: This will present difficulties until dJointGetHinge2Angle2 is defined in ODE
-    dReal angle1 = dJointGetUniversalAngle1(*id);
-    dReal angle2 = dJointGetUniversalAngle2(*id);
-    dReal rate1 = dJointGetUniversalAngle1Rate(*id);
-    dReal rate2 = dJointGetUniversalAngle2Rate(*id);
-
-    dJointAddUniversalTorques(*id,
-        -m_stiffness*angle1 - m_damping*rate1,
-        -m_stiffness*angle2 - m_damping*rate2);
-}
