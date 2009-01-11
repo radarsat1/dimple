@@ -62,6 +62,7 @@ class OscObject : public OscBase
     OSCSCALAR(OscObject, mass) {};
     OSCSCALAR(OscObject, collide) {};
 
+    OSCMETHOD0(OscObject, grab) {};
     OSCMETHOD0(OscObject, destroy);
 
     OSCBOOLEAN(OscObject, visible) {};
@@ -86,8 +87,6 @@ class OscObject : public OscBase
     static void setTextureImage(OscObject *me, const OscString& filename);
 
     static int mass_handler(const char *path, const char *types, lo_arg **argv,
-                            int argc, void *data, void *user_data);
-    static int grab_handler(const char *path, const char *types, lo_arg **argv,
                             int argc, void *data, void *user_data);
     static int oscillate_handler(const char *path, const char *types, lo_arg **argv,
                                  int argc, void *data, void *user_data);

@@ -247,31 +247,6 @@ void OscObject::on_destroy()
     return;
 }
 
-int OscObject::grab_handler(const char *path, const char *types, lo_arg **argv,
-                            int argc, void *data, void *user_data)
-{
-    handler_data *hd = (handler_data*)user_data;
-	OscObject *me = (OscObject*)hd->user_data;
-
-    if (hd->thread != DIMPLE_THREAD_HAPTICS)
-        return 0;
-
-    if (proxyObject)
-        proxyObject->ungrab(hd->thread);
-
-    if (argc == 1 && argv[0]->i == 0)
-        return 0;
-
-    // remove self from haptics contact
-    me->chaiObject()->setHapticEnabled(false, true);
-    printf("Disabled haptics for object %s: %d\n", me->c_name(), me->chaiObject()->getHapticEnabled());
-
-    // become the proxy object
-    proxyObject = me;
-
-    return 0;
-}
-
 void OscObject::ungrab(int thread)
 {
     if (thread != DIMPLE_THREAD_HAPTICS)

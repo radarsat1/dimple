@@ -215,6 +215,16 @@ void OscSphereCHAI::on_radius()
     m_pSphere->setRadius(m_radius.m_value);
 }
 
+void OscSphereCHAI::on_grab()
+{
+    // remove object from haptic contact
+    object()->setHapticEnabled(false, true);
+
+    // make cursor invisible
+    simulation()->sendtotype(Simulation::ST_VISUAL, 0,
+                             "/world/cursor/visible", "i", 0);
+}
+
 /****** OscPrismCHAI ******/
 
 OscPrismCHAI::OscPrismCHAI(cWorld *world, const char *name, OscBase *parent)

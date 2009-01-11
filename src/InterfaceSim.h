@@ -196,6 +196,11 @@ public:
         }
     virtual ~OscSphereInterface() {}
 
+    virtual void on_grab() {
+        simulation()->send(0, (path()+"/grab").c_str(), "");
+        OscSphere::on_grab();
+    }
+
     virtual void on_destroy() {
         simulation()->send(0, (path()+"/destroy").c_str(), "");
         OscSphere::on_destroy();

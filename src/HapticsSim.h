@@ -94,6 +94,7 @@ protected:
       { object()->m_material.m_diffuse.set(m_color.x, m_color.y, m_color.z); }
     virtual void on_visible(bool visible)
         { object()->setShow(visible, true); }
+    virtual void on_grab();
 
     cShapeSphere *m_pSphere;
 };
