@@ -201,6 +201,12 @@ public:
         OscSphere::on_destroy();
     }
 
+    virtual void on_visible(bool visible) {
+        simulation()->sendtotype(Simulation::ST_VISUAL, 0,
+                                 (path()+"/visible").c_str(), "i", visible);
+        OscSphere::on_visible(visible);
+    }
+
     static int push_handler(const char *path, const char *types, lo_arg **argv,
                             int argc, void *data, void *user_data);
 
@@ -232,9 +238,19 @@ public:
         }
     virtual ~OscPrismInterface() {}
 
+    virtual void on_grab() {
+        simulation()->send(0, (path()+"/grab").c_str(), "");
+        OscPrism::on_grab();
+    }
+
     virtual void on_destroy() {
         simulation()->send(0, (path()+"/destroy").c_str(), "");
         OscPrism::on_destroy();
+    }
+
+    virtual void on_visible(bool visible) {
+        simulation()->send(0, (path()+"/visible").c_str(), "i", visible);
+        OscPrism::on_visible(visible);
     }
 
     static int push_handler(const char *path, const char *types, lo_arg **argv,

@@ -64,6 +64,8 @@ class OscObject : public OscBase
 
     OSCMETHOD0(OscObject, destroy);
 
+    OSCBOOLEAN(OscObject, visible) {};
+
     std::list<OscConstraint*> m_constraintList;
     typedef std::list<OscConstraint*>::iterator
       constraint_list_iterator;

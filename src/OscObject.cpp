@@ -48,6 +48,7 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     addHandler("grab"       , ""   , OscObject::grab_handler);
     addHandler("grab"       , "i"  , OscObject::grab_handler);
     addHandler("oscillate"  , "ff" , OscObject::oscillate_handler);
+    addHandler("visible"    , "i"  , OscObject::visible_handler);
 
     // Set initial physical properties
     m_accel.set(0,0,0);

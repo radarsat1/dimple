@@ -47,6 +47,12 @@
                            void *user_data) {((t*)user_data)->          \
                            on_##x(argv[0]->f, argv[1]->f);return 0;}    \
     virtual void on_##x(float arg1, float arg2)
+#define OSCBOOLEAN(t, x)                                                \
+    static int x##_handler(const char *path, const char *types,         \
+                           lo_arg **argv, int argc, void *data,         \
+                           void *user_data) {((t*)user_data)->          \
+                           on_##x(argv[0]->i!=0);return 0;}             \
+    virtual void on_##x(bool arg)
 
 /* === End of macro definitions. */
 
