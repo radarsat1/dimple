@@ -7,3 +7,5 @@ debug:
 
 clean:
 	python libdeps/scons.py -C src -c
+
+.PHONY: dimple debug clean
