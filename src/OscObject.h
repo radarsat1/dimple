@@ -145,12 +145,15 @@ class OscSphere : public OscObject
 class OscMesh : public OscObject
 {
   public:
-    OscMesh(cGenericObject* p, const char *name);
+	OscMesh(cGenericObject *p, const char *name,
+            const char *filename, OscBase *parent=NULL);
 
 	virtual cODEMesh* odePrimitive() { return dynamic_cast<cODEMesh*>(m_objChai); }
 	virtual cMesh*    chaiObject()   { return dynamic_cast<cMesh*>(m_objChai); }
 
   protected:
+    OSCVECTOR3(OscMesh, size) {};
+
     static int size_handler(const char *path, const char *types, lo_arg **argv,
 							int argc, void *data, void *user_data);
 	static void size_physics_callback(void *self);

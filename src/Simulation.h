@@ -9,6 +9,7 @@
 
 class SphereFactory;
 class PrismFactory;
+class MeshFactory;
 class HingeFactory;
 class Hinge2Factory;
 class FixedFactory;
@@ -108,6 +109,7 @@ class Simulation : public OscBase
 
     PrismFactory *m_pPrismFactory;
     SphereFactory *m_pSphereFactory;
+    MeshFactory *m_pMeshFactory;
     HingeFactory *m_pHingeFactory;
     Hinge2Factory *m_pHinge2Factory;
     FixedFactory *m_pFixedFactory;
@@ -190,6 +192,22 @@ protected:
 
     // override these functions with a specific factory subclass
     virtual bool create(const char *name, float x, float y, float z) = 0;
+};
+
+class MeshFactory : public ShapeFactory
+{
+public:
+    MeshFactory(Simulation *parent);
+    virtual ~MeshFactory();
+
+protected:
+    // message handlers
+    static int create_handler(const char *path, const char *types, lo_arg **argv,
+                              int argc, void *data, void *user_data);
+
+    // override these functions with a specific factory subclass
+    virtual bool create(const char *name, const char *filename,
+                        float x, float y, float z) = 0;
 };
 
 class HingeFactory : public ShapeFactory

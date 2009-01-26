@@ -42,6 +42,23 @@ bool InterfaceSphereFactory::create(const char *name, float x, float y, float z)
     return true;
 }
 
+bool InterfaceMeshFactory::create(const char *name, const char *filename,
+                                  float x, float y, float z)
+{
+    OscMesh *obj = new OscMeshInterface(NULL, name, filename, m_parent);
+
+    if (!(obj && simulation()->add_object(*obj)))
+            return false;
+
+    obj->m_position.set(x, y, z);
+    obj->traceOn();
+
+    simulation()->send(0, "/world/mesh/create", "ssfff",
+                       name, filename, x, y, z);
+
+    return true;
+}
+
 bool InterfaceHingeFactory::create(const char *name, OscObject *object1, OscObject *object2,
                                    double x, double y, double z,
                                    double ax, double ay, double az)
@@ -197,6 +214,7 @@ InterfaceSim::InterfaceSim(const char *port)
 {
     m_pPrismFactory = new InterfacePrismFactory(this);
     m_pSphereFactory = new InterfaceSphereFactory(this);
+    m_pMeshFactory = new InterfaceMeshFactory(this);
     m_pHingeFactory = new InterfaceHingeFactory(this);
     m_pHinge2Factory = new InterfaceHinge2Factory(this);
     m_pFixedFactory = new InterfaceFixedFactory(this);
@@ -232,6 +250,17 @@ int OscSphereInterface::push_handler(const char *path, const char *types,
                                      void *user_data)
 {
     OscSphereInterface *me = static_cast<OscSphereInterface*>(user_data);
+    me->simulation()->sendtotype(Simulation::ST_PHYSICS, 0,
+                                 (me->path()+"/push").c_str(), "ffffff",
+                                 argv[0]->f, argv[1]->f, argv[2]->f,
+                                 argv[3]->f, argv[4]->f, argv[5]->f);
+}
+
+int OscMeshInterface::push_handler(const char *path, const char *types,
+                                    lo_arg **argv, int argc, void *data,
+                                    void *user_data)
+{
+    OscMeshInterface *me = static_cast<OscMeshInterface*>(user_data);
     me->simulation()->sendtotype(Simulation::ST_PHYSICS, 0,
                                  (me->path()+"/push").c_str(), "ffffff",
                                  argv[0]->f, argv[1]->f, argv[2]->f,

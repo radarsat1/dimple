@@ -1178,7 +1178,7 @@ int objectMeshCreate_handler(const char *path, const char *types, lo_arg **argv,
 
     // Track the OSC object
     OscObject *ob=NULL;
-    ob = new OscMesh(static_cast<cGenericObject*>(m), &argv[0]->s);
+    ob = new OscMesh(static_cast<cGenericObject*>(m), &argv[0]->s, NULL);
     world_objects[&argv[0]->s] = ob;
 
     // Add to CHAI world

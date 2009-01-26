@@ -392,9 +392,13 @@ int OscSphere::radius_handler(const char *path, const char *types, lo_arg **argv
 
 // ----------------------------------------------------------------------------------
 
-OscMesh::OscMesh(cGenericObject* p, const char *name)
-    : OscObject(p, name)
+OscMesh::OscMesh(cGenericObject *p, const char *name,
+                 const char *filename, OscBase *parent)
+    : OscObject(p, name, parent),
+      m_size("size", this)
 {
+    m_size.setSetCallback(set_size, this, DIMPLE_THREAD_PHYSICS);
+
     addHandler("size", "f", OscMesh::size_handler);
     addHandler("size", "fff", OscMesh::size_handler);
 }

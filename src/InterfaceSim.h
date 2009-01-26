@@ -85,6 +85,19 @@ protected:
     bool create(const char *name, float x, float y, float z);
 };
 
+class InterfaceMeshFactory : public MeshFactory
+{
+public:
+    InterfaceMeshFactory(Simulation *parent) : MeshFactory(parent) {}
+    virtual ~InterfaceMeshFactory() {}
+
+    virtual InterfaceSim* simulation() { return static_cast<InterfaceSim*>(m_parent); }
+
+protected:
+    bool create(const char *name, const char *filename,
+                float x, float y, float z);
+};
+
 class InterfaceHingeFactory : public HingeFactory
 {
 public:
@@ -256,6 +269,53 @@ public:
     virtual void on_visible(bool visible) {
         simulation()->send(0, (path()+"/visible").c_str(), "i", visible);
         OscPrism::on_visible(visible);
+    }
+
+    static int push_handler(const char *path, const char *types, lo_arg **argv,
+                            int argc, void *data, void *user_data);
+
+protected:
+    FWD_OSCVECTOR3(position,Simulation::ST_PHYSICS);
+    FWD_OSCVECTOR3(velocity,Simulation::ST_PHYSICS);
+    FWD_OSCVECTOR3(accel,Simulation::ST_PHYSICS);
+    FWD_OSCVECTOR3(color,Simulation::ST_VISUAL);
+    FWD_OSCVECTOR3(force,Simulation::ST_PHYSICS);
+    FWD_OSCVECTOR3(size,Simulation::ST_PHYSICS);
+    FWD_OSCSCALAR(mass,Simulation::ST_PHYSICS);
+    FWD_OSCSCALAR(collide,Simulation::ST_PHYSICS);
+};
+
+class OscMeshInterface : public OscMesh
+{
+public:
+    OscMeshInterface(cGenericObject *p, const char *name,
+                     const char *filename, OscBase *parent=NULL)
+        : OscMesh(p, name, filename, parent)
+        {
+            m_position.setGetCallback(on_get_position, this, DIMPLE_THREAD_PHYSICS);
+            m_velocity.setGetCallback(on_get_velocity, this, DIMPLE_THREAD_PHYSICS);
+            m_accel.setGetCallback(on_get_accel, this, DIMPLE_THREAD_PHYSICS);
+            m_color.setGetCallback(on_get_color, this, DIMPLE_THREAD_PHYSICS);
+            m_force.setGetCallback(on_get_force, this, DIMPLE_THREAD_PHYSICS);
+            m_size.setGetCallback(on_get_size, this, DIMPLE_THREAD_PHYSICS);
+
+            addHandler("push", "ffffff", OscMeshInterface::push_handler);
+        }
+    virtual ~OscMeshInterface() {}
+
+    virtual void on_grab() {
+        simulation()->send(0, (path()+"/grab").c_str(), "");
+        OscMesh::on_grab();
+    }
+
+    virtual void on_destroy() {
+        simulation()->send(0, (path()+"/destroy").c_str(), "");
+        OscMesh::on_destroy();
+    }
+
+    virtual void on_visible(bool visible) {
+        simulation()->send(0, (path()+"/visible").c_str(), "i", visible);
+        OscMesh::on_visible(visible);
     }
 
     static int push_handler(const char *path, const char *types, lo_arg **argv,

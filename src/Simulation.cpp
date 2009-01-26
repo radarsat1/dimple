@@ -88,6 +88,43 @@ int SphereFactory::create_handler(const char *path, const char *types, lo_arg **
     return 0;
 }
 
+MeshFactory::MeshFactory(Simulation *parent)
+    : ShapeFactory("mesh", parent)
+{
+    // Name, Filename, Width, Height, Depth
+    addHandler("create", "ssfff", create_handler);
+}
+
+MeshFactory::~MeshFactory()
+{
+}
+
+int MeshFactory::create_handler(const char *path, const char *types, lo_arg **argv,
+                                 int argc, void *data, void *user_data)
+{
+    MeshFactory *me = static_cast<MeshFactory*>(user_data);
+
+    // Optional position, default (0,0,0)
+	cVector3d pos;
+	if (argc>1)
+		 pos.x = argv[2]->f;
+	if (argc>2)
+		 pos.y = argv[3]->f;
+	if (argc>3)
+		 pos.z = argv[4]->f;
+
+    OscObject *o = me->simulation()->find_object(&argv[0]->s);
+    if (o)
+        printf("[%s] Already an object named %s\n",
+               me->simulation()->type_str(), &argv[0]->s);
+    else
+        if (!me->create(&argv[0]->s, &argv[1]->s, pos.x, pos.y, pos.z))
+            printf("[%s] Error creating mesh '%s' (%s).\n",
+                   me->simulation()->type_str(), &argv[0]->s, &argv[1]->s);
+
+    return 0;
+}
+
 HingeFactory::HingeFactory(Simulation *parent)
     : ShapeFactory("hinge", parent)
 {

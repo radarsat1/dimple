@@ -65,6 +65,19 @@ protected:
     bool create(const char *name, float x, float y, float z);
 };
 
+class HapticsMeshFactory : public MeshFactory
+{
+public:
+    HapticsMeshFactory(Simulation *parent) : MeshFactory(parent) {}
+    virtual ~HapticsMeshFactory() {}
+
+    virtual HapticsSim* simulation() { return static_cast<HapticsSim*>(m_parent); }
+
+protected:
+    bool create(const char *name, const char *filename,
+                float x, float y, float z);
+};
+
 class CHAIObject
 {
 public:
@@ -124,6 +137,31 @@ protected:
     void createPrism(bool openbox=false);
 
     cMesh *m_pPrism;
+};
+
+class OscMeshCHAI : public OscMesh, public CHAIObject
+{
+public:
+    OscMeshCHAI(cWorld *world, const char *name, const char *filename,
+                OscBase *parent=NULL);
+    virtual ~OscMeshCHAI();
+
+    virtual cMesh *object() { return m_pMesh; }
+
+protected:
+    virtual void on_position()
+        { object()->setPos(m_position);
+          object()->computeGlobalPositions(); }
+    virtual void on_rotation()
+        { object()->setRot(m_rotation);
+          object()->computeGlobalPositions(); }
+    virtual void on_color()
+      { object()->m_material.m_diffuse.set(m_color.x, m_color.y, m_color.z); }
+    virtual void on_visible(bool visible)
+        { object()->setShow(visible, true); }
+    virtual void on_size();
+
+    cMesh *m_pMesh;
 };
 
 class OscCursorCHAI : public OscSphere, public CHAIObject

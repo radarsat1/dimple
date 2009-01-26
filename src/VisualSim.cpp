@@ -38,6 +38,29 @@ bool VisualSphereFactory::create(const char *name, float x, float y, float z)
     return true;
 }
 
+bool VisualMeshFactory::create(const char *name, const char *filename,
+                               float x, float y, float z)
+{
+    printf("VisualMeshFactory (%s) is creating a mesh "
+           "object called '%s' (%s)\n",
+           m_parent->c_name(), name, filename);
+
+    OscMeshCHAI *obj = new OscMeshCHAI(simulation()->world(),
+                                       name, filename, m_parent);
+
+    if (!obj->object()) {
+        delete obj;
+        obj = NULL;
+    }
+
+    if (!(obj && simulation()->add_object(*obj)))
+            return false;
+
+    obj->m_position.set(x, y, z);
+
+    return true;
+}
+
 /****** VisualSim ******/
 
 VisualSim *VisualSim::m_pGlobalContext = 0;
@@ -48,6 +71,7 @@ VisualSim::VisualSim(const char *port)
 {
     m_pPrismFactory = new VisualPrismFactory(this);
     m_pSphereFactory = new VisualSphereFactory(this);
+    m_pMeshFactory = new VisualMeshFactory(this);
 
     m_fTimestep = VISUAL_TIMESTEP_MS/1000.0;
     printf("CHAI/GLUT timestep: %f\n", m_fTimestep);

@@ -72,4 +72,17 @@ protected:
     bool create(const char *name, float x, float y, float z);
 };
 
+class VisualMeshFactory : public MeshFactory
+{
+public:
+    VisualMeshFactory(Simulation *parent) : MeshFactory(parent) {}
+    virtual ~VisualMeshFactory() {}
+
+    virtual VisualSim* simulation() { return static_cast<VisualSim*>(m_parent); }
+
+protected:
+    bool create(const char *name, const char *filename,
+                float x, float y, float z);
+};
+
 #endif // _VISUAL_SIM_H_

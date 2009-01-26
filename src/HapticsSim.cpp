@@ -33,6 +33,29 @@ bool HapticsSphereFactory::create(const char *name, float x, float y, float z)
     return true;
 }
 
+bool HapticsMeshFactory::create(const char *name, const char *filename,
+                                float x, float y, float z)
+{
+    printf("HapticsMeshFactory (%s) is creating a mesh "
+           "object called '%s' (%s)\n", m_parent->c_name(), name, filename);
+
+    OscMeshCHAI *obj = new OscMeshCHAI(simulation()->world(),
+                                       name, filename, m_parent);
+
+    if (!obj->object()) {
+        delete obj;
+        obj = NULL;
+    }
+
+    if (!(obj && simulation()->add_object(*obj)))
+            return false;
+
+    obj->m_position.set(x, y, z);
+
+    return true;
+}
+
+
 /****** HapticsSim ******/
 
 HapticsSim::HapticsSim(const char *port)
@@ -40,6 +63,7 @@ HapticsSim::HapticsSim(const char *port)
 {
     m_pPrismFactory = new HapticsPrismFactory(this);
     m_pSphereFactory = new HapticsSphereFactory(this);
+    m_pMeshFactory = new HapticsMeshFactory(this);
 
     m_fTimestep = HAPTICS_TIMESTEP_MS/1000.0;
     printf("CHAI timestep: %f\n", m_fTimestep);
@@ -440,6 +464,61 @@ void OscPrismCHAI::on_size()
 		 pos.elementMul(cVector3d(1.0/fabs(pos.x), 1.0/fabs(pos.y), 1.0/fabs(pos.z)));
 		 pos.elementMul(m_size/2.0);
 		 m_pPrism->getVertex(i)->setPos(pos);
+    }
+}
+
+/****** OscMeshCHAI ******/
+
+OscMeshCHAI::OscMeshCHAI(cWorld *world, const char *name, const char *filename,
+                         OscBase *parent)
+    : OscMesh(NULL, name, filename, parent), CHAIObject(world)
+{
+    m_pMesh = new cMesh(world);
+
+    if (!m_pMesh->loadFromFile(filename)) {
+        printf("[%s] Unable to load %s for object %s.\n",
+               simulation()->type_str(), filename, name);
+        delete m_pMesh;
+        m_pMesh = NULL;
+        return;
+    }
+
+    printf("[%s] Loaded %s for object %s.\n",
+           simulation()->type_str(), filename, name);
+
+    // center the mesh
+    m_pMesh->computeBoundaryBox();
+    cVector3d vmin = m_pMesh->getBoundaryMin();
+    cVector3d vmax = m_pMesh->getBoundaryMax();
+    m_pMesh->translate((vmax-vmin*3)/2);
+
+    /* setup collision detector */
+    m_pMesh->createAABBCollisionDetector(true, true);
+
+    world->addChild(m_pMesh);
+    m_pMesh->computeGlobalPositions();
+
+    // User data points to the OscObject, used for identification
+    // during object contact.
+    m_pMesh->setUserData(this, 1);
+}
+
+OscMeshCHAI::~OscMeshCHAI()
+{
+    if (m_pMesh)
+        m_pMesh->getParent()->deleteChild(m_pMesh);
+}
+
+void OscMeshCHAI::on_size()
+{
+    // reposition vertices
+    int i,n;
+    n = m_pMesh->getNumVertices();
+    for (i=0; i<n; i++) {
+		 cVector3d pos = m_pMesh->getVertex(i)->getPos();
+		 pos.elementMul(cVector3d(1.0/fabs(pos.x), 1.0/fabs(pos.y), 1.0/fabs(pos.z)));
+		 pos.elementMul(m_size/2.0);
+		 m_pMesh->getVertex(i)->setPos(pos);
     }
 }
 
