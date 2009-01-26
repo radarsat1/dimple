@@ -511,15 +511,14 @@ OscMeshCHAI::~OscMeshCHAI()
 
 void OscMeshCHAI::on_size()
 {
-    // reposition vertices
-    int i,n;
-    n = m_pMesh->getNumVertices();
-    for (i=0; i<n; i++) {
-		 cVector3d pos = m_pMesh->getVertex(i)->getPos();
-		 pos.elementMul(cVector3d(1.0/fabs(pos.x), 1.0/fabs(pos.y), 1.0/fabs(pos.z)));
-		 pos.elementMul(m_size/2.0);
-		 m_pMesh->getVertex(i)->setPos(pos);
-    }
+    m_pMesh->computeBoundaryBox(true);
+    cVector3d vmin(m_pMesh->getBoundaryMin());
+    cVector3d vmax(m_pMesh->getBoundaryMax());
+    cVector3d scale(vmax - vmin);
+    scale.x = m_size.x / scale.x;
+    scale.y = m_size.y / scale.y;
+    scale.z = m_size.z / scale.z;
+    m_pMesh->scale(scale);
 }
 
 /****** OscCursorCHAI ******/
