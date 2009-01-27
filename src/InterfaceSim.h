@@ -25,6 +25,16 @@
         ((OscBase*)me)->simulation()->sendtotype(t,0,                   \
                                         (o.path()+"/get").c_str(),      \
                                         (interval>=0)?"i":"", interval);}
+#define FWD_OSCMATRIX3(o,t)                                             \
+    virtual void on_##o() {                                             \
+        simulation()->send(0,m_##o.c_path(), "fffffffff",               \
+                          m_##o.m[0][0], m_##o.m[0][1], m_##o.m[0][2],  \
+                          m_##o.m[1][0], m_##o.m[1][1], m_##o.m[1][2],  \
+                          m_##o.m[2][0], m_##o.m[2][1], m_##o.m[2][2]);}\
+    static void on_get_##o(void *me, OscMatrix3 &o, int interval){      \
+        ((OscBase*)me)->simulation()->sendtotype(t,0,                   \
+                                        (o.path()+"/get").c_str(),      \
+                                        (interval>=0)?"i":"", interval);}
 #define FWD_OSCSTRING(o,t)                                              \
     virtual void on_##o() {                                             \
         simulation()->send(0,m_##o.c_path(), "s",                       \
@@ -232,6 +242,7 @@ protected:
     FWD_OSCVECTOR3(position,Simulation::ST_PHYSICS);
     FWD_OSCVECTOR3(velocity,Simulation::ST_PHYSICS);
     FWD_OSCVECTOR3(accel,Simulation::ST_PHYSICS);
+    FWD_OSCMATRIX3(rotation,Simulation::ST_PHYSICS);
     FWD_OSCVECTOR3(color,Simulation::ST_VISUAL);
     FWD_OSCSCALAR(radius,Simulation::ST_PHYSICS);
     FWD_OSCVECTOR3(force,Simulation::ST_PHYSICS);
@@ -278,6 +289,7 @@ protected:
     FWD_OSCVECTOR3(position,Simulation::ST_PHYSICS);
     FWD_OSCVECTOR3(velocity,Simulation::ST_PHYSICS);
     FWD_OSCVECTOR3(accel,Simulation::ST_PHYSICS);
+    FWD_OSCMATRIX3(rotation,Simulation::ST_PHYSICS);
     FWD_OSCVECTOR3(color,Simulation::ST_VISUAL);
     FWD_OSCVECTOR3(force,Simulation::ST_PHYSICS);
     FWD_OSCVECTOR3(size,Simulation::ST_PHYSICS);
@@ -325,6 +337,7 @@ protected:
     FWD_OSCVECTOR3(position,Simulation::ST_PHYSICS);
     FWD_OSCVECTOR3(velocity,Simulation::ST_PHYSICS);
     FWD_OSCVECTOR3(accel,Simulation::ST_PHYSICS);
+    FWD_OSCMATRIX3(rotation,Simulation::ST_PHYSICS);
     FWD_OSCVECTOR3(color,Simulation::ST_VISUAL);
     FWD_OSCVECTOR3(force,Simulation::ST_PHYSICS);
     FWD_OSCVECTOR3(size,Simulation::ST_PHYSICS);
