@@ -223,6 +223,7 @@ InterfaceSim::InterfaceSim(const char *port)
     m_pPistonFactory = new InterfacePistonFactory(this);
     m_pUniversalFactory = new InterfaceUniversalFactory(this);
 
+    m_camera = new OscCameraInterface("camera", this);
     add_object(*(new OscSphereInterface(NULL, "cursor", this)));
 
     m_fTimestep = 1;
@@ -230,6 +231,7 @@ InterfaceSim::InterfaceSim(const char *port)
 
 InterfaceSim::~InterfaceSim()
 {
+    if (m_camera) delete m_camera;
 }
 
 void InterfaceSim::step()

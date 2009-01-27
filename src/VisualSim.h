@@ -4,10 +4,13 @@
 #define _VISUAL_SIM_H_
 
 #include "Simulation.h"
+#include "HapticsSim.h"
 
 #include <CWorld.h>
 #include <CCamera.h>
 #include <CLight.h>
+
+class OscCameraCHAI;
 
 class VisualSim : public Simulation
 {
@@ -16,7 +19,7 @@ class VisualSim : public Simulation
     virtual ~VisualSim();
 
     cWorld *world() { return m_chaiWorld; }
-    cCamera *camera() { return m_chaiCamera; }
+    OscCameraCHAI *camera() { return m_camera; }
     cLight *light() { return m_chaiLight; }
 
     virtual void on_clear();
@@ -34,8 +37,9 @@ class VisualSim : public Simulation
     int m_nWidth, m_nHeight;
 
     cWorld* m_chaiWorld;            //! the world in which we will create our environment
-    cCamera* m_chaiCamera;          //! the camera which is used view the environment in a window
     cLight *m_chaiLight;            //! a light source
+
+    OscCameraCHAI *m_camera;        //! an OSC-controllable camera
 
     /** GLUT callback functions require a pointer to the VisualSim
      ** object, but do not have a user-specified data parameter.  On
@@ -83,6 +87,22 @@ public:
 protected:
     bool create(const char *name, const char *filename,
                 float x, float y, float z);
+};
+
+class OscCameraCHAI : public OscCamera, public CHAIObject
+{
+public:
+    OscCameraCHAI(cWorld *world, const char *name, OscBase *parent=NULL);
+    virtual ~OscCameraCHAI();
+
+    virtual cCamera *object() { return m_pCamera; }
+
+    virtual void on_position() { m_pCamera->set(m_position, m_lookat, m_up); }
+    virtual void on_lookat()   { m_pCamera->set(m_position, m_lookat, m_up); }
+    virtual void on_up()       { m_pCamera->set(m_position, m_lookat, m_up); }
+
+protected:
+    cCamera *m_pCamera;
 };
 
 #endif // _VISUAL_SIM_H_

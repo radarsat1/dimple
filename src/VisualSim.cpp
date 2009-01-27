@@ -67,6 +67,7 @@ VisualSim *VisualSim::m_pGlobalContext = 0;
 
 VisualSim::VisualSim(const char *port)
     : Simulation(port, ST_VISUAL),
+      m_camera(NULL),
       m_bFullScreen(false)
 {
     m_pPrismFactory = new VisualPrismFactory(this);
@@ -134,24 +135,15 @@ void VisualSim::initialize()
     m_chaiWorld->setBackgroundColor(0.0f,0.0f,0.0f);
     
     // create a camera
-    m_chaiCamera = new cCamera(m_chaiWorld);
-    m_chaiWorld->addChild(m_chaiCamera);
-
-    // position a camera such that X increases to the right, Y
-    // increases into the screen, and Z is up.
-    m_chaiCamera->set( cVector3d (0.0, -1.0, 0.0),
-                       cVector3d (0.0, 0.0, 0.0),
-                       cVector3d (0.0, 0.0, 1.0));
-
-    // set the near and far clipping planes of the m_chaiCamera
-    m_chaiCamera->setClippingPlanes(0.01, 10.0);
+    m_camera = new OscCameraCHAI(m_chaiWorld, "camera", this);
+    m_chaiWorld->addChild(m_camera->object());
 
     // Create a light source and attach it to the camera
     m_chaiLight = new cLight(m_chaiWorld);
     m_chaiLight->setEnabled(true);
     m_chaiLight->setPos(cVector3d(2,0.5,1));
     m_chaiLight->setDir(cVector3d(-2,0.5,1));
-    m_chaiCamera->addChild(m_chaiLight);
+    m_camera->object()->addChild(m_chaiLight);
 
     // Create an object to represent the cursor
     OscSphereCHAI *pCursor = new OscSphereCHAI(m_chaiWorld, "cursor", this);
@@ -188,7 +180,7 @@ void VisualSim::draw()
     VisualSim* me = VisualSim::m_pGlobalContext;
 
     // set the background color of the world
-    cColorf color = me->m_chaiCamera->getParentWorld()->getBackgroundColor();
+    cColorf color = me->m_chaiWorld->getBackgroundColor();
     glClearColor(color.getR(), color.getG(), color.getB(), color.getA());
 
     // clear the color and depth buffers
@@ -201,7 +193,7 @@ void VisualSim::draw()
     */
 
     // render world
-    me->m_chaiCamera->renderView(me->m_nWidth, me->m_nHeight);
+    me->m_camera->object()->renderView(me->m_nWidth, me->m_nHeight);
 
     // check for any OpenGL errors
     GLenum err;
@@ -260,4 +252,28 @@ void VisualSim::reshape(int w, int h)
     me->m_nWidth = w;
     me->m_nHeight = h;
     glViewport(0, 0, w, h);
+}
+
+OscCameraCHAI::OscCameraCHAI(cWorld *world, const char *name, OscBase *parent)
+    : OscCamera(name, parent),
+      CHAIObject(world)
+{
+    m_pCamera = new cCamera(world);
+
+    // position a camera such that X increases to the right, Y
+    // increases into the screen, and Z is up.
+    m_position.set(0.0, -1.0, 0.0);
+    m_lookat.set(0.0, 0.0, 0.0);
+    m_up.set(0.0, 0.0, 1.0);
+
+    m_pCamera->set(m_position, m_lookat, m_up);
+
+    // set the near and far clipping planes of the camera
+    m_pCamera->setClippingPlanes(0.01, 10.0);
+}
+
+OscCameraCHAI::~OscCameraCHAI()
+{
+    if (m_pCamera)
+        m_pCamera->getParent()->deleteChild(m_pCamera);
 }

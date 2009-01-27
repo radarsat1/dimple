@@ -464,6 +464,19 @@ void OscMesh::size_physics_callback(void *self)
 
 // ------------------------------------------------------------------------
 
+OscCamera::OscCamera(const char *name, OscBase *parent)
+    : OscBase(name, parent),
+      m_position("position", this),
+      m_lookat("lookat", this),
+      m_up("up", this)
+{
+    m_position.setSetCallback(set_position, this, DIMPLE_THREAD_PHYSICS);
+    m_lookat.setSetCallback(set_lookat, this, DIMPLE_THREAD_PHYSICS);
+    m_up.setSetCallback(set_up, this, DIMPLE_THREAD_PHYSICS);
+}
+
+// ------------------------------------------------------------------------
+
 OscResponse::OscResponse(const char* name, OscBase *parent)
     : OscBase(name, parent),
       m_stiffness("stiffness", this),

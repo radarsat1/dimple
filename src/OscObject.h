@@ -160,6 +160,17 @@ class OscMesh : public OscObject
 	cVector3d m_vLastScaled;
 };
 
+class OscCamera : public OscBase
+{
+  public:
+	OscCamera(const char *name, OscBase *parent=NULL);
+
+  protected:
+    OSCVECTOR3(OscCamera, position) {};
+    OSCVECTOR3(OscCamera, lookat) {};
+    OSCVECTOR3(OscCamera, up) {};
+};
+
 //! The OscResponse class is used by the free axes of each OscConstraint
 //! subclass to dictate how they will respond to external forces.
 class OscResponse : public OscBase

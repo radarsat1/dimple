@@ -44,6 +44,8 @@
                                         (o.path()+"/get").c_str(),      \
                                         (interval>=0)?"i":"", interval);}
 
+class OscCameraInterface;
+
 class InterfaceSim : public Simulation
 {
   public:
@@ -68,6 +70,7 @@ class InterfaceSim : public Simulation
     }
 
   protected:
+    OscCameraInterface *m_camera;
     virtual void step();
 };
 
@@ -343,6 +346,24 @@ protected:
     FWD_OSCVECTOR3(size,Simulation::ST_PHYSICS);
     FWD_OSCSCALAR(mass,Simulation::ST_PHYSICS);
     FWD_OSCSCALAR(collide,Simulation::ST_PHYSICS);
+};
+
+class OscCameraInterface : public OscCamera
+{
+public:
+    OscCameraInterface(const char *name, OscBase *parent=NULL)
+        : OscCamera(name, parent)
+        {
+            m_position.setGetCallback(on_get_position, this, DIMPLE_THREAD_PHYSICS);
+            m_lookat.setGetCallback(on_get_lookat, this, DIMPLE_THREAD_PHYSICS);
+            m_up.setGetCallback(on_get_up, this, DIMPLE_THREAD_PHYSICS);
+        }
+    virtual ~OscCameraInterface() {}
+
+protected:
+    FWD_OSCVECTOR3(position,Simulation::ST_VISUAL);
+    FWD_OSCVECTOR3(lookat,Simulation::ST_VISUAL);
+    FWD_OSCVECTOR3(up,Simulation::ST_VISUAL);
 };
 
 class OscResponseInterface : public OscResponse
