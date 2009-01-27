@@ -492,6 +492,11 @@ OscMeshCHAI::OscMeshCHAI(cWorld *world, const char *name, const char *filename,
     cVector3d vmax = m_pMesh->getBoundaryMax();
     m_pMesh->translate((vmax-vmin*3)/2);
 
+    // size it to 0.1 without changing proportions
+    float size = (vmax-vmin).length();
+    m_size.set(0.1/size, 0.1/size, 0.1/size);
+    on_size();
+
     /* setup collision detector */
     m_pMesh->createAABBCollisionDetector(true, true);
 
