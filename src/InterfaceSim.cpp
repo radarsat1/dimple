@@ -223,6 +223,8 @@ InterfaceSim::InterfaceSim(const char *port)
     m_pPistonFactory = new InterfacePistonFactory(this);
     m_pUniversalFactory = new InterfaceUniversalFactory(this);
 
+    add_object(*(new OscSphereInterface(NULL, "cursor", this)));
+
     m_fTimestep = 1;
 }
 
