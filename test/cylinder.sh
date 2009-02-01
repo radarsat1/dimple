@@ -12,7 +12,9 @@
 # another terminal.
 if ! ( ps -A | grep oscdump >/dev/null 2>&1 ); then (oscdump 7775 &); fi
 
+CYL=$(readlink -f $(dirname "$0")/cylinder.3ds)
+
 oscsend localhost 7774 /world/clear
-oscsend localhost 7774 /world/mesh/create ssfff cyl cylinder.3ds 0 0 0
+oscsend localhost 7774 /world/mesh/create ssfff cyl $CYL 0 0 0
 oscsend localhost 7774 /world/cyl/size fff 0.15 0.15 0.15
 oscsend localhost 7774 /world/cyl/color fff 1 0.2 0.3
