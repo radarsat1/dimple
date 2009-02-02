@@ -3,3 +3,4 @@ Known Bugs
 
 1. Crash when touched object is destroyed.
 2. High CPU usage for inter-thread messaging.
+

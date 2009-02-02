@@ -224,7 +224,7 @@ InterfaceSim::InterfaceSim(const char *port)
     m_pUniversalFactory = new InterfaceUniversalFactory(this);
 
     m_camera = new OscCameraInterface("camera", this);
-    add_object(*(new OscSphereInterface(NULL, "cursor", this)));
+    new OscSphereInterface(NULL, "cursor", this);
 
     m_fTimestep = 1;
 }

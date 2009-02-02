@@ -148,12 +148,9 @@ void VisualSim::initialize()
     // Create an object to represent the cursor
     OscSphereCHAI *pCursor = new OscSphereCHAI(m_chaiWorld, "cursor", this);
     if (pCursor) {
-        if (add_object(*pCursor)) {
-            pCursor->m_position.set(0, 0, 0);
-            pCursor->m_color.set(1, 1, 0);
-        }
-        else
-            delete pCursor;
+        m_chaiWorld->addChild(pCursor->object());
+        pCursor->m_position.set(0, 0, 0);
+        pCursor->m_color.set(1, 1, 0);
     }
 
     Simulation::initialize();

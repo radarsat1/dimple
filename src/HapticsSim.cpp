@@ -81,6 +81,7 @@ void HapticsSim::initialize()
 
     // create an OscObject to point to the cursor
     m_cursor = new OscCursorCHAI(m_chaiWorld, "cursor", this);
+    m_chaiWorld->addChild(m_cursor->object());
 
     // quit the haptics simulation if the cursor couldn't be initialized.
     if (!m_cursor->is_initialized())
