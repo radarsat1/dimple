@@ -327,7 +327,7 @@ OscSphereODE::OscSphereODE(dWorldID odeWorld, dSpaceID odeSpace, const char *nam
 {
     m_odeGeom = dCreateSphere(m_odeSpace, 0.01);
     dGeomSetPosition(m_odeGeom, 0, 0, 0);
-    dMassSetSphere(&m_odeMass, 1, 0.01);
+    dMassSetSphere(&m_odeMass, m_density.m_value, 0.01);
     dBodySetMass(m_odeBody, &m_odeMass);
     dGeomSetBody(m_odeGeom, m_odeBody);
     dBodySetPosition(m_odeBody, 0, 0, 0);
@@ -339,6 +339,12 @@ OscSphereODE::OscSphereODE(dWorldID odeWorld, dSpaceID odeSpace, const char *nam
 void OscSphereODE::on_radius()
 {
     dGeomSphereSetRadius(m_odeGeom, m_radius.m_value);
+
+    // reset the mass to maintain same density
+    dMassSetSphere(&m_odeMass, m_density.m_value, m_radius.m_value);
+    dBodySetMass(m_odeBody, &m_odeMass);
+
+    m_mass.m_value = m_odeMass.mass;
 }
 
 void OscSphereODE::on_force()
@@ -348,7 +354,19 @@ void OscSphereODE::on_force()
 
 void OscSphereODE::on_mass()
 {
-    dMassSetSphere(&m_odeMass, m_mass.m_value, m_radius.m_value);
+    dMassSetSphereTotal(&m_odeMass, m_mass.m_value, m_radius.m_value);
+    dBodySetMass(m_odeBody, &m_odeMass);
+
+    dReal volume = 4*M_PI*m_radius.m_value*m_radius.m_value*m_radius.m_value/3;
+    m_density.m_value = m_mass.m_value / volume;
+}
+
+void OscSphereODE::on_density()
+{
+    dMassSetSphere(&m_odeMass, m_density.m_value, m_radius.m_value);
+    dBodySetMass(m_odeBody, &m_odeMass);
+
+    m_mass.m_value = m_odeMass.mass;
 }
 
 int OscSphereODE::push_handler(const char *path, const char *types,
@@ -370,7 +388,7 @@ OscPrismODE::OscPrismODE(dWorldID odeWorld, dSpaceID odeSpace, const char *name,
 {
     m_odeGeom = dCreateBox(m_odeSpace, 0.01, 0.01, 0.01);
     dGeomSetPosition(m_odeGeom, 0, 0, 0);
-    dMassSetBox(&m_odeMass, 1.0, 0.01, 0.01, 0.01);
+    dMassSetBox(&m_odeMass, m_density.m_value, 0.01, 0.01, 0.01);
     dBodySetMass(m_odeBody, &m_odeMass);
     dGeomSetBody(m_odeGeom, m_odeBody);
     dBodySetPosition(m_odeBody, 0, 0, 0);
@@ -388,30 +406,15 @@ void OscPrismODE::on_size()
     if (m_size.z <= 0)
         m_size.z = 0.0001;
 
-    // TODO: need previous values here!
-#if 0
-
-    // calculate the ratio between the two sizes
-    cVector3d ratio;
-    ratio.x = a_size[0] / m_size[0];
-    ratio.y = a_size[1] / m_size[1];
-    ratio.z = a_size[2] / m_size[2];
-
-    // assign new size
-    m_size = a_size;
-
-    // remember original mass
-    dMass mass;
-    dReal m;
-    dBodyGetMass(m_odeBody, &mass);
-    m = mass.mass;
-
-    // scale the mass accordingly
-    setDynamicMass(m*ratio.x*ratio.y*ratio.z);
-#endif
-
     // resize ODE geom
     dGeomBoxSetLengths (m_odeGeom, m_size[0], m_size[1], m_size[2]);
+
+    // reset the mass to maintain same density
+    dMassSetBox(&m_odeMass, m_density.m_value,
+                m_size[0], m_size[1], m_size[2]);
+    dBodySetMass(m_odeBody, &m_odeMass);
+
+    m_mass.m_value = m_odeMass.mass;
 }
 
 void OscPrismODE::on_force()
@@ -421,8 +424,21 @@ void OscPrismODE::on_force()
 
 void OscPrismODE::on_mass()
 {
-    dMassSetBox(&m_odeMass, m_mass.m_value,
+    dMassSetBoxTotal(&m_odeMass, m_mass.m_value,
+                     m_size.x, m_size.y, m_size.z);
+    dBodySetMass(m_odeBody, &m_odeMass);
+
+    dReal volume = m_size.x * m_size.y * m_size.z;
+    m_density.m_value = m_mass.m_value / volume;
+}
+
+void OscPrismODE::on_density()
+{
+    dMassSetBox(&m_odeMass, m_density.m_value,
                 m_size.x, m_size.y, m_size.z);
+    dBodySetMass(m_odeBody, &m_odeMass);
+
+    m_mass.m_value = m_odeMass.mass;
 }
 
 int OscPrismODE::push_handler(const char *path, const char *types, lo_arg **argv,

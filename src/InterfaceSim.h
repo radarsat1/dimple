@@ -217,6 +217,8 @@ public:
             m_color.setGetCallback(on_get_color, this, DIMPLE_THREAD_PHYSICS);
             m_radius.setGetCallback(on_get_radius, this, DIMPLE_THREAD_PHYSICS);
             m_force.setGetCallback(on_get_force, this, DIMPLE_THREAD_PHYSICS);
+            m_mass.setGetCallback(on_get_mass, this, DIMPLE_THREAD_PHYSICS);
+            m_density.setGetCallback(on_get_density, this, DIMPLE_THREAD_PHYSICS);
 
             addHandler("push", "ffffff", OscSphereInterface::push_handler);
         }
@@ -250,6 +252,7 @@ protected:
     FWD_OSCSCALAR(radius,Simulation::ST_PHYSICS);
     FWD_OSCVECTOR3(force,Simulation::ST_PHYSICS);
     FWD_OSCSCALAR(mass,Simulation::ST_PHYSICS);
+    FWD_OSCSCALAR(density,Simulation::ST_PHYSICS);
     FWD_OSCSCALAR(collide,Simulation::ST_PHYSICS);
 };
 
@@ -265,6 +268,8 @@ public:
             m_color.setGetCallback(on_get_color, this, DIMPLE_THREAD_PHYSICS);
             m_force.setGetCallback(on_get_force, this, DIMPLE_THREAD_PHYSICS);
             m_size.setGetCallback(on_get_size, this, DIMPLE_THREAD_PHYSICS);
+            m_mass.setGetCallback(on_get_mass, this, DIMPLE_THREAD_PHYSICS);
+            m_density.setGetCallback(on_get_density, this, DIMPLE_THREAD_PHYSICS);
 
             addHandler("push", "ffffff", OscPrismInterface::push_handler);
         }
@@ -297,6 +302,7 @@ protected:
     FWD_OSCVECTOR3(force,Simulation::ST_PHYSICS);
     FWD_OSCVECTOR3(size,Simulation::ST_PHYSICS);
     FWD_OSCSCALAR(mass,Simulation::ST_PHYSICS);
+    FWD_OSCSCALAR(density,Simulation::ST_PHYSICS);
     FWD_OSCSCALAR(collide,Simulation::ST_PHYSICS);
 };
 

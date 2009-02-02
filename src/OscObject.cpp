@@ -33,6 +33,7 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
       m_texture_image("texture/image", this),
       m_rotation("rotation", this),
       m_mass("mass", this),
+      m_density("density", this),
       m_collide("collide", this)
 {
     // Track pointer for ODE/Chai object
@@ -55,6 +56,7 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     m_velocity.set(0,0,0);
     m_position.set(0,0,0);
     m_force.set(0,0,0);
+    m_density.set(1);
 
     // Sane friction defaults
     m_friction_static.set(1);
@@ -70,6 +72,7 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     m_friction_dynamic.setSetCallback((OscScalar::SetCallback*)setFrictionDynamic, this, DIMPLE_THREAD_HAPTICS);
     m_texture_image.setSetCallback((OscString::SetCallback*)setTextureImage, this, DIMPLE_THREAD_HAPTICS);
     m_mass.setSetCallback(set_mass, this, DIMPLE_THREAD_PHYSICS);
+    m_density.setSetCallback(set_density, this, DIMPLE_THREAD_PHYSICS);
     m_collide.setSetCallback(set_collide, this, DIMPLE_THREAD_PHYSICS);
 
     // If the new object is supposed to be a part of a

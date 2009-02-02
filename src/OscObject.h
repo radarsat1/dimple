@@ -60,6 +60,7 @@ class OscObject : public OscBase
     OSCVECTOR3(OscObject, force) {};
     OSCVECTOR3(OscObject, color) {};
     OSCSCALAR(OscObject, mass) {};
+    OSCSCALAR(OscObject, density) {};
     OSCSCALAR(OscObject, collide) {};
 
     OSCMETHOD0(OscObject, grab) {};
