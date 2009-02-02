@@ -96,6 +96,40 @@ int OscScalar::_handler(const char *path, const char *types, lo_arg **argv,
 
 	 return 0;
 }
+// ----------------------------------------------------------------------------------
+
+OscBoolean::OscBoolean(const char *name, OscBase *owner)
+	 : OscValue(name, owner)
+{
+    m_value = false;
+    addHandler("", "i", OscBoolean::_handler);
+}
+
+void OscBoolean::set(bool value)
+{
+	 m_value = value;
+     if (m_set_callback)
+         m_set_callback(m_set_callback_data, *this);
+}
+
+void OscBoolean::send()
+{
+    lo_send(address_send, c_path(), "i", (int)m_value);
+}
+
+int OscBoolean::_handler(const char *path, const char *types, lo_arg **argv,
+                         int argc, void *data, void *user_data)
+{
+    OscBoolean *me = static_cast<OscBoolean*>(user_data);
+
+	 if (argc == 1)
+		  me->m_value = argv[0]->i!=0;
+
+     if (me->m_set_callback)
+         me->m_set_callback(me->m_set_callback_data, *me);
+
+	 return 0;
+}
 
 // ----------------------------------------------------------------------------------
 

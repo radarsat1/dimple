@@ -105,8 +105,8 @@ protected:
     virtual void on_radius();
     virtual void on_color()
       { object()->m_material.m_diffuse.set(m_color.x, m_color.y, m_color.z); }
-    virtual void on_visible(bool visible)
-        { object()->setShow(visible, true); }
+    virtual void on_visible()
+        { object()->setShow(m_visible.m_value, true); }
     virtual void on_grab();
 
     cShapeSphere *m_pSphere;
@@ -129,8 +129,8 @@ protected:
           object()->computeGlobalPositions(); }
     virtual void on_color()
       { object()->m_material.m_diffuse.set(m_color.x, m_color.y, m_color.z); }
-    virtual void on_visible(bool visible)
-        { object()->setShow(visible, true); }
+    virtual void on_visible()
+        { object()->setShow(m_visible.m_value, true); }
     virtual void on_size();
 
     //! Create a cMesh with a prism structure.
@@ -157,8 +157,8 @@ protected:
           object()->computeGlobalPositions(); }
     virtual void on_color()
       { object()->m_material.m_diffuse.set(m_color.x, m_color.y, m_color.z); }
-    virtual void on_visible(bool visible)
-        { object()->setShow(visible, true); }
+    virtual void on_visible()
+        { object()->setShow(m_visible.m_value, true); }
     virtual void on_size();
 
     cMesh *m_pMesh;

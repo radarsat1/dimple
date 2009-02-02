@@ -35,6 +35,14 @@
         ((OscBase*)me)->simulation()->sendtotype(t,0,                   \
                                         (o.path()+"/get").c_str(),      \
                                         (interval>=0)?"i":"", interval);}
+#define FWD_OSCBOOLEAN(o,t)                                              \
+    virtual void on_##o() {                                             \
+        simulation()->send(0,m_##o.c_path(), "i",                       \
+                           m_##o.m_value!=0); }                         \
+    static void on_get_##o(void *me, OscBoolean &o, int interval) {     \
+        ((OscBase*)me)->simulation()->sendtotype(t,0,                   \
+                                       (o.path()+"/get").c_str(),       \
+                                       (interval>=0)?"i":"", interval); }
 #define FWD_OSCSTRING(o,t)                                              \
     virtual void on_##o() {                                             \
         simulation()->send(0,m_##o.c_path(), "s",                       \
@@ -219,6 +227,7 @@ public:
             m_force.setGetCallback(on_get_force, this, DIMPLE_THREAD_PHYSICS);
             m_mass.setGetCallback(on_get_mass, this, DIMPLE_THREAD_PHYSICS);
             m_density.setGetCallback(on_get_density, this, DIMPLE_THREAD_PHYSICS);
+            m_visible.setGetCallback(on_get_visible, this, DIMPLE_THREAD_PHYSICS);
 
             addHandler("push", "ffffff", OscSphereInterface::push_handler);
         }
@@ -232,12 +241,6 @@ public:
     virtual void on_destroy() {
         simulation()->send(0, (path()+"/destroy").c_str(), "");
         OscSphere::on_destroy();
-    }
-
-    virtual void on_visible(bool visible) {
-        simulation()->sendtotype(Simulation::ST_VISUAL, 0,
-                                 (path()+"/visible").c_str(), "i", visible);
-        OscSphere::on_visible(visible);
     }
 
     static int push_handler(const char *path, const char *types, lo_arg **argv,
@@ -254,6 +257,7 @@ protected:
     FWD_OSCSCALAR(mass,Simulation::ST_PHYSICS);
     FWD_OSCSCALAR(density,Simulation::ST_PHYSICS);
     FWD_OSCSCALAR(collide,Simulation::ST_PHYSICS);
+    FWD_OSCBOOLEAN(visible,Simulation::ST_VISUAL);
 };
 
 class OscPrismInterface : public OscPrism
@@ -270,6 +274,7 @@ public:
             m_size.setGetCallback(on_get_size, this, DIMPLE_THREAD_PHYSICS);
             m_mass.setGetCallback(on_get_mass, this, DIMPLE_THREAD_PHYSICS);
             m_density.setGetCallback(on_get_density, this, DIMPLE_THREAD_PHYSICS);
+            m_visible.setGetCallback(on_get_visible, this, DIMPLE_THREAD_PHYSICS);
 
             addHandler("push", "ffffff", OscPrismInterface::push_handler);
         }
@@ -283,11 +288,6 @@ public:
     virtual void on_destroy() {
         simulation()->send(0, (path()+"/destroy").c_str(), "");
         OscPrism::on_destroy();
-    }
-
-    virtual void on_visible(bool visible) {
-        simulation()->send(0, (path()+"/visible").c_str(), "i", visible);
-        OscPrism::on_visible(visible);
     }
 
     static int push_handler(const char *path, const char *types, lo_arg **argv,
@@ -304,6 +304,7 @@ protected:
     FWD_OSCSCALAR(mass,Simulation::ST_PHYSICS);
     FWD_OSCSCALAR(density,Simulation::ST_PHYSICS);
     FWD_OSCSCALAR(collide,Simulation::ST_PHYSICS);
+    FWD_OSCBOOLEAN(visible,Simulation::ST_VISUAL);
 };
 
 class OscMeshInterface : public OscMesh
@@ -319,6 +320,7 @@ public:
             m_color.setGetCallback(on_get_color, this, DIMPLE_THREAD_PHYSICS);
             m_force.setGetCallback(on_get_force, this, DIMPLE_THREAD_PHYSICS);
             m_size.setGetCallback(on_get_size, this, DIMPLE_THREAD_PHYSICS);
+            m_visible.setGetCallback(on_get_visible, this, DIMPLE_THREAD_PHYSICS);
 
             addHandler("push", "ffffff", OscMeshInterface::push_handler);
         }
@@ -334,11 +336,6 @@ public:
         OscMesh::on_destroy();
     }
 
-    virtual void on_visible(bool visible) {
-        simulation()->send(0, (path()+"/visible").c_str(), "i", visible);
-        OscMesh::on_visible(visible);
-    }
-
     static int push_handler(const char *path, const char *types, lo_arg **argv,
                             int argc, void *data, void *user_data);
 
@@ -352,6 +349,7 @@ protected:
     FWD_OSCVECTOR3(size,Simulation::ST_PHYSICS);
     FWD_OSCSCALAR(mass,Simulation::ST_PHYSICS);
     FWD_OSCSCALAR(collide,Simulation::ST_PHYSICS);
+    FWD_OSCBOOLEAN(visible,Simulation::ST_VISUAL);
 };
 
 class OscCameraInterface : public OscCamera

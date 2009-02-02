@@ -34,7 +34,8 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
       m_rotation("rotation", this),
       m_mass("mass", this),
       m_density("density", this),
-      m_collide("collide", this)
+      m_collide("collide", this),
+      m_visible("visible", this)
 {
     // Track pointer for ODE/Chai object
     m_objChai = p;
@@ -49,7 +50,6 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     addHandler("grab"       , ""   , OscObject::grab_handler);
     addHandler("grab"       , "i"  , OscObject::grab_handler);
     addHandler("oscillate"  , "ff" , OscObject::oscillate_handler);
-    addHandler("visible"    , "i"  , OscObject::visible_handler);
 
     // Set initial physical properties
     m_accel.set(0,0,0);
@@ -57,6 +57,7 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     m_position.set(0,0,0);
     m_force.set(0,0,0);
     m_density.set(1);
+    m_visible.set(true);
 
     // Sane friction defaults
     m_friction_static.set(1);
@@ -74,6 +75,7 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     m_mass.setSetCallback(set_mass, this, DIMPLE_THREAD_PHYSICS);
     m_density.setSetCallback(set_density, this, DIMPLE_THREAD_PHYSICS);
     m_collide.setSetCallback(set_collide, this, DIMPLE_THREAD_PHYSICS);
+    m_visible.setSetCallback(set_visible, this, DIMPLE_THREAD_PHYSICS);
 
     // If the new object is supposed to be a part of a
     // composite object, find it and join.

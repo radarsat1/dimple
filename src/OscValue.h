@@ -27,6 +27,7 @@
     { p; ((c*)data)->on_##x(); }                \
     virtual void on_##x()
 #define OSCSCALAR(c, o) OSCVALUE(c, OscScalar, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> %f\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.m_value)))
+#define OSCBOOLEAN(c, o) OSCVALUE(c, OscBoolean, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> %s\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.m_value ? "true" : "false")))
 #define OSCVECTOR3(c, o) OSCVALUE(c, OscVector3, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> (%f, %f, %f)\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.x, s.y, s.z)))
 #define OSCMATRIX3(c, o) OSCVALUE(c, OscMatrix3, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> (%f, %f, %f; %f, %f, %f; %f, %f, %f)\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.m[0][0], s.m[0][1], s.m[0][2], s.m[1][0], s.m[1][1], s.m[1][2], s.m[2][0], s.m[2][1], s.m[2][2])))
 #define OSCSTRING(c, o) OSCVALUE(c, OscStrings, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> '%s'\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.c_str())))
@@ -47,12 +48,6 @@
                            void *user_data) {((t*)user_data)->          \
                            on_##x(argv[0]->f, argv[1]->f);return 0;}    \
     virtual void on_##x(float arg1, float arg2)
-#define OSCBOOLEAN(t, x)                                                \
-    static int x##_handler(const char *path, const char *types,         \
-                           lo_arg **argv, int argc, void *data,         \
-                           void *user_data) {((t*)user_data)->          \
-                           on_##x(argv[0]->i!=0);return 0;}             \
-    virtual void on_##x(bool arg)
 
 /* === End of macro definitions. */
 
@@ -98,6 +93,29 @@ class OscScalar : public OscValue
     void setSetCallback(SetCallback *c, void *d, int thread)
         { OscValue::setSetCallback((OscValue::SetCallback*)c, d, thread); }
     typedef void GetCallback(void*, OscScalar&, int interval);
+    void setGetCallback(GetCallback *c, void *d, int thread)
+        { OscValue::setGetCallback((OscValue::GetCallback*)c, d, thread); }
+
+  protected:
+    static int _handler(const char *path, const char *types, lo_arg **argv,
+                        int argc, void *data, void *user_data);
+};
+
+//! The OscBoolean class is used to maintain information about boolean values
+//! used throughout the OSC interface.
+class OscBoolean : public OscValue
+{
+  public:
+    OscBoolean(const char *name, OscBase *owner);
+	void set(bool value);
+    void send();
+
+    bool m_value;
+
+    typedef void SetCallback(void*, OscBoolean&);
+    void setSetCallback(SetCallback *c, void *d, int thread)
+        { OscValue::setSetCallback((OscValue::SetCallback*)c, d, thread); }
+    typedef void GetCallback(void*, OscBoolean&, int interval);
     void setGetCallback(GetCallback *c, void *d, int thread)
         { OscValue::setGetCallback((OscValue::GetCallback*)c, d, thread); }
 
