@@ -18,4 +18,4 @@ oscsend localhost 7774 /world/cube/size fff 0.15 0.15 0.15
 oscsend localhost 7774 /world/cube/color fff 1 0.2 0.3
 
 # Push it slowly to the left
-oscsend localhost 7774 /world/cube/force fff -0.000001 0 0
+oscsend localhost 7774 /world/cube/force fff -0.1 0 0

@@ -19,6 +19,6 @@ oscsend localhost 7774 /world/s/radius f 0.03
 oscsend localhost 7774 /world/ball/create sssfff c1 s world 0 0 0
 
 # Push the sphere
-oscsend localhost 7774 /world/s/force fff 0.0001 0.00005 0.00002
+oscsend localhost 7774 /world/s/force fff 0.01 0.005 0.002
 sleep 3s
-oscsend localhost 7774 /world/s/force fff 0 0 0.0001
+oscsend localhost 7774 /world/s/force fff 0 0 0.01

@@ -24,7 +24,7 @@ oscsend localhost 7774 /world/hinge2/create sssfffffffff \
 oscsend localhost 7774 /world/fixed/create sss c2 s2 world
 
 # Push the sphere
-oscsend localhost 7774 /world/s/force fff 0.0001 0.00005 0.00002
+oscsend localhost 7774 /world/s/force fff 0.001 0.005 0.002
 sleep 1
-oscsend localhost 7774 /world/s/force fff 0.0001 0 0.0001
+oscsend localhost 7774 /world/s/force fff 0.01 0 0.01
 

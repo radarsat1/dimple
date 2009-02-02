@@ -18,8 +18,8 @@ oscsend localhost 7774 /world/box/size fff 0.02 0.1 0.20
 oscsend localhost 7774 /world/box/color fff 1 0.2 0.3
 oscsend localhost 7774 /world/hinge/create sssffffff boxhinge box world \
     0 0 0 0 1 0
-oscsend localhost 7774 /world/boxhinge/response/spring ff 0.0000001 0.00000001
+oscsend localhost 7774 /world/boxhinge/response/spring ff 0.001 0.00001
 
 # Give it some torque
-oscsend localhost 7774 /world/boxhinge/torque f 0.00001
+oscsend localhost 7774 /world/boxhinge/torque f 0.01
 
