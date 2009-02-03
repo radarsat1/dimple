@@ -7,6 +7,8 @@
 #include "OscObject.h"
 #include <ode/ode.h>
 
+class ODEObject;
+
 class PhysicsSim : public Simulation
 {
   public:
@@ -23,10 +25,15 @@ class PhysicsSim : public Simulation
         { dWorldSetGravity(m_odeWorld, m_gravity.x,
                            m_gravity.y, m_gravity.z); }
 
+    void set_grabbed(ODEObject *o)
+        { m_pGrabbedObject = o; }
+
   protected:
     dWorldID m_odeWorld;
     dSpaceID m_odeSpace;
     dJointGroupID m_odeContactGroup;
+
+    ODEObject* m_pGrabbedObject;
 
     bool m_bGetCollide;
     int m_counter;
@@ -178,6 +185,12 @@ public:
     void connectBody()
         { dGeomSetBody(m_odeGeom, m_odeBody); dBodyEnable(m_odeBody); }
 
+    dBodyID  body()  { return m_odeBody;  } //! Return the dBodyID
+    dGeomID  geom()  { return m_odeGeom;  } //! Return the dGeomID
+    dMass&   mass()  { return m_odeMass;  } //! Return the dMass
+    dWorldID world() { return m_odeWorld; } //! Return the dWorldID
+    dSpaceID space() { return m_odeSpace; } //! Return the dSpaceID
+
 protected:
     dBodyID  m_odeBody;
     dGeomID  m_odeGeom;
@@ -218,6 +231,9 @@ protected:
     virtual void on_mass();
     virtual void on_density();
 
+    virtual void on_grab()
+        { static_cast<PhysicsSim*>(simulation())->set_grabbed(this); }
+
     static int push_handler(const char *path, const char *types, lo_arg **argv,
                             int argc, void *data, void *user_data);
 };
@@ -235,6 +251,9 @@ protected:
       { dBodySetPosition(m_odeBody, m_position.x, m_position.y, m_position.z); }
     virtual void on_mass();
     virtual void on_density();
+
+    virtual void on_grab()
+        { static_cast<PhysicsSim*>(simulation())->set_grabbed(this); }
 
     static int push_handler(const char *path, const char *types, lo_arg **argv,
                             int argc, void *data, void *user_data);

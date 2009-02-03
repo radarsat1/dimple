@@ -148,6 +148,8 @@ PhysicsSim::PhysicsSim(const char *port)
     m_pPistonFactory = new PhysicsPistonFactory(this);
     m_pUniversalFactory = new PhysicsUniversalFactory(this);
 
+    m_pGrabbedObject = NULL;
+
     m_fTimestep = PHYSICS_TIMESTEP_MS/1000.0;
     m_counter = 0;
     printf("ODE timestep: %f\n", m_fTimestep);
@@ -175,6 +177,13 @@ void PhysicsSim::initialize()
 
 void PhysicsSim::step()
 {
+    // Add extra forces to objects
+    // Grabbed object attraction
+    if (m_pGrabbedObject)
+    {
+        dBodyAddForce(m_pGrabbedObject->body(), 0, 0, 0);
+    }
+
     // Perform simulation step
 	dSpaceCollide (m_odeSpace, this, &ode_nearCallback);
 	dWorldStepFast1 (m_odeWorld, m_fTimestep, 5);
