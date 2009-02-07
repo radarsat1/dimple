@@ -51,8 +51,8 @@ elif 'darwin' in sys.platform:
 	env.Append(LIBS = ['chai3d_darwin'],
                LIBPATH = ['../libdeps/chai3d/lib/darwin'])
 if 'MINGW' in uname:
-	env.Append(LIBS = ['chai3d_cygwin'],
-               LIBPATH = ['../libdeps/chai3d/lib/cygwin'])
+	env.Append(LIBS = ['chai3d_mingw','oleaut32','uuid'],
+               LIBPATH = ['../libdeps/chai3d/lib/mingw'])
 
 ### LibLo ###
 

@@ -161,9 +161,9 @@ echo
 }
 
 chai3d() {
-chai_URL=http://chai3d.org/builds/chai3d%5Bv1.61%5D.zip
-chai_TAR=chai3d-v1.61.zip
-chai_MD5=516eebf36ca995b9f200b965cc78f002
+chai_URL=http://chai3d.org/builds/chai3d%5Bv1.62%5D.zip
+chai_TAR=chai3d-v1.62.zip
+chai_MD5=f2e894cb11bf7d0decf31c0be7e9fb57
 
 if ! [ -d $chai_DIR ]; then
 
@@ -559,8 +559,8 @@ case $(uname) in
     liblo_LIBS="-lws2_32"
     liblo_PATCH=liblo-mingw.patch
     liblo_CONFIGEXTRA=--disable-ipv6
-    chai_DIR=chai3d/cygwin #works for mingw
-	chai_PATCH=chai3d-1.61-mingw.patch
+    chai_DIR=chai3d/mingw
+	chai_PATCH=chai3d-1.62-mingw.patch
 
     freeglut
     pthreads
