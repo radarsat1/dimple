@@ -8,7 +8,7 @@
 echo This script bootstraps required libraries for selected environments.
 
 liblo() {
-liblo_URL=http://easynews.dl.sourceforge.net/sourceforge/liblo/liblo-0.25.tar.gz
+liblo_URL=http://downloads.sourceforge.net/liblo/liblo-0.25.tar.gz
 liblo_TAR=liblo-0.25.tar.gz
 liblo_DIR=liblo-0.25
 liblo_MD5=e8b8f6542cdecd6ad5f42dd4d4d81023
@@ -230,7 +230,7 @@ echo
 }
 
 freeglut() {
-freeglut_URL=http://internap.dl.sourceforge.net/sourceforge/freeglut/freeglut-2.4.0.tar.gz
+freeglut_URL=http://downloads.sourceforge.net/freeglut/freeglut-2.4.0.tar.gz
 freeglut_TAR=freeglut-2.4.0.tar.gz
 freeglut_DIR=freeglut-2.4.0
 freeglut_MD5=6d16873bd876fbf4980a927cfbc496a1
@@ -432,7 +432,7 @@ echo
 }
 
 scons() {
-scons_URL=http://superb-west.dl.sourceforge.net/sourceforge/scons/scons-local-0.96.1.tar.gz
+scons_URL=http://downloads.sourceforge.net/scons/scons-local-0.96.1.tar.gz
 scons_TAR=scons-local-0.96.1.tar.gz
 scons_MD5=78754efc02b4a374d5082a61509879cd
 scons_DIR=scons-local-0.96.1
