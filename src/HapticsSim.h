@@ -21,6 +21,8 @@ class HapticsSim : public Simulation
 
     cWorld *world() { return m_chaiWorld; }
 
+    OscObject *contact_object() { return m_pContactObject; }
+
   protected:
     virtual void initialize();
     virtual void step();
@@ -189,6 +191,8 @@ public:
     int start() { return m_pCursor->start(); }
     int stop()  { return m_pCursor->stop(); }
 
+    void addCursorMassForce();
+
 protected:
     virtual void on_position()
       { object()->setPos(m_position); }
@@ -201,6 +205,9 @@ protected:
         { object()->setShow(visible, true); }
 
     cMeta3dofPointer *m_pCursor;
+    cVector3d m_massPos;
+    cVector3d m_massVel;
+    cVector3d m_lastPosDiff;
 
     bool m_bInitialized;
 };

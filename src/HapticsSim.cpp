@@ -105,6 +105,8 @@ void HapticsSim::step()
     m_cursor->m_position.set(cursor->m_deviceGlobalPos);
     m_cursor->m_velocity.set(cursor->m_deviceGlobalVel);
 
+    m_cursor->addCursorMassForce();
+
     cursor->applyForces();
 
     m_counter++;
@@ -565,6 +567,9 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
 
     // this is necessary for the above rotation to take effect
     m_pCursor->computeGlobalPositions();
+
+    // set up mass as zero to begin (transparent proxy)
+    m_mass.set(0);
 }
 
 OscCursorCHAI::~OscCursorCHAI()
@@ -581,4 +586,32 @@ void OscCursorCHAI::on_radius()
         return;
 
     m_pCursor->setRadius(m_radius.m_value);
+}
+
+/*! Compute a force based on a mass attached to the cursor
+ *  and add this force to the global cursor force. */
+void OscCursorCHAI::addCursorMassForce()
+{
+    double timestep = simulation()->timestep();
+
+    // if no mass, just update the mass position
+    if (m_mass.m_value <= 0) {
+        m_massVel = (m_pCursor->m_deviceGlobalPos - m_massPos) / timestep;
+        m_massPos = m_pCursor->m_deviceGlobalPos;
+        return;
+    }
+
+    double k=10;                         // stiffness of mass-spring
+    double b=0.001;//2*sqrt(k*m_mass.m_value);  // critical damping
+
+    cVector3d posdiff(m_pCursor->m_deviceGlobalPos - m_massPos);
+    cVector3d springVel((posdiff - m_lastPosDiff)/timestep);
+    m_lastPosDiff = posdiff;
+    cVector3d veldiff(m_pCursor->m_deviceGlobalVel - m_massVel);
+    cVector3d force(-k*posdiff - b*springVel);
+
+    m_massPos += m_massVel*timestep;
+    m_massVel -= force/m_mass.m_value*timestep;
+
+    m_pCursor->m_lastComputedGlobalForce += force*10;
 }
