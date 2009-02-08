@@ -227,6 +227,8 @@ public:
             m_force.setGetCallback(on_get_force, this, DIMPLE_THREAD_PHYSICS);
             m_mass.setGetCallback(on_get_mass, this, DIMPLE_THREAD_PHYSICS);
             m_density.setGetCallback(on_get_density, this, DIMPLE_THREAD_PHYSICS);
+            m_friction_static.setGetCallback(on_get_friction_static, this, DIMPLE_THREAD_PHYSICS);
+            m_friction_dynamic.setGetCallback(on_get_friction_dynamic, this, DIMPLE_THREAD_PHYSICS);
             m_visible.setGetCallback(on_get_visible, this, DIMPLE_THREAD_PHYSICS);
 
             addHandler("push", "ffffff", OscSphereInterface::push_handler);
@@ -256,6 +258,8 @@ protected:
     FWD_OSCVECTOR3(force,Simulation::ST_PHYSICS);
     FWD_OSCSCALAR(mass,Simulation::ST_PHYSICS);
     FWD_OSCSCALAR(density,Simulation::ST_PHYSICS);
+    FWD_OSCSCALAR(friction_dynamic,Simulation::ST_HAPTICS);
+    FWD_OSCSCALAR(friction_static,Simulation::ST_HAPTICS);
     FWD_OSCSCALAR(collide,Simulation::ST_PHYSICS);
     FWD_OSCBOOLEAN(visible,Simulation::ST_VISUAL);
 };
@@ -274,6 +278,8 @@ public:
             m_size.setGetCallback(on_get_size, this, DIMPLE_THREAD_PHYSICS);
             m_mass.setGetCallback(on_get_mass, this, DIMPLE_THREAD_PHYSICS);
             m_density.setGetCallback(on_get_density, this, DIMPLE_THREAD_PHYSICS);
+            m_friction_static.setGetCallback(on_get_friction_static, this, DIMPLE_THREAD_PHYSICS);
+            m_friction_dynamic.setGetCallback(on_get_friction_dynamic, this, DIMPLE_THREAD_PHYSICS);
             m_visible.setGetCallback(on_get_visible, this, DIMPLE_THREAD_PHYSICS);
 
             addHandler("push", "ffffff", OscPrismInterface::push_handler);
@@ -303,6 +309,8 @@ protected:
     FWD_OSCVECTOR3(size,Simulation::ST_PHYSICS);
     FWD_OSCSCALAR(mass,Simulation::ST_PHYSICS);
     FWD_OSCSCALAR(density,Simulation::ST_PHYSICS);
+    FWD_OSCSCALAR(friction_dynamic,Simulation::ST_HAPTICS);
+    FWD_OSCSCALAR(friction_static,Simulation::ST_HAPTICS);
     FWD_OSCSCALAR(collide,Simulation::ST_PHYSICS);
     FWD_OSCBOOLEAN(visible,Simulation::ST_VISUAL);
 };
@@ -318,6 +326,8 @@ public:
             m_velocity.setGetCallback(on_get_velocity, this, DIMPLE_THREAD_PHYSICS);
             m_accel.setGetCallback(on_get_accel, this, DIMPLE_THREAD_PHYSICS);
             m_color.setGetCallback(on_get_color, this, DIMPLE_THREAD_PHYSICS);
+            m_friction_static.setGetCallback(on_get_friction_static, this, DIMPLE_THREAD_PHYSICS);
+            m_friction_dynamic.setGetCallback(on_get_friction_dynamic, this, DIMPLE_THREAD_PHYSICS);
             m_force.setGetCallback(on_get_force, this, DIMPLE_THREAD_PHYSICS);
             m_size.setGetCallback(on_get_size, this, DIMPLE_THREAD_PHYSICS);
             m_visible.setGetCallback(on_get_visible, this, DIMPLE_THREAD_PHYSICS);
@@ -348,6 +358,8 @@ protected:
     FWD_OSCVECTOR3(force,Simulation::ST_PHYSICS);
     FWD_OSCVECTOR3(size,Simulation::ST_PHYSICS);
     FWD_OSCSCALAR(mass,Simulation::ST_PHYSICS);
+    FWD_OSCSCALAR(friction_dynamic,Simulation::ST_HAPTICS);
+    FWD_OSCSCALAR(friction_static,Simulation::ST_HAPTICS);
     FWD_OSCSCALAR(collide,Simulation::ST_PHYSICS);
     FWD_OSCBOOLEAN(visible,Simulation::ST_VISUAL);
 };

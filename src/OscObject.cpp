@@ -69,8 +69,8 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     m_force.setSetCallback(set_force, this, DIMPLE_THREAD_PHYSICS);
     m_color.setSetCallback(set_color, this, DIMPLE_THREAD_PHYSICS);
     m_velocity.setSetCallback(set_velocity, this, DIMPLE_THREAD_PHYSICS);
-    m_friction_static.setSetCallback((OscScalar::SetCallback*)setFrictionStatic, this, DIMPLE_THREAD_HAPTICS);
-    m_friction_dynamic.setSetCallback((OscScalar::SetCallback*)setFrictionDynamic, this, DIMPLE_THREAD_HAPTICS);
+    m_friction_static.setSetCallback(set_friction_static, this, DIMPLE_THREAD_HAPTICS);
+    m_friction_dynamic.setSetCallback(set_friction_dynamic, this, DIMPLE_THREAD_HAPTICS);
     m_texture_image.setSetCallback((OscString::SetCallback*)setTextureImage, this, DIMPLE_THREAD_HAPTICS);
     m_mass.setSetCallback(set_mass, this, DIMPLE_THREAD_PHYSICS);
     m_density.setSetCallback(set_density, this, DIMPLE_THREAD_PHYSICS);
@@ -141,36 +141,6 @@ void OscObject::unlinkConstraint(std::string &name)
 void OscObject::setVelocity(OscObject *me, const OscVector3& vel)
 {
     me->odePrimitive()->setDynamicLinearVelocity(vel);
-}
-
-//! Set the haptic object static friction coefficient.
-void OscObject::setFrictionStatic(OscObject *me, const OscScalar& value)
-{
-    // Note: unfortunately cMesh and cGenericPotentialField don't
-    // share the same m_material field...
-    cShapeSphere *sphere = dynamic_cast<cShapeSphere*>(me->chaiObject());
-    if (sphere) {
-        sphere->m_material.setStaticFriction(value.m_value);
-        return;
-    }
-
-    cMesh *mesh = dynamic_cast<cMesh*>(me->chaiObject());
-    if (mesh)
-        mesh->m_material.setStaticFriction(value.m_value);
-}
-
-//! Set the haptic object dynamic friction coefficient.
-void OscObject::setFrictionDynamic(OscObject *me, const OscScalar& value)
-{
-    cShapeSphere *sphere = dynamic_cast<cShapeSphere*>(me->chaiObject());
-    if (sphere) {
-        sphere->m_material.setDynamicFriction(value.m_value);
-        return;
-    }
-
-    cMesh *mesh = dynamic_cast<cMesh*>(me->chaiObject());
-    if (mesh)
-        mesh->m_material.setDynamicFriction(value.m_value);
 }
 
 //! Set the texture file to use for this object.

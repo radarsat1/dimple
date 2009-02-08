@@ -107,6 +107,10 @@ protected:
       { object()->m_material.m_diffuse.set(m_color.x, m_color.y, m_color.z); }
     virtual void on_visible()
         { object()->setShow(m_visible.m_value, true); }
+    virtual void on_friction_static()
+        { object()->m_material.setStaticFriction(m_friction_static.m_value); }
+    virtual void on_friction_dynamic()
+        { object()->m_material.setDynamicFriction(m_friction_dynamic.m_value); }
     virtual void on_grab();
 
     cShapeSphere *m_pSphere;
@@ -132,6 +136,10 @@ protected:
     virtual void on_visible()
         { object()->setShow(m_visible.m_value, true); }
     virtual void on_size();
+    virtual void on_friction_static()
+        { object()->m_material.setStaticFriction(m_friction_static.m_value); }
+    virtual void on_friction_dynamic()
+        { object()->m_material.setDynamicFriction(m_friction_dynamic.m_value); }
 
     //! Create a cMesh with a prism structure.
     void createPrism(bool openbox=false);
@@ -157,6 +165,10 @@ protected:
           object()->computeGlobalPositions(); }
     virtual void on_color()
       { object()->m_material.m_diffuse.set(m_color.x, m_color.y, m_color.z); }
+    virtual void on_friction_static()
+        { object()->m_material.setStaticFriction(m_friction_static.m_value); }
+    virtual void on_friction_dynamic()
+        { object()->m_material.setDynamicFriction(m_friction_dynamic.m_value); }
     virtual void on_visible()
         { object()->setShow(m_visible.m_value, true); }
     virtual void on_size();

@@ -62,6 +62,8 @@ class OscObject : public OscBase
     OSCSCALAR(OscObject, mass) {};
     OSCSCALAR(OscObject, density) {};
     OSCSCALAR(OscObject, collide) {};
+    OSCSCALAR(OscObject, friction_static) {};
+    OSCSCALAR(OscObject, friction_dynamic) {};
 
     OSCMETHOD0(OscObject, grab) {};
     OSCMETHOD0(OscObject, destroy);
@@ -78,11 +80,6 @@ class OscObject : public OscBase
     std::map<OscObject*,int> m_collisions;
 
     static void setVelocity(OscObject *me, const OscVector3& vel);
-
-    OscScalar m_friction_static;
-    OscScalar m_friction_dynamic;
-    static void setFrictionStatic(OscObject *me, const OscScalar& value);
-    static void setFrictionDynamic(OscObject *me, const OscScalar& value);
 
     OscString m_texture_image;
     static void setTextureImage(OscObject *me, const OscString& filename);
