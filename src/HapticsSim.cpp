@@ -134,9 +134,9 @@ void HapticsSim::step()
     if (m_pContactObject) {
         sendtotype(Simulation::ST_PHYSICS, true,
                    (m_pContactObject->path()+"/push").c_str(), "ffffff",
-                   -m_lastForce.x * 0.00001,
-                   -m_lastForce.y * 0.00001,
-                   -m_lastForce.z * 0.00001,
+                   -m_lastForce.x,
+                   -m_lastForce.y,
+                   -m_lastForce.z,
                    m_lastContactPoint.x,
                    m_lastContactPoint.y,
                    m_lastContactPoint.z);
@@ -148,21 +148,7 @@ void HapticsSim::step()
                     m_pContactObject->c_name(), m_cursor->c_name(),
                     (double)(m_pContactObject->m_velocity
                              - m_cursor->m_velocity).length());
-
-            /*
-             * TODO: The above should perhaps be derived from force
-             * instead of velocity:
-             *
-             * lo_send(address_send, "/world/collide", "ssf",
-             *      m_pContactObject->c_name(), "cursor",
-             *      (double)(m_lastForce.length() * 0.00001));
-            */
         }
-
-        /* TODO: the above 0.00001 scaling are just temporary
-           coefficients observed to work (somewhat) with the example
-           patch.  They are to be removed when mass scaling is
-           properly implemented. */
     }
 }
 
