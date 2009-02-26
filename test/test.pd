@@ -222,7 +222,7 @@
 #X msg 58 214 /world/sphere/create \$1s \$3 \$3 \$2;
 #X msg 28 237 /world/\$1s/radius 0.02;
 #X msg 6 289 /world/collide 1;
-#X msg 46 260 /world/\$1s/mass 0.02;
+#X msg 46 260 /world/\$1s/mass 2;
 #X connect 1 0 9 0;
 #X connect 2 0 6 1;
 #X connect 2 0 13 0;
