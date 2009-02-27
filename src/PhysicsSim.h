@@ -33,7 +33,7 @@ class PhysicsSim : public Simulation
     dSpaceID m_odeSpace;
     dJointGroupID m_odeContactGroup;
 
-    ODEObject* m_pGrabbedObject;
+    ODEObject* m_pGrabbedODEObject;
     OscObject* m_pCursor;
 
     bool m_bGetCollide;

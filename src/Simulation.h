@@ -74,7 +74,8 @@ class Simulation : public OscBase
     bool delete_constraint(OscConstraint& obj);
 
     //! Set the grabbed object or ungrab by setting to NULL.
-    virtual void set_grabbed(OscObject *pGrabbed) {};
+    virtual void set_grabbed(OscObject *pGrabbed)
+        { m_pGrabbedObject = pGrabbed; }
 
     float timestep() { return m_fTimestep; }
 
@@ -121,6 +122,9 @@ class Simulation : public OscBase
     SlideFactory *m_pSlideFactory;
     PistonFactory *m_pPistonFactory;
     UniversalFactory *m_pUniversalFactory;
+
+    //! Track the grabbed object
+    OscObject *m_pGrabbedObject;
 
     //! Function for simulation thread (thread context).
     static void* run(void* param);

@@ -196,6 +196,8 @@ void HapticsSim::findContactObject()
 
 void HapticsSim::set_grabbed(OscObject *pGrabbed)
 {
+    Simulation::set_grabbed(pGrabbed);
+
     // return previous object to normal state
     CHAIObject *ob = dynamic_cast<CHAIObject*>(m_pGrabbedObject);
     if (ob)

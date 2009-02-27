@@ -608,6 +608,9 @@ bool Simulation::delete_object(OscObject& obj)
 {
     printf("[%s] Removing object %s\n", type_str(), obj.c_name());
 
+    if (m_pGrabbedObject == &obj)
+        set_grabbed(NULL);
+
     world_objects.erase(obj.name());
     delete &obj;
 

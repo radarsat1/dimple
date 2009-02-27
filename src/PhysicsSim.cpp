@@ -191,8 +191,8 @@ void PhysicsSim::step()
                              - m_pCursor->m_position);
 
         grab_force.mul(-0.01);
-        grab_force.add(m_pGrabbedObject->getVelocity()*(-0.0003));
-        dBodyAddForce(m_pGrabbedObject->body(),
+        grab_force.add(m_pGrabbedODEObject->getVelocity()*(-0.0003));
+        dBodyAddForce(m_pGrabbedODEObject->body(),
                       grab_force.x, grab_force.y, grab_force.z);
     }
 
@@ -280,7 +280,8 @@ void PhysicsSim::ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
 
 void PhysicsSim::set_grabbed(OscObject *pGrabbed)
 {
-    m_pGrabbedObject = dynamic_cast<ODEObject*>(pGrabbed);
+    Simulation::set_grabbed(pGrabbed);
+    m_pGrabbedODEObject = dynamic_cast<ODEObject*>(pGrabbed);
 }
 
 /****** ODEObject ******/

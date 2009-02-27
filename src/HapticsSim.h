@@ -39,9 +39,6 @@ class HapticsSim : public Simulation
     //! A step counter
     int m_counter;
 
-    //! Track the grabbed object
-    OscObject *m_pGrabbedObject;
-
     cWorld* m_chaiWorld;            //! the world in which we will create our environment
     OscCursorCHAI* m_cursor;    //! An OscObject representing the 3D cursor.
 };
