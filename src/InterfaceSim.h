@@ -77,6 +77,11 @@ class InterfaceSim : public Simulation
         Simulation::on_gravity();
     }
 
+    virtual void on_drop() {
+        send(0, "/world/drop", "");
+        Simulation::on_drop();
+    }
+
   protected:
     OscCameraInterface *m_camera;
     virtual void step();

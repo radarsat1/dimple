@@ -561,6 +561,7 @@ void Simulation::stop()
 void Simulation::initialize()
 {
     addHandler("clear", "", Simulation::clear_handler);
+    addHandler("drop",  "", Simulation::drop_handler);
 }
 
 void* Simulation::run(void* param)
