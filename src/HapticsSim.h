@@ -23,6 +23,9 @@ class HapticsSim : public Simulation
 
     OscObject *contact_object() { return m_pContactObject; }
 
+    //! Set the grabbed object or ungrab by setting to NULL.
+    virtual void set_grabbed(OscObject *pGrabbed);
+
   protected:
     virtual void initialize();
     virtual void step();
@@ -33,11 +36,11 @@ class HapticsSim : public Simulation
     cVector3d m_lastContactPoint;
     cVector3d m_lastForce;
 
-    //! A step count for dividing down to the visual timestep
-    int m_nVisualStepCount;
-
     //! A step counter
     int m_counter;
+
+    //! Track the grabbed object
+    OscObject *m_pGrabbedObject;
 
     cWorld* m_chaiWorld;            //! the world in which we will create our environment
     OscCursorCHAI* m_cursor;    //! An OscObject representing the 3D cursor.
@@ -142,6 +145,7 @@ protected:
         { object()->m_material.setStaticFriction(m_friction_static.m_value); }
     virtual void on_friction_dynamic()
         { object()->m_material.setDynamicFriction(m_friction_dynamic.m_value); }
+    virtual void on_grab();
 
     //! Create a cMesh with a prism structure.
     void createPrism(bool openbox=false);
@@ -192,6 +196,7 @@ public:
     int stop()  { return m_pCursor->stop(); }
 
     void addCursorMassForce();
+    void addCursorGrabbedForce(OscObject *pGrabbed);
 
 protected:
     virtual void on_position()

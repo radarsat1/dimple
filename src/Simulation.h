@@ -73,6 +73,9 @@ class Simulation : public OscBase
     bool add_constraint(OscConstraint& obj);
     bool delete_constraint(OscConstraint& obj);
 
+    //! Set the grabbed object or ungrab by setting to NULL.
+    virtual void set_grabbed(OscObject *pGrabbed) {};
+
     float timestep() { return m_fTimestep; }
 
     //! Return the list of receivers for messages from this simulation.

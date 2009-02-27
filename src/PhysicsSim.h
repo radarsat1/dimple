@@ -25,8 +25,8 @@ class PhysicsSim : public Simulation
         { dWorldSetGravity(m_odeWorld, m_gravity.x,
                            m_gravity.y, m_gravity.z); }
 
-    void set_grabbed(ODEObject *o)
-        { m_pGrabbedObject = o; }
+    //! Set the grabbed object or ungrab by setting to NULL.
+    virtual void set_grabbed(OscObject *pGrabbed);
 
   protected:
     dWorldID m_odeWorld;
@@ -34,6 +34,7 @@ class PhysicsSim : public Simulation
     dJointGroupID m_odeContactGroup;
 
     ODEObject* m_pGrabbedObject;
+    OscObject* m_pCursor;
 
     bool m_bGetCollide;
     int m_counter;
@@ -169,6 +170,7 @@ public:
     virtual ~ODEObject();
 
     cVector3d getPosition() { return cVector3d(dBodyGetPosition(m_odeBody)); }
+    cVector3d getVelocity() { return cVector3d(dBodyGetLinearVel(m_odeBody)); }
     cMatrix3d getRotation() {
       const dReal *r = dBodyGetRotation(m_odeBody); cMatrix3d m;
       m.set(r[0], r[1], r[2], r[4], r[5], r[6], r[8], r[9], r[10]);

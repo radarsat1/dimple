@@ -172,6 +172,12 @@ void PhysicsSim::initialize()
     m_odeSpace = dSimpleSpaceCreate(0);
     m_odeContactGroup = dJointGroupCreate(0);
 
+    /* This is just to track haptics cursor during "grab" state.
+     * We only need its position, so just use a generic OscObject. */
+    m_pCursor = new OscObject(NULL, "cursor", this);
+    if (!m_pCursor)
+        printf("Error creating PhysicsSim cursor.\n");
+
     Simulation::initialize();
 }
 
@@ -181,7 +187,13 @@ void PhysicsSim::step()
     // Grabbed object attraction
     if (m_pGrabbedObject)
     {
-        dBodyAddForce(m_pGrabbedObject->body(), 0, 0, 0);
+        cVector3d grab_force(m_pGrabbedObject->getPosition()
+                             - m_pCursor->m_position);
+
+        grab_force.mul(-0.01);
+        grab_force.add(m_pGrabbedObject->getVelocity()*(-0.0003));
+        dBodyAddForce(m_pGrabbedObject->body(),
+                      grab_force.x, grab_force.y, grab_force.z);
     }
 
     // Perform simulation step
@@ -264,6 +276,11 @@ void PhysicsSim::ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
 			dJointAttach (c,b1,b2);
 		}
 	}
+}
+
+void PhysicsSim::set_grabbed(OscObject *pGrabbed)
+{
+    m_pGrabbedObject = dynamic_cast<ODEObject*>(pGrabbed);
 }
 
 /****** ODEObject ******/

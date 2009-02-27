@@ -87,11 +87,10 @@ void HapticsSim::initialize()
     if (!m_cursor->is_initialized())
         m_bDone = true;
 
-    // initialize visual step count
-    m_nVisualStepCount = 0;
-
     // initialize step count
     m_counter = 0;
+
+    m_pGrabbedObject = NULL;
 
     Simulation::initialize();
 }
@@ -100,18 +99,27 @@ void HapticsSim::step()
 {
     cMeta3dofPointer *cursor = m_cursor->object();
     cursor->updatePose();
-    cursor->computeForces();
 
     m_cursor->m_position.set(cursor->m_deviceGlobalPos);
     m_cursor->m_velocity.set(cursor->m_deviceGlobalVel);
 
-    m_cursor->addCursorMassForce();
+    if (m_pGrabbedObject) {
+        cursor->m_lastComputedGlobalForce.set(0,0,0);
+        m_cursor->addCursorGrabbedForce(m_pGrabbedObject);
+    } else {
+        cursor->computeForces();
+        m_cursor->addCursorMassForce();
+    }
 
     cursor->applyForces();
 
     m_counter++;
 
-    if (1 || ++m_nVisualStepCount >= (VISUAL_TIMESTEP_MS/HAPTICS_TIMESTEP_MS))
+    int update_sim = Simulation::ST_VISUAL;
+    if (m_pGrabbedObject)
+        update_sim |= Simulation::ST_PHYSICS;
+
+    if (update_sim)
     {
         /* If in contact with an object, display the cursor at the
          * proxy location instead of the device location, so that it
@@ -122,11 +130,9 @@ void HapticsSim::step()
         if (algo->getContactObject())
             pos = algo->getProxyGlobalPosition();
 
-        sendtotype(Simulation::ST_VISUAL, true,
+        sendtotype(update_sim, true,
                    "/world/cursor/position","fff",
                    pos.x, pos.y, pos.z);
-
-        m_nVisualStepCount = 0;
     }
 
     findContactObject();
@@ -188,6 +194,27 @@ void HapticsSim::findContactObject()
         m_pContactObject = (OscObject*)obj->m_userData;
 }
 
+void HapticsSim::set_grabbed(OscObject *pGrabbed)
+{
+    // return previous object to normal state
+    CHAIObject *ob = dynamic_cast<CHAIObject*>(m_pGrabbedObject);
+    if (ob)
+        ob->object()->setHapticEnabled(true, true);
+
+    m_pGrabbedObject = pGrabbed;
+
+    ob = dynamic_cast<CHAIObject*>(m_pGrabbedObject);
+    if (ob) {
+        // remove object from haptic contact
+        ob->object()->setHapticEnabled(false, true);
+    }
+
+    // set cursor visibility
+    sendtotype(Simulation::ST_VISUAL, 0,
+               "/world/cursor/visible", "i",
+               ob ? 0 : 1);
+}
+
 /****** CHAIObject ******/
 
 CHAIObject::CHAIObject(cWorld *world)
@@ -230,12 +257,7 @@ void OscSphereCHAI::on_radius()
 
 void OscSphereCHAI::on_grab()
 {
-    // remove object from haptic contact
-    object()->setHapticEnabled(false, true);
-
-    // make cursor invisible
-    simulation()->sendtotype(Simulation::ST_VISUAL, 0,
-                             "/world/cursor/visible", "i", 0);
+    simulation()->set_grabbed(this);
 }
 
 /****** OscPrismCHAI ******/
@@ -456,6 +478,11 @@ void OscPrismCHAI::on_size()
     }
 }
 
+void OscPrismCHAI::on_grab()
+{
+    simulation()->set_grabbed(this);
+}
+
 /****** OscMeshCHAI ******/
 
 OscMeshCHAI::OscMeshCHAI(cWorld *world, const char *name, const char *filename,
@@ -600,4 +627,14 @@ void OscCursorCHAI::addCursorMassForce()
     m_massVel -= force/m_mass.m_value*timestep;
 
     m_pCursor->m_lastComputedGlobalForce += force*10;
+}
+
+/*! Compute a force attracting the cursor toward the grabbed
+ *  object. */
+void OscCursorCHAI::addCursorGrabbedForce(OscObject *pGrabbed)
+{
+    cVector3d f(m_position - pGrabbed->m_position);
+    f.mul(-10);
+    f.add(m_velocity * (-0.001));
+    m_pCursor->m_lastComputedGlobalForce += f;
 }
