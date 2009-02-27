@@ -4,7 +4,7 @@
 # based on the number of commits since the last-tagged version, the
 # current branch, and any uncommitted changes.
 
-BRANCH="$(git branch | grep \* | awk '{print $2}')"
+BRANCH="$(git branch | grep \* | sed 's,[() *],,g')"
 
 LASTTAG="$(git tag -l | sort -rn | perl -nle 'print $_  if m/^\d+\.\d+(\.\d+)*$/' | head -n 1)"
 if [ "$LASTTAG"x = x ]; then
@@ -25,6 +25,7 @@ fi
 DIFF=""
 if [ "$(git diff | head -n 5)"x != x ]; then
 
+    if false; then
     # determine checksum program to use
     SUM=$(which sha1sum | awk '{print $1}')
     if [ "$SUM"x = x -o "$SUM"x = nox ]; then
@@ -32,6 +33,7 @@ if [ "$(git diff | head -n 5)"x != x ]; then
     fi
     if [ "$SUM"x = x -o "$SUM"x = nox ]; then
 		SUM=$(which md5 | awk '{print $1}')
+    fi
     fi
 
     # checksum differences between index and HEAD

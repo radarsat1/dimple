@@ -1,6 +1,8 @@
-diff -ruiN liblo-0.23/LibLo.sln liblo-0.23-changed/LibLo.sln
---- liblo-0.23/LibLo.sln	1969-12-31 19:00:00.000000000 -0500
-+++ liblo-0.23-changed/LibLo.sln	2007-04-10 21:38:24.171875000 -0400
+diff --git a/LibLo.sln b/LibLo.sln
+new file mode 100644
+index 0000000..45b228a
+--- /dev/null
++++ b/LibLo.sln
 @@ -0,0 +1,35 @@
 +Microsoft Visual Studio Solution File, Format Version 9.00
 +# Visual C++ Express 2005
@@ -37,9 +39,11 @@ diff -ruiN liblo-0.23/LibLo.sln liblo-0.23-changed/LibLo.sln
 +		HideSolutionNode = FALSE
 +	EndGlobalSection
 +EndGlobal
-diff -ruiN liblo-0.23/LibLo.vcproj liblo-0.23-changed/LibLo.vcproj
---- liblo-0.23/LibLo.vcproj	1969-12-31 19:00:00.000000000 -0500
-+++ liblo-0.23-changed/LibLo.vcproj	2007-04-10 21:46:39.906250000 -0400
+diff --git a/LibLo.vcproj b/LibLo.vcproj
+new file mode 100644
+index 0000000..853792e
+--- /dev/null
++++ b/LibLo.vcproj
 @@ -0,0 +1,222 @@
 +<?xml version="1.0" encoding="Windows-1252"?>
 +<VisualStudioProject
@@ -263,9 +267,10 @@ diff -ruiN liblo-0.23/LibLo.vcproj liblo-0.23-changed/LibLo.vcproj
 +	<Globals>
 +	</Globals>
 +</VisualStudioProject>
-diff -ruiN liblo-0.23/examples/example_client.c liblo-0.23-changed/examples/example_client.c
---- liblo-0.23/examples/example_client.c	2004-08-07 18:21:02.000000000 -0400
-+++ liblo-0.23-changed/examples/example_client.c	2007-04-10 21:38:10.500000000 -0400
+diff --git a/examples/example_client.c b/examples/example_client.c
+index 5f858b9..d97a25c 100644
+--- a/examples/example_client.c
++++ b/examples/example_client.c
 @@ -16,7 +16,9 @@
  
  #include <stdio.h>
@@ -276,9 +281,10 @@ diff -ruiN liblo-0.23/examples/example_client.c liblo-0.23-changed/examples/exam
  
  #include "lo/lo.h"
  
-diff -ruiN liblo-0.23/examples/example_server.c liblo-0.23-changed/examples/example_server.c
---- liblo-0.23/examples/example_server.c	2005-04-25 17:46:46.000000000 -0400
-+++ liblo-0.23-changed/examples/example_server.c	2007-04-10 21:38:10.500000000 -0400
+diff --git a/examples/example_server.c b/examples/example_server.c
+index 0fd124f..7e9a92f 100644
+--- a/examples/example_server.c
++++ b/examples/example_server.c
 @@ -16,7 +16,11 @@
  
  #include <stdio.h>
@@ -291,427 +297,11 @@ diff -ruiN liblo-0.23/examples/example_server.c liblo-0.23-changed/examples/exam
  
  #include "lo/lo.h"
  
-diff -ruiN liblo-0.23/examples/liblo_example_client.vcproj liblo-0.23-changed/examples/liblo_example_client.vcproj
---- liblo-0.23/examples/liblo_example_client.vcproj	1969-12-31 19:00:00.000000000 -0500
-+++ liblo-0.23-changed/examples/liblo_example_client.vcproj	2007-04-10 21:49:44.500000000 -0400
-@@ -0,0 +1,204 @@
-+<?xml version="1.0" encoding="Windows-1252"?>
-+<VisualStudioProject
-+	ProjectType="Visual C++"
-+	Version="8.00"
-+	Name="liblo_example_client"
-+	ProjectGUID="{3471DDD8-FC9C-43D0-BBB4-815E2196566D}"
-+	Keyword="Win32Proj"
-+	>
-+	<Platforms>
-+		<Platform
-+			Name="Win32"
-+		/>
-+	</Platforms>
-+	<ToolFiles>
-+	</ToolFiles>
-+	<Configurations>
-+		<Configuration
-+			Name="Debug|Win32"
-+			OutputDirectory="Debug"
-+			IntermediateDirectory="Debug"
-+			ConfigurationType="1"
-+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-+			CharacterSet="2"
-+			>
-+			<Tool
-+				Name="VCPreBuildEventTool"
-+			/>
-+			<Tool
-+				Name="VCCustomBuildTool"
-+			/>
-+			<Tool
-+				Name="VCXMLDataGeneratorTool"
-+			/>
-+			<Tool
-+				Name="VCWebServiceProxyGeneratorTool"
-+			/>
-+			<Tool
-+				Name="VCMIDLTool"
-+			/>
-+			<Tool
-+				Name="VCCLCompilerTool"
-+				Optimization="0"
-+				AdditionalIncludeDirectories="&quot;$(ProjectDir)\..\&quot;;../../pthreads-w32-2-8-0-release"
-+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;PTW32_STATIC_LIB"
-+				MinimalRebuild="true"
-+				BasicRuntimeChecks="3"
-+				RuntimeLibrary="1"
-+				UsePrecompiledHeader="0"
-+				WarningLevel="3"
-+				Detect64BitPortabilityProblems="true"
-+				DebugInformationFormat="4"
-+			/>
-+			<Tool
-+				Name="VCManagedResourceCompilerTool"
-+			/>
-+			<Tool
-+				Name="VCResourceCompilerTool"
-+			/>
-+			<Tool
-+				Name="VCPreLinkEventTool"
-+			/>
-+			<Tool
-+				Name="VCLinkerTool"
-+				AdditionalDependencies="ws2_32.lib &quot;$(ProjectDir)\..\Debug\liblo.lib&quot; wsock32.lib ../../pthreads-w32-2-8-0-release/Debug/pthreadsVC2.lib"
-+				OutputFile="$(OutDir)/liblo_example_client.exe"
-+				LinkIncremental="2"
-+				GenerateDebugInformation="true"
-+				ProgramDatabaseFile="$(OutDir)/liblo_example_client.pdb"
-+				SubSystem="1"
-+				TargetMachine="1"
-+			/>
-+			<Tool
-+				Name="VCALinkTool"
-+			/>
-+			<Tool
-+				Name="VCManifestTool"
-+			/>
-+			<Tool
-+				Name="VCXDCMakeTool"
-+			/>
-+			<Tool
-+				Name="VCBscMakeTool"
-+			/>
-+			<Tool
-+				Name="VCFxCopTool"
-+			/>
-+			<Tool
-+				Name="VCAppVerifierTool"
-+			/>
-+			<Tool
-+				Name="VCWebDeploymentTool"
-+			/>
-+			<Tool
-+				Name="VCPostBuildEventTool"
-+			/>
-+		</Configuration>
-+		<Configuration
-+			Name="Release|Win32"
-+			OutputDirectory="Release"
-+			IntermediateDirectory="Release"
-+			ConfigurationType="1"
-+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-+			CharacterSet="2"
-+			>
-+			<Tool
-+				Name="VCPreBuildEventTool"
-+			/>
-+			<Tool
-+				Name="VCCustomBuildTool"
-+			/>
-+			<Tool
-+				Name="VCXMLDataGeneratorTool"
-+			/>
-+			<Tool
-+				Name="VCWebServiceProxyGeneratorTool"
-+			/>
-+			<Tool
-+				Name="VCMIDLTool"
-+			/>
-+			<Tool
-+				Name="VCCLCompilerTool"
-+				AdditionalIncludeDirectories="&quot;$(ProjectDir)\..\&quot;;../../pthreads-w32-2-8-0-release"
-+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;PTW32_STATIC_LIB"
-+				RuntimeLibrary="0"
-+				UsePrecompiledHeader="0"
-+				WarningLevel="3"
-+				Detect64BitPortabilityProblems="true"
-+				DebugInformationFormat="3"
-+			/>
-+			<Tool
-+				Name="VCManagedResourceCompilerTool"
-+			/>
-+			<Tool
-+				Name="VCResourceCompilerTool"
-+			/>
-+			<Tool
-+				Name="VCPreLinkEventTool"
-+			/>
-+			<Tool
-+				Name="VCLinkerTool"
-+				AdditionalDependencies="ws2_32.lib &quot;$(ProjectDir)\..\Release\liblo.lib&quot; wsock32.lib ../../pthreads-w32-2-8-0-release/Release/pthreadsVC2.lib"
-+				OutputFile="$(OutDir)/liblo_example_client.exe"
-+				LinkIncremental="1"
-+				GenerateDebugInformation="true"
-+				SubSystem="1"
-+				OptimizeReferences="2"
-+				EnableCOMDATFolding="2"
-+				TargetMachine="1"
-+			/>
-+			<Tool
-+				Name="VCALinkTool"
-+			/>
-+			<Tool
-+				Name="VCManifestTool"
-+			/>
-+			<Tool
-+				Name="VCXDCMakeTool"
-+			/>
-+			<Tool
-+				Name="VCBscMakeTool"
-+			/>
-+			<Tool
-+				Name="VCFxCopTool"
-+			/>
-+			<Tool
-+				Name="VCAppVerifierTool"
-+			/>
-+			<Tool
-+				Name="VCWebDeploymentTool"
-+			/>
-+			<Tool
-+				Name="VCPostBuildEventTool"
-+			/>
-+		</Configuration>
-+	</Configurations>
-+	<References>
-+	</References>
-+	<Files>
-+		<Filter
-+			Name="Source Files"
-+			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
-+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
-+			>
-+			<File
-+				RelativePath=".\example_client.c"
-+				>
-+			</File>
-+		</Filter>
-+		<Filter
-+			Name="Header Files"
-+			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
-+			>
-+		</Filter>
-+		<Filter
-+			Name="Resource Files"
-+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-+			>
-+		</Filter>
-+	</Files>
-+	<Globals>
-+	</Globals>
-+</VisualStudioProject>
-diff -ruiN liblo-0.23/examples/liblo_example_server.vcproj liblo-0.23-changed/examples/liblo_example_server.vcproj
---- liblo-0.23/examples/liblo_example_server.vcproj	1969-12-31 19:00:00.000000000 -0500
-+++ liblo-0.23-changed/examples/liblo_example_server.vcproj	2007-04-10 21:46:39.906250000 -0400
-@@ -0,0 +1,205 @@
-+<?xml version="1.0" encoding="Windows-1252"?>
-+<VisualStudioProject
-+	ProjectType="Visual C++"
-+	Version="8.00"
-+	Name="liblo_example_server"
-+	ProjectGUID="{E7BC1ADC-4895-46D4-8F87-56ECECC6A0CA}"
-+	RootNamespace="liblo_example_server"
-+	Keyword="Win32Proj"
-+	>
-+	<Platforms>
-+		<Platform
-+			Name="Win32"
-+		/>
-+	</Platforms>
-+	<ToolFiles>
-+	</ToolFiles>
-+	<Configurations>
-+		<Configuration
-+			Name="Debug|Win32"
-+			OutputDirectory="Debug"
-+			IntermediateDirectory="Debug"
-+			ConfigurationType="1"
-+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-+			CharacterSet="2"
-+			>
-+			<Tool
-+				Name="VCPreBuildEventTool"
-+			/>
-+			<Tool
-+				Name="VCCustomBuildTool"
-+			/>
-+			<Tool
-+				Name="VCXMLDataGeneratorTool"
-+			/>
-+			<Tool
-+				Name="VCWebServiceProxyGeneratorTool"
-+			/>
-+			<Tool
-+				Name="VCMIDLTool"
-+			/>
-+			<Tool
-+				Name="VCCLCompilerTool"
-+				Optimization="0"
-+				AdditionalIncludeDirectories="&quot;$(ProjectDir)\..\&quot;;../../pthreads-w32-2-8-0-release"
-+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;PTW32_STATIC_LIB"
-+				MinimalRebuild="true"
-+				BasicRuntimeChecks="3"
-+				RuntimeLibrary="1"
-+				UsePrecompiledHeader="0"
-+				WarningLevel="3"
-+				Detect64BitPortabilityProblems="true"
-+				DebugInformationFormat="4"
-+			/>
-+			<Tool
-+				Name="VCManagedResourceCompilerTool"
-+			/>
-+			<Tool
-+				Name="VCResourceCompilerTool"
-+			/>
-+			<Tool
-+				Name="VCPreLinkEventTool"
-+			/>
-+			<Tool
-+				Name="VCLinkerTool"
-+				AdditionalDependencies="ws2_32.lib &quot;$(ProjectDir)\..\Debug\liblo.lib&quot; wsock32.lib ../../pthreads-w32-2-8-0-release/Debug/pthreadsVC2.lib"
-+				OutputFile="$(OutDir)/liblo_example_server.exe"
-+				LinkIncremental="2"
-+				GenerateDebugInformation="true"
-+				ProgramDatabaseFile="$(OutDir)/liblo_example_server.pdb"
-+				SubSystem="1"
-+				TargetMachine="1"
-+			/>
-+			<Tool
-+				Name="VCALinkTool"
-+			/>
-+			<Tool
-+				Name="VCManifestTool"
-+			/>
-+			<Tool
-+				Name="VCXDCMakeTool"
-+			/>
-+			<Tool
-+				Name="VCBscMakeTool"
-+			/>
-+			<Tool
-+				Name="VCFxCopTool"
-+			/>
-+			<Tool
-+				Name="VCAppVerifierTool"
-+			/>
-+			<Tool
-+				Name="VCWebDeploymentTool"
-+			/>
-+			<Tool
-+				Name="VCPostBuildEventTool"
-+			/>
-+		</Configuration>
-+		<Configuration
-+			Name="Release|Win32"
-+			OutputDirectory="Release"
-+			IntermediateDirectory="Release"
-+			ConfigurationType="1"
-+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-+			CharacterSet="2"
-+			>
-+			<Tool
-+				Name="VCPreBuildEventTool"
-+			/>
-+			<Tool
-+				Name="VCCustomBuildTool"
-+			/>
-+			<Tool
-+				Name="VCXMLDataGeneratorTool"
-+			/>
-+			<Tool
-+				Name="VCWebServiceProxyGeneratorTool"
-+			/>
-+			<Tool
-+				Name="VCMIDLTool"
-+			/>
-+			<Tool
-+				Name="VCCLCompilerTool"
-+				AdditionalIncludeDirectories="&quot;$(ProjectDir)\..\&quot;;../../pthreads-w32-2-8-0-release"
-+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;PTW32_STATIC_LIB"
-+				RuntimeLibrary="0"
-+				UsePrecompiledHeader="0"
-+				WarningLevel="3"
-+				Detect64BitPortabilityProblems="true"
-+				DebugInformationFormat="3"
-+			/>
-+			<Tool
-+				Name="VCManagedResourceCompilerTool"
-+			/>
-+			<Tool
-+				Name="VCResourceCompilerTool"
-+			/>
-+			<Tool
-+				Name="VCPreLinkEventTool"
-+			/>
-+			<Tool
-+				Name="VCLinkerTool"
-+				AdditionalDependencies="ws2_32.lib &quot;$(ProjectDir)\..\Release\liblo.lib&quot; wsock32.lib ../../pthreads-w32-2-8-0-release/Release/pthreadsVC2.lib"
-+				OutputFile="$(OutDir)/liblo_example_server.exe"
-+				LinkIncremental="1"
-+				GenerateDebugInformation="true"
-+				SubSystem="1"
-+				OptimizeReferences="2"
-+				EnableCOMDATFolding="2"
-+				TargetMachine="1"
-+			/>
-+			<Tool
-+				Name="VCALinkTool"
-+			/>
-+			<Tool
-+				Name="VCManifestTool"
-+			/>
-+			<Tool
-+				Name="VCXDCMakeTool"
-+			/>
-+			<Tool
-+				Name="VCBscMakeTool"
-+			/>
-+			<Tool
-+				Name="VCFxCopTool"
-+			/>
-+			<Tool
-+				Name="VCAppVerifierTool"
-+			/>
-+			<Tool
-+				Name="VCWebDeploymentTool"
-+			/>
-+			<Tool
-+				Name="VCPostBuildEventTool"
-+			/>
-+		</Configuration>
-+	</Configurations>
-+	<References>
-+	</References>
-+	<Files>
-+		<Filter
-+			Name="Source Files"
-+			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
-+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
-+			>
-+			<File
-+				RelativePath=".\example_server.c"
-+				>
-+			</File>
-+		</Filter>
-+		<Filter
-+			Name="Header Files"
-+			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
-+			>
-+		</Filter>
-+		<Filter
-+			Name="Resource Files"
-+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-+			>
-+		</Filter>
-+	</Files>
-+	<Globals>
-+	</Globals>
-+</VisualStudioProject>
-diff -ruiN liblo-0.23/lo/lo.h liblo-0.23-changed/lo/lo.h
---- liblo-0.23/lo/lo.h	2005-12-05 17:25:31.000000000 -0500
-+++ liblo-0.23-changed/lo/lo.h	2007-04-10 21:38:10.515625000 -0400
-@@ -25,6 +25,16 @@
+diff --git a/lo/lo.h b/lo/lo.h
+index fdaa904..6aa477b 100644
+--- a/lo/lo.h
++++ b/lo/lo.h
+@@ -25,6 +25,16 @@ extern "C" {
   * \file lo.h The liblo main headerfile and high-level API functions.
   */
  
@@ -728,7 +318,7 @@ diff -ruiN liblo-0.23/lo/lo.h liblo-0.23-changed/lo/lo.h
  #include "lo/lo_endian.h"
  #include "lo/lo_types.h"
  #include "lo/lo_osc_types.h"
-@@ -52,19 +62,19 @@
+@@ -52,19 +62,19 @@ extern "C" {
   * must first create a lo_server_thread or lo_server object which will receive
   * the replies. The last lo_server(_thread) object creted will be the receiver.
   */
@@ -751,7 +341,7 @@ diff -ruiN liblo-0.23/lo/lo.h liblo-0.23-changed/lo/lo.h
  
  /**
   * \brief Send a OSC formatted message to the address specified.
-@@ -81,7 +91,7 @@
+@@ -81,7 +91,7 @@ void lo_address_free(lo_address t);
   *
   * returns -1 on failure.
   */
@@ -760,7 +350,7 @@ diff -ruiN liblo-0.23/lo/lo.h liblo-0.23-changed/lo/lo.h
  
  /**
   * \brief Send a OSC formatted message to the address specified, 
-@@ -104,7 +114,7 @@
+@@ -104,7 +114,7 @@ int lo_send(lo_address targ, const char *path, const char *type, ...);
   *
   * on success returns the number of bytes sent, returns -1 on failure.
   */
@@ -769,7 +359,7 @@ diff -ruiN liblo-0.23/lo/lo.h liblo-0.23-changed/lo/lo.h
  	       		const char *path, const char *type, ...);
  
  /**
-@@ -126,20 +136,20 @@
+@@ -126,20 +136,20 @@ int lo_send_from(lo_address targ, lo_server from, lo_timetag ts,
   *
   * on success returns the number of bytes sent, returns -1 on failure.
   */
@@ -793,7 +383,7 @@ diff -ruiN liblo-0.23/lo/lo.h liblo-0.23-changed/lo/lo.h
  
  /**
   * \brief Create a new server thread to handle incoming OSC
-@@ -156,14 +166,14 @@
+@@ -156,7 +166,7 @@ const char *lo_address_errstr(lo_address a);
   * \param err_h A function that will be called in the event of an error being
   * raised. The function prototype is defined in lo_types.h
   */
@@ -801,7 +391,8 @@ diff -ruiN liblo-0.23/lo/lo.h liblo-0.23-changed/lo/lo.h
 +EXPORT lo_server_thread lo_server_thread_new(const char *port, lo_err_handler err_h);
  
  /**
-  * \brief Free memory taken by a server thread
+  * \brief Create a new server thread to handle incoming OSC
+@@ -182,7 +192,7 @@ lo_server_thread lo_server_thread_new_with_proto(const char *port, int proto,
   *
   * Frees the memory, and, if currently running will stop the associated thread.
   */
@@ -810,7 +401,7 @@ diff -ruiN liblo-0.23/lo/lo.h liblo-0.23-changed/lo/lo.h
  
  /**
   * \brief Add an OSC method to the specifed server thread.
-@@ -179,7 +189,7 @@
+@@ -198,7 +208,7 @@ void lo_server_thread_free(lo_server_thread st);
   * \param user_data A value that will be passed to the callback function, h,
   * when its invoked matching from this method.
   */
@@ -819,7 +410,7 @@ diff -ruiN liblo-0.23/lo/lo.h liblo-0.23-changed/lo/lo.h
                                 const char *typespec, lo_method_handler h,
                                 void *user_data);
  /**
-@@ -190,7 +200,7 @@
+@@ -209,7 +219,7 @@ lo_method lo_server_thread_add_method(lo_server_thread st, const char *path,
   * method will match the generic handler.
   * \param typespec The typespec the method accepts.
   */
@@ -828,7 +419,7 @@ diff -ruiN liblo-0.23/lo/lo.h liblo-0.23-changed/lo/lo.h
  				 const char *typespec);
  
  /**
-@@ -198,26 +208,26 @@
+@@ -217,26 +227,26 @@ void lo_server_thread_del_method(lo_server_thread st, const char *path,
   *
   * \param st the server thread to start.
   */
@@ -859,7 +450,7 @@ diff -ruiN liblo-0.23/lo/lo.h liblo-0.23-changed/lo/lo.h
  
  /**
   * \brief Return the lo_server for a lo_server_thread
-@@ -225,11 +235,11 @@
+@@ -244,11 +254,11 @@ char *lo_server_thread_get_url(lo_server_thread st);
   * This function is useful for passing a thread's lo_server 
   * to lo_send_from().
   */
@@ -873,12 +464,12 @@ diff -ruiN liblo-0.23/lo/lo.h liblo-0.23-changed/lo/lo.h
  
  /**
   * \brief Create a new OSC blob type.
-@@ -238,25 +248,25 @@
+@@ -257,25 +267,25 @@ int lo_server_thread_events_pending(lo_server_thread st);
   * \param data The data that will be used to initialise the blob, should be
   * size bytes long.
   */
--lo_blob lo_blob_new(int32_t size, void *data);
-+EXPORT lo_blob lo_blob_new(int32_t size, void *data);
+-lo_blob lo_blob_new(int32_t size, const void *data);
++EXPORT lo_blob lo_blob_new(int32_t size, const void *data);
  
  /**
   * \brief Free the memory taken by a blob
@@ -903,37 +494,10 @@ diff -ruiN liblo-0.23/lo/lo.h liblo-0.23-changed/lo/lo.h
  
  /** @} */
  
-diff -ruiN liblo-0.23/lo/lo_endian.h liblo-0.23-changed/lo/lo_endian.h
---- liblo-0.23/lo/lo_endian.h	2006-01-26 10:01:18.000000000 -0500
-+++ liblo-0.23-changed/lo/lo_endian.h	2007-04-10 21:38:10.531250000 -0400
-@@ -18,12 +18,14 @@
- #define LO_ENDIAN_H
- 
- #include <sys/types.h>
--#include <stdint.h>
- 
- #ifdef WIN32
- #include <winsock2.h>
- #include <ws2tcpip.h>
-+#include "lo/lo_msvc_stdint.h"
-+#define inline __inline
- #else
-+#include <stdint.h>
- #include <netinet/in.h>
- #endif
- 
-@@ -100,7 +102,7 @@
- 
- /* Host to OSC and OSC to Host conversion macros */
- 
--#if 1
-+#ifndef ENDIAN_SWAP
- #define lo_htoo16(x) (x)
- #define lo_htoo32(x) (x)
- #define lo_htoo64(x) (x)
-diff -ruiN liblo-0.23/lo/lo_lowlevel.h liblo-0.23-changed/lo/lo_lowlevel.h
---- liblo-0.23/lo/lo_lowlevel.h	2006-01-26 09:11:49.000000000 -0500
-+++ liblo-0.23-changed/lo/lo_lowlevel.h	2007-04-10 21:38:10.531250000 -0400
+diff --git a/lo/lo_lowlevel.h b/lo/lo_lowlevel.h
+index 384d50b..50a3058 100644
+--- a/lo/lo_lowlevel.h
++++ b/lo/lo_lowlevel.h
 @@ -23,7 +23,11 @@
  extern "C" {
  #endif
@@ -946,7 +510,7 @@ diff -ruiN liblo-0.23/lo/lo_lowlevel.h liblo-0.23-changed/lo/lo_lowlevel.h
  
  #include "lo/lo_types.h"
  #include "lo/lo_errors.h"
-@@ -538,14 +542,14 @@
+@@ -552,14 +556,14 @@ int lo_pattern_match(const char *str, const char *p);
  
  /** \brief the real send function (don't call directly) */
  int lo_send_internal(lo_address t, const char *file, const int line,
@@ -964,9 +528,10 @@ diff -ruiN liblo-0.23/lo/lo_lowlevel.h liblo-0.23-changed/lo/lo_lowlevel.h
  
  
  /** \brief Find the time difference between two timetags
-diff -ruiN liblo-0.23/lo/lo_macros.h liblo-0.23-changed/lo/lo_macros.h
---- liblo-0.23/lo/lo_macros.h	2005-12-05 17:22:09.000000000 -0500
-+++ liblo-0.23-changed/lo/lo_macros.h	2007-04-10 21:38:10.531250000 -0400
+diff --git a/lo/lo_macros.h b/lo/lo_macros.h
+index f1b9ddd..2e59eda 100644
+--- a/lo/lo_macros.h
++++ b/lo/lo_macros.h
 @@ -17,6 +17,8 @@
  #ifndef LO_MACROS_H
  #define LO_MACROS_H
@@ -976,7 +541,7 @@ diff -ruiN liblo-0.23/lo/lo_macros.h liblo-0.23-changed/lo/lo_macros.h
  /* macros that have to be defined after function signatures */
  
  #ifdef __cplusplus
-@@ -38,6 +40,7 @@
+@@ -39,6 +41,7 @@ extern "C" {
  #define LO_MARKER_A 0xdeadbeef
  #define LO_MARKER_B 0xf00baa23
  
@@ -984,7 +549,7 @@ diff -ruiN liblo-0.23/lo/lo_macros.h liblo-0.23-changed/lo/lo_macros.h
  #define lo_send(targ, path, types...) \
          lo_send_internal(targ, __FILE__, __LINE__, path, types, \
  			 LO_MARKER_A, LO_MARKER_B)
-@@ -50,6 +53,14 @@
+@@ -51,6 +54,14 @@ extern "C" {
          lo_send_from_internal(targ, from, __FILE__, __LINE__, ts, path, \
  		       	             types, LO_MARKER_A, LO_MARKER_B)
  
@@ -999,201 +564,10 @@ diff -ruiN liblo-0.23/lo/lo_macros.h liblo-0.23-changed/lo/lo_macros.h
  #ifdef __cplusplus
  }
  #endif
-diff -ruiN liblo-0.23/lo/lo_msvc_stdint.h liblo-0.23-changed/lo/lo_msvc_stdint.h
---- liblo-0.23/lo/lo_msvc_stdint.h	1969-12-31 19:00:00.000000000 -0500
-+++ liblo-0.23-changed/lo/lo_msvc_stdint.h	2007-04-10 21:38:10.546875000 -0400
-@@ -0,0 +1,188 @@
-+/* stdint.h - integer types
-+
-+   Copyright 2003, 2006 Red Hat, Inc.
-+
-+This file is part of Cygwin.
-+
-+This software is a copyrighted work licensed under the terms of the
-+Cygwin license.  Please consult the file "CYGWIN_LICENSE" for
-+details. */
-+
-+#ifndef _STDINT_H
-+#define _STDINT_H
-+
-+/* Exact-width integer types */
-+
-+#ifndef __int8_t_defined
-+#define __int8_t_defined
-+typedef signed __int8 int8_t;
-+typedef __int16 int16_t;
-+typedef __int32 int32_t;
-+typedef __int64 int64_t;
-+#endif
-+
-+typedef unsigned __int8 uint8_t;
-+typedef unsigned __int16 uint16_t;
-+#ifndef __uint32_t_defined
-+#define __uint32_t_defined
-+typedef unsigned __int32 uint32_t;
-+#endif
-+typedef unsigned __int64 uint64_t;
-+
-+/* Minimum-width integer types */
-+
-+typedef signed __int8 int_least8_t;
-+typedef __int16 int_least16_t;
-+typedef __int32 int_least32_t;
-+typedef __int64 int_least64_t;
-+
-+typedef unsigned __int8 uint_least8_t;
-+typedef unsigned __int16 uint_least16_t;
-+typedef unsigned __int32 uint_least32_t;
-+typedef unsigned __int64 uint_least64_t;
-+
-+/* Fastest minimum-width integer types */
-+
-+typedef signed __int8 int_fast8_t;
-+typedef __int32 int_fast16_t;
-+typedef __int32 int_fast32_t;
-+typedef __int64 int_fast64_t;
-+
-+typedef unsigned __int8 uint_fast8_t;
-+typedef unsigned __int32 uint_fast16_t;
-+typedef unsigned __int32 uint_fast32_t;
-+typedef unsigned __int64 uint_fast64_t;
-+
-+/* Integer types capable of holding object pointers */
-+
-+#ifdef WIN32
-+#define __intptr_t_defined
-+#endif
-+
-+#ifndef __intptr_t_defined
-+#define __intptr_t_defined
-+typedef long intptr_t;
-+#endif
-+#ifndef WIN32
-+typedef unsigned long uintptr_t;
-+#endif
-+
-+/* Greatest-width integer types */
-+
-+typedef __int64 intmax_t;
-+typedef unsigned __int64 uintmax_t;
-+
-+/* Limits of exact-width integer types */
-+
-+#define INT8_MIN (-128)
-+#define INT16_MIN (-32768)
-+#define INT32_MIN (-2147483647 - 1)
-+#define INT64_MIN (-9223372036854775807LL - 1LL)
-+
-+#define INT8_MAX (127)
-+#define INT16_MAX (32767)
-+#define INT32_MAX (2147483647)
-+#define INT64_MAX (9223372036854775807LL)
-+
-+#define UINT8_MAX (255)
-+#define UINT16_MAX (65535)
-+#define UINT32_MAX (4294967295UL)
-+#define UINT64_MAX (18446744073709551615ULL)
-+
-+/* Limits of minimum-width integer types */
-+
-+#define INT_LEAST8_MIN (-128)
-+#define INT_LEAST16_MIN (-32768)
-+#define INT_LEAST32_MIN (-2147483647 - 1)
-+#define INT_LEAST64_MIN (-9223372036854775807LL - 1LL)
-+
-+#define INT_LEAST8_MAX (127)
-+#define INT_LEAST16_MAX (32767)
-+#define INT_LEAST32_MAX (2147483647)
-+#define INT_LEAST64_MAX (9223372036854775807LL)
-+
-+#define UINT_LEAST8_MAX (255)
-+#define UINT_LEAST16_MAX (65535)
-+#define UINT_LEAST32_MAX (4294967295UL)
-+#define UINT_LEAST64_MAX (18446744073709551615ULL)
-+
-+/* Limits of fastest minimum-width integer types */
-+
-+#define INT_FAST8_MIN (-128)
-+#define INT_FAST16_MIN (-2147483647 - 1)
-+#define INT_FAST32_MIN (-2147483647 - 1)
-+#define INT_FAST64_MIN (-9223372036854775807LL - 1LL)
-+
-+#define INT_FAST8_MAX (127)
-+#define INT_FAST16_MAX (2147483647)
-+#define INT_FAST32_MAX (2147483647)
-+#define INT_FAST64_MAX (9223372036854775807LL)
-+
-+#define UINT_FAST8_MAX (255)
-+#define UINT_FAST16_MAX (4294967295UL)
-+#define UINT_FAST32_MAX (4294967295UL)
-+#define UINT_FAST64_MAX (18446744073709551615ULL)
-+
-+/* Limits of integer types capable of holding object pointers */
-+
-+#define INTPTR_MIN (-2147483647 - 1)
-+#define INTPTR_MAX (2147483647)
-+#define UINTPTR_MAX (4294967295UL)
-+
-+/* Limits of greatest-width integer types */
-+
-+#define INTMAX_MIN (-9223372036854775807LL - 1LL)
-+#define INTMAX_MAX (9223372036854775807LL)
-+#define UINTMAX_MAX (18446744073709551615ULL)
-+
-+/* Limits of other integer types */
-+
-+#ifndef PTRDIFF_MIN
-+#define PTRDIFF_MIN (-2147483647 - 1)
-+#define PTRDIFF_MAX (2147483647)
-+#endif
-+
-+#ifndef SIG_ATOMIC_MIN
-+#define SIG_ATOMIC_MIN (-2147483647 - 1)
-+#endif
-+#ifndef SIG_ATOMIC_MAX
-+#define SIG_ATOMIC_MAX (2147483647)
-+#endif
-+
-+#ifndef SIZE_MAX
-+#define SIZE_MAX (4294967295UL)
-+#endif
-+
-+#ifndef WCHAR_MIN
-+#ifdef __WCHAR_MIN__
-+#define WCHAR_MIN __WCHAR_MIN__
-+#define WCHAR_MAX __WCHAR_MAX__
-+#else
-+#define WCHAR_MIN (0)
-+#define WCHAR_MAX (65535)
-+#endif
-+#endif
-+
-+#ifndef WINT_MIN
-+#define WINT_MIN (-2147483647 - 1)
-+#define WINT_MAX (2147483647)
-+#endif
-+
-+/* Macros for minimum-width integer constant expressions */
-+
-+#define INT8_C(x) x
-+#define INT16_C(x) x
-+#define INT32_C(x) x ## L
-+#define INT64_C(x) x ## LL
-+
-+#define UINT8_C(x) x
-+#define UINT16_C(x) x
-+#define UINT32_C(x) x ## UL
-+#define UINT64_C(x) x ## ULL
-+
-+/* Macros for greatest-width integer constant expressions */
-+
-+#define INTMAX_C(x) x ## LL
-+#define UINTMAX_C(x) x ## ULL
-+
-+#endif /* _STDINT_H */
-diff -ruiN liblo-0.23/lo/lo_osc_types.h liblo-0.23-changed/lo/lo_osc_types.h
---- liblo-0.23/lo/lo_osc_types.h	2005-12-26 20:58:02.000000000 -0500
-+++ liblo-0.23-changed/lo/lo_osc_types.h	2007-04-10 21:38:10.546875000 -0400
+diff --git a/lo/lo_osc_types.h b/lo/lo_osc_types.h
+index fff6701..60eae26 100644
+--- a/lo/lo_osc_types.h
++++ b/lo/lo_osc_types.h
 @@ -17,7 +17,11 @@
  #ifndef LO_OSC_TYPES_H
  #define LO_OSC_TYPES_H
@@ -1206,7 +580,7 @@ diff -ruiN liblo-0.23/lo/lo_osc_types.h liblo-0.23-changed/lo/lo_osc_types.h
  
  /**
   * \addtogroup liblo
-@@ -114,7 +118,8 @@
+@@ -114,7 +118,8 @@ typedef union {
      lo_timetag t;
  } lo_arg;
  
@@ -1216,9 +590,10 @@ diff -ruiN liblo-0.23/lo/lo_osc_types.h liblo-0.23-changed/lo/lo_osc_types.h
  
  /** @} */
  
-diff -ruiN liblo-0.23/src/address.c liblo-0.23-changed/src/address.c
---- liblo-0.23/src/address.c	2005-12-26 20:58:02.000000000 -0500
-+++ liblo-0.23-changed/src/address.c	2007-04-10 21:38:10.546875000 -0400
+diff --git a/src/address.c b/src/address.c
+index ed16bda..ad70576 100644
+--- a/src/address.c
++++ b/src/address.c
 @@ -16,21 +16,24 @@
  
  #include <stdio.h>
@@ -1246,10 +621,11 @@ diff -ruiN liblo-0.23/src/address.c liblo-0.23-changed/src/address.c
  
  lo_address lo_address_new(const char *host, const char *port)
  {
-diff -ruiN liblo-0.23/src/bundle.c liblo-0.23-changed/src/bundle.c
---- liblo-0.23/src/bundle.c	2005-09-02 18:41:07.000000000 -0400
-+++ liblo-0.23-changed/src/bundle.c	2007-04-10 21:38:10.562500000 -0400
-@@ -113,7 +113,7 @@
+diff --git a/src/bundle.c b/src/bundle.c
+index 70df295..3fea864 100644
+--- a/src/bundle.c
++++ b/src/bundle.c
+@@ -113,7 +113,7 @@ void *lo_bundle_serialise(lo_bundle b, void *to, size_t *size)
  	    return NULL;
  	}
      }
@@ -1258,10 +634,11 @@ diff -ruiN liblo-0.23/src/bundle.c liblo-0.23-changed/src/bundle.c
  	fprintf(stderr, "liblo: data integrity error\n");
  
  	return NULL;
-diff -ruiN liblo-0.23/src/message.c liblo-0.23-changed/src/message.c
---- liblo-0.23/src/message.c	2005-08-11 05:07:29.000000000 -0400
-+++ liblo-0.23-changed/src/message.c	2007-04-10 21:38:10.562500000 -0400
-@@ -226,7 +226,7 @@
+diff --git a/src/message.c b/src/message.c
+index cb5eecb..4a14187 100644
+--- a/src/message.c
++++ b/src/message.c
+@@ -226,7 +226,7 @@ static void *lo_message_add_data(lo_message m, size_t s)
  	m->data = realloc(m->data, m->datasize);
      }
  
@@ -1270,7 +647,7 @@ diff -ruiN liblo-0.23/src/message.c liblo-0.23-changed/src/message.c
  }
  
  int lo_strsize(const char *s)
-@@ -327,8 +327,8 @@
+@@ -327,8 +327,8 @@ void *lo_message_serialise(lo_message m, const char *path, void *to,
  	to = calloc(1, s);
      }
      strcpy(to, path);
@@ -1281,7 +658,7 @@ diff -ruiN liblo-0.23/src/message.c liblo-0.23-changed/src/message.c
  
      return to;
  }
-@@ -336,7 +336,7 @@
+@@ -336,7 +336,7 @@ void *lo_message_serialise(lo_message m, const char *path, void *to,
  void lo_message_pp(lo_message m)
  {
      void *d = m->data;
@@ -1290,7 +667,7 @@ diff -ruiN liblo-0.23/src/message.c liblo-0.23-changed/src/message.c
      int i;
  
      printf("%s ", m->types);
-@@ -346,12 +346,12 @@
+@@ -346,12 +346,12 @@ void lo_message_pp(lo_message m)
  	}
  
  	lo_arg_pp_internal(m->types[i], d, 1);
@@ -1305,9 +682,11 @@ diff -ruiN liblo-0.23/src/message.c liblo-0.23-changed/src/message.c
      }
  }
  
-diff -ruiN liblo-0.23/src/msvc_config.h liblo-0.23-changed/src/msvc_config.h
---- liblo-0.23/src/msvc_config.h	1969-12-31 19:00:00.000000000 -0500
-+++ liblo-0.23-changed/src/msvc_config.h	2007-04-10 21:38:10.562500000 -0400
+diff --git a/src/msvc_config.h b/src/msvc_config.h
+new file mode 100644
+index 0000000..2515497
+--- /dev/null
++++ b/src/msvc_config.h
 @@ -0,0 +1,80 @@
 +/* config.h.  Generated by configure.  */
 +/* config.h.in.  Generated from configure.in by autoheader.  */
@@ -1389,9 +768,10 @@ diff -ruiN liblo-0.23/src/msvc_config.h liblo-0.23-changed/src/msvc_config.h
 +
 +/* Define to `unsigned' if <sys/types.h> does not define. */
 +/* #undef size_t */
-diff -ruiN liblo-0.23/src/send.c liblo-0.23-changed/src/send.c
---- liblo-0.23/src/send.c	2006-01-26 10:00:28.000000000 -0500
-+++ liblo-0.23-changed/src/send.c	2007-04-10 21:38:10.578125000 -0400
+diff --git a/src/send.c b/src/send.c
+index 2076fbc..b301ed2 100644
+--- a/src/send.c
++++ b/src/send.c
 @@ -23,13 +23,14 @@
  #include <stdio.h>
  #include <string.h>
@@ -1408,7 +788,7 @@ diff -ruiN liblo-0.23/src/send.c liblo-0.23-changed/src/send.c
  #include <netdb.h>
  #include <sys/socket.h>
  #include <sys/un.h>
-@@ -55,16 +56,24 @@
+@@ -55,16 +56,24 @@ int initWSock();
  static int resolve_address(lo_address a);
  static int create_socket(lo_address a);
  static int send_data(lo_address a, lo_server from, char *data, const size_t data_len);
@@ -1434,7 +814,7 @@ diff -ruiN liblo-0.23/src/send.c liblo-0.23-changed/src/send.c
  {
      va_list ap;
      int ret;
-@@ -75,7 +84,11 @@
+@@ -75,7 +84,11 @@ int lo_send_internal(lo_address t, const char *file, const int line,
      t->errstr = NULL;
  
      va_start(ap, types);
@@ -1446,7 +826,7 @@ diff -ruiN liblo-0.23/src/send.c liblo-0.23-changed/src/send.c
  
      if (t->errnum) {
  	lo_message_free(msg);
-@@ -88,13 +101,17 @@
+@@ -88,13 +101,17 @@ int lo_send_internal(lo_address t, const char *file, const int line,
      return ret;
  }
  
@@ -1465,7 +845,7 @@ diff -ruiN liblo-0.23/src/send.c liblo-0.23-changed/src/send.c
  {
      va_list ap;
      int ret;
-@@ -106,7 +123,11 @@
+@@ -106,7 +123,11 @@ int lo_send_timestamped_internal(lo_address t, const char *file,
      t->errstr = NULL;
  
      va_start(ap, types);
@@ -1477,7 +857,7 @@ diff -ruiN liblo-0.23/src/send.c liblo-0.23-changed/src/send.c
  
      if (t->errnum) {
  	lo_message_free(msg);
-@@ -121,13 +142,17 @@
+@@ -121,13 +142,17 @@ int lo_send_timestamped_internal(lo_address t, const char *file,
      return ret;
  }
  
@@ -1496,7 +876,7 @@ diff -ruiN liblo-0.23/src/send.c liblo-0.23-changed/src/send.c
  {
      lo_bundle b = NULL;
      va_list ap;
-@@ -141,7 +166,11 @@
+@@ -141,7 +166,11 @@ int lo_send_from_internal(lo_address to, lo_server from, const char *file,
      to->errstr = NULL;
  
      va_start(ap, types);
@@ -1508,7 +888,7 @@ diff -ruiN liblo-0.23/src/send.c liblo-0.23-changed/src/send.c
  
      if (to->errnum) {
  	if (b) lo_bundle_free(b);
-@@ -163,7 +192,6 @@
+@@ -163,7 +192,6 @@ int lo_send_from_internal(lo_address to, lo_server from, const char *file,
      return ret;
  }
  
@@ -1516,7 +896,7 @@ diff -ruiN liblo-0.23/src/send.c liblo-0.23-changed/src/send.c
  #if 0
  
  This (incmplete) function converts from printf-style formats to OSC typetags,
-@@ -233,8 +261,21 @@
+@@ -233,8 +261,21 @@ static char *format_to_types(const char *format)
  
  #endif
  
@@ -1538,7 +918,7 @@ diff -ruiN liblo-0.23/src/send.c liblo-0.23-changed/src/send.c
  {
      int count = 0;
      int i;
-@@ -264,8 +305,8 @@
+@@ -264,8 +305,8 @@ static void add_varargs(lo_address t, lo_message msg, va_list ap,
  	    s = va_arg(ap, char *);
  	    if (s == (char *)LO_MARKER_A) {
  		fprintf(stderr, "liblo error: lo_send called with invalid "
@@ -1549,7 +929,7 @@ diff -ruiN liblo-0.23/src/send.c liblo-0.23-changed/src/send.c
  		exit(1);
  	    }
  	    lo_message_add_string(msg, s);
-@@ -295,8 +336,8 @@
+@@ -295,8 +336,8 @@ static void add_varargs(lo_address t, lo_message msg, va_list ap,
  	    s = va_arg(ap, char *);
  	    if (s == (char *)LO_MARKER_A) {
  		fprintf(stderr, "liblo error: lo_send called with invalid "
@@ -1560,7 +940,7 @@ diff -ruiN liblo-0.23/src/send.c liblo-0.23-changed/src/send.c
  		exit(1);
  	    }
  	    lo_message_add_symbol(msg, s);
-@@ -331,29 +372,30 @@
+@@ -331,29 +372,30 @@ static void add_varargs(lo_address t, lo_message msg, va_list ap,
  	default:
  	    t->errnum = -1;
  	    t->errstr = "unknown type";
@@ -1595,9 +975,10 @@ diff -ruiN liblo-0.23/src/send.c liblo-0.23-changed/src/send.c
  static int resolve_address(lo_address a)
  {
      int ret;
-diff -ruiN liblo-0.23/src/server.c liblo-0.23-changed/src/server.c
---- liblo-0.23/src/server.c	2006-01-26 10:00:28.000000000 -0500
-+++ liblo-0.23-changed/src/server.c	2007-04-10 21:38:10.578125000 -0400
+diff --git a/src/server.c b/src/server.c
+index eee3af0..268c36b 100644
+--- a/src/server.c
++++ b/src/server.c
 @@ -19,7 +19,6 @@
  #endif
  
@@ -1622,7 +1003,7 @@ diff -ruiN liblo-0.23/src/server.c liblo-0.23-changed/src/server.c
  #else
  #define geterror() errno
  #endif
-@@ -68,6 +69,7 @@
+@@ -68,6 +69,7 @@ static void queue_data(lo_server s, lo_timetag ts, void *data, size_t len);
  
  
  #ifdef WIN32
@@ -1630,7 +1011,7 @@ diff -ruiN liblo-0.23/src/server.c liblo-0.23-changed/src/server.c
  // Copied from the Win32 SDK 
  
  // WARNING: The gai_strerror inline functions below use static buffers,
-@@ -93,17 +95,19 @@
+@@ -93,17 +95,19 @@ char *WSAAPI gai_strerrorA(int ecode)
                                NULL);
      return buff;
  }
@@ -1652,7 +1033,7 @@ diff -ruiN liblo-0.23/src/server.c liblo-0.23-changed/src/server.c
      if(WSAStartup(reqversion,&wsaData) != 0) {
          /* Couldn't initialize Winsock */
          stateWSock = 0;
-@@ -391,9 +395,9 @@
+@@ -411,9 +415,9 @@ void *lo_server_recv_raw_stream(lo_server s, size_t *size)
      int sock;
  
  #ifdef WIN32
@@ -1663,7 +1044,7 @@ diff -ruiN liblo-0.23/src/server.c liblo-0.23-changed/src/server.c
      FD_ZERO(&ps);
      FD_SET(s->socket,&ps);
      if(select(1,&ps,NULL,NULL,NULL) == SOCKET_ERROR)
-@@ -550,7 +554,7 @@
+@@ -570,7 +574,7 @@ again:
      }
      path = data;
  
@@ -1672,11 +1053,12 @@ diff -ruiN liblo-0.23/src/server.c liblo-0.23-changed/src/server.c
      if (!strcmp(path, "#bundle")) {
  	char *pos = types;
  	uint32_t len;
-diff -ruiN liblo-0.23/src/server_thread.c liblo-0.23-changed/src/server_thread.c
---- liblo-0.23/src/server_thread.c	2006-01-26 10:00:28.000000000 -0500
-+++ liblo-0.23-changed/src/server_thread.c	2007-04-10 21:38:10.578125000 -0400
+diff --git a/src/server_thread.c b/src/server_thread.c
+index 2e11a5f..875e112 100644
+--- a/src/server_thread.c
++++ b/src/server_thread.c
 @@ -14,7 +14,6 @@
-  *  $Id: server_thread.c,v 1.8 2006/01/26 15:00:28 nhumfrey Exp $
+  *  $Id$
   */
  
 -#include <unistd.h>
@@ -1691,9 +1073,10 @@ diff -ruiN liblo-0.23/src/server_thread.c liblo-0.23-changed/src/server_thread.c
  #include <netdb.h>
  #include <sys/socket.h>
  #endif
-diff -ruiN liblo-0.23/src/subtest.c liblo-0.23-changed/src/subtest.c
---- liblo-0.23/src/subtest.c	2005-07-05 09:26:23.000000000 -0400
-+++ liblo-0.23-changed/src/subtest.c	2007-04-10 21:38:10.578125000 -0400
+diff --git a/src/subtest.c b/src/subtest.c
+index dda7290..e043e3e 100644
+--- a/src/subtest.c
++++ b/src/subtest.c
 @@ -17,7 +17,9 @@
  #include <stdio.h>
  #include <stdlib.h>
@@ -1704,9 +1087,10 @@ diff -ruiN liblo-0.23/src/subtest.c liblo-0.23-changed/src/subtest.c
  
  #include "lo/lo.h"
  
-diff -ruiN liblo-0.23/src/testlo.c liblo-0.23-changed/src/testlo.c
---- liblo-0.23/src/testlo.c	2005-12-05 17:22:09.000000000 -0500
-+++ liblo-0.23-changed/src/testlo.c	2007-04-10 21:38:10.593750000 -0400
+diff --git a/src/testlo.c b/src/testlo.c
+index c6db3a5..fd56629 100644
+--- a/src/testlo.c
++++ b/src/testlo.c
 @@ -23,16 +23,19 @@
  #include <float.h>
  #include <stdio.h>
@@ -1728,7 +1112,7 @@ diff -ruiN liblo-0.23/src/testlo.c liblo-0.23-changed/src/testlo.c
  #define PATHDELIM "/"
  #endif
  
-@@ -105,6 +108,9 @@
+@@ -105,6 +108,9 @@ int quit_handler(const char *path, const char *types, lo_arg **argv, int argc,
  
  int main()
  {
@@ -1738,7 +1122,7 @@ diff -ruiN liblo-0.23/src/testlo.c liblo-0.23-changed/src/testlo.c
      lo_blob btest = lo_blob_new(sizeof(testdata), testdata);
      lo_server_thread st, sta, stb;
      lo_server s = lo_server_new(NULL, error);
-@@ -320,7 +326,7 @@
+@@ -383,7 +389,7 @@ int main()
      lo_send(a, "/", "i", 242);
      lo_send(a, "/pattern/", "i", 243);
  
@@ -1747,7 +1131,7 @@ diff -ruiN liblo-0.23/src/testlo.c liblo-0.23-changed/src/testlo.c
      lo_send(a, "/lotsofformats", "fisbmhtdSccTFNI", 0.12345678f, 123, "123",
  	    btest, midi_data, 0x0123456789abcdefULL, tt, 0.9999, "sym",
  	    'X', 'Y');
-@@ -354,7 +360,7 @@
+@@ -417,7 +423,7 @@ int main()
      TEST(subtest_reply_count == 22);
      printf("\n");
  
@@ -1756,7 +1140,7 @@ diff -ruiN liblo-0.23/src/testlo.c liblo-0.23-changed/src/testlo.c
      m1 = lo_message_new();
      lo_message_add_string(m1, "abcdefghijklmnopqrstuvwxyz");
      lo_message_add_string(m1, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-@@ -363,7 +369,7 @@
+@@ -426,7 +432,7 @@ int main()
      lo_message_free(m1);
      lo_bundle_free(b);
  
@@ -1765,7 +1149,7 @@ diff -ruiN liblo-0.23/src/testlo.c liblo-0.23-changed/src/testlo.c
      m1 = lo_message_new();
      lo_message_add_int32(m1, 23);
      lo_message_add_string(m1, "23");
-@@ -386,7 +392,7 @@
+@@ -449,7 +455,7 @@ int main()
      lo_message_free(m2);
      lo_bundle_free(b);
  
@@ -1774,11 +1158,12 @@ diff -ruiN liblo-0.23/src/testlo.c liblo-0.23-changed/src/testlo.c
      m1 = lo_message_new();
      lo_message_add_string(m1, "abcdefghijklmnopqrstuvwxyz");
      lo_message_add_string(m1, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-diff -ruiN liblo-0.23/src/timetag.c liblo-0.23-changed/src/timetag.c
---- liblo-0.23/src/timetag.c	2005-08-19 06:12:35.000000000 -0400
-+++ liblo-0.23-changed/src/timetag.c	2007-04-10 21:38:10.593750000 -0400
+diff --git a/src/timetag.c b/src/timetag.c
+index 88840d3..8417cb6 100644
+--- a/src/timetag.c
++++ b/src/timetag.c
 @@ -14,7 +14,9 @@
-  *  $Id: timetag.c,v 1.3 2005/08/19 10:12:35 theno23 Exp $
+  *  $Id$
   */
  
 +#ifndef WIN32
@@ -1796,7 +1181,7 @@ diff -ruiN liblo-0.23/src/timetag.c liblo-0.23-changed/src/timetag.c
  double lo_timetag_diff(lo_timetag a, lo_timetag b)
  {
  	return (double)a.sec - (double)b.sec +
-@@ -36,8 +40,9 @@
+@@ -36,8 +40,9 @@ void lo_timetag_now(lo_timetag *t)
          1601 and 1900 are 9435484800 seconds apart.
      */
      FILETIME ftime;

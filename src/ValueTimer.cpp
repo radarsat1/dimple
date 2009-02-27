@@ -13,7 +13,8 @@
 */
 //======================================================================================
 
-#include "valuetimer.h"
+#include "ValueTimer.h"
+#include "OscObject.h"
 
 typedef std::map<OscValue*, struct ValueTimerPair*>::iterator value_iter;
 typedef std::pair<OscValue*, struct ValueTimerPair*> value_pair;

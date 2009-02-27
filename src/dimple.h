@@ -21,23 +21,38 @@
 #endif
 #define _WINSOCK2API_
 #include "lo/lo.h"
-#include "OscObject.h"
 #include "AudioStreamer.h"
+#include <map>
+#include <CWorld.h>
+#include <ode/ode.h>
 
 #define FPS 30
-#define GLUT_TIMESTEP_MS   (int)((1.0/FPS)*1000.0)
+#define VISUAL_TIMESTEP_MS   (int)((1.0/FPS)*1000.0)
 #define PHYSICS_TIMESTEP_MS 10
-#define HAPTIC_TIMESTEP_MS 1
+#define HAPTICS_TIMESTEP_MS 1
 
-#ifdef _POSIX
+#ifndef WIN32
 #define Sleep(t) usleep(t*1000)
 #endif
 
+// Macro for conditionally including code when compiling for DEBUG
+#ifdef DEBUG
+#define ptrace(c,x) if (c) {printf x;}
+#else
+#define ptrace(c,x)
+#endif
+
+#define __dimple_str(x) #x
+#define _dimple_str(x) #x
 
 // LibLo server
 extern lo_server_thread loserverthr;
 extern lo_server        loserver;
 extern lo_address       address_send;
+
+class OscObject;
+class OscConstraint;
+class cODEPrimitive;
 
 // world objects
 extern std::map<std::string,OscObject*> world_objects;

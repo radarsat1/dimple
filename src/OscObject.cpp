@@ -14,274 +14,39 @@
 //======================================================================================
 
 #include "OscObject.h"
-#include "dimple.h"
-#include "valuetimer.h"
+#include "ValueTimer.h"
+#include "Simulation.h"
 #include <assert.h>
-
-//! OscBase objects always have a name. Class name defaults to "".
-OscBase::OscBase(const char *name, const char *classname)
-    : m_name(name), m_classname(classname)
-{
-}
-
-//! Add a handler for some OSC method
-void OscBase::addHandler(const char *methodname, const char* type, lo_method_handler h)
-{
-    // build OSC method name
-    std::string n("/");
-    if (m_classname.length()>0)
-        n += m_classname + "/";
-    n += m_name;
-    if (strlen(methodname)>0)
-        n = n + "/" + methodname;
-
-    // add it to liblo server and store it
-    if (lo_server_add_method(loserver, n.c_str(), type, h, this))
-    {
-        method_t m;
-        m.name = n;
-        m.type = type;
-        m_methods.push_back(m);
-    }
-}
-
-OscBase::~OscBase()
-{
-    // remove all stored OSC methods from the liblo server
-    while (m_methods.size()>0) {
-        method_t m = m_methods.back();
-        m_methods.pop_back();
-        lo_server_del_method(loserver, m.name.c_str(), m.type.c_str());
-    }
-}
-
-// ----------------------------------------------------------------------------------
-
-OscValue::OscValue(const char *name, OscBase *owner)
-    : OscBase(name, (owner->strclassname()+"/"+owner->strname()).c_str())
-{
-    m_callback = NULL;
-    m_callback_data = NULL;
-    m_callback_thread = DIMPLE_THREAD_PHYSICS;
-
-    addHandler("get",           "i"  , OscValue::get_handler);
-    addHandler("get",           ""   , OscValue::get_handler);
-}
-
-OscValue::~OscValue()
-{
-    valuetimer.removeValue(this);
-}
-
-int OscValue::get_handler(const char *path, const char *types, lo_arg **argv,
-                          int argc, void *data, void *user_data)
-{
-    handler_data *hd = (handler_data*)user_data;
-    OscValue *me = (OscValue*)hd->user_data;
-    
-    if (hd->thread != DIMPLE_THREAD_PHYSICS)
-        return 0;
-
-    if (argc==0) {
-        me->send();
-    }
-
-    else if (argc==1) {
-        if (argv[0]->i == 0)
-            valuetimer.removeValue(me);
-        else
-            valuetimer.addValue(me, argv[0]->i);
-    }
-
-    return 0;
-}
-
-// ----------------------------------------------------------------------------------
-
-OscScalar::OscScalar(const char *name, OscBase *owner)
-	 : OscValue(name, owner)
-{
-    m_callback = NULL;
-    m_callback_data = NULL;
-    
-    m_value = 0;
-	
-    addHandler("",              "f", OscScalar::_handler);
-}
-
-void OscScalar::set(double value)
-{
-	 m_value = value;
-	 setChanged();
-}
-
-void OscScalar::send()
-{
-    lo_send(address_send, ("/" + m_classname +
-                           "/" + m_name).c_str(),
-            "f", m_value
-        );
-}
-
-int OscScalar::_handler(const char *path, const char *types, lo_arg **argv,
-                         int argc, void *data, void *user_data)
-{
-	 handler_data *hd = (handler_data*)user_data;
-	 OscScalar *me = (OscScalar*)hd->user_data;
-
-     if (hd->thread != me->m_callback_thread)
-         return 0;
-
-	 if (argc == 1)
-		  me->m_value = argv[0]->f;
-
-     if (me->m_callback)
-         me->m_callback(me->m_callback_data, *me);
-
-	 return 0;
-}
-
-// ----------------------------------------------------------------------------------
-
-//! OscVector3 is a 3-vector which can report its magnitude.
-OscVector3::OscVector3(const char *name, OscBase *owner)
-    : OscValue(name, owner),
-	  m_magnitude("magnitude", this),
-      cVector3d()
-{
-    m_callback = NULL;
-    m_callback_data = NULL;
-    m_magnitude.setCallback((OscScalar::set_callback*)OscVector3::setMagnitude, this,
-        DIMPLE_THREAD_PHYSICS);
-
-    addHandler("",              "fff", OscVector3::_handler);
-}
-
-void OscVector3::setChanged()
-{
-	 // TODO: this would be more efficient if it was only
-	 // calculated when asked for, but only the first time
-     // if it hasn't changed.
-	 m_magnitude.set(sqrt(x*x + y*y + z*z));
-}
-
-void OscVector3::set(double _x, double _y, double _z)
-{
-    x = _x;
-    y = _y;
-    z = _z;
-    setChanged();
-}
-
-void OscVector3::send()
-{
-    lo_send(address_send, ("/" + m_classname +
-                           "/" + m_name).c_str(),
-            "fff", x, y, z
-        );
-}
-
-void OscVector3::setMagnitude(OscVector3 *me, const OscScalar& s)
-{
-    double ratio;
-    if (me->x==0 && me->y==0 && me->z==0)
-        ratio = 0;
-    else
-        ratio = s.m_value / sqrt(me->x*me->x + me->y*me->y + me->z*me->z);
-    
-    *me *= ratio;
-
-    if (me->m_callback)
-        me->m_callback(me->m_callback_data, *me);
-}
-
-int OscVector3::_handler(const char *path, const char *types, lo_arg **argv,
-                         int argc, void *data, void *user_data)
-{
-	 handler_data *hd = (handler_data*)user_data;
-	 OscVector3 *me = (OscVector3*)hd->user_data;
-
-     if (hd->thread != me->m_callback_thread)
-         return 0;
-
-	 if (argc == 3) {
-		  me->x = argv[0]->f;
-		  me->y = argv[1]->f;
-		  me->z = argv[2]->f;
-          me->setChanged();
-	 }
-     
-     if (me->m_callback)
-         me->m_callback(me->m_callback_data, *me);
-
-	 return 0;
-}
-
-// ----------------------------------------------------------------------------------
-
-//! OscString is an OSC-accessible and -settable string value.
-OscString::OscString(const char *name, OscBase *owner)
-    : OscValue(name, owner)
-{
-    addHandler("",              "s",   OscString::_handler);
-//    addHandler("get",           "i"  , OscString::get_handler);
-//    addHandler("get",           ""   , OscString::get_handler);
-}
-
-void OscString::send()
-{
-    lo_send(address_send, ("/" + m_classname +
-                           "/" + m_name).c_str(),
-            "s", c_str()
-        );
-}
-
-int OscString::_handler(const char *path, const char *types, lo_arg **argv,
-                        int argc, void *data, void *user_data)
-{
-	 handler_data *hd = (handler_data*)user_data;
-	 OscString *me = (OscString*)hd->user_data;
-
-     if (hd->thread != me->m_callback_thread)
-         return 0;
-
-	 if (argc == 1) {
-         me->assign(&argv[0]->s);
-         me->setChanged();
-	 }
-     
-     if (me->m_callback)
-         me->m_callback(me->m_callback_data, *me);
-
-	 return 0;
-}
 
 // ----------------------------------------------------------------------------------
 
 //! OscObject has a CHAI/ODE object associated with it. Class name = "object"
-OscObject::OscObject(cGenericObject* p, const char *name)
-    : OscBase(name, "object"),
+OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
+    : OscBase(name, parent),  // was "object"
       m_velocity("velocity", this),
       m_accel("acceleration", this),
       m_position("position", this),
+      m_force("force", this),
       m_color("color", this),
       m_friction_static("friction/static", this),
       m_friction_dynamic("friction/dynamic", this),
-      m_texture_image("texture/image", this)
+      m_texture_image("texture/image", this),
+      m_rotation("rotation", this),
+      m_mass("mass", this),
+      m_density("density", this),
+      m_collide("collide", this),
+      m_visible("visible", this)
 {
     // Track pointer for ODE/Chai object
     m_objChai = p;
 
     // Set user data to point to this object for ODE geom, so that
     // we can identify this OscObject during collision detction
-    odePrimitive()->setGeomData(this);
+    if (odePrimitive())
+        odePrimitive()->setGeomData(this);
 
     // Create handlers for OSC messages
     addHandler("destroy"    , ""   , OscObject::destroy_handler);
-    addHandler("mass"       , "f"  , OscObject::mass_handler);
-    addHandler("force"      , "fff", OscObject::force_handler);
-    addHandler("collide/get", ""   , OscObject::collideGet_handler);
-    addHandler("collide/get", "i"  , OscObject::collideGet_handler);
     addHandler("grab"       , ""   , OscObject::grab_handler);
     addHandler("grab"       , "i"  , OscObject::grab_handler);
     addHandler("oscillate"  , "ff" , OscObject::oscillate_handler);
@@ -290,31 +55,32 @@ OscObject::OscObject(cGenericObject* p, const char *name)
     m_accel.set(0,0,0);
     m_velocity.set(0,0,0);
     m_position.set(0,0,0);
+    m_force.set(0,0,0);
+    m_density.set(1);
+    m_visible.set(true);
 
     // Sane friction defaults
     m_friction_static.set(1);
     m_friction_dynamic.set(0.5);
 
     // Set callbacks for when values change
-    m_position.setCallback((OscVector3::set_callback*)OscObject::setPosition, this,
-                           DIMPLE_THREAD_PHYSICS);
-    m_velocity.setCallback((OscVector3::set_callback*)OscObject::setVelocity, this,
-                           DIMPLE_THREAD_PHYSICS);
-    m_color.setCallback((OscVector3::set_callback*)OscObject::setColor, this,
-                        DIMPLE_THREAD_HAPTICS);
-    m_friction_static.setCallback((OscScalar::set_callback*)OscObject::setFrictionStatic, this,
-                                  DIMPLE_THREAD_HAPTICS);
-    m_friction_dynamic.setCallback((OscScalar::set_callback*)OscObject::setFrictionDynamic, this,
-                                   DIMPLE_THREAD_HAPTICS);
-    m_texture_image.setCallback((OscScalar::set_callback*)OscObject::setTextureImage, this,
-                                DIMPLE_THREAD_HAPTICS);
-
-    m_getCollide = false;
+    m_position.setSetCallback(set_position, this, DIMPLE_THREAD_PHYSICS);
+    m_rotation.setSetCallback(set_rotation, this, DIMPLE_THREAD_PHYSICS);
+    m_force.setSetCallback(set_force, this, DIMPLE_THREAD_PHYSICS);
+    m_color.setSetCallback(set_color, this, DIMPLE_THREAD_PHYSICS);
+    m_velocity.setSetCallback(set_velocity, this, DIMPLE_THREAD_PHYSICS);
+    m_friction_static.setSetCallback(set_friction_static, this, DIMPLE_THREAD_HAPTICS);
+    m_friction_dynamic.setSetCallback(set_friction_dynamic, this, DIMPLE_THREAD_HAPTICS);
+    m_texture_image.setSetCallback((OscString::SetCallback*)setTextureImage, this, DIMPLE_THREAD_HAPTICS);
+    m_mass.setSetCallback(set_mass, this, DIMPLE_THREAD_PHYSICS);
+    m_density.setSetCallback(set_density, this, DIMPLE_THREAD_PHYSICS);
+    m_collide.setSetCallback(set_collide, this, DIMPLE_THREAD_PHYSICS);
+    m_visible.setSetCallback(set_visible, this, DIMPLE_THREAD_PHYSICS);
 
     // If the new object is supposed to be a part of a
     // composite object, find it and join.
 	const char *s;
-    if (s=strchr(name, '/')) {
+    if ((s=strchr(name, '/'))) {
         char firstname[256];
         int len = (s-name<255)?(s-name):255;
         strncpy(firstname, name, len);
@@ -332,33 +98,27 @@ OscObject::OscObject(cGenericObject* p, const char *name)
     }
 }
 
-//! OscObject destructor is responsible for deleting the object from the CHAI world.
-//! ODE removal is taken care of in the cODEPrimitive destructor.
-//! Any constraints associated with the object are destroyed as well.
+//! OscObject destructor.  Destoys any associated constraints.
 OscObject::~OscObject()
 {
-    // Destroy any constraints associated with the object
-    while (odePrimitive()->m_Joint.size() > 0) {
-        std::string jointname = odePrimitive()->m_Joint.begin()->first;
-        if (world_constraints.find(jointname)!=world_constraints.end())
-            delete world_constraints[jointname];
-        world_constraints.erase(jointname);
+    constraint_list_iterator it = m_constraintList.begin();
+    while (it!=m_constraintList.end()) {
+        /* Remove the constraint from the other object's constraint
+           list before deleting. */
+        OscConstraint *o = *it;
+        if (o->object2()) {
+            if (this==o->object1())
+                o->object2()->m_constraintList.remove(o);
+            else if (this==o->object2())
+                o->object1()->m_constraintList.remove(o);
+        }
+
+        (**it).on_destroy();
+        it++;
     }
-    
-    // Destroy any constraints to which this object is linked
-    while (m_constraintLinks.size() > 0)
-    {
-        std::string jointname = m_constraintLinks.back();
-        m_constraintLinks.pop_back();
-        
-        if (world_constraints.find(jointname)!=world_constraints.end())
-            delete world_constraints[jointname];
-        world_constraints.erase(jointname);
-    }
-    
-    // Remove object from CHAI world
-    cGenericObject *p = m_objChai->getParent();
-    p->deleteChild(m_objChai);
+
+    ptrace(m_bTrace, ("[%s] %s.~OscObject()\n",
+                      simulation()->type_str(), c_name()));
 }
 
 //! This function must be called if the object becomes linked to another object's constraint
@@ -377,60 +137,10 @@ void OscObject::unlinkConstraint(std::string &name)
 		  if ((*it)==name) m_constraintLinks.erase(it);
 }
 
-//! Set the dynamic object to a new position
-void OscObject::setPosition(OscObject *me, const OscVector3& pos)
-{
-    me->odePrimitive()->setDynamicPosition(pos);
-}
-
 //! Set the dynamic object velocity
 void OscObject::setVelocity(OscObject *me, const OscVector3& vel)
 {
     me->odePrimitive()->setDynamicLinearVelocity(vel);
-}
-
-//! Set the graphical object color
-void OscObject::setColor(OscObject *me, const OscVector3& color)
-{
-    cShapeSphere *sphere = dynamic_cast<cShapeSphere*>(me->chaiObject());
-    if (sphere) {
-        sphere->m_material.m_diffuse.set(color.x, color.y, color.z);
-        return;
-    }
-
-    cMesh *mesh = dynamic_cast<cMesh*>(me->chaiObject());
-    if (mesh)
-        mesh->m_material.m_diffuse.set(color.x, color.y, color.z);
-}
-
-//! Set the haptic object static friction coefficient.
-void OscObject::setFrictionStatic(OscObject *me, const OscScalar& value)
-{
-    // Note: unfortunately cMesh and cGenericPotentialField don't
-    // share the same m_material field...
-    cShapeSphere *sphere = dynamic_cast<cShapeSphere*>(me->chaiObject());
-    if (sphere) {
-        sphere->m_material.setStaticFriction(value.m_value);
-        return;
-    }
-
-    cMesh *mesh = dynamic_cast<cMesh*>(me->chaiObject());
-    if (mesh)
-        mesh->m_material.setStaticFriction(value.m_value);
-}
-
-//! Set the haptic object dynamic friction coefficient.
-void OscObject::setFrictionDynamic(OscObject *me, const OscScalar& value)
-{
-    cShapeSphere *sphere = dynamic_cast<cShapeSphere*>(me->chaiObject());
-    if (sphere) {
-        sphere->m_material.setDynamicFriction(value.m_value);
-        return;
-    }
-
-    cMesh *mesh = dynamic_cast<cMesh*>(me->chaiObject());
-    if (mesh)
-        mesh->m_material.setDynamicFriction(value.m_value);
 }
 
 //! Set the texture file to use for this object.
@@ -469,130 +179,47 @@ void OscObject::setTextureImage(OscObject *me, const OscString& filename)
 //! Update the position extracted from the dynamic simulation
 void OscObject::updateDynamicPosition(const dReal* pos)
 {
-    m_position[0] = pos[0];
-    m_position[1] = pos[1];
-    m_position[2] = pos[2];
-	m_position.setChanged();
+    m_position.set(pos[0], pos[1], pos[2]);
 }
 
 //! Update the velocity extracted from the dynamic simulation
 void OscObject::updateDynamicVelocity(const dReal* vel)
 {
-    m_accel[0] = m_velocity[0] - vel[0];
-    m_accel[1] = m_velocity[1] - vel[1];
-    m_accel[2] = m_velocity[2] - vel[2];
-	m_accel.setChanged();
-    m_velocity[0] = vel[0];
-    m_velocity[1] = vel[1];
-    m_velocity[2] = vel[2];
-	m_velocity.setChanged();
+    m_accel.set(
+        m_velocity[0] - vel[0],
+        m_velocity[1] - vel[1],
+        m_velocity[2] - vel[2]);
+    m_velocity.set(vel[0], vel[1], vel[2]);
 }
 
 //! Inform object that it is in collision with another object.
 //! \return True if this is a new collision
-bool OscObject::collidedWith(OscObject *o)
+bool OscObject::collidedWith(OscObject *o, int count)
 {
     bool rc=false;
-    if (m_collisions[o] != ode_counter-1) {
+    if (m_collisions[o] != count-1) {
         rc=true;
-        if (m_getCollide) {
-            lo_send(address_send, ("/object/"+m_name+"/collide").c_str(),
-                    "s", o->name());
-            // TODO: send collision force
+        if (m_collide.m_value) {
+            lo_send(address_send, ("/world/"+m_name+"/collide").c_str(),
+                    "sf", o->c_name(),
+                    (double)(m_velocity - o->m_velocity).length());
         }
     }
-    m_collisions[o] = ode_counter;
+    m_collisions[o] = count;
 
     return rc;
 }
 
 //! Destroy the object
-int OscObject::destroy_handler(const char *path, const char *types, lo_arg **argv,
-							   int argc, void *data, void *user_data)
+void OscObject::on_destroy()
 {
-	 handler_data *hd = (handler_data*)user_data;
-	 OscObject *me = (OscObject*)hd->user_data;
+    simulation()->delete_object(*this);
 
-     if (hd->thread != DIMPLE_THREAD_PHYSICS)
-         return 0;
+    /* The object's memory is freed in the above delete_object call.
+     * Should it be done here instead? Or perhaps moved to a deleted
+     * objects pool for later garbage collection. */
 
-    if (me) {
-        LOCK_WORLD();
-        world_objects.erase(me->m_name);
-        delete me;
-        UNLOCK_WORLD();
-    }
-    return 0;
-}
-
-//! Set the object's mass
-int OscObject::mass_handler(const char *path, const char *types, lo_arg **argv,
-                             int argc, void *data, void *user_data)
-{
-    if (argc!=1) return 0;
-
-    LOCK_WORLD();
-	handler_data *hd = (handler_data*)user_data;
-    OscObject *me = (OscObject*)hd->user_data;
-	if (hd->thread == DIMPLE_THREAD_PHYSICS)
-		 me->odePrimitive()->setDynamicMass(argv[0]->f);
-    UNLOCK_WORLD();
-    return 0;
-}
-
-//! Add an instantaneous force to an object
-int OscObject::force_handler(const char *path, const char *types, lo_arg **argv,
-                             int argc, void *data, void *user_data)
-{
-    if (argc!=3) return 0;
-    LOCK_WORLD();
-	handler_data *hd = (handler_data*)user_data;
-    OscObject *me = (OscObject*)hd->user_data;
-	if (hd->thread == DIMPLE_THREAD_PHYSICS)
-        me->odePrimitive()->setDynamicForce(cVector3d(argv[0]->f, argv[1]->f, argv[2]->f));
-    UNLOCK_WORLD();
-    return 0;
-}
-
-int OscObject::collideGet_handler(const char *path, const char *types, lo_arg **argv,
-                                  int argc, void *data, void *user_data)
-{
-	 handler_data *hd = (handler_data*)user_data;
-	 OscObject *me = (OscObject*)hd->user_data;
-
-    int interval=-1;
-    if (argc > 0) {
-        interval = argv[0]->i;
-    }
-    me->m_getCollide = (interval>0);
-    // TODO: only report one collision if multiple collisions occur within given interval
-
-    return 0;
-}
-
-int OscObject::grab_handler(const char *path, const char *types, lo_arg **argv,
-                            int argc, void *data, void *user_data)
-{
-    handler_data *hd = (handler_data*)user_data;
-	OscObject *me = (OscObject*)hd->user_data;
-
-    if (hd->thread != DIMPLE_THREAD_HAPTICS)
-        return 0;
-
-    if (proxyObject)
-        proxyObject->ungrab(hd->thread);
-
-    if (argc == 1 && argv[0]->i == 0)
-        return 0;
-
-    // remove self from haptics contact
-    me->chaiObject()->setHapticEnabled(false, true);
-    printf("Disabled haptics for object %s: %d\n", me->name(), me->chaiObject()->getHapticEnabled());
-
-    // become the proxy object
-    proxyObject = me;
-
-    return 0;
+    return;
 }
 
 void OscObject::ungrab(int thread)
@@ -628,7 +255,7 @@ void *oscillate_thread(void* user)
     float amp = args[2];
     delete args;
     
-    printf("Oscillate thread!  %s, %f, %f\n", ob->name(), hz, amp);
+    printf("Oscillate thread!  %s, %f, %f\n", ob->c_name(), hz, amp);
 
     while (1) {
         wait_ode_request(oscillate_callback, ob->odePrimitive());
@@ -653,7 +280,8 @@ int OscObject::oscillate_handler(const char *path, const char *types, lo_arg **a
 
     pthread_t th;
     pthread_create(&th, NULL, oscillate_thread, args);
-    printf("%s is oscillating at %f Hz, %f amplitude.\n", me->name(), hz, amp);
+    printf("%s is oscillating at %f Hz, %f amplitude.\n", me->c_name(), hz, amp);
+    return 0;
 }
 
 // ----------------------------------------------------------------------------------
@@ -686,51 +314,35 @@ void OscComposite::addChild(OscObject *o)
     o->odePrimitive()->m_odeBody = odePrimitive()->m_odeBody;
     dGeomSetBody(o->odePrimitive()->m_odeGeom, odePrimitive()->m_odeBody);
 
-    printf("%s added to %s\n", o->name(), name());
+    printf("%s added to %s\n", o->c_name(), c_name());
 }
 
 // ----------------------------------------------------------------------------------
 
-OscPrism::OscPrism(cGenericObject* p, const char *name)
-    : OscObject(p, name)
+OscPrism::OscPrism(cGenericObject* p, const char *name, OscBase* parent)
+    : OscObject(p, name, parent), m_size("size", this)
 {
-    addHandler("size", "fff", OscPrism::size_handler);
-}
-
-//! Resize the prism to the given dimensions.
-int OscPrism::size_handler(const char *path, const char *types, lo_arg **argv,
-                           int argc, void *data, void *user_data)
-{
-    if (argc!=3)
-        return 0;
-
-	handler_data *hd = (handler_data*)user_data;
-    OscPrism* me = (OscPrism*)hd->user_data;
-	cODEPrism *prism = me->odePrimitive();
-	if (prism)
-	{
-		 cVector3d size;
-		 size.x = argv[0]->f;
-		 size.y = argv[1]->f;
-		 size.z = argv[2]->f;
-		 LOCK_WORLD();
-		 if (hd->thread == DIMPLE_THREAD_HAPTICS)
-			  prism->setSize(size);
-		 else if (hd->thread == DIMPLE_THREAD_PHYSICS)
-			  prism->setDynamicSize(size);
-		 UNLOCK_WORLD();
-	}
-
-	return 0;
+    m_size.setSetCallback(set_size, this, DIMPLE_THREAD_PHYSICS);
 }
 
 // ----------------------------------------------------------------------------------
 
-OscSphere::OscSphere(cGenericObject* p, const char *name)
-    : OscObject(p, name)
+OscSphere::OscSphere(cGenericObject* p, const char *name, OscBase* parent)
+    : OscObject(p, name, parent), m_radius("radius", this)
 {
-    addHandler("radius", "f", OscSphere::radius_handler);
+//    addHandler("radius", "f", OscSphere::radius_handler);
+//    m_radius.setCallback((OscScalar::set_callback*)OscSphere::setRadius, this, DIMPLE_THREAD_PHYSICS);
+    m_radius.setSetCallback(set_radius, this, DIMPLE_THREAD_PHYSICS);
 }
+
+/*
+void OscSphere::setRadius(void *data, const OscScalar&)
+{
+    printf ("OscSphere::setRadius()\n");
+    OscSphere *me = (OscSphere*)data;
+    me->onSetRadius();
+}
+*/
 
 //! Change the sphere's radius to the given size.
 int OscSphere::radius_handler(const char *path, const char *types, lo_arg **argv,
@@ -755,9 +367,13 @@ int OscSphere::radius_handler(const char *path, const char *types, lo_arg **argv
 
 // ----------------------------------------------------------------------------------
 
-OscMesh::OscMesh(cGenericObject* p, const char *name)
-    : OscObject(p, name)
+OscMesh::OscMesh(cGenericObject *p, const char *name,
+                 const char *filename, OscBase *parent)
+    : OscObject(p, name, parent),
+      m_size("size", this)
 {
+    m_size.setSetCallback(set_size, this, DIMPLE_THREAD_PHYSICS);
+
     addHandler("size", "f", OscMesh::size_handler);
     addHandler("size", "fff", OscMesh::size_handler);
 }
@@ -795,7 +411,7 @@ int OscMesh::size_handler(const char *path, const char *types, lo_arg **argv,
             me->m_vLastScaled = scale;
             
             printf("(haptics) Scaled %s by %f, %f, %f\n",
-                   me->name(), scale.x, scale.y, scale.z);
+                   me->c_name(), scale.x, scale.y, scale.z);
 
             // Perform similar scaling in the physics thread
             // TODO: should be *post*, need to fix queueing first
@@ -816,20 +432,59 @@ void OscMesh::size_physics_callback(void *self)
                                            me->m_vLastScaled.z);
 
     printf("(physics) Scaled %s by %f, %f, %f\n",
-           me->name(), me->m_vLastScaled.x,
+           me->c_name(), me->m_vLastScaled.x,
            me->m_vLastScaled.y,
            me->m_vLastScaled.z);
+}
+
+// ------------------------------------------------------------------------
+
+OscCamera::OscCamera(const char *name, OscBase *parent)
+    : OscBase(name, parent),
+      m_position("position", this),
+      m_lookat("lookat", this),
+      m_up("up", this)
+{
+    m_position.setSetCallback(set_position, this, DIMPLE_THREAD_PHYSICS);
+    m_lookat.setSetCallback(set_lookat, this, DIMPLE_THREAD_PHYSICS);
+    m_up.setSetCallback(set_up, this, DIMPLE_THREAD_PHYSICS);
+}
+
+// ------------------------------------------------------------------------
+
+OscResponse::OscResponse(const char* name, OscBase *parent)
+    : OscBase(name, parent),
+      m_stiffness("stiffness", this),
+      m_damping("damping", this),
+      m_offset("offset", this)
+{
+    m_stiffness.setSetCallback(set_stiffness, this, DIMPLE_THREAD_PHYSICS);
+    m_damping.setSetCallback(set_damping, this, DIMPLE_THREAD_PHYSICS);
+    m_offset.setSetCallback(set_offset, this, DIMPLE_THREAD_PHYSICS);
+
+    addHandler("spring", "ff", OscResponse::spring_handler);
+}
+
+double OscResponse::response(double position, double velocity)
+{
+    // Damped spring
+    return (-m_stiffness.m_value*(position-m_offset.m_value)
+            -m_damping.m_value*velocity);
 }
 
 // ----------------------------------------------------------------------------------
 
 //! OscConstraint has two CHAI/ODE object associated with it, though not owned by it. Class name = "constraint"
-OscConstraint::OscConstraint(const char *name, OscObject *object1, OscObject *object2)
-    : OscBase(name, "constraint")
+OscConstraint::OscConstraint(const char *name, OscBase *parent,
+                             OscObject *object1, OscObject *object2)
+    : OscBase(name, parent)
 {
     assert(object1);
     m_object1 = object1;
     m_object2 = object2;
+
+    if (object1) object1->m_constraintList.push_back(this);
+    if (object2) object2->m_constraintList.push_back(this);
 
     m_stiffness = 0;
     m_damping = 0;
@@ -841,33 +496,21 @@ OscConstraint::OscConstraint(const char *name, OscObject *object1, OscObject *ob
     addHandler("response/center",   "f", OscConstraint::responseCenter_handler);
     addHandler("response/constant", "f", OscConstraint::responseConstant_handler);
     addHandler("response/linear",   "f", OscConstraint::responseLinear_handler);
-    addHandler("response/spring",   "ff", OscConstraint::responseSpring_handler);
     addHandler("response/wall",     "ff", OscConstraint::responseWall_handler);
     addHandler("response/wall",     "ffi", OscConstraint::responseWall_handler);
     addHandler("response/pluck",    "ff", OscConstraint::responsePluck_handler);
 }
 
-OscConstraint::~OscConstraint()
+//! Destroy the constraint
+void OscConstraint::on_destroy()
 {
-    if (!m_object1) return;
-    m_object1->odePrimitive()->destroyJoint(m_name);
-	if (m_object2) m_object2->unlinkConstraint(m_name);
-	printf("Constraint %s destroyed.\n", m_name.c_str());
-}
+    simulation()->delete_constraint(*this);
 
-int OscConstraint::destroy_handler(const char *path, const char *types, lo_arg **argv,
-							   int argc, void *data, void *user_data)
-{
-	 handler_data *hd = (handler_data*)user_data;
-	 OscConstraint *me = (OscConstraint*)hd->user_data;
+    /* The constraint's memory is freed in the above delete_object
+     * call.  Should it be done here instead? Or perhaps moved to a
+     * deleted objects pool for later garbage collection. */
 
-    if (me) {
-        LOCK_WORLD();
-        world_constraints.erase(me->m_name);
-        delete me;
-        UNLOCK_WORLD();
-    }
-    return 0;
+    return;
 }
 
 int OscConstraint::responseCenter_handler(const char *path, const char *types, lo_arg **argv,
@@ -923,145 +566,45 @@ int OscConstraint::responsePluck_handler(const char *path, const char *types, lo
 // ----------------------------------------------------------------------------------
 
 //! A ball joint requires a single fixed anchor point
-OscBallJoint::OscBallJoint(const char *name, OscObject *object1, OscObject *object2,
+OscBallJoint::OscBallJoint(const char *name, OscBase *parent,
+                           OscObject *object1, OscObject *object2,
                            double x, double y, double z)
-    : OscConstraint(name, object1, object2)
+    : OscConstraint(name, parent, object1, object2)
 {
-	// create the constraint for object1
-    cVector3d anchor(x,y,z);
-    object1->odePrimitive()->ballLink(name, object2?object2->odePrimitive():NULL, anchor);
-
-    printf("Ball link created between %s and %s at (%f,%f,%f)\n",
-		   object1->name(), object2?object2->name():"world", x,y,z);
 }
 
 // ----------------------------------------------------------------------------------
 
 //! A hinge requires a fixed anchor point and an axis
-OscHinge::OscHinge(const char *name, OscObject *object1, OscObject *object2,
+OscHinge::OscHinge(const char *name, OscBase* parent,
+                   OscObject *object1, OscObject *object2,
                    double x, double y, double z, double ax, double ay, double az)
-    : OscConstraint(name, object1, object2),
+    : OscConstraint(name, parent, object1, object2),
       m_torque("torque", this)
 {
-	// create the constraint for object1
-    cVector3d anchor(x,y,z);
-    cVector3d axis(ax,ay,az);
-    object1->odePrimitive()->hingeLink(name, object2?object2->odePrimitive():NULL, anchor, axis);
-
-    printf("Hinge joint created between %s and %s at anchor (%f,%f,%f), axis (%f,%f,%f)\n",
-        object1->name(), object2?object2->name():"world", x,y,z,ax,ay,az);
-}
-
-//! This function is called once per simulation step, allowing the
-//! constraint to be "motorized" according to some response.
-//! It runs in the physics thread.
-void OscHinge::simulationCallback()
-{
-    dJointID *id;
-    if (!m_object1->odePrimitive()->getJoint(m_name, id))
-        return;
-
-    dReal angle = dJointGetHingeAngle(*id);
-    dReal rate = dJointGetHingeAngleRate(*id);
-    m_torque.set(-m_stiffness*angle - m_damping*rate);
-    dJointAddHingeTorque(*id, m_torque.m_value);
+    m_torque.setSetCallback(set_torque, this, DIMPLE_THREAD_PHYSICS);
 }
 
 // ----------------------------------------------------------------------------------
 
 //! A hinge requires a fixed anchor point and an axis
-OscHinge2::OscHinge2(const char *name, OscObject *object1, OscObject *object2,
+OscHinge2::OscHinge2(const char *name, OscBase *parent,
+                     OscObject *object1, OscObject *object2,
                      double x, double y, double z,
                      double ax, double ay, double az,
                      double bx, double by, double bz)
-    : OscConstraint(name, object1, object2)
+    : OscConstraint(name, parent, object1, object2)
 {
-	// create the constraint for object1
-    cVector3d anchor(x,y,z);
-    cVector3d axis1(ax,ay,az);
-    cVector3d axis2(bx,by,bz);
-    object1->odePrimitive()->hinge2Link(name, object2?object2->odePrimitive():NULL, anchor, axis1, axis2);
-
-    printf("Hinge2 joint created between %s and %s at anchor (%f,%f,%f), axis1 (%f,%f,%f), axis2 (%f,%f,%f)\n",
-        object1->name(), object2?object2->name():"world", x,y,z,ax,ay,az,bx,by,bz);
-}
-
-//! This function is called once per simulation step, allowing the
-//! constraint to be "motorized" according to some response.
-//! It runs in the haptics thread.
-void OscHinge2::simulationCallback()
-{
-    dJointID *id;
-    if (!m_object1->odePrimitive()->getJoint(m_name, id))
-        return;
-
-    // TODO: This will present difficulties until dJointGetHinge2Angle2 is defined in ODE
-    dReal angle = dJointGetHinge2Angle1(*id);
-    dReal rate = dJointGetHinge2Angle1Rate(*id);
-    dJointAddHinge2Torques(*id, m_stiffness*angle - m_damping*rate, 0);
 }
 
 // ----------------------------------------------------------------------------------
 
 //! A hinge requires a fixed anchor point and an axis
-OscUniversal::OscUniversal(const char *name, OscObject *object1, OscObject *object2,
-                           double x, double y, double z,
-                           double ax, double ay, double az,
-                           double bx, double by, double bz)
-    : OscConstraint(name, object1, object2)
+OscUniversal::OscUniversal(const char *name, OscBase *parent,
+                           OscObject *object1, OscObject *object2,
+                           double x,   double y,   double z,
+                           double a1x, double a1y, double a1z,
+                           double a2x, double a2y, double a2z)
+    : OscConstraint(name, parent, object1, object2)
 {
-	// create the constraint for object1
-    cVector3d anchor(x,y,z);
-    cVector3d axis1(ax,ay,az);
-    cVector3d axis2(bx,by,bz);
-    object1->odePrimitive()->universalLink(name, object2?object2->odePrimitive():NULL, anchor, axis1, axis2);
-
-    printf("Universal joint created between %s and %s at anchor (%f,%f,%f), axis1 (%f,%f,%f), axis2 (%f,%f,%f)\n",
-        object1->name(), object2?object2->name():"world", x,y,z,ax,ay,az,bx,by,bz);
 }
-
-//! This function is called once per simulation step, allowing the
-//! constraint to be "motorized" according to some response.
-//! It runs in the haptics thread.
-void OscUniversal::simulationCallback()
-{
-    dJointID *id;
-    if (!m_object1->odePrimitive()->getJoint(m_name, id))
-        return;
-
-    // TODO: This will present difficulties until dJointGetHinge2Angle2 is defined in ODE
-    dReal angle1 = dJointGetUniversalAngle1(*id);
-    dReal angle2 = dJointGetUniversalAngle2(*id);
-    dReal rate1 = dJointGetUniversalAngle1Rate(*id);
-    dReal rate2 = dJointGetUniversalAngle2Rate(*id);
-
-    dJointAddUniversalTorques(*id,
-        -m_stiffness*angle1 - m_damping*rate1,
-        -m_stiffness*angle2 - m_damping*rate2);
-}
-
-// ----------------------------------------------------------------------------------
-
-//! A fixed joint requires only an anchor point
-OscFixed::OscFixed(const char *name, OscObject *object1, OscObject *object2)
-    : OscConstraint(name, object1, object2)
-{
-	// create the constraint for object1
-    if (object2)
-        object1->odePrimitive()->fixedLink(name, object2?object2->odePrimitive():NULL);
-
-    // if object2 is world, then simply make the object have no "body"
-    // this ensures it will not react to any interaction, and is thus fixed in place
-    // (other objects will still collide with it, but it won't budge.)
-    if (!object2) {
-        object1->odePrimitive()->removeBody();
-        
-        // track this constraint
-        std::string s(name);
-        object1->linkConstraint(s);
-    }
-
-    printf("Fixed joint created between %s and %s\n",
-           object1->name(), object2?object2->name():"world");
-}
-

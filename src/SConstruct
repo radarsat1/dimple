@@ -1,8 +1,20 @@
 
 import sys, os, commands
 
+def getoutput(cmd):
+    w, r = os.popen4(' '.join(cmd))
+    result = r.read()
+    r.close()
+    w.close()
+    return result.strip()
+
+uname = getoutput(['uname'])
+
 # Read environment variables & arguments
 env = Environment(ENV = os.environ)
+
+# Force preference for mingw
+Tool('mingw')(env)
 
 # Command-line takes precedence, but environment can specify debug as well
 try:
@@ -17,27 +29,10 @@ except:
 conf = Configure(env)
 
 # Get current DIMPLE version
-VERSION = commands.getoutput('../util/version.sh')
+VERSION = getoutput(['sh','../util/version.sh'])
 env.Append(CPPDEFINES = [('DIMPLE_VERSION', '\\"'+VERSION+'\\"')])
 
-# Check for GL headers
-if conf.CheckHeader('/System/Library/Frameworks/OpenGL.framework/Headers/gl.h'):
-    env.Append(CPPPATH=['../libdeps/chai3d/darwin/GL'],
-               LINKFLAGS=['-framework','OpenGL'])
-else:
-	conf.CheckHeader('/usr/include/GL/gl.h')
-
-# Check for GLUT headers
-if conf.CheckHeader('/System/Library/Frameworks/GLUT.framework/Headers/glut.h'):
-    env.Append(CPPPATH=['../libdeps/chai3d/darwin/GLUT'],
-               LINKFLAGS=['-framework','GLUT'])
-else:
-    conf.CheckHeader('/usr/include/GL/glut.h')
-
-    # Using FreeGLUT on all platforms except Mac OS X.
-    env.Append(CPPDEFINES = ['USE_FREEGLUT'],
-               LIBS = ['glut'])
-
+# Check if libsamplerate is installed, or if it's bootstrapped here.
 if not conf.CheckLibWithHeader('samplerate', 'samplerate.h', 'C'):
     env.Append(CPPPATH=['../libdeps/libsamplerate-0.1.2/src'],
                LIBPATH=['../libdeps/libsamplerate-0.1.2/src/.libs'])
@@ -50,35 +45,80 @@ env.Append(CPPDEFINES = ['_POSIX', 'LINUX', '_LINUX',
                          ('_MAX_PATH','260')])                  
 # Platform dependant library names
 if 'linux' in sys.platform:
-	env.Append(LIBS = ['chai3d_linux', 'dhd', 'usb', 'pciscan'],
+	env.Append(LIBS = ['chai3d_linux'],
                LIBPATH = ['../libdeps/chai3d/lib/linux'])
 elif 'darwin' in sys.platform:
 	env.Append(LIBS = ['chai3d_darwin'],
                LIBPATH = ['../libdeps/chai3d/lib/darwin'])
+if 'MINGW' in uname:
+	env.Append(LIBS = ['chai3d_mingw','oleaut32','uuid'],
+               LIBPATH = ['../libdeps/chai3d/lib/mingw'])
 
 ### LibLo ###
-# Link to the library with direct path or using -l option,
-# depending on operating system.
-if 'linux' in sys.platform:
-   env.Append(LIBPATH = ['../libdeps/liblo-0.23/src/.libs'],
-              LIBS = ['lo'])
+
+# Link to the library using -l option,
+env.Append(LIBPATH = ['../libdeps/liblo-0.25/src/.libs'], LIBS = ['lo'])
+
+if 'win32' in sys.platform:
+    env.Append(LIBS = ['wsock32'])
+
+# Check for GL headers
+if conf.CheckHeader('/System/Library/Frameworks/OpenGL.framework/Headers/gl.h'):
+    env.Append(CPPPATH=['../libdeps/chai3d/darwin/GL'],
+               LINKFLAGS=['-framework','OpenGL'])
+elif (''.join(getoutput(['ls','/mingw/include/GL/gl.h'])).strip()
+      =='/mingw/include/GL/gl.h'
+      and conf.CheckHeader('GL/gl.h')):
+    env.Append(LIBS=['opengl32', 'glu32'])
+elif not conf.CheckHeader('/usr/include/GL/gl.h'):
+    print "Coudln't find OpenGL header (GL/gl.h)."
+    sys.exit(1)
+
+# Check for GLUT headers
+if conf.CheckHeader('/System/Library/Frameworks/GLUT.framework/Headers/glut.h'):
+    env.Append(CPPPATH=['../libdeps/chai3d/darwin/GLUT'],
+               LINKFLAGS=['-framework','GLUT'])
 else:
-   env.Append(LINKFLAGS = ['../libdeps/liblo-0.23/src/.libs/liblo.a'])
+    if conf.CheckHeader('/mingw/include/GL/glut.h'):
+        env.Append(CPPPATH=['/mingw/include'], LIBS=['glut'])
+    elif conf.CheckHeader('../../libdeps/freeglut-2.4.0/include/GL/glut.h',
+                          include_quotes='""'):
+        env.Append(CPPPATH=['../libdeps/freeglut-2.4.0/include'],
+                   LIBS=['glut'],
+                   LIBPATH=['../libdeps/freeglut-2.4.0/src/.libs'])
+    elif conf.CheckHeader('GL/glut.h'):
+        env.Append(LIBS=['glut'])
+    elif not conf.CheckHeader('/usr/include/GL/glut.h'):
+        print "Couldn't find GLUT header (GL/glut.h)."
+        sys.exit(1)
+
+    # Using FreeGLUT on all platforms except Mac OS X.
+    env.Append(CPPDEFINES = ['USE_FREEGLUT'],
+               LIBS = ['glut'])
+
+# MingW requires pointing to the pthreads library, and extra Windows libraries.
+if 'MINGW' in uname:
+    env.Append(CPPPATH=['../libdeps/pthreads-w32-2-8-0-release'],
+               LIBPATH=['../libdeps/pthreads-w32-2-8-0-release'],
+               CPPFLAGS=['-DWIN32','-DPTW32_STATIC_LIB','-DFREEGLUT_STATIC'],
+               LIBS=['opengl32','glu32','pthread','wsock32','ws2_32','winmm',
+                     'gdi32'])
 
 nv = conf.Finish()
 
 ### Debug mode ###
 if debug:
 	env.Append(CPPFLAGS = ['-ggdb','-Wall'])
+	env.Append(CPPDEFINES = [('DEBUG','1')])
 else:
 	env.Append(CPPFLAGS = ['-O3'])
 
 ### Libraries which link the same on all systems ###
 env.Append(
-    CPPPATH = ['../libdeps/ode-0.7/include',
+    CPPPATH = ['../libdeps/ode-0.10.1/include',
                '../libdeps/chai3d/include',
-               '../libdeps/liblo-0.23'],
-    LIBPATH = ['../libdeps/ode-0.7/ode/src'],
+               '../libdeps/liblo-0.25'],
+    LIBPATH = ['../libdeps/ode-0.10.1/ode/src/.libs'],
     LIBS = ['ode', 'pthread']
     )
 
@@ -90,7 +130,14 @@ env.Program( target = 'dimple',
               'CODEPrism.cpp',
               'CODESphere.cpp',
               'OscObject.cpp',
-              'valuetimer.cpp',
+              'OscValue.cpp',
+              'ValueTimer.cpp',
               'AudioStreamer.cpp',
-              'dimple.cpp']
+              'dimple.cpp',
+              'OscBase.cpp',
+              'Simulation.cpp',
+              'PhysicsSim.cpp',
+              'HapticsSim.cpp',
+              'VisualSim.cpp',
+              'InterfaceSim.cpp']
 	)

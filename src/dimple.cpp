@@ -43,15 +43,20 @@
 #include "CShapeSphere.h"
 //---------------------------------------------------------------------------
 #include "dimple.h"
-#include "valuetimer.h"
+#include "ValueTimer.h"
 #include "CODEMesh.h"
 #include "CODEProxy.h"
 #include "CODEPrism.h"
 #include "CODESphere.h"
 #include "CODEPotentialProxy.h"
 //---------------------------------------------------------------------------
+#include "PhysicsSim.h"
+#include "HapticsSim.h"
+#include "VisualSim.h"
+#include "InterfaceSim.h"
+//---------------------------------------------------------------------------
 
-lo_address address_send = lo_address_new("localhost", "7771");
+lo_address address_send = lo_address_new("localhost", "7775");
 
 // the world in which we will create our environment
 cWorld* world;
@@ -368,10 +373,10 @@ void ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
         OscObject *p1 = static_cast<OscObject*>(dGeomGetData(o1));
         OscObject *p2 = static_cast<OscObject*>(dGeomGetData(o2));
         if (p1 && p2) {
-            bool co1 = p1->collidedWith(p2);
-            bool co2 = p2->collidedWith(p1);
+            bool co1 = p1->collidedWith(p2, ode_counter);
+            bool co2 = p2->collidedWith(p1, ode_counter);
             if ( (co1 || co2) && bGetCollide ) {
-                lo_send(address_send, "/object/collide", "ssf", p1->name(), p2->name(),
+                lo_send(address_send, "/object/collide", "ssf", p1->c_name(), p2->c_name(),
                         (double)(p1->getVelocity() + p2->getVelocity()).length());
                 // TODO: send collision force instead of velocity?
             }
@@ -730,7 +735,7 @@ void initGlutWindow()
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 
     // update display
-    glutTimerFunc(GLUT_TIMESTEP_MS, updateDisplay, 0);
+    glutTimerFunc(VISUAL_TIMESTEP_MS, updateDisplay, 0);
 }
 
 void ode_errorhandler(int errnum, const char *msg, va_list ap)
@@ -751,8 +756,10 @@ void initODE()
     ode_space = dSimpleSpaceCreate(0);
     ode_contact_group = dJointGroupCreate(0);
 
+/*
     if (pthread_create(&ode_pthread, NULL, ode_threadproc, NULL))
         printf("Could not start ODE thread.\n");
+*/
 }
 
 void startHaptics()
@@ -775,7 +782,7 @@ void startHaptics()
     }
 
     // start haptic timer callback
-    timer.set(HAPTIC_TIMESTEP_MS, ode_hapticsLoop, NULL);
+    timer.set(HAPTICS_TIMESTEP_MS, ode_hapticsLoop, NULL);
 
 	hapticsEnabled = 1;
 	printf("Haptics started.\n");
@@ -1077,7 +1084,7 @@ int objectPrismCreate_handler(const char *path, const char *types, lo_arg **argv
     world->addChild(pr);
     UNLOCK_WORLD();
 
-    printf("Prism %s added at (%f, %f, %f).\n", ob->name(), pos.x, pos.y, pos.z);
+    printf("Prism %s added at (%f, %f, %f).\n", ob->c_name(), pos.x, pos.y, pos.z);
     return 0;
 }
 
@@ -1118,7 +1125,7 @@ int objectSphereCreate_handler(const char *path, const char *types, lo_arg **arg
     world->addChild(sp);
     UNLOCK_WORLD();
 
-    printf("Sphere %s added at (%f, %f, %f).\n", ob->name(), pos.x, pos.y, pos.z);
+    printf("Sphere %s added at (%f, %f, %f).\n", ob->c_name(), pos.x, pos.y, pos.z);
     return 0;
 }
 
@@ -1171,14 +1178,14 @@ int objectMeshCreate_handler(const char *path, const char *types, lo_arg **argv,
 
     // Track the OSC object
     OscObject *ob=NULL;
-    ob = new OscMesh(static_cast<cGenericObject*>(m), &argv[0]->s);
+    ob = new OscMesh(static_cast<cGenericObject*>(m), &argv[0]->s, NULL);
     world_objects[&argv[0]->s] = ob;
 
     // Add to CHAI world
     world->addChild(m);
     UNLOCK_WORLD();
 
-    printf("Mesh %s added at (%f, %f, %f).\n", ob->name(), pos.x, pos.y, pos.z);
+    printf("Mesh %s added at (%f, %f, %f).\n", ob->c_name(), pos.x, pos.y, pos.z);
     return 0;
 }
 
@@ -1219,7 +1226,7 @@ int constraintBallCreate_handler(const char *path, const char *types, lo_arg **a
     WAIT_WORLD_LOCK();
     LOCK_WORLD();
     OscBallJoint *cons=NULL;
-    cons = new OscBallJoint(&argv[0]->s, ob1, ob2, argv[3]->f, argv[4]->f, argv[5]->f);
+    cons = new OscBallJoint(&argv[0]->s, NULL, ob1, ob2, argv[3]->f, argv[4]->f, argv[5]->f);
     world_constraints[&argv[0]->s] = cons;
     UNLOCK_WORLD();
 
@@ -1263,7 +1270,7 @@ int constraintHingeCreate_handler(const char *path, const char *types, lo_arg **
     WAIT_WORLD_LOCK();
     LOCK_WORLD();
     OscHinge *cons=NULL;
-    cons = new OscHinge(&argv[0]->s, ob1, ob2, argv[3]->f, argv[4]->f, argv[5]->f, argv[6]->f, argv[7]->f, argv[8]->f);
+    cons = new OscHinge(&argv[0]->s, NULL, ob1, ob2, argv[3]->f, argv[4]->f, argv[5]->f, argv[6]->f, argv[7]->f, argv[8]->f);
     world_constraints[&argv[0]->s] = cons;
     UNLOCK_WORLD();
 
@@ -1307,7 +1314,7 @@ int constraintHinge2Create_handler(const char *path, const char *types, lo_arg *
     WAIT_WORLD_LOCK();
     LOCK_WORLD();
     OscHinge2 *cons=NULL;
-    cons = new OscHinge2(&argv[0]->s, ob1, ob2,
+    cons = new OscHinge2(&argv[0]->s, NULL, ob1, ob2,
                          argv[3]->f, argv[ 4]->f, argv[ 5]->f,
                          argv[6]->f, argv[ 7]->f, argv[ 8]->f,
                          argv[9]->f, argv[10]->f, argv[11]->f);
@@ -1354,7 +1361,7 @@ int constraintUniversalCreate_handler(const char *path, const char *types, lo_ar
     WAIT_WORLD_LOCK();
     LOCK_WORLD();
     OscUniversal *cons=NULL;
-    cons = new OscUniversal(&argv[0]->s, ob1, ob2,
+    cons = new OscUniversal(&argv[0]->s, NULL, ob1, ob2,
                             argv[3]->f, argv[ 4]->f, argv[ 5]->f,
                             argv[6]->f, argv[ 7]->f, argv[ 8]->f,
                             argv[9]->f, argv[10]->f, argv[11]->f);
@@ -1401,7 +1408,7 @@ int constraintFixedCreate_handler(const char *path, const char *types, lo_arg **
     WAIT_WORLD_LOCK();
     LOCK_WORLD();
     OscFixed *cons=NULL;
-    cons = new OscFixed(&argv[0]->s, ob1, ob2);
+    cons = new OscFixed(&argv[0]->s, NULL, ob1, ob2);
     world_constraints[&argv[0]->s] = cons;
     UNLOCK_WORLD();
 
@@ -1434,6 +1441,7 @@ int signalEnable_handler(const char *path, const char *types, lo_arg **argv,
     signal_params[0].enable = ( argv[0]->i != 0 );
 
     printf("Signal 1 %s\n", signal_params[0].enable ? "enabled" : "disabled");
+    return 0;
 }
 
 int signalForce_handler(const char *path, const char *types, lo_arg **argv,
@@ -1561,8 +1569,6 @@ void initOSC()
 	 lo_server_thread_start(loserverthr);
 #endif
 
-     lo_server_set_handler_callback(loserver, handler_callback);
-
 	 /* add methods for each message */
 	 lo_server_add_method(loserver, "/haptics/enable", "i", hapticsEnable_handler, NULL);
 	 lo_server_add_method(loserver, "/graphics/enable", "i", graphicsEnable_handler, NULL);
@@ -1672,16 +1678,53 @@ int main(int argc, char* argv[])
 #endif
 
      // initialize all subsystems
-	 initOSC();
-	 initWorld();
-	 initODE();
+//	 initOSC();
+//	 initWorld();
+//	 initODE();
+
+     try {
+
+     PhysicsSim   physics   ("7771");
+     HapticsSim   haptics   ("7772");
+     VisualSim    visual    ("7773");
+     InterfaceSim interface ("7774");
+
+     // Physics can change object positions
+     // in any of the other simulations
+     physics.add_simulation(haptics);
+     physics.add_simulation(visual);
+
+     // Haptics can add force to objects
+     // in the physics simulation.
+     haptics.add_simulation(physics);
+     haptics.add_simulation(visual);
+
+     // Interface can modify anything in
+     // any other simulation.
+     interface.add_simulation(physics);
+     interface.add_simulation(haptics);
+     interface.add_simulation(visual);
+
+     // Start all simulations
+     physics.start();
+     haptics.start();
+     interface.start();
+     visual.run_unthreaded();
 
 #ifndef FLEXT_SYS
 	 // initially loop just waiting for messages
 	 while (!quit) {
 		  Sleep(100);
 	 }
+#endif
 
+     }
+     catch (const char* s) {
+         printf("Error:  %s\n", s);
+         return 1;
+     }
+
+#ifndef FLEXT_SYS
 	 dimple_cleanup();
 #endif
 

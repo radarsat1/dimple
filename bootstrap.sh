@@ -8,11 +8,10 @@
 echo This script bootstraps required libraries for selected environments.
 
 liblo() {
-liblo_URL=http://easynews.dl.sourceforge.net/sourceforge/liblo/liblo-0.23.tar.gz
-liblo_TAR=liblo-0.23.tar.gz
-liblo_DIR=liblo-0.23
-liblo_MD5=e14c9f4fae7ed8d9622d126f6fb9c1d7
-liblo_PATCH2=liblo-0.23-dispatchcallback.patch
+liblo_URL=http://downloads.sourceforge.net/liblo/liblo-0.25.tar.gz
+liblo_TAR=liblo-0.25.tar.gz
+liblo_DIR=liblo-0.25
+liblo_MD5=e8b8f6542cdecd6ad5f42dd4d4d81023
 
 if [ $($MD5 $liblo_TAR | $MD5CUT)x != ${liblo_MD5}x ]; then
 	echo Downloading $liblo_TAR ...
@@ -39,12 +38,12 @@ if !(cd $liblo_DIR && patch -p1 <../$liblo_PATCH); then
 	echo "Error applying patch" $liblo_PATCH
 	exit
 fi
-fi
-
-echo Patching $liblo_DIR with dispatchcallback patch
-if !(cd $liblo_DIR && patch -p1 <../$liblo_PATCH2); then
-	echo "Error applying patch" $liblo_PATCH2
+# patch requires running autoconf
+echo Running autoconf for $liblo_DIR
+if !(cd $liblo_DIR && autoconf); then
+	echo "Error applying patch" $liblo_PATCH
 	exit
+fi
 fi
 
 case $(uname) in
@@ -67,7 +66,7 @@ case $(uname) in
 
    *)
    echo Configuring $liblo_DIR
-   if !(cd $liblo_DIR && ./configure --disable-shared); then
+   if !(cd $liblo_DIR && env CFLAGS="$liblo_CFLAGS" LDFLAGS="$liblo_LDFLAGS" LIBS="$liblo_LIBS" ./configure --disable-shared $liblo_CONFIGEXTRA); then
 	  echo "Error configuring $liblo_DIR"
 	  exit
    fi
@@ -88,10 +87,10 @@ echo
 }
 
 ode() {
-ode_URL=http://internap.dl.sourceforge.net/sourceforge/opende/ode-src-0.7.zip
-ode_TAR=ode-src-0.7.zip
-ode_DIR=ode-0.7
-ode_MD5=b6727fef2cbb9ca812438bb774c9d6ec
+ode_URL=http://downloads.sourceforge.net/opende/ode-0.10.1.tar.bz2
+ode_TAR=ode-0.10.1.tar.bz2
+ode_DIR=ode-0.10.1
+ode_MD5=91c396b915539a760617437d56eb1681
 
 if [ $($MD5 $ode_TAR | $MD5CUT)x != ${ode_MD5}x ]; then
 	echo Downloading $ode_TAR ...
@@ -107,7 +106,7 @@ fi
 if ! [ -d $ode_DIR ]; then
 
 echo Extracting $ode_TAR ...
-if !(unzip -o $ode_TAR); then
+if !(tar -xjf $ode_TAR); then
 	echo "Error in archive.";
 	exit
 fi
@@ -140,7 +139,7 @@ case $(uname) in
 
 	*)
     echo Configuring $ode_DIR
-    if !(cd $ode_DIR && ./configure --disable-shared); then
+    if !(cd $ode_DIR && env ./configure --disable-shared); then
     	echo "Error configuring $ode_DIR"
 	    exit
     fi
@@ -151,8 +150,6 @@ case $(uname) in
     	exit
     fi
 
-    # Seems to make the shared version anyway.. ?
-    rm -v $ode_DIR/ode/src/libode.so $ode_DIR/ode/src/libode.dylib
     ;;
 esac
 
@@ -164,9 +161,9 @@ echo
 }
 
 chai3d() {
-chai_URL=http://chai3d.org/builds/chai3d%5Bv1.61%5D.zip
-chai_TAR=chai3d-v1.61.zip
-chai_MD5=516eebf36ca995b9f200b965cc78f002
+chai_URL=http://chai3d.org/builds/chai3d%5Bv1.62%5D.zip
+chai_TAR=chai3d-v1.62.zip
+chai_MD5=f2e894cb11bf7d0decf31c0be7e9fb57
 
 if ! [ -d $chai_DIR ]; then
 
@@ -233,7 +230,7 @@ echo
 }
 
 freeglut() {
-freeglut_URL=http://internap.dl.sourceforge.net/sourceforge/freeglut/freeglut-2.4.0.tar.gz
+freeglut_URL=http://downloads.sourceforge.net/freeglut/freeglut-2.4.0.tar.gz
 freeglut_TAR=freeglut-2.4.0.tar.gz
 freeglut_DIR=freeglut-2.4.0
 freeglut_MD5=6d16873bd876fbf4980a927cfbc496a1
@@ -290,6 +287,20 @@ case $(uname) in
     fi
     rm compile.log >/dev/null 2>&1
 	;;
+
+    *)
+    echo Configuring $freeglut_DIR
+    if !(cd $freeglut_DIR && env CFLAGS=-DFREEGLUT_STATIC ./configure --disable-shared); then
+        echo "Error configuring $freeglut_DIR"
+        exit
+    fi
+
+    echo Compiling $freeglut_DIR
+    if !(cd $freeglut_DIR && make); then
+	    echo "Error compiling $freeglut_DIR"
+    	exit
+    fi    
+    ;;
 esac
 
 fi
@@ -400,6 +411,17 @@ case $(uname) in
     fi
     rm compile.log >/dev/null 2>&1
 	;;
+
+    *)
+    echo Compiling $pthreads_DIR
+    if !(cd $pthreads_DIR && make clean GC-static); then
+	    echo "Error compiling $pthreads_DIR"
+    	exit
+    fi
+
+    # needed for liblo build to find it
+    cp -v $pthreads_DIR/libpthreadGC2.a $pthreads_DIR/libpthread.a
+    ;;
 esac
 
 fi
@@ -410,7 +432,7 @@ echo
 }
 
 scons() {
-scons_URL=http://superb-west.dl.sourceforge.net/sourceforge/scons/scons-local-0.96.1.tar.gz
+scons_URL=http://downloads.sourceforge.net/scons/scons-local-0.96.1.tar.gz
 scons_TAR=scons-local-0.96.1.tar.gz
 scons_MD5=78754efc02b4a374d5082a61509879cd
 scons_DIR=scons-local-0.96.1
@@ -494,7 +516,7 @@ case $(uname) in
 
    *)
    echo Configuring $samplerate_DIR
-   if !(cd $samplerate_DIR && ./configure --disable-shared); then
+   if !(cd $samplerate_DIR && env ./configure --disable-shared); then
 	  echo "Error configuring $samplerate_DIR"
 	  exit
    fi
@@ -504,6 +526,15 @@ case $(uname) in
 	  echo "Error compiling $samplerate_DIR"
 	  exit
    fi
+   
+   # Note refuses to compile static version, so...
+   echo Creating static lib for $samplerate_DIR
+   cd $samplerate_DIR
+   rm -vf libsamplerate.{dll,lib,so,dylib}
+   mkdir src/.libs
+   ar -ruv src/.libs/libsamplerate.a src/src_linear.o src/src_sinc.o \
+       src/src_zoh.o src/samplerate.o
+   cd ..
    ;;
 esac
 
@@ -518,6 +549,28 @@ cd libdeps
 
 # System-dependant bootstrapping
 case $(uname) in
+    MINGW32*)
+    DL="curl -L -o"
+    MD5=md5sum
+    MD5CUT="awk {print\$1}"
+    freeglut_PATCH=freeglut-2.4.0-mingw.patch
+    liblo_CFLAGS="-I$PWD/pthreads-w32-2-8-0-release -include /mingw/include/ws2tcpip.h -D_WIN32_WINNT=0x0501 -DPTW32_BUILD_INLINED -DPTW32_STATIC_LIB -DCLEANUP=__CLEANUP_C -DDLL_VER=2"
+    liblo_LDFLAGS="-L$PWD/pthreads-w32-2-8-0-release"
+    liblo_LIBS="-lws2_32"
+    liblo_PATCH=liblo-mingw.patch
+    liblo_CONFIGEXTRA=--disable-ipv6
+    chai_DIR=chai3d/mingw
+	chai_PATCH=chai3d-1.62-mingw.patch
+
+    freeglut
+    pthreads
+    samplerate
+    ode
+    liblo
+    chai3d
+    scons
+    ;;
+
     CYGWIN*)
 	DL="wget -O"
     MD5=md5sum
@@ -584,7 +637,7 @@ case $(uname) in
 	;;
 
 	Darwin*)
-	DL="curl -o"
+	DL="curl -Lo"
     MD5=md5
 	MD5CUT="cut -f2 -d="
     chai_PATCH=chai3d-1.61-darwin.patch

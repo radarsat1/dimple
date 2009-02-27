@@ -16,8 +16,9 @@
 #ifndef _VALUETIMER_H_
 #define _VALUETIMER_H_
 
-#include "OscObject.h"
 #include "dimple.h"
+
+class OscValue;
 
 struct ValueTimerPair
 {

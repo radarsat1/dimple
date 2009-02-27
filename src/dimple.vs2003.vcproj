@@ -21,7 +21,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../libdeps/liblo-0.23/;../libdeps/pthreads-w32-2-8-0-release/;../libdeps/freeglut-2.4.0/include;../libdeps/chai3d/include;../libdeps/ode-0.7/include;../libdeps/libsamplerate-0.1.2/src"
+				AdditionalIncludeDirectories="../libdeps/liblo-0.24/;../libdeps/pthreads-w32-2-8-0-release/;../libdeps/freeglut-2.4.0/include;../libdeps/chai3d/include;../libdeps/ode-0.7/include;../libdeps/libsamplerate-0.1.2/src"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_MSVC;WINVER=0X0500;PTW32_STATIC_LIB;FREEGLUT_STATIC"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
@@ -39,7 +39,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib advapi32.lib user32.lib winmm.lib ../libdeps/chai3d/lib/msvc7/chai3d_complete.lib glu32.lib odbc32.lib odbccp32.lib ../libdeps/liblo-0.23/Release/liblo.lib wsock32.lib ../libdeps/ode-0.7/lib/releaselib/ode.lib ../libdeps/pthreads-w32-2-8-0-release/Release/pthreadsVC2.lib ../libdeps/freeglut-2.4.0/ReleaseStatic/freeglut_static.lib ../libdeps/libsamplerate-0.1.2/libsamplerate.lib"
+				AdditionalDependencies="ws2_32.lib advapi32.lib user32.lib winmm.lib ../libdeps/chai3d/lib/msvc7/chai3d_complete.lib glu32.lib odbc32.lib odbccp32.lib ../libdeps/liblo-0.24/Release/liblo.lib wsock32.lib ../libdeps/ode-0.7/lib/releaselib/ode.lib ../libdeps/pthreads-w32-2-8-0-release/Release/pthreadsVC2.lib ../libdeps/freeglut-2.4.0/ReleaseStatic/freeglut_static.lib ../libdeps/libsamplerate-0.1.2/libsamplerate.lib"
 				OutputFile="../dimple.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -83,7 +83,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../libdeps/liblo-0.23/;../libdeps/pthreads-w32-2-8-0-release/;../libdeps/freeglut-2.4.0/include;../libdeps/chai3d/include;../libdeps/ode-0.7/include;../libdeps/libsamplerate-0.1.2/src"
+				AdditionalIncludeDirectories="../libdeps/liblo-0.24/;../libdeps/pthreads-w32-2-8-0-release/;../libdeps/freeglut-2.4.0/include;../libdeps/chai3d/include;../libdeps/ode-0.7/include;../libdeps/libsamplerate-0.1.2/src"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_MSVC;WINVER=0X0500;PTW32_STATIC_LIB;FREEGLUT_STATIC"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -101,7 +101,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib advapi32.lib user32.lib winmm.lib ../libdeps/chai3d/lib/msvc7/chai3d_complete_d.lib glu32.lib odbc32.lib odbccp32.lib ../libdeps/liblo-0.23/Debug/liblo.lib wsock32.lib ../libdeps/ode-0.7/lib/debuglib/ode.lib ../libdeps/pthreads-w32-2-8-0-release/Debug/pthreadsVC2.lib ../libdeps/freeglut-2.4.0/DebugStatic/freeglut_static.lib ../libdeps/libsamplerate-0.1.2/libsamplerate.lib"
+				AdditionalDependencies="ws2_32.lib advapi32.lib user32.lib winmm.lib ../libdeps/chai3d/lib/msvc7/chai3d_complete_d.lib glu32.lib odbc32.lib odbccp32.lib ../libdeps/liblo-0.24/Debug/liblo.lib wsock32.lib ../libdeps/ode-0.7/lib/debuglib/ode.lib ../libdeps/pthreads-w32-2-8-0-release/Debug/pthreadsVC2.lib ../libdeps/freeglut-2.4.0/DebugStatic/freeglut_static.lib ../libdeps/libsamplerate-0.1.2/libsamplerate.lib"
 				OutputFile="../dimple_d.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"

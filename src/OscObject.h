@@ -1,4 +1,4 @@
-
+// -*- mode:c++; indent-tabs-mode:nil; c-basic-offset:4; compile-command:"scons debug=1" -*-
 //======================================================================================
 /*
     This file is part of DIMPLE, the Dynamic Interactive Musically PhysicaL Environment,
@@ -21,101 +21,10 @@
 #include <vector>
 #include <map>
 
+#include "OscBase.h"
+#include "Simulation.h"
 #include "CODEPrism.h"
 #include "CODESphere.h"
-
-//! The OscBase class handles basic OSC functions for dealing with LibLo.
-//! It keeps a record of the object's name and classname which becomes
-//! part of all OSC methods for this object.
-class OscBase
-{
-public:
-    OscBase(const char *name, const char *classname);
-    virtual ~OscBase();
-
-    const char* name() { return m_name.c_str(); }
-    const char* classname() { return m_classname.c_str(); }
-    const std::string strname() { return m_name; }
-    const std::string strclassname() { return m_classname; }
-
-protected:
-    virtual void addHandler(const char *methodname, const char* type, lo_method_handler h);
-    std::string m_name;
-    std::string m_classname;
-
-    struct method_t {
-        std::string name;
-        std::string type;
-    };
-    std::vector <method_t> m_methods;
-};
-
-//! The OscValue class is the base class for all OSC-accessible values,
-//! including vectors and scalars.
-class OscValue : public OscBase
-{
-  public:
-    OscValue(const char *name, OscBase *owner);
-    virtual ~OscValue();
-	virtual void setChanged() {}
-    virtual void send() = 0;
-
-    typedef void set_callback(void*, const OscValue&);
-    void setCallback(set_callback*c, void*d, int thread)
-      { m_callback = c; m_callback_data = d; m_callback_thread = thread; }
-
-  protected:
-    set_callback *m_callback;
-    void *m_callback_data;
-    int m_callback_thread;
-    static int get_handler(const char *path, const char *types, lo_arg **argv,
-                           int argc, void *data, void *user_data);
-};
-
-//! The OscScalar class is used to maintain information about scalar values
-//! used throughout the OSC interface.
-class OscScalar : public OscValue
-{
-  public:
-    OscScalar(const char *name, OscBase *owner);
-	void set(double value);
-    void send();
-
-    double m_value;
-
-  protected:
-    static int _handler(const char *path, const char *types, lo_arg **argv,
-                        int argc, void *data, void *user_data);
-};
-
-//! The OscVector3 class is used to maintain information about 3-vector values
-//! used throughout the OSC interface.
-class OscVector3 : public OscValue, public cVector3d
-{
-  public:
-    OscVector3(const char *name, OscBase *owner);
-	void setChanged();
-	void set(double x, double y, double z);
-    void send();
-
-	OscScalar m_magnitude;
-
-  protected:
-    static void setMagnitude(OscVector3*, const OscScalar&);
-    static int _handler(const char *path, const char *types, lo_arg **argv,
-                        int argc, void *data, void *user_data);
-};
-
-class OscString : public OscValue, public std::string
-{
-  public:
-    OscString(const char *name, OscBase *owner);
-    void send();
-
-  protected:
-    static int _handler(const char *path, const char *types, lo_arg **argv,
-                        int argc, void *data, void *user_data);
-};
 
 //! The OscObject class keeps track of an object in the world. The object
 //! is some cGenericObject and some cODEPrimitve -- in other words, an
@@ -124,7 +33,7 @@ class OscString : public OscValue, public std::string
 class OscObject : public OscBase
 {
   public:
-	OscObject(cGenericObject* p, const char *name);
+	OscObject(cGenericObject* p, const char *name, OscBase *parent=NULL);
     virtual ~OscObject();
 
 	virtual cODEPrimitive*  odePrimitive() { return dynamic_cast<cODEPrimitive*>(m_objChai); }
@@ -136,7 +45,7 @@ class OscObject : public OscBase
     void updateDynamicVelocity(const dReal* vel);
     void updateDynamicPosition(const dReal* pos);
 
-    bool collidedWith(OscObject *o);
+    bool collidedWith(OscObject *o, int count);
 
     const OscVector3& getPosition() { return m_position; }
     const OscVector3& getVelocity() { return m_velocity; }
@@ -144,39 +53,38 @@ class OscObject : public OscBase
 
     void ungrab(int thread);
 
+    OSCVECTOR3(OscObject, position) {};
+    OSCMATRIX3(OscObject, rotation) {};
+    OSCVECTOR3(OscObject, velocity) {};
+    OSCVECTOR3(OscObject, accel) {};
+    OSCVECTOR3(OscObject, force) {};
+    OSCVECTOR3(OscObject, color) {};
+    OSCSCALAR(OscObject, mass) {};
+    OSCSCALAR(OscObject, density) {};
+    OSCSCALAR(OscObject, collide) {};
+    OSCSCALAR(OscObject, friction_static) {};
+    OSCSCALAR(OscObject, friction_dynamic) {};
+
+    OSCMETHOD0(OscObject, grab) {};
+    OSCMETHOD0(OscObject, destroy);
+
+    OSCBOOLEAN(OscObject, visible) {};
+
+    std::list<OscConstraint*> m_constraintList;
+    typedef std::list<OscConstraint*>::iterator
+      constraint_list_iterator;
+
   protected:
 	cGenericObject* m_objChai;
 	std::vector<std::string> m_constraintLinks;
     std::map<OscObject*,int> m_collisions;
 
-    bool m_getCollide;
-
-    OscVector3 m_velocity;
-    OscVector3 m_accel;
-    OscVector3 m_position;
-    static void setPosition(OscObject *me, const OscVector3& pos);
     static void setVelocity(OscObject *me, const OscVector3& vel);
-
-    OscScalar m_friction_static;
-    OscScalar m_friction_dynamic;
-    static void setFrictionStatic(OscObject *me, const OscScalar& value);
-    static void setFrictionDynamic(OscObject *me, const OscScalar& value);
-
-    OscVector3 m_color;
-    static void setColor(OscObject *me, const OscVector3& color);
 
     OscString m_texture_image;
     static void setTextureImage(OscObject *me, const OscString& filename);
 
-    static int destroy_handler(const char *path, const char *types, lo_arg **argv,
-                               int argc, void *data, void *user_data);
     static int mass_handler(const char *path, const char *types, lo_arg **argv,
-                            int argc, void *data, void *user_data);
-    static int force_handler(const char *path, const char *types, lo_arg **argv,
-                             int argc, void *data, void *user_data);
-    static int collideGet_handler(const char *path, const char *types, lo_arg **argv,
-                                  int argc, void *data, void *user_data);
-    static int grab_handler(const char *path, const char *types, lo_arg **argv,
                             int argc, void *data, void *user_data);
     static int oscillate_handler(const char *path, const char *types, lo_arg **argv,
                                  int argc, void *data, void *user_data);
@@ -197,25 +105,37 @@ class OscComposite : public OscObject
 class OscPrism : public OscObject
 {
   public:
-	OscPrism(cGenericObject* p, const char *name);
+	OscPrism(cGenericObject* p, const char *name, OscBase *parent=NULL);
 
 	virtual cODEPrism* odePrimitive() { return dynamic_cast<cODEPrism*>(m_objChai); }
 	virtual cMesh*     chaiObject()   { return dynamic_cast<cMesh*>(m_objChai); }
 
   protected:
-    static int size_handler(const char *path, const char *types, lo_arg **argv,
-                            int argc, void *data, void *user_data);
+    OSCVECTOR3(OscPrism, size) {};
 };
 
 class OscSphere : public OscObject
 {
   public:
-	OscSphere(cGenericObject* p, const char *name);
+	OscSphere(cGenericObject* p, const char *name, OscBase *parent=NULL);
 
 	virtual cODESphere*   odePrimitive() { return dynamic_cast<cODESphere*>(m_objChai); }
 	virtual cShapeSphere* chaiObject()   { return dynamic_cast<cShapeSphere*>(m_objChai); }
 
+    const OscScalar& getRadius();
+
   protected:
+    OSCSCALAR(OscSphere, radius) {};
+    /*
+    OscScalar m_radius;
+    static void setRadius(void *data, const OscScalar&) {
+    printf ("OscSphere::setRadius()\n");
+    OscSphere *me = (OscSphere*)data;
+    me->onSetRadius();
+    }
+    virtual void onSetRadius() {}
+    */
+
     static int radius_handler(const char *path, const char *types, lo_arg **argv,
                               int argc, void *data, void *user_data);
 };
@@ -223,16 +143,47 @@ class OscSphere : public OscObject
 class OscMesh : public OscObject
 {
   public:
-    OscMesh(cGenericObject* p, const char *name);
+	OscMesh(cGenericObject *p, const char *name,
+            const char *filename, OscBase *parent=NULL);
 
 	virtual cODEMesh* odePrimitive() { return dynamic_cast<cODEMesh*>(m_objChai); }
 	virtual cMesh*    chaiObject()   { return dynamic_cast<cMesh*>(m_objChai); }
 
   protected:
+    OSCVECTOR3(OscMesh, size) {};
+
     static int size_handler(const char *path, const char *types, lo_arg **argv,
 							int argc, void *data, void *user_data);
 	static void size_physics_callback(void *self);
 	cVector3d m_vLastScaled;
+};
+
+class OscCamera : public OscBase
+{
+  public:
+	OscCamera(const char *name, OscBase *parent=NULL);
+
+  protected:
+    OSCVECTOR3(OscCamera, position) {};
+    OSCVECTOR3(OscCamera, lookat) {};
+    OSCVECTOR3(OscCamera, up) {};
+};
+
+//! The OscResponse class is used by the free axes of each OscConstraint
+//! subclass to dictate how they will respond to external forces.
+class OscResponse : public OscBase
+{
+public:
+    OscResponse(const char* name, OscBase *parent);
+
+    double response(double position, double velocity);
+
+    OSCSCALAR(OscResponse, stiffness) {};
+    OSCSCALAR(OscResponse, damping) {};
+    OSCSCALAR(OscResponse, offset) {};
+
+    OSCMETHOD2(OscResponse, spring)
+        { m_stiffness.set(arg1); m_damping.set(arg2); }
 };
 
 //! The OscConstraint class keeps track of ODE constraints between two
@@ -241,8 +192,8 @@ class OscMesh : public OscObject
 class OscConstraint : public OscBase
 {
 public:
-    OscConstraint(const char *name, OscObject *object1, OscObject *object2);
-    ~OscConstraint();
+    OscConstraint(const char *name, OscBase *parent, OscObject *object1, OscObject *object2);
+    virtual ~OscConstraint() {};
 
     OscObject *object1() { return m_object1; }
     OscObject *object2() { return m_object2; }
@@ -251,6 +202,8 @@ public:
     //! constraint to be "motorized" according to some response.
     virtual void simulationCallback() {};
 
+    OSCMETHOD0(OscConstraint, destroy);
+
   protected:
       OscObject *m_object1;
       OscObject *m_object2;
@@ -258,9 +211,6 @@ public:
       // hooke's law response coefficients
       double m_stiffness;
       double m_damping;
-
-	  static int destroy_handler(const char *path, const char *types, lo_arg **argv,
-								 int argc, void *data, void *user_data);
 
       static int responseCenter_handler(const char *path, const char *types, lo_arg **argv,
                                         int argc, void *data, void *user_data);
@@ -284,48 +234,72 @@ public:
 class OscBallJoint : public OscConstraint
 {
 public:
-    OscBallJoint(const char *name, OscObject *object1, OscObject *object2,
+    OscBallJoint(const char *name, OscBase *parent,
+                 OscObject *object1, OscObject *object2,
                  double x, double y, double z);
 };
 
 class OscHinge : public OscConstraint
 {
 public:
-    OscHinge(const char *name, OscObject *object1, OscObject *object2,
+    OscHinge(const char *name, OscBase *parent, OscObject *object1, OscObject *object2,
              double x, double y, double z, double ax, double ay, double az);
 
-    virtual void simulationCallback();
+    OscResponse* m_response;
+
+    virtual void simulationCallback() {};
 
 protected:
-    OscScalar m_torque;
+    OSCSCALAR(OscHinge, torque) {};
 };
 
 class OscHinge2 : public OscConstraint
 {
 public:
-    OscHinge2(const char *name, OscObject *object1, OscObject *object2,
+    OscHinge2(const char *name, OscBase *parent,
+              OscObject *object1, OscObject *object2,
               double x, double y, double z,
-              double ax, double ay, double az,
-              double bx, double by, double bz);
+              double a1x, double a1y, double a1z,
+              double a2x, double a2y, double a2z);
 
-    virtual void simulationCallback();
+    OscResponse* m_response;
 };
 
 class OscUniversal : public OscConstraint
 {
 public:
-    OscUniversal(const char *name, OscObject *object1, OscObject *object2,
+    OscUniversal(const char *name, OscBase *parent,
+                 OscObject *object1, OscObject *object2,
                  double x, double y, double z,
-                 double ax, double ay, double az,
-                 double bx, double by, double bz);
+                 double a1x, double a1y, double a1z,
+                 double a2x, double a2y, double a2z);
 
-    virtual void simulationCallback();
+    OscResponse* m_response;
 };
 
 class OscFixed : public OscConstraint
 {
 public:
-    OscFixed(const char *name, OscObject *object1, OscObject *object2);
+    OscFixed(const char *name, OscBase *parent, OscObject *object1, OscObject *object2)
+        : OscConstraint(name, parent, object1, object2) {}
+};
+
+class OscSlide : public OscConstraint
+{
+public:
+    OscSlide(const char *name, OscBase *parent,
+             OscObject *object1, OscObject *object2,
+             double ax, double ay, double az)
+        : OscConstraint(name, parent, object1, object2) {}
+};
+
+class OscPiston : public OscConstraint
+{
+public:
+    OscPiston(const char *name, OscBase *parent, OscObject *object1,
+              OscObject *object2, double x, double y, double z,
+              double ax, double ay, double az)
+        : OscConstraint(name, parent, object1, object2) {}
 };
 
 #endif // _OSC_OBJECT_H_
