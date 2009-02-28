@@ -12,7 +12,7 @@ if [ "$LASTTAG"x = x ]; then
     INCREMENT="-0"
 else
     INCREMENT=-$(git rev-list "$LASTTAG"..HEAD | wc -l | awk '{print $1}')
-    if [ "$INCREMENT"x = "-0" ]; then
+    if [ "$INCREMENT"x = "-0"x ]; then
         INCREMENT=""
     fi
 fi
