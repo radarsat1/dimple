@@ -19,7 +19,7 @@ diff -ruwN chai3d.orig/darwin/Makefile chai3d.new/darwin/Makefile
 +
 +# Optionally add -D_DISABLE_PHANTOM_SUPPORT to compile away SensAble's libraries
 +# We exclude the Delta device because libdhd.a is not available on Darwin
-+DEFS = -D_POSIX -D_MAX_PATH=260 -D_DISABLE_PHANTOM_SUPPORT -D_DISABLE_DELTA_SUPPORT
++DEFS = -D_POSIX -D_MAX_PATH=260 -D_DISABLE_PHANTOM_SUPPORT -D_DISABLE_DELTA_SUPPORT -D_DISABLE_FALCON_DEVICE_SUPPORT
 +
 +CC   = g++ -c $(DEFS)
 +CFLAGS = -O3 $(INCLUDE)
