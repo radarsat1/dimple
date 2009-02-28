@@ -1,0 +1,154 @@
+====== DIMPLE 0.0.6: Documentation ======
+
+This documentation describes the messages received and sent by DIMPLE.
+The following syntax is used:
+
+  * Square brackets ''[]'' for optional parameters
+  * Triangle brackets ''<>'' for required parameters
+  * Parameters are prefixed with a type indicator:
+    * i: 32-bit integer
+    * f: 32-bit floating point
+    * s: string
+
+===== Values =====
+
+Any value specified by an OSC address can be **set** by providing a
+parameter directly, or **retrieved** by appending the suffix ''/get''.
+The ''/get'' suffix with no parameters will return the value exactly
+once.  An optional integer parameter to ''/get'' specifies that the
+value should be returned at regular intervals the given number of
+milliseconds apart.  (Currently 10 ms is the lowest interval that can
+be specified.)  These timed messages can be cancelled by specifying
+a parameter of 0 to ''/get''.
+
+Values can be either //scalars// or //vectors//.  Vectors can be
+identified by exactly three floating-point parameters.  Vectors can
+also be referenced by appending the ''/magnitude'' suffix which will
+set the magnitude of the vector, leaving its current direction the
+same.  ''/get'' can also be appended to ''/magnitude''.
+
+There are currently some exceptions to these rules, but later versions
+of DIMPLE will attempt to mostly eliminate them.
+
+===== Connecting to DIMPLE =====
+
+DIMPLE communicates exclusively using
+[[http://opensoundcontrol.org/|Open Sound Control]] over UDP, using
+port 7770 for receiving and port 7771 for sending.  In other words,
+using 7770 as the destination port in your application, and 7771 as
+the receiving port.
+
+===== Messages =====
+
+==== Enabling graphics and haptics ====
+
+Graphics and haptics have to be enabled explicitly after connecting to DIMPLE.
+
+  /haptics/enable <i:0,1>
+  /graphics/enable <i:0,1>
+
+Use a parameter of 1 to enable either modality.  Graphics takes place
+in a GLUT window, and haptics opens communiation with a haptic device.
+
+==== Creating objects ====
+
+  /object/prism/create <s:name> [f:x] [f:y] [f:z]
+  /object/sphere/create <s:name> [f:x] [f:y] [f:z]
+  /object/mesh/create <s:name> <s:filename.3ds> [f:x] [f:y] [f:z]
+
+These messages create a named object as either a prism, sphere, or
+arbitrary mesh, which must be specified in the .3DS file format.
+Optionally, an initial position can be specified.  The initial size
+will be quite small, so these messages are usually followed up by a
+''/size'' or ''/radius'' message.
+
+==== Creating constraints ====
+
+  /constraint/fixed/create <s:name> <s:object1> <s:object2>
+  /constraint/ball/create <s:name> <s:object1> <s:object2> <f:anchorx> <f:anchory> <f:anchorz>
+  /constraint/hinge/create <s:name> <s:object1> <s:object2> <f:anchorx> <f:anchory> <f:anchorz> <f:axisx> <f:axisy> <f:axisz>
+  /constraint/hinge2/create <s:name> <s:object1> <s:object2> <f:anchorx> <f:anchory> <f:anchorz> <f:axis1x> <f:axis1y> <f:axis1z> <f:axis2x> <f:axis2y> <f:axis2z>
+  /constraint/universal/create <s:name> <s:object1> <s:object2> <f:anchorx> <f:anchory> <f:anchorz> <f:axis1x> <f:axis1y> <f:axis1z> <f:axis2x> <f:axis2y> <f:axis2z>
+
+Constraints can be created between two objects, or between an object
+and the **world** coordinate system.  For the latter, specify
+//object2// as ''world''.  Different constraints take different
+numbers of arguments depending on how many points and vectors are
+needed to define them.  Please see the ODE documentation section on
+Joints for more information on each constraint type.
+
+==== Object values ====
+
+  /object/<name>/position <f:x> <f:y> <f:z>
+  /object/<name>/velocity <f:x> <f:y> <f:z>
+  /object/<name>/acceleration <f:x> <f:y> <f:z>
+  /object/<name>/force <f:x> <f:y> <f:z>
+  /object/<name>/mass <f:mass>
+  /object/<name>/color <f:r> <f:g> <f:b>
+
+=== Values for prisms and meshes ===
+
+  /object/<name>/size <f:width> <f:depth> <f:height>
+
+=== Values for spheres ===
+
+  /object/<name>/radius <f:radius>
+
+==== Other object messages ====
+
+  /object/<name>/texture/image <s:filename>
+
+Sets a visual and haptic texture for the object.  Currently only
+implemented for prisms.
+
+  /object/<name>/collide/get <i:0,1>
+
+A parameter of 1 indicates that collisions for this object are
+requested.  0 indicates not to report collisions for this object.
+
+  /object/<name>/grab [i:0]
+
+This message with no parameter indicates that this object should be
+"grabbed", i.e., should be attached by virtual coupling to the
+location of the haptic proxy.  A parameter of 0, or grabbing another
+object, will return the object to the default behaviour.
+
+==== Constraint responses ====
+
+  /constraint/<name>/response/spring <f:stiffness> <f:damping>
+
+Currently only the spring response on the hinge constraint is
+implemented.  Stiffness and damping coefficients can be specified for
+this spring.
+
+==== Global messages ====
+
+  /object/collide/get <i:0,1>
+
+This message with a parameter of 1 specifies that collisions between
+//any// two objects should be reported.  A parameter of 0 disables
+reporting of collisions between any two objects, but specific objects
+can still be enabled for collision reporting.
+
+  /world/gravity <f:x> <f:y> <f:z>
+
+Sets the world's gravity vector to a given direction and magnitude.
+
+  /world/clear
+
+Clears all objects in the world.  (Note: A bug often causes crashing
+when this method is called.)
+
+==== Send-only messages ====
+
+These messages are sent by DIMPLE, but are not received by DIMPLE.
+
+  /object/collide <s:object1> <s:object2> <f:velocity>
+
+A collision between the two given objects has occurred at the given
+velocity.
+
+  /object/<name>/collide <s:object> <f:velocity>
+
+The object //name// has collided with a given object at the given
+velocity.
