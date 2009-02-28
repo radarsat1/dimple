@@ -15,8 +15,7 @@ if ! ( ps -A | grep oscdump >/dev/null 2>&1 ); then (oscdump 7775 &); fi
 oscsend localhost 7774 /world/clear
 oscsend localhost 7774 /world/sphere/create sfff s 0 0 0
 oscsend localhost 7774 /world/s/radius f 0.02
-oscsend localhost 7774 /world/s/mass 1
-oscsend localhost 7774 /world/s/collide 1
+oscsend localhost 7774 /world/s/mass f 1
 
 # Grab it.
 oscsend localhost 7774 /world/s/grab
