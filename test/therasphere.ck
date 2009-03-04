@@ -62,16 +62,25 @@ xmit.startMsg("/world/sphere/create","sfff");
 xmit.startMsg("/world/s/radius","f");
 0.2 => xmit.addFloat;
 
+// Set its density
+xmit.startMsg("/world/s/density","f");
+10 => xmit.addFloat;
+
 // Request its position
 xmit.startMsg("/world/s/position/get","i");
 10 => xmit.addInt;
 
+// Enable commented lines below if you don't have a haptic controller
+// to interact with the object.
+
 while (1) {
+/*
     // Push it
     xmit.startMsg("/world/s/force","fff");
     15*Std.rand2f(-1,1) => xmit.addFloat;
     15*Std.rand2f(-1,1) => xmit.addFloat;
     15*Std.rand2f(-1,1) => xmit.addFloat;
+*/
 
     3::second => now;
 }
