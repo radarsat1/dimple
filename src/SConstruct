@@ -96,6 +96,37 @@ else:
     env.Append(CPPDEFINES = ['USE_FREEGLUT'],
                LIBS = ['glut'])
 
+### LibNIFalcon ###
+# Check if libnifalcon is available
+
+HAVE_LIBNIFALCON=False
+if conf.CheckCXXHeader('falcon/core/FalconLogger.h'):
+    HAVE_LIBNIFALCON=True
+else:
+    # If it's found in ~/.local, add appropriate paths
+    # TODO: Do this in libdeps.
+    if conf.CheckCXXHeader(
+      os.environ['HOME']+'/.local/include/falcon/core/FalconLogger.h'):
+        env.Append(CPPPATH=[os.environ['HOME']+'/.local/include'])
+        env.Append(CPPPATH=[os.environ['HOME']+'/.local/include/falcon'])
+        env.Append(CPPPATH=[os.environ['HOME']+'/.local/include/libusb-1.0'])
+        env.Append(LIBPATH=[os.environ['HOME']+'/.local/lib'])
+        HAVE_LIBNIFALCON=True
+    else:
+        print "Couldn't find libnifalcon."
+
+if HAVE_LIBNIFALCON:
+    if not conf.CheckLibWithHeader('nifalcon', 'falcon/core/FalconCore.h', 'C++'):
+        print "Found FalconCore.h, but couldn't link libnifalcon."
+        sys.exit(1)
+    if not conf.CheckLibWithHeader('nifalcon_comm_libusb',
+                                   'falcon/comm/FalconCommLibUSB.h', 'C++'):
+        print "Found FalconCore.h, but couldn't link libnifalcon."
+        sys.exit(1)
+    if not conf.CheckLibWithHeader('usb', 'libusb.h', 'C++'):
+        print "Found FalconCore.h, but couldn't find libusb.h."
+        sys.exit(1)
+
 # MingW requires pointing to the pthreads library, and extra Windows libraries.
 if 'MINGW' in uname:
     env.Append(CPPPATH=['../libdeps/pthreads-w32-2-8-0-release'],
