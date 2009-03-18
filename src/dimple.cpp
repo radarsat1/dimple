@@ -1668,7 +1668,9 @@ int main(int argc, char* argv[])
 	 printf ("\n");
 	 printf ("  ==========================================================\n");
 	 printf ("  DIMPLE: Dynamic Interactive Musically PhysicaL Environment\n");
-	 printf ("  Version " DIMPLE_VERSION " (beta).         Stephen Sinclair, IDMIL 2007\n");
+	 printf ("  %-29s Stephen Sinclair, IDMIL %s\n",
+	         "Version " DIMPLE_VERSION " (beta).",
+	         strrchr(__DATE__,' ')+1);
 	 printf ("  ==========================================================\n");
 	 printf ("\n");
      fflush(stdout);
