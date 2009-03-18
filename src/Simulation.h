@@ -112,6 +112,14 @@ class Simulation : public OscBase
     int m_type;
     float m_fTimestep;
 
+    /*! True if this simulation should time itself according to m_fTimestep.
+     * 
+     * Certain simulations work better if they are timed in their
+     * subclassed step() function instead of being self-timed in
+     * run().  Defaults to true.
+     */
+    bool m_bSelfTimed;
+
     PrismFactory *m_pPrismFactory;
     SphereFactory *m_pSphereFactory;
     MeshFactory *m_pMeshFactory;

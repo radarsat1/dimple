@@ -516,6 +516,7 @@ Simulation::Simulation(const char *port, int type)
 
     m_bDone = false;
     m_bStarted = false;
+    m_bSelfTimed = true;
 
     m_collide.setSetCallback(set_collide, this, DIMPLE_THREAD_PHYSICS);
     m_gravity.setSetCallback(set_gravity, this, DIMPLE_THREAD_PHYSICS);
@@ -580,7 +581,7 @@ void* Simulation::run(void* param)
         me->m_clock.initialize();
         me->m_clock.setTimeoutPeriod(step_us);
         me->m_clock.start();
-        step_left = step_ms;
+        step_left = me->m_bSelfTimed ? step_ms : 0;
         while (lo_server_recv_noblock(me->m_server, step_left) > 0) {
             step_left = step_ms-(me->m_clock.getCurrentTime()/1000);
             if (step_left < 0) step_left = 0;

@@ -67,6 +67,10 @@ HapticsSim::HapticsSim(const char *port)
 
     m_fTimestep = HAPTICS_TIMESTEP_MS/1000.0;
     printf("CHAI timestep: %f\n", m_fTimestep);
+
+    // In haptics, the servoloop is timed explicitly, so don't allow
+    // the Simulation to time itself before each step().
+    m_bSelfTimed = false;
 }
 
 HapticsSim::~HapticsSim()
