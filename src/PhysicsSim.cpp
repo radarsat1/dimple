@@ -633,6 +633,8 @@ OscSlideODE::OscSlideODE(dWorldID odeWorld, dSpaceID odeSpace,
     : OscSlide(name, parent, object1, object2, ax, ay, az),
       ODEConstraint(odeWorld, odeSpace, object1, object2)
 {
+    m_response = new OscResponse("response",this);
+
     m_odeJoint = dJointCreateSlider(m_odeWorld,0);
     dJointAttach(m_odeJoint, m_odeBody1, m_odeBody2);
     dJointSetSliderAxis(m_odeJoint, ax, ay, az);
@@ -642,6 +644,25 @@ OscSlideODE::OscSlideODE(dWorldID odeWorld, dSpaceID odeSpace,
            simulation()->type_str(),
            object1->c_name(), object2?object2->c_name():"world",
            ax, ay, az);
+}
+
+OscSlideODE::~OscSlideODE()
+{
+    delete m_response;
+}
+
+void OscSlideODE::simulationCallback()
+{
+    ODEConstraint& me = *static_cast<ODEConstraint*>(this);
+
+    dReal pos = dJointGetSliderPosition(me.joint());
+    dReal rate = dJointGetSliderPositionRate(me.joint());
+
+    dReal addforce =
+        - m_response->m_stiffness.m_value*pos
+        - m_response->m_damping.m_value*rate;
+
+    dJointAddSliderForce(me.joint(), addforce);
 }
 
 //! A piston requires a fixed anchor point and an axis

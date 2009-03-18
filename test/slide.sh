@@ -13,11 +13,11 @@
 if ! ( ps -A | grep oscdump >/dev/null 2>&1 ); then (oscdump 7775 &); fi
 
 oscsend localhost 7774 /world/clear
-oscsend localhost 7774 /world/sphere/create sfff s -0.1 0 0
-oscsend localhost 7774 /world/s/radius f 0.03
+oscsend localhost 7774 /world/prism/create sfff p -0.1 0 0
+oscsend localhost 7774 /world/p/size fff 0.03 0.03 0.1
 
-oscsend localhost 7774 /world/slide/create sssfff c1 s world 0 0 1
+oscsend localhost 7774 /world/slide/create sssfff c1 p world 0 0 1
+oscsend localhost 7774 /world/c1/response/spring ff 0.001 0.0001
 
-# Push the sphere
-oscsend localhost 7774 /world/s/force fff 0.01 0.005 0.002
-
+# Push the prism
+oscsend localhost 7774 /world/p/force fff 0.01 0.005 0.002

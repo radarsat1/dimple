@@ -289,8 +289,14 @@ class OscSlide : public OscConstraint
 public:
     OscSlide(const char *name, OscBase *parent,
              OscObject *object1, OscObject *object2,
-             double ax, double ay, double az)
-        : OscConstraint(name, parent, object1, object2) {}
+             double ax, double ay, double az);
+
+    OscResponse* m_response;
+
+    virtual void simulationCallback() {};
+
+protected:
+    OSCSCALAR(OscSlide, torque) {};
 };
 
 class OscPiston : public OscConstraint

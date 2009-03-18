@@ -608,3 +608,14 @@ OscUniversal::OscUniversal(const char *name, OscBase *parent,
     : OscConstraint(name, parent, object1, object2)
 {
 }
+
+//! A slide requires an axis
+OscSlide::OscSlide(const char *name, OscBase *parent,
+                   OscObject *object1, OscObject *object2,
+                   double ax, double ay, double az)
+    : OscConstraint(name, parent, object1, object2),
+      m_torque("torque", this)
+{
+    m_torque.setSetCallback(set_torque, this, DIMPLE_THREAD_PHYSICS);
+}
+
