@@ -79,12 +79,16 @@ constraint type.
   /world/<name>/position <f:x> <f:y> <f:z>
   /world/<name>/velocity <f:x> <f:y> <f:z>
   /world/<name>/acceleration <f:x> <f:y> <f:z>
+  /world/<name>/rotation <f:r11> <f:r12> <f:r13> <f:r21> <f:r22> <f:r23> <f:r31> <f:r32> <f:r33>
   /world/<name>/force <f:x> <f:y> <f:z>
   /world/<name>/mass <f:mass>
   /world/<name>/density <f:density>
   /world/<name>/color <f:r> <f:g> <f:b>
   /world/<name>/friction/static <f:coefficient>
   /world/<name>/friction/dynamic <f:coefficient>
+
+Note that ''/rotation'' takes a 3x3 rotation matrix as argument, in
+the form of 9 floating-point values.
 
 === Values for prisms and meshes ===
 

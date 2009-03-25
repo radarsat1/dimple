@@ -485,7 +485,8 @@ public:
     OscSlideInterface(const char *name, OscBase *parent,
                           OscObject *object1, OscObject *object2,
                           double ax, double ay, double az)
-        : OscSlide(name, parent, object1, object2, ax, ay, az) {}
+        : OscSlide(name, parent, object1, object2, ax, ay, az)
+        { m_response = new OscResponseInterface("response",this); }
 
     virtual ~OscSlideInterface() {}
 

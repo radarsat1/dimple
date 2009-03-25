@@ -316,6 +316,10 @@ public:
                 const char *name, OscBase *parent,
                 OscObject *object1, OscObject *object2,
                 double ax, double ay, double az);
+
+    virtual ~OscSlideODE();
+
+    virtual void simulationCallback();
 };
 
 class OscPistonODE : public OscPiston, public ODEConstraint
