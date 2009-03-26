@@ -289,6 +289,14 @@ public:
     virtual ~OscHinge2ODE();
 
     virtual void simulationCallback();
+
+protected:
+    virtual void on_torque1()
+        { dJointAddHinge2Torques(m_odeJoint, m_torque1.m_value,
+                                 m_torque2.m_value); }
+    virtual void on_torque2()
+        { dJointAddHinge2Torques(m_odeJoint, m_torque1.m_value,
+                                 m_torque2.m_value); }
 };
 
 class OscFixedODE : public OscFixed, public ODEConstraint
@@ -320,6 +328,10 @@ public:
     virtual ~OscSlideODE();
 
     virtual void simulationCallback();
+
+protected:
+    virtual void on_force()
+        { dJointAddSliderForce(m_odeJoint, m_force.m_value); }
 };
 
 class OscPistonODE : public OscPiston, public ODEConstraint
@@ -329,6 +341,10 @@ public:
                  const char *name, OscBase *parent, OscObject *object1,
                  OscObject *object2, double x, double y, double z,
                  double ax, double ay, double az);
+
+protected:
+    virtual void on_force()
+        { dJointAddPistonForce(m_odeJoint, m_force.m_value); }
 };
 
 class OscUniversalODE : public OscUniversal, public ODEConstraint
@@ -344,6 +360,14 @@ public:
     virtual ~OscUniversalODE();
 
     virtual void simulationCallback();
+
+protected:
+    virtual void on_torque1()
+        { dJointAddUniversalTorques(m_odeJoint, m_torque1.m_value,
+                                    m_torque2.m_value); }
+    virtual void on_torque2()
+        { dJointAddUniversalTorques(m_odeJoint, m_torque1.m_value,
+                                    m_torque2.m_value); }
 };
 
 #endif // _PHYSICS_SIM_H_

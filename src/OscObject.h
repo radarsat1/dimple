@@ -263,6 +263,10 @@ public:
               double a2x, double a2y, double a2z);
 
     OscResponse* m_response;
+
+protected:
+    OSCSCALAR(OscHinge2, torque1) {};
+    OSCSCALAR(OscHinge2, torque2) {};
 };
 
 class OscUniversal : public OscConstraint
@@ -275,6 +279,10 @@ public:
                  double a2x, double a2y, double a2z);
 
     OscResponse* m_response;
+
+protected:
+    OSCSCALAR(OscUniversal, torque1) {};
+    OSCSCALAR(OscUniversal, torque2) {};
 };
 
 class OscFixed : public OscConstraint
@@ -296,7 +304,7 @@ public:
     virtual void simulationCallback() {};
 
 protected:
-    OSCSCALAR(OscSlide, torque) {};
+    OSCSCALAR(OscSlide, force) {};
 };
 
 class OscPiston : public OscConstraint
@@ -304,8 +312,10 @@ class OscPiston : public OscConstraint
 public:
     OscPiston(const char *name, OscBase *parent, OscObject *object1,
               OscObject *object2, double x, double y, double z,
-              double ax, double ay, double az)
-        : OscConstraint(name, parent, object1, object2) {}
+              double ax, double ay, double az);
+
+protected:
+    OSCSCALAR(OscPiston, force) {};
 };
 
 #endif // _OSC_OBJECT_H_

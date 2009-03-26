@@ -593,8 +593,11 @@ OscHinge2::OscHinge2(const char *name, OscBase *parent,
                      double x, double y, double z,
                      double ax, double ay, double az,
                      double bx, double by, double bz)
-    : OscConstraint(name, parent, object1, object2)
+    : OscConstraint(name, parent, object1, object2),
+      m_torque1("torque1", this), m_torque2("torque2", this)
 {
+    m_torque1.setSetCallback(set_torque1, this, DIMPLE_THREAD_PHYSICS);
+    m_torque2.setSetCallback(set_torque2, this, DIMPLE_THREAD_PHYSICS);
 }
 
 // ----------------------------------------------------------------------------------
@@ -605,8 +608,11 @@ OscUniversal::OscUniversal(const char *name, OscBase *parent,
                            double x,   double y,   double z,
                            double a1x, double a1y, double a1z,
                            double a2x, double a2y, double a2z)
-    : OscConstraint(name, parent, object1, object2)
+    : OscConstraint(name, parent, object1, object2),
+      m_torque1("torque1", this), m_torque2("torque2", this)
 {
+    m_torque1.setSetCallback(set_torque1, this, DIMPLE_THREAD_PHYSICS);
+    m_torque2.setSetCallback(set_torque2, this, DIMPLE_THREAD_PHYSICS);
 }
 
 //! A slide requires an axis
@@ -614,8 +620,17 @@ OscSlide::OscSlide(const char *name, OscBase *parent,
                    OscObject *object1, OscObject *object2,
                    double ax, double ay, double az)
     : OscConstraint(name, parent, object1, object2),
-      m_torque("torque", this)
+      m_force("force", this)
 {
-    m_torque.setSetCallback(set_torque, this, DIMPLE_THREAD_PHYSICS);
+    m_force.setSetCallback(set_force, this, DIMPLE_THREAD_PHYSICS);
 }
 
+//! A piston requires a position and an axis
+OscPiston::OscPiston(const char *name, OscBase *parent, OscObject *object1,
+                     OscObject *object2, double x, double y, double z,
+                     double ax, double ay, double az)
+    : OscConstraint(name, parent, object1, object2),
+      m_force("force", this)
+{
+    m_force.setSetCallback(set_force, this, DIMPLE_THREAD_PHYSICS);
+}

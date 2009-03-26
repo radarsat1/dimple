@@ -442,6 +442,8 @@ public:
     }
 
 protected:
+    FWD_OSCSCALAR(torque1,Simulation::ST_PHYSICS);
+    FWD_OSCSCALAR(torque2,Simulation::ST_PHYSICS);
 };
 
 class OscFixedInterface : public OscFixed
@@ -496,6 +498,7 @@ public:
     }
 
 protected:
+    FWD_OSCSCALAR(force,Simulation::ST_PHYSICS);
 };
 
 class OscPistonInterface : public OscPiston
@@ -514,6 +517,7 @@ public:
     }
 
 protected:
+    FWD_OSCSCALAR(force,Simulation::ST_PHYSICS);
 };
 
 class OscUniversalInterface : public OscUniversal
@@ -536,6 +540,8 @@ public:
     }
 
 protected:
+    FWD_OSCSCALAR(torque1,Simulation::ST_PHYSICS);
+    FWD_OSCSCALAR(torque2,Simulation::ST_PHYSICS);
 };
 
 #endif // _INTERFACE_SIM_H_

@@ -21,3 +21,8 @@ oscsend localhost 7774 /world/c1/response/spring ff 0.001 0.0001
 
 # Push the prism
 oscsend localhost 7774 /world/p/force fff 0.01 0.005 0.002
+
+sleep 2
+
+# Push the slider
+oscsend localhost 7774 /world/c1/force f -0.01

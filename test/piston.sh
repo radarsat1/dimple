@@ -20,4 +20,7 @@ oscsend localhost 7774 /world/piston/create sssffffff c1 pr world -0.1 0 0 0 0 1
 
 # Push the prism
 oscsend localhost 7774 /world/pr/force fff 0.1 0.01 0.001
+sleep 2
 
+# Push the piston
+oscsend localhost 7774 /world/c1/force f -0.01
