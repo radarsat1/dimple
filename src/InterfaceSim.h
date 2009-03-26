@@ -488,7 +488,7 @@ public:
         : OscSlide(name, parent, object1, object2, ax, ay, az)
         { m_response = new OscResponseInterface("response",this); }
 
-    virtual ~OscSlideInterface() {}
+    virtual ~OscSlideInterface() { delete m_response; }
 
     virtual void on_destroy() {
         simulation()->send(0, (path()+"/destroy").c_str(), "");
