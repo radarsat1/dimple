@@ -19,6 +19,8 @@ oscsend localhost 7774 /world/s/size fff 0.07 0.06 0.05
 oscsend localhost 7774 /world/universal/create sssfffffffff \
     c1 s world 0 0 0 0 0 1 0 1 0
 
+oscsend localhost 7774 /world/c1/response/spring ff 0.00001 0.000001
+
 # Torque it.
 oscsend localhost 7774 /world/c1/torque1 f 0.001
 sleep 1
