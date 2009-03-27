@@ -228,8 +228,8 @@ public:
 protected:
     virtual void on_radius();
     virtual void on_force();
-    virtual void on_position()
-      { dBodySetPosition(m_odeBody, m_position.x, m_position.y, m_position.z); }
+    virtual void on_position();
+    virtual void on_rotation(); 
     virtual void on_mass();
     virtual void on_density();
 
@@ -249,8 +249,8 @@ public:
 protected:
     virtual void on_size();
     virtual void on_force();
-    virtual void on_position()
-      { dBodySetPosition(m_odeBody, m_position.x, m_position.y, m_position.z); }
+    virtual void on_position();
+    virtual void on_rotation(); 
     virtual void on_mass();
     virtual void on_density();
 

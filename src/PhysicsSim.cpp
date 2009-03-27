@@ -374,6 +374,30 @@ void OscSphereODE::on_radius()
     m_mass.m_value = m_odeMass.mass;
 }
 
+void OscSphereODE::on_rotation()
+{
+    // Convert from a CHAI rotation matrix to an ODE rotation matrix
+    dMatrix3 m;
+    m[ 0] = m_rotation.getCol0().x;
+    m[ 1] = m_rotation.getCol0().y;
+    m[ 2] = m_rotation.getCol0().z;
+    m[ 3] = 0;
+    m[ 4] = m_rotation.getCol1().x;
+    m[ 5] = m_rotation.getCol1().y;
+    m[ 6] = m_rotation.getCol1().z;
+    m[ 7] = 0;
+    m[ 8] = m_rotation.getCol2().x;
+    m[ 9] = m_rotation.getCol2().y;
+    m[10] = m_rotation.getCol2().z;
+    m[11] = 0;
+    dGeomSetRotation(m_odeGeom, m);
+}
+
+void OscSphereODE::on_position()
+{
+    dGeomSetPosition(m_odeGeom, m_position.x, m_position.y, m_position.z);
+}
+
 void OscSphereODE::on_force()
 {
     dBodyAddForce(m_odeBody, m_force.x, m_force.y, m_force.z);
@@ -442,6 +466,30 @@ void OscPrismODE::on_size()
     dBodySetMass(m_odeBody, &m_odeMass);
 
     m_mass.m_value = m_odeMass.mass;
+}
+
+void OscPrismODE::on_position()
+{
+    dGeomSetPosition(m_odeGeom, m_position.x, m_position.y, m_position.z);
+}
+
+void OscPrismODE::on_rotation()
+{
+    // Convert from a CHAI rotation matrix to an ODE rotation matrix
+    dMatrix3 m;
+    m[ 0] = m_rotation.getCol0().x;
+    m[ 1] = m_rotation.getCol0().y;
+    m[ 2] = m_rotation.getCol0().z;
+    m[ 3] = 0;
+    m[ 4] = m_rotation.getCol1().x;
+    m[ 5] = m_rotation.getCol1().y;
+    m[ 6] = m_rotation.getCol1().z;
+    m[ 7] = 0;
+    m[ 8] = m_rotation.getCol2().x;
+    m[ 9] = m_rotation.getCol2().y;
+    m[10] = m_rotation.getCol2().z;
+    m[11] = 0;
+    dGeomSetRotation(m_odeGeom, m);
 }
 
 void OscPrismODE::on_force()
