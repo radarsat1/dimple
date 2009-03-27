@@ -342,6 +342,10 @@ public:
                  OscObject *object2, double x, double y, double z,
                  double ax, double ay, double az);
 
+    virtual ~OscPistonODE();
+
+    virtual void simulationCallback();
+
 protected:
     virtual void on_force()
         { dJointAddPistonForce(m_odeJoint, m_force.m_value); }

@@ -314,6 +314,8 @@ public:
               OscObject *object2, double x, double y, double z,
               double ax, double ay, double az);
 
+    OscResponse* m_response;
+
 protected:
     OSCSCALAR(OscPiston, force) {};
 };

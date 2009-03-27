@@ -18,6 +18,8 @@ oscsend localhost 7774 /world/pr/size fff 0.05 0.05 0.05
 
 oscsend localhost 7774 /world/piston/create sssffffff c1 pr world -0.1 0 0 0 0 1
 
+oscsend localhost 7774 /world/c1/response/spring ff 0.001 0.0001
+
 # Push the prism
 oscsend localhost 7774 /world/pr/force fff 0.1 0.01 0.001
 sleep 2

@@ -674,6 +674,8 @@ OscPistonODE::OscPistonODE(dWorldID odeWorld, dSpaceID odeSpace,
     : OscPiston(name, parent, object1, object2, x, y, z, ax, ay, az),
       ODEConstraint(odeWorld, odeSpace, object1, object2)
 {
+    m_response = new OscResponse("response",this);
+
 	// create the constraint for object1
     cVector3d anchor(x,y,z);
     cVector3d axis(ax,ay,az);
@@ -685,6 +687,25 @@ OscPistonODE::OscPistonODE(dWorldID odeWorld, dSpaceID odeSpace,
 
     printf("Piston joint created between %s and %s at anchor (%f,%f,%f), axis (%f,%f,%f)\n",
         object1->c_name(), object2?object2->c_name():"world", x,y,z,ax,ay,az);
+}
+
+OscPistonODE::~OscPistonODE()
+{
+    delete m_response;
+}
+
+void OscPistonODE::simulationCallback()
+{
+    ODEConstraint& me = *static_cast<ODEConstraint*>(this);
+
+    dReal pos = dJointGetPistonPosition(me.joint());
+    dReal rate = dJointGetPistonPositionRate(me.joint());
+
+    dReal addforce =
+        - m_response->m_stiffness.m_value*pos
+        - m_response->m_damping.m_value*rate;
+
+    dJointAddPistonForce(me.joint(), addforce);
 }
 
 OscUniversalODE::OscUniversalODE(dWorldID odeWorld, dSpaceID odeSpace,

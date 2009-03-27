@@ -507,9 +507,10 @@ public:
     OscPistonInterface(const char *name, OscBase *parent,
                        OscObject *object1, OscObject *object2,
                        double x, double y, double z, double ax, double ay, double az)
-        : OscPiston(name, parent, object1, object2, x, y, z, ax, ay, az) {}
+        : OscPiston(name, parent, object1, object2, x, y, z, ax, ay, az)
+        { m_response = new OscResponseInterface("response",this); }
 
-    virtual ~OscPistonInterface() {}
+    virtual ~OscPistonInterface() { delete m_response; }
 
     virtual void on_destroy() {
         simulation()->send(0, (path()+"/destroy").c_str(), "");
