@@ -434,7 +434,7 @@ public:
                     a1x, a1y, a1z, a2x, a2y, a2z)
         { m_response = new OscResponseInterface("response",this); }
 
-    virtual ~OscHinge2Interface() {}
+    virtual ~OscHinge2Interface() { delete m_response; }
 
     virtual void on_destroy() {
         simulation()->send(0, (path()+"/destroy").c_str(), "");
@@ -533,7 +533,7 @@ public:
                        a1x, a1y, a1z, a2x, a2y, a2z)
         { m_response = new OscResponseInterface("response",this); }
 
-    virtual ~OscUniversalInterface() {}
+    virtual ~OscUniversalInterface() { delete m_response; }
 
     virtual void on_destroy() {
         simulation()->send(0, (path()+"/destroy").c_str(), "");
