@@ -214,8 +214,9 @@ case $(uname) in
 	;;
 
 	*)
+	# note, tries compiling twice since sometimes it fails the first time but then works.
     echo Compiling $chai_DIR
-    if !(cd $chai_DIR && make); then
+    if !(cd $chai_DIR && make || make); then
         echo "Error compiling $chai_DIR"
         exit
     fi
