@@ -599,7 +599,7 @@ void OscHingeODE::simulationCallback()
     if (addtorque >  1000) addtorque =  1000;
     if (addtorque < -1000) addtorque = -1000;
 
-    m_torque.set(addtorque);
+    m_torque.m_value = addtorque;
 
     dJointAddHingeTorque(me.joint(), addtorque);
 }

@@ -108,8 +108,8 @@ void HapticsSim::step()
     cMeta3dofPointer *cursor = m_cursor->object();
     cursor->updatePose();
 
-    m_cursor->m_position.set(cursor->m_deviceGlobalPos);
-    m_cursor->m_velocity.set(cursor->m_deviceGlobalVel);
+    cursor->m_deviceGlobalPos.copyto(m_cursor->m_position);
+    cursor->m_deviceGlobalVel.copyto(m_cursor->m_velocity);
 
     if (m_pGrabbedObject) {
         cursor->m_lastComputedGlobalForce.set(0,0,0);
