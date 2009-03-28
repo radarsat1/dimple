@@ -1,4 +1,4 @@
-#N canvas 523 0 750 595 10;
+#N canvas 780 230 762 607 10;
 #X msg 504 139 send /world/clear;
 #X obj 456 176 s osc;
 #X obj 281 150 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
@@ -8,7 +8,7 @@
 #X text 115 39 MarbleBox;
 #X floatatom 456 69 5 0 500 0 - - -;
 #X obj 456 91 / -100;
-#N canvas 5 46 450 300 (subpatch) 0;
+#N canvas 5 46 454 304 (subpatch) 0;
 #X array accel 1000 float 0;
 #X coords 0 1 1000 0 200 140 1;
 #X restore 429 353 graph;
@@ -250,17 +250,16 @@
 #X connect 18 0 3 0;
 #X connect 19 0 3 0;
 #X restore 281 173 pd createmarble;
-#N canvas 530 283 486 336 connect 0;
+#N canvas 530 283 490 340 connect 0;
 #X obj 20 241 sendOSC;
-#X obj 20 64 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
+#X obj 20 64 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
 ;
 #X msg 80 213 disconnect;
-#X obj 20 114 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+#X obj 20 114 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #X msg 20 135 send /graphics/enable \$1;
 #X msg 20 84 send /haptics/enable \$1;
-#X msg 36 189 connect 132.206.14.212 7774;
-#X msg 36 168 connect localhost 7774;
+#X msg 36 189 connect localhost 7774;
 #X obj 27 213 r osc;
 #X msg 20 42 1;
 #X text 48 40 turn on graphics and haptics;
@@ -268,9 +267,9 @@
 #X obj 278 104 dumpOSC 7775;
 #X obj 278 127 s rosc;
 #X text 277 86 Receive on port 7775;
-#X msg 292 185 0;
-#X obj 255 202 spigot 1;
-#X obj 260 167 t b b;
+#X msg 229 122 0;
+#X obj 192 139 spigot 1;
+#X obj 197 104 t b b;
 #X obj 20 21 t b b;
 #X connect 1 0 5 0;
 #X connect 2 0 0 0;
@@ -280,16 +279,11 @@
 #X connect 6 0 0 0;
 #X connect 7 0 0 0;
 #X connect 8 0 0 0;
-#X connect 9 0 1 0;
-#X connect 9 0 3 0;
-#X connect 11 0 18 0;
-#X connect 12 0 13 0;
-#X connect 15 0 16 1;
-#X connect 16 0 7 0;
+#X connect 10 0 17 0;
+#X connect 11 0 12 0;
+#X connect 15 0 6 0;
 #X connect 17 0 15 0;
 #X connect 17 1 16 0;
-#X connect 18 0 9 0;
-#X connect 18 1 17 0;
 #X restore 17 129 pd connect;
 #X obj 17 108 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
@@ -335,7 +329,7 @@
 #X obj 56 404 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X text 80 404 audio;
-#N canvas 387 258 506 356 beepcollide 0;
+#N canvas 387 258 510 360 beepcollide 0;
 #X obj 78 47 OSCroute /world;
 #X obj 78 133 print collided;
 #X obj 79 26 r rosc;
@@ -348,25 +342,12 @@
 #X obj 227 149 clip 0 1;
 #X msg 209 14 \; pd dsp 1;
 #X obj 209 -6 select 1;
-#N canvas 0 0 878 536 modal 0;
-#N canvas 0 0 450 300 (subpatch) 0;
-#X array array2 64 float 1;
-#A 0 -6.84144e-019 -6.88168e-019 -6.91081e-019 -6.9289e-019 -6.93604e-019
--6.93239e-019 -6.91813e-019 -6.89351e-019 -6.85878e-019 -6.81426e-019
--6.76031e-019 -6.6973e-019 -6.62566e-019 -6.54585e-019 -6.45835e-019
--6.3637e-019 -6.26243e-019 -6.15513e-019 -6.04239e-019 -5.92485e-019
--5.80314e-019 -5.67793e-019 -5.54989e-019 -5.41973e-019 -5.28813e-019
--5.15582e-019 -5.0235e-019 -4.89189e-019 -4.76172e-019 -4.6337e-019
--4.50855e-019 -4.38696e-019 -4.26963e-019 -4.15724e-019 -4.05047e-019
--3.94996e-019 -3.85634e-019 -3.77022e-019 -3.6922e-019 -3.62282e-019
--3.56262e-019 -3.51211e-019 -3.47175e-019 -3.442e-019 -3.42324e-019
--3.41586e-019 -3.42018e-019 -3.4365e-019 -3.46508e-019 -3.50614e-019
--3.55986e-019 -3.62637e-019 -3.70577e-019 -3.79812e-019 -3.90343e-019
--4.02169e-019 -4.15282e-019 -4.29672e-019 -4.45325e-019 -4.62223e-019
--4.80343e-019 -4.9966e-019 -5.20145e-019 -5.41765e-019;
+#N canvas 0 22 882 540 modal 0;
+#N canvas 0 22 450 300 (subpatch) 0;
+#X array array2 64 float 0;
 #X coords 0 1 63 -1 200 140 1;
 #X restore 134 358 graph;
-#N canvas 0 0 450 300 (subpatch) 0;
+#N canvas 0 22 450 300 (subpatch) 0;
 #X array array3 64 float 3;
 #A 0 -0.0857145 0.485715 0.0142857 -0.0142857 -0.0142857 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -384,7 +365,7 @@
 #X obj 168 270 bang~;
 #X msg 398 132 1 0.5 0.3 0.2 0.1;
 #X obj 228 49 spigot;
-#N canvas 0 0 458 308 bangss 0;
+#N canvas 0 22 458 308 bangss 0;
 #X obj 161 53 block~ 4096;
 #X obj 103 116 bang~;
 #X obj 105 185 outlet;
@@ -419,7 +400,7 @@
 #X msg 275 93 62;
 #X obj 74 -10 inlet;
 #X obj 155 106 inlet;
-#N canvas 0 0 731 433 perc_inst1 0;
+#N canvas 0 22 731 433 perc_inst1 0;
 #X obj 118 113 * 1;
 #X obj 208 115 * 3;
 #X obj 294 116 * 5;
@@ -454,7 +435,7 @@
 #X obj 538 54 unpack 1 1 1 1 1;
 #X text 408 4 amplitudes;
 #X text 540 6 decay by 10 \, time in ms;
-#N canvas 0 0 353 493 ds 0;
+#N canvas 0 22 353 493 ds 0;
 #X obj 12 384 biquad~;
 #X obj 57 351 pack f f f f f;
 #X obj 145 188 exp;
@@ -524,7 +505,7 @@
 #X connect 32 0 20 0;
 #X connect 32 1 31 0;
 #X restore 434 183 pd ds;
-#N canvas 0 0 353 493 ds 0;
+#N canvas 0 22 353 493 ds 0;
 #X obj 12 384 biquad~;
 #X obj 57 351 pack f f f f f;
 #X obj 145 188 exp;
@@ -594,7 +575,7 @@
 #X connect 32 0 20 0;
 #X connect 32 1 31 0;
 #X restore 356 183 pd ds;
-#N canvas 0 0 353 493 ds 0;
+#N canvas 0 22 353 493 ds 0;
 #X obj 12 384 biquad~;
 #X obj 57 351 pack f f f f f;
 #X obj 145 188 exp;
@@ -664,7 +645,7 @@
 #X connect 32 0 20 0;
 #X connect 32 1 31 0;
 #X restore 272 184 pd ds;
-#N canvas 0 0 353 493 ds 0;
+#N canvas 0 22 353 493 ds 0;
 #X obj 12 384 biquad~;
 #X obj 57 351 pack f f f f f;
 #X obj 145 188 exp;
@@ -734,7 +715,7 @@
 #X connect 32 0 20 0;
 #X connect 32 1 31 0;
 #X restore 189 183 pd ds;
-#N canvas 0 0 353 493 ds 0;
+#N canvas 0 22 353 493 ds 0;
 #X obj 12 384 biquad~;
 #X obj 57 351 pack f f f f f;
 #X obj 145 188 exp;
@@ -1136,7 +1117,7 @@ PhysicaL Environment;
 #N canvas 421 204 691 472 snake 0;
 #X obj 28 14 inlet;
 #X obj 15 400 s osc;
-#N canvas 0 0 450 300 itercount 0;
+#N canvas 0 22 450 300 itercount 0;
 #X obj 86 110 until;
 #X obj 89 170 f;
 #X obj 120 172 + 1;
