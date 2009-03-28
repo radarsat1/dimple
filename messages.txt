@@ -88,7 +88,16 @@ constraint type.
   /world/<name>/friction/dynamic <f:coefficient>
 
 Note that ''/rotation'' takes a 3x3 rotation matrix as argument, in
-the form of 9 floating-point values.
+the form of 9 floating-point values.  See, for example,
+[[http://en.wikipedia.org/wiki/Rotation_matrix|Wikipedia]], on how to
+calculate this.
+
+An object's initial density is 100, but be aware that resizing objects
+preserves the density, and therefore changes their mass accordingly.
+The object's mass has an important effect on haptic interaction as
+well the magnitude of force and spring stiffness values to use.  (The
+value 100 has been selected to feel "good" for haptic interaction, but
+this should be tuned according to the world you are designing.)
 
 === Values for prisms and meshes ===
 
@@ -131,15 +140,31 @@ Destroys this object.
 
   /world/<name>/response/spring <f:stiffness> <f:damping>
 
-Currently only the spring response on the hinge constraint is
-implemented.  Stiffness and damping coefficients can be specified for
-this spring, making it return to its original orientation.
+Springs are allowed for the following constraints:
 
-The constraints's torque can be accessed by the following:
+  * Hinge
+  * Hinge2
+  * Universal
+  * Slide
+  * Piston
+
+Stiffness and damping coefficients can be specified for this spring,
+making it return to its original orientation or position.
+
+For rotational constraints, the torque can be accessed by the
+following:
 
   /world/<name>/response/torque <f:magnitude>
 
-This is also only available in the hinge constraint.
+Some constraints have two free axes (e.g., universal and hinge2),
+and these must be refered to with a numerical suffix:
+
+  /world/<name>/response/torque1 <f:magnitude>
+  /world/<name>/response/torque2 <f:magnitude>
+
+For linear constraints (e.g., slide), the force can be accessed by:
+
+  /world/<name>/response/force <f:magnitude>
 
 ==== Global messages ====
 
