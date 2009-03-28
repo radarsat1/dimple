@@ -1,0 +1,966 @@
+diff --git a/cygwin/Makefile b/cygwin/Makefile
+index 7de2bbc..69abcc8 100644
+--- a/cygwin/Makefile
++++ b/cygwin/Makefile
+@@ -13,6 +13,7 @@ SOURCES = $(OBJECTS:.o=.cpp)
+ INCLUDE = -I../src/graphics -I../src/collisions -I../src/devices -I../src/display -I../src/files -I../src/forces -I../src/math -I../src/scenegraph -I../src/timers -I../src/tools -I../src/widgets  
+ 
+ LOCALOBJS = $(notdir $(OBJECTS) )
++LOCALSRCS = $(notdir $(SOURCES) )
+ 
+ # Optionally add -D_DISABLE_PHANTOM_SUPPORT to compile away SensAble's libraries
+ DEFS = -D_POSIX -D_MAX_PATH=260 -D_WIN32 -DNOMINMAX
+@@ -24,13 +25,16 @@ AR   = ar rc
+ RANLIB = ranlib
+ LIBS = -L. -L../../../lib/cygwin -lglut32 -lopengl32 -lglu32 
+ 
+-all: chai3d
++all: localsrc chai3d
++
++localsrc: $(SOURCES)
++	for i in $+; do if ! [ -h $$(basename $$i) ]; then ln -s $$i .; fi; done
+ 
+ %.o: %.cpp 
+ 	$(CC) $(CFLAGS) $<
+   
+ # Actual target and dependencies
+-chai3d: $(OBJECTS)
++chai3d: $(LOCALOBJS)
+ 	$(AR) libchai3d_cygwin.a $(LOCALOBJS) 
+ 	$(RANLIB) libchai3d_cygwin.a
+ 	mv libchai3d_cygwin.a ../lib/cygwin
+diff --git a/darwin/Makefile b/darwin/Makefile
+new file mode 100644
+index 0000000..905d40a
+--- /dev/null
++++ b/darwin/Makefile
+@@ -0,0 +1,72 @@
++# CHAI makefile for Darwin
++# Stephen Sinclair
++# March 2007
++#
++# To disable Phantom support and compile away SensAble's libraries, you need to
++# add -D_DISABLE_PHANTOM_SUPPORT to the DEFS line.  If you don't do this, the
++# SensAble runtime may be required to run your applications.
++
++OBJECTS = ../src/collisions/CCollisionAABB.o ../src/collisions/CCollisionAABBTree.o ../src/collisions/CCollisionBrute.o ../src/collisions/CCollisionSpheres.o ../src/collisions/CCollisionSpheresGeometry.o ../src/collisions/CGenericCollision.o ../src/devices/CDeltaDevices.o ../src/devices/CGenericDevice.o ../src/devices/CPhantomDevices.o ../src/files/CFileLoader3DS.o ../src/files/CFileLoaderBMP.o ../src/files/CFileLoaderOBJ.o ../src/files/CFileLoaderTGA.o ../src/files/CImageLoader.o ../src/files/CMeshLoader.o ../src/forces/CGenericPointForceAlgo.o ../src/forces/CPotentialFieldForceAlgo.o ../src/forces/CProxyPointForceAlgo.o ../src/graphics/CColor.o ../src/graphics/CDraw3D.o ../src/graphics/CMacrosGL.o ../src/graphics/CMaterial.o ../src/graphics/CTexture2D.o ../src/graphics/CTriangle.o ../src/graphics/CVertex.o ../src/math/CMaths.o ../src/math/CMatrix3d.o ../src/math/CString.o ../src/math/CVector3d.o ../src/scenegraph/CCamera.o ../src/scenegraph/CGenericObject.o ../src/scenegraph/CGenericPotentialField.o ../src/scenegraph/CLight.o ../src/scenegraph/CMesh.o ../src/scenegraph/CShapeSphere.o ../src/scenegraph/CShapeTorus.o ../src/scenegraph/CWorld.o ../src/timers/CPrecisionClock.o ../src/timers/CPrecisionTimer.o ../src/tools/CDelta3dofPointer.o ../src/tools/CGeneric3dofPointer.o ../src/tools/CGenericTool.o ../src/tools/CMeta3dofPointer.o ../src/tools/CPhantom3dofPointer.o ../src/widgets/CBitmap.o ../src/widgets/CFont.o ../src/widgets/CLabelPanel.o ../src/widgets/CPanel.o ../src/devices/PhantomDriverLinux.o ../src/devices/CLibNIFalconDevice.o
++
++SOURCES = $(OBJECTS:.o=.cpp)
++INCLUDE = -I../src/graphics -I../src/collisions -I../src/devices -I../src/display -I../src/files -I../src/forces -I../src/math -I../src/scenegraph -I../src/timers -I../src/tools -I../src/widgets -I../include/dhd -IGL -IGLUT
++
++LOCALOBJS = $(notdir $(OBJECTS) )
++LOCALSRCS = $(notdir $(SOURCES) )
++
++# Optionally add -D_DISABLE_PHANTOM_SUPPORT to compile away SensAble's libraries
++# Optionally add -D_DISABLE_DELTA_SUPPORT to compile away Force Dimension's libraries
++# Optionally add -D_DISABLE_FALCON_DEVICE_SUPPORT to compile away Novint's libraries
++# Optionally add -D_DISABLE_FREEDOM6S_SUPPORT to compile away MPBT's Freedom 6S libraries
++# We exclude the Delta device because libdhd.a is not available on Darwin
++DEFS = -D_POSIX -D_MAX_PATH=260 -D_DISABLE_PHANTOM_SUPPORT -D_DISABLE_DELTA_SUPPORT -D_DISABLE_FALCON_DEVICE_SUPPORT -D_DISABLE_FREEDOM6S_SUPPORT
++
++CC   = g++ -c $(DEFS)
++CFLAGS = -O3 $(INCLUDE)
++LD   = g++ -o
++AR   = ar rc
++RANLIB = ranlib
++LIBS = -L. -L../lib/darwin -lglut -lgl -lglu -framework OpenGL
++
++INCLUDE += -I$(HOME)/.local/include
++
++HAVE_LIBNIFALCON=$(shell pkg-config --libs libnifalcon >/dev/null 2>&1; echo $$?)
++
++ifeq ($(HAVE_LIBNIFALCON),0)
++INCLUDE += $(shell pkg-config --cflags libnifalcon)
++else
++DEFS += -D_DISABLE_LIBNIFALCON_DEVICE_SUPPORT
++endif
++
++all: localsrc chai3d
++
++# On Darwin, the OpenGL and GLUT headers are in the corresponding frameworks' Headers folder.
++# However, since the headers do not reside in a folder called "GL", this causes a problem.
++# Here we create some symlinks which fix the problem, but it seems like there should be a better way.
++# Likely that would mean using XCode and creating a proper Framework.
++headers:
++	if ! ( [ -d GL ] && [ -d GLUT ] ); then \
++		mkdir GL; \
++		mkdir GLUT; \
++		ln -s /System/Library/Frameworks/OpenGL.framework/Headers GL/GL; \
++		ln -s /System/Library/Frameworks/GLUT.framework/Headers GLUT/GL; \
++	fi
++
++localsrc: $(SOURCES)
++	for i in $+; do if ! [ -h $$(basename $$i) ]; then ln -s $$i .; fi; done
++
++%.o: %.cpp 
++	$(CC) $(CFLAGS) $<
++  
++# Actual target and dependencies
++chai3d: headers $(LOCALOBJS)
++	$(AR) libchai3d_darwin.a $(LOCALOBJS) 
++	$(RANLIB) libchai3d_darwin.a
++	-mkdir ../lib/darwin
++	mv libchai3d_darwin.a ../lib/darwin/
++	@echo "compilation done"
++
++# Target deleting unwanted files
++clean:
++	\rm -fr *.o *~ libchai3d_darwin.a core GL GLUT
++
+diff --git a/examples/linux/Makefile b/examples/linux/Makefile
+new file mode 100644
+index 0000000..bdae471
+--- /dev/null
++++ b/examples/linux/Makefile
+@@ -0,0 +1,17 @@
++
++.PHONY: all clean
++all: ../../bin/earth_linux ../../bin/reflections_linux ../../bin/viewmesh_linux ../../lib/linux/libchai3d_linux.a
++
++../../bin/earth_linux: ../bcpp6/earth/main.cpp
++	$(MAKE) -C earth
++
++../../bin/reflections_linux: ../bcpp6/reflections/main.cpp
++	$(MAKE) -C reflections
++
++../../bin/viewmesh_linux: ../cygwin/viewmesh/main.cpp
++	$(MAKE) -C viewmesh
++
++clean:
++	$(MAKE) -C earth clean
++	$(MAKE) -C reflections clean
++	$(MAKE) -C viewmesh clean
+diff --git a/include/CCollisionSpheresGeometry.h b/include/CCollisionSpheresGeometry.h
+index db65e4c..12ead45 100644
+--- a/include/CCollisionSpheresGeometry.h
++++ b/include/CCollisionSpheresGeometry.h
+@@ -29,7 +29,7 @@
+ #include <list>
+ #include <map>
+ #include <math.h>
+-#ifndef _LINUX
++#ifdef _WIN32
+ #include <windows.h>
+ #endif
+ #include <GL/gl.h>
+diff --git a/include/CLibNIFalconDevice.h b/include/CLibNIFalconDevice.h
+new file mode 100644
+index 0000000..a9dd7fb
+--- /dev/null
++++ b/include/CLibNIFalconDevice.h
+@@ -0,0 +1,74 @@
++//===========================================================================
++/*
++    This file is part of the CHAI 3D visualization and haptics libraries.
++    Copyright (C) 2003-2004 by CHAI 3D. All rights reserved.
++
++    This library is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License("GPL") version 2
++    as published by the Free Software Foundation.
++
++    For using the CHAI 3D libraries with software that can not be combined
++    with the GNU GPL, and for taking advantage of the additional benefits
++    of our support services, please contact CHAI 3D about acquiring a
++    Professional Edition License.
++
++    \author:    <http://www.chai3d.org>
++    \author:    Stephen Sinclair
++    \version    1.0
++    \date       05/2005
++*/
++//===========================================================================
++
++//---------------------------------------------------------------------------
++#ifndef CLibNIFalconDeviceH
++#define CLibNIFalconDeviceH
++/*!
++    \file CLibNIFalconDevice.h
++*/
++// Allow libnifalcon support to be compiled out
++#ifndef _DISABLE_LIBNIFALCON_DEVICE_SUPPORT
++//---------------------------------------------------------------------------
++#include "CGenericDevice.h"
++//---------------------------------------------------------------------------
++#include <falcon/core/FalconDevice.h>
++
++//===========================================================================
++/*!
++    \file   CLibNIFalconDevice.h
++    \class  cLibNIFalconDevice
++    \brief  cLibNIFalconDevice describes an interface to the LibNIFalcon haptic
++			device from MPB Technologies Inc.
++*/
++//===========================================================================
++class cLibNIFalconDevice : public cGenericDevice
++{
++  public:
++    // CONSTRUCTOR & DESTRUCTOR:
++    //! Constructor of cLibNIFalconDevice.
++    cLibNIFalconDevice();
++    //! Destructor of cLibNIFalconDevice.
++    virtual ~cLibNIFalconDevice();
++
++    // METHODS:
++    //! Open connection to MPB device.
++    virtual int open();
++    //! Close connection to MPB device.
++    virtual int close();
++    //! Initialize MPB device.
++    virtual int initialize(const bool a_resetEncoders=false);
++    //! Set a command to the MPB device.
++    virtual int command(int a_command, void* a_data);
++
++  protected:
++
++    //! Reference count used to control access to the dhd dll
++    static int m_activeLibNIFalconDevices;
++
++    libnifalcon::FalconDevice m_device;
++};
++
++#endif // #ifndef _DISABLE_LIBNIFALCON_DEVICE_SUPPORT
++
++//---------------------------------------------------------------------------
++#endif
++//---------------------------------------------------------------------------
+diff --git a/include/CMeta3dofPointer.h b/include/CMeta3dofPointer.h
+index e52f609..99d1784 100644
+--- a/include/CMeta3dofPointer.h
++++ b/include/CMeta3dofPointer.h
+@@ -27,10 +27,11 @@
+ #include "CPhantomDevices.h"
+ #include "CDeltaDevices.h"
+ #include "CFalconDevice.h"
++#include "CFreedom6S3dofPointer.h"
++#include "CLibNIFalconDevice.h"
+ 
+ #ifdef _WIN32
+ #include "CVirtualDevice.h"
+-#include "CFreedom6S3dofPointer.h"
+ #endif
+ 
+ //---------------------------------------------------------------------------
+@@ -43,6 +44,7 @@
+ #define DEVICE_VIRTUAL 2
+ #define DEVICE_MPB     3
+ #define DEVICE_FALCON  4
++#define DEVICE_LIBNIFALCON  5
+ #define DEVICE_UNINITIALIZED -1
+ 
+ //===========================================================================
+diff --git a/linux/Makefile b/linux/Makefile
+index cb7718c..a5d7ae9 100644
+--- a/linux/Makefile
++++ b/linux/Makefile
+@@ -26,32 +26,50 @@ OBJECTS = ../src/collisions/CCollisionAABB.o ../src/collisions/CCollisionAABBTre
+ ../src/scenegraph/CShapeTorus.o ../src/scenegraph/CWorld.o ../src/timers/CPrecisionClock.o ../src/timers/CPrecisionTimer.o \
+ ../src/tools/CGeneric3dofPointer.o ../src/tools/CGenericTool.o ../src/tools/CMeta3dofPointer.o ../src/tools/CPhantom3dofPointer.o \
+ ../src/tools/CDelta3dofPointer.o ../src/widgets/CBitmap.o ../src/widgets/CFont.o ../src/widgets/CLabelPanel.o \
+-../src/widgets/CPanel.o ../src/devices/PhantomDriverLinux.o ../src/devices/CDeltaDevices.o
++../src/widgets/CPanel.o ../src/devices/PhantomDriverLinux.o ../src/devices/CDeltaDevices.o ../src/tools/CFreedom6S3dofPointer.o \
++../src/devices/CFreedom6SDevice.o \
++../src/devices/CLibNIFalconDevice.o
+ 
+ SOURCES = $(OBJECTS:.o=.cpp)
+ INCLUDE = -I../src/graphics -I../src/collisions -I../src/devices -I../src/display -I../src/files -I../src/forces -I../src/math -I../src/scenegraph -I../src/timers -I../src/tools -I../src/widgets -I../include/dhd
+ 
+ LOCALOBJS = $(notdir $(OBJECTS) )
++LOCALSRCS = $(notdir $(SOURCES) )
+ 
+ # Optionally add -D_DISABLE_PHANTOM_SUPPORT to compile away SensAble's libraries
+ # Optionally add -D_DISABLE_DELTA_SUPPORT to compile away Force Dimension's libraries
+-DEFS = -D_POSIX -D_MAX_PATH=260 -D_LINUX -DLINUX -D_DISABLE_PHANTOM_SUPPORT -D_DISABLE_DELTA_SUPPORT
++# Optionally add -D_DISABLE_FALCON_DEVICE_SUPPORT to compile away Novint's libraries
++# Optionally add -D_DISABLE_FREEDOM6S_SUPPORT to compile away MPBT's Freedom 6S libraries
++DEFS = -D_POSIX -D_MAX_PATH=260 -D_LINUX -DLINUX -D_DISABLE_PHANTOM_SUPPORT -D_DISABLE_DELTA_SUPPORT -D_DISABLE_FALCON_DEVICE_SUPPORT
+ 
+-CC   = g++ -c $(DEFS)
+-CFLAGS = -O3 $(INCLUDE)
+-LD   = g++ -o
++CC   = g++
++CFLAGS = -c $(DEFS) -O3 $(INCLUDE)
++LD   = g++
+ AR   = ar rc
+ RANLIB = ranlib
+ 
+ LIBS = -L. -L../lib/linux -lglut -lgl -lglu -ldhd
+ 
+-all: chai3d
++INCLUDE += -I$(HOME)/.local/include
++
++HAVE_LIBNIFALCON=$(shell pkg-config --libs libnifalcon >/dev/null 2>&1; echo $$?)
++
++ifeq ($(HAVE_LIBNIFALCON),0)
++INCLUDE += $(shell pkg-config --cflags libnifalcon)
++else
++DEFS += -D_DISABLE_LIBNIFALCON_DEVICE_SUPPORT
++endif
++
++all: localsrc chai3d
++
++localsrc: $(SOURCES)
++	for i in $+; do if ! [ -h $$(basename $$i) ]; then ln -s $$i .; fi; done
+ 
+ %.o: %.cpp 
+-	$(CC) $(CFLAGS) $<
+-  
++	$(CC) $(CFLAGS) $< -o $@
++
+ # Actual target and dependencies
+-chai3d: $(OBJECTS)
++chai3d: $(LOCALOBJS)
+ 	$(AR) libchai3d_linux.a $(LOCALOBJS) 
+ 	$(RANLIB) libchai3d_linux.a
+ 	mv libchai3d_linux.a ../lib/linux
+diff --git a/src/collisions/CCollisionAABB.cpp b/src/collisions/CCollisionAABB.cpp
+index fb07648..588564e 100644
+--- a/src/collisions/CCollisionAABB.cpp
++++ b/src/collisions/CCollisionAABB.cpp
+@@ -59,6 +59,15 @@ cCollisionAABB::~cCollisionAABB()
+ {
+ 
+     // clear collision tree
++
++    // do it carefully: apparently if it was allocated as a subclass,
++    // segfault here! (SS)
++    cCollisionAABBInternal* internal =
++        dynamic_cast<cCollisionAABBInternal*>(m_root);
++    if (internal)
++        delete [] internal;
++    else
++
+     if (m_root != NULL) delete [] m_root;
+ 
+     // Delete the allocated array of leaf nodes
+diff --git a/src/collisions/CCollisionAABBTree.cpp b/src/collisions/CCollisionAABBTree.cpp
+index 5581140..e97bb60 100644
+--- a/src/collisions/CCollisionAABBTree.cpp
++++ b/src/collisions/CCollisionAABBTree.cpp
+@@ -22,6 +22,7 @@
+ //---------------------------------------------------------------------------
+ #include "CCollisionAABBTree.h"
+ //---------------------------------------------------------------------------
++#include <stdlib.h>
+ 
+ //! Pointer for creating new AABB tree nodes, declared in CCollisionAABB.cpp.
+ extern cCollisionAABBInternal* g_nextFreeNode;
+diff --git a/src/collisions/CCollisionSpheres.cpp b/src/collisions/CCollisionSpheres.cpp
+index b83e97e..caf9bd7 100644
+--- a/src/collisions/CCollisionSpheres.cpp
++++ b/src/collisions/CCollisionSpheres.cpp
+@@ -74,6 +74,15 @@ cCollisionSpheres::cCollisionSpheres(vector<cTriangle> *a_triangles,
+ cCollisionSpheres::~cCollisionSpheres()
+ {
+     // delete array of internal nodes
++
++    // do it carefully: apparently if it was allocated as a subclass,
++    // segfault here! (SS)
++    cCollisionSpheresNode* node =
++        dynamic_cast<cCollisionSpheresNode*>(m_root);
++    if (node)
++        delete [] node;
++    else
++
+     if (m_root != NULL)
+         delete [] m_root;
+ 
+diff --git a/src/collisions/CCollisionSpheresGeometry.h b/src/collisions/CCollisionSpheresGeometry.h
+index db65e4c..12ead45 100644
+--- a/src/collisions/CCollisionSpheresGeometry.h
++++ b/src/collisions/CCollisionSpheresGeometry.h
+@@ -29,7 +29,7 @@
+ #include <list>
+ #include <map>
+ #include <math.h>
+-#ifndef _LINUX
++#ifdef _WIN32
+ #include <windows.h>
+ #endif
+ #include <GL/gl.h>
+diff --git a/src/devices/CFreedom6SDevice.cpp b/src/devices/CFreedom6SDevice.cpp
+index 331ae69..2a6263c 100644
+--- a/src/devices/CFreedom6SDevice.cpp
++++ b/src/devices/CFreedom6SDevice.cpp
+@@ -21,11 +21,21 @@
+ 
+ //---------------------------------------------------------------------------
+ #include "CFreedom6SDevice.h"
++
++#ifndef _DISABLE_FREEDOM6S_SUPPORT
++
+ //---------------------------------------------------------------------------
++#ifdef WIN32
+ #include <windows.h>
+-#include "CVector3D.h"
++#endif
++#include "CVector3d.h"
+ //---------------------------------------------------------------------------
+-
++#ifdef _POSIX
++#define HINSTANCE void*
++#define GetProcAddress dlsym
++#define FreeLibrary dlclose
++#include <dlfcn.h>
++#endif
+ //---------------------------------------------------------------------------
+ HINSTANCE hf6sDLL = NULL;
+ 
+@@ -87,7 +97,11 @@ cFreedom6SDevice::cFreedom6SDevice() : cGenericDevice()
+ 
+     if (hf6sDLL==NULL)
+     {
++#ifdef _POSIX
++        hf6sDLL = dlopen("libfreedom6s.so", RTLD_LAZY);
++#else
+         hf6sDLL = LoadLibrary("freedom6s.dll");
++#endif
+ 
+         if (hf6sDLL==NULL)
+             return;
+@@ -234,7 +248,7 @@ int cFreedom6SDevice::command(int a_command, void* a_data)
+ 
+     // workspace is approximately from -0.1 to 0.1 meters.
+     if (a_command == CHAI_CMD_GET_POS_NORM_3D) {
+-      v->div(0.1);
++      v->div(0.02);
+     }
+ 
+     // convert to mm
+@@ -289,3 +303,5 @@ int cFreedom6SDevice::command(int a_command, void* a_data)
+ 
+   return CHAI_MSG_OK;
+ }
++
++#endif // _DISABLE_FREEDOM6S_SUPPORT
+diff --git a/src/devices/CFreedom6SDevice.h b/src/devices/CFreedom6SDevice.h
+index 54d6773..0bf1a43 100644
+--- a/src/devices/CFreedom6SDevice.h
++++ b/src/devices/CFreedom6SDevice.h
+@@ -22,6 +22,11 @@
+ //---------------------------------------------------------------------------
+ #ifndef CFreedom6SDeviceH
+ #define CFreedom6SDeviceH
++/*!
++    \file CFreedom6SDevice.h
++*/
++// Allow Freedom 6S support to be compiled out
++#ifndef _DISABLE_FREEDOM6S_SUPPORT
+ //---------------------------------------------------------------------------
+ #include "CGenericDevice.h"
+ //---------------------------------------------------------------------------
+@@ -61,6 +66,8 @@ class cFreedom6SDevice : public cGenericDevice
+     void* m_hf6s;
+ };
+ 
++#endif // #ifndef _DISABLE_FREEDOM6S_SUPPORT
++
+ //---------------------------------------------------------------------------
+ #endif
+ //---------------------------------------------------------------------------
+diff --git a/src/devices/CLibNIFalconDevice.cpp b/src/devices/CLibNIFalconDevice.cpp
+new file mode 100644
+index 0000000..2699e40
+--- /dev/null
++++ b/src/devices/CLibNIFalconDevice.cpp
+@@ -0,0 +1,214 @@
++//===========================================================================
++/*
++    This file is part of the CHAI 3D visualization and haptics libraries.
++    Copyright (C) 2003-2004 by CHAI 3D. All rights reserved.
++
++    This library is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License("GPL") version 2
++    as published by the Free Software Foundation.
++
++    For using the CHAI 3D libraries with software that can not be combined
++    with the GNU GPL, and for taking advantage of the additional benefits
++    of our support services, please contact CHAI 3D about acquiring a
++    Professional Edition License.
++
++    \author:    <http://www.chai3d.org>
++    \author:    Stephen Sinclair (MPBT)
++    \version    1.0
++    \date       05/2005
++*/
++//===========================================================================
++
++//---------------------------------------------------------------------------
++#include "CLibNIFalconDevice.h"
++
++#ifndef _DISABLE_LIBNIFALCON_DEVICE_SUPPORT
++
++//---------------------------------------------------------------------------
++#ifdef WIN32
++#include <windows.h>
++#endif
++#include "CVector3d.h"
++//---------------------------------------------------------------------------
++#include <falcon/comm/FalconCommLibUSB.h>
++#include <falcon/comm/FalconCommLibFTDI.h>
++#include <falcon/firmware/FalconFirmwareNovintSDK.h>
++#include <falcon/util/FalconFirmwareBinaryNvent.h>
++#include <falcon/kinematic/FalconKinematicStamper.h>
++//---------------------------------------------------------------------------
++
++// Initialize reference count
++int cLibNIFalconDevice::m_activeLibNIFalconDevices = 0;
++
++//===========================================================================
++/*!
++    Constructor of cLibNIFalconDevice.
++    Loads interface DLL.
++
++    \fn     cLibNIFalconDevice::cLibNIFalconDevice()
++*/
++//===========================================================================
++cLibNIFalconDevice::cLibNIFalconDevice() : cGenericDevice()
++{
++    m_systemReady = false;
++    m_systemAvailable = false;
++
++    m_activeLibNIFalconDevices++;
++
++    m_systemAvailable = true;
++}
++
++//===========================================================================
++/*!
++    Destructor of cLibNIFalconDevice.
++
++    \fn     cLibNIFalconDevice::~cLibNIFalconDevice()
++*/
++//===========================================================================
++cLibNIFalconDevice::~cLibNIFalconDevice()
++{
++    m_activeLibNIFalconDevices--;
++}
++
++//===========================================================================
++/*!
++    Open connection to LibNIFalcon device.
++
++    \fn     int cLibNIFalconDevice::open()
++    \return Return 0 is operation succeeds, -1 if an error
++ occurs.
++*/
++//===========================================================================
++int cLibNIFalconDevice::open()
++{
++   return 0;
++}
++
++//===========================================================================
++/*!
++    Close connection to LibNIFalcon device.
++
++    \fn     int cLibNIFalconDevice::close()
++    \return Return 0 is operation succeeds, -1 if an error occurs.
++*/
++//===========================================================================
++int cLibNIFalconDevice::close()
++{
++   return 0;
++}
++
++//===========================================================================
++/*!
++    Calibrate LibNIFalcon device. Initializes the driver, loading appropriate
++  settings according to current LibNIFalcon configuration.
++
++    \fn     int cLibNIFalconDevice::initialize(const bool a_resetEncoders=false)
++    \param  a_resetEncoders Ignored; exists for forward compatibility.
++    \return Return 0 is operation succeeds, -1 if an error occurs.
++*/
++//===========================================================================
++int cLibNIFalconDevice::initialize(const bool a_resetEncoders)
++{
++    m_device.setFalconFirmware<libnifalcon::FalconFirmwareNovintSDK>();
++    m_device.setFalconComm<libnifalcon::FalconCommLibFTDI>();
++    if (!m_device.open(0)) {
++        printf("libnifalcon: Couldn't open device 0 (libftdi).\n");
++        return -1;
++    }
++
++    printf("libnifalcon: Uploading firmware.\n");
++    int i;
++    for (i=0; i<10 && !m_device.isFirmwareLoaded(); i++) {
++        if (m_device.getFalconFirmware()->loadFirmware(
++                true, libnifalcon::NOVINT_FALCON_NVENT_FIRMWARE_SIZE,
++                const_cast<uint8_t*>(libnifalcon::NOVINT_FALCON_NVENT_FIRMWARE))
++            && m_device.isFirmwareLoaded())
++            break;
++        printf(".");
++        fflush(stdout);
++    }
++
++    if (i==10) {
++        printf("libnifalcon: Couldn't upload device firmware.\n");
++
++        printf("libnifalcon: Error Code: %d\n", m_device.getErrorCode());
++        if (m_device.getErrorCode() == 2000)
++            printf("libnifalcon: Device Error Code: %d\n",
++                   m_device.getFalconComm()->getDeviceErrorCode());
++
++        return -1;
++    }
++
++	m_device.close();
++
++    m_device.setFalconComm<libnifalcon::FalconCommLibUSB>();
++    if (!m_device.open(0)) {
++        printf("libnifalcon: Couldn't open device 0 (libusb).\n");
++        return -1;
++    }
++
++    m_device.setFalconKinematic<libnifalcon::FalconKinematicStamper>();
++
++    return 0;
++}
++
++//===========================================================================
++/*!
++    Set command for the LibNIFalcon device
++
++    \fn     int cLibNIFalconDevice::command(int iCommand, void* iData)
++    \param  iCommand    Selected command.
++    \param  iData       Pointer to the corresponding data structure.
++    \return Return status of command.
++*/
++//===========================================================================
++int cLibNIFalconDevice::command(int a_command, void* a_data)
++{
++  if (!m_device.isOpen())
++    return CHAI_MSG_SYSTEM_NOT_READY;
++
++  double *pos=0;
++  double force[3] = {0.0, 0.0, 0.0};
++  cVector3d *v = (cVector3d*)a_data;
++
++  switch (a_command)
++  {
++  case CHAI_CMD_GET_POS_3D:
++  case CHAI_CMD_GET_POS_NORM_3D:
++    m_device.runIOLoop();
++    pos = m_device.getPosition();
++    v->y = pos[0];
++    v->z = pos[1];
++    v->x = pos[2] - 0.1;
++    if (a_command == CHAI_CMD_GET_POS_NORM_3D)
++        *v *= 60.0;
++    break;
++
++  case CHAI_CMD_SET_FORCE_3D:
++    force[0] = v->y;
++    force[1] = v->z;
++    force[2] = v->x;
++    m_device.setForce(force);
++    break;
++
++  case CHAI_CMD_GET_VEL_3D:
++    // TODO
++    break;
++
++  // read scale factor from normalized coords to mm
++  case CHAI_CMD_GET_NORMALIZED_SCALE_FACTOR:   
++    {
++    double* scale = (double*)a_data;
++
++    *scale = 60.0;
++    }
++    break;
++
++  default:
++    return CHAI_MSG_NOT_IMPLEMENTED;
++  }
++
++  return CHAI_MSG_OK;
++}
++
++#endif // _DISABLE_LIBNIFALCON_DEVICE_SUPPORT
+diff --git a/src/devices/CLibNIFalconDevice.h b/src/devices/CLibNIFalconDevice.h
+new file mode 100644
+index 0000000..a9dd7fb
+--- /dev/null
++++ b/src/devices/CLibNIFalconDevice.h
+@@ -0,0 +1,74 @@
++//===========================================================================
++/*
++    This file is part of the CHAI 3D visualization and haptics libraries.
++    Copyright (C) 2003-2004 by CHAI 3D. All rights reserved.
++
++    This library is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License("GPL") version 2
++    as published by the Free Software Foundation.
++
++    For using the CHAI 3D libraries with software that can not be combined
++    with the GNU GPL, and for taking advantage of the additional benefits
++    of our support services, please contact CHAI 3D about acquiring a
++    Professional Edition License.
++
++    \author:    <http://www.chai3d.org>
++    \author:    Stephen Sinclair
++    \version    1.0
++    \date       05/2005
++*/
++//===========================================================================
++
++//---------------------------------------------------------------------------
++#ifndef CLibNIFalconDeviceH
++#define CLibNIFalconDeviceH
++/*!
++    \file CLibNIFalconDevice.h
++*/
++// Allow libnifalcon support to be compiled out
++#ifndef _DISABLE_LIBNIFALCON_DEVICE_SUPPORT
++//---------------------------------------------------------------------------
++#include "CGenericDevice.h"
++//---------------------------------------------------------------------------
++#include <falcon/core/FalconDevice.h>
++
++//===========================================================================
++/*!
++    \file   CLibNIFalconDevice.h
++    \class  cLibNIFalconDevice
++    \brief  cLibNIFalconDevice describes an interface to the LibNIFalcon haptic
++			device from MPB Technologies Inc.
++*/
++//===========================================================================
++class cLibNIFalconDevice : public cGenericDevice
++{
++  public:
++    // CONSTRUCTOR & DESTRUCTOR:
++    //! Constructor of cLibNIFalconDevice.
++    cLibNIFalconDevice();
++    //! Destructor of cLibNIFalconDevice.
++    virtual ~cLibNIFalconDevice();
++
++    // METHODS:
++    //! Open connection to MPB device.
++    virtual int open();
++    //! Close connection to MPB device.
++    virtual int close();
++    //! Initialize MPB device.
++    virtual int initialize(const bool a_resetEncoders=false);
++    //! Set a command to the MPB device.
++    virtual int command(int a_command, void* a_data);
++
++  protected:
++
++    //! Reference count used to control access to the dhd dll
++    static int m_activeLibNIFalconDevices;
++
++    libnifalcon::FalconDevice m_device;
++};
++
++#endif // #ifndef _DISABLE_LIBNIFALCON_DEVICE_SUPPORT
++
++//---------------------------------------------------------------------------
++#endif
++//---------------------------------------------------------------------------
+diff --git a/src/files/CFileLoader3DS.cpp b/src/files/CFileLoader3DS.cpp
+index 1b93f76..82b5576 100644
+--- a/src/files/CFileLoader3DS.cpp
++++ b/src/files/CFileLoader3DS.cpp
+@@ -31,6 +31,8 @@
+ #define _snprintf(x,y,...) sprintf(x,__VA_ARGS__) 
+ #endif
+ 
++#include <stdlib.h>
++#include <string.h>
+ #include <map>
+ 
+ typedef std::map<unsigned int, unsigned int> uint_uint_map;
+diff --git a/src/files/CFileLoaderOBJ.cpp b/src/files/CFileLoaderOBJ.cpp
+index f4eef52..1fc2444 100644
+--- a/src/files/CFileLoaderOBJ.cpp
++++ b/src/files/CFileLoaderOBJ.cpp
+@@ -23,6 +23,7 @@
+ //---------------------------------------------------------------------------
+ #include "CFileLoaderOBJ.h"
+ //---------------------------------------------------------------------------
++#include <string.h>
+ 
+ bool g_objLoaderShouldGenerateExtraVertices = false;
+ 
+diff --git a/src/files/CImageLoader.cpp b/src/files/CImageLoader.cpp
+index 26a63dc..3861ec6 100644
+--- a/src/files/CImageLoader.cpp
++++ b/src/files/CImageLoader.cpp
+@@ -30,6 +30,7 @@
+ #include "CFileLoaderTGA.h"
+ #include "CMacrosGL.h"
+ #include <GL/gl.h>
++#include <string.h>
+ //---------------------------------------------------------------------------
+ 
+ #if (defined(_WIN32) && !defined(_POSIX) )
+diff --git a/src/files/CMeshLoader.cpp b/src/files/CMeshLoader.cpp
+index 80851bd..cbda647 100644
+--- a/src/files/CMeshLoader.cpp
++++ b/src/files/CMeshLoader.cpp
+@@ -20,6 +20,7 @@
+ //===========================================================================
+ 
+ #include "CMeshLoader.h"
++#include <string.h>
+ 
+ //===========================================================================
+ /*!
+diff --git a/src/math/CString.cpp b/src/math/CString.cpp
+index ffcd065..e88e674 100644
+--- a/src/math/CString.cpp
++++ b/src/math/CString.cpp
+@@ -24,6 +24,7 @@
+ #include "CString.h"
+ #include "CMacrosGL.h"
+ //---------------------------------------------------------------------------
++#include <stdlib.h>
+ 
+ //===========================================================================
+ /*!
+diff --git a/src/scenegraph/CCamera.cpp b/src/scenegraph/CCamera.cpp
+index 4a60549..35c5e54 100644
+--- a/src/scenegraph/CCamera.cpp
++++ b/src/scenegraph/CCamera.cpp
+@@ -25,6 +25,7 @@
+ #include "CWorld.h"
+ #include "CLight.h"
+ //---------------------------------------------------------------------------
++#include <string.h>
+ 
+ //===========================================================================
+ /*!
+diff --git a/src/scenegraph/CGenericObject.cpp b/src/scenegraph/CGenericObject.cpp
+index 4c96e1b..64b3a53 100644
+--- a/src/scenegraph/CGenericObject.cpp
++++ b/src/scenegraph/CGenericObject.cpp
+@@ -26,6 +26,7 @@
+ #include "CProxyPointForceAlgo.h"
+ #include "CMesh.h"
+ #include <float.h>
++#include <string.h>
+ //---------------------------------------------------------------------------
+ #include <vector>
+ //---------------------------------------------------------------------------
+diff --git a/src/scenegraph/CWorld.cpp b/src/scenegraph/CWorld.cpp
+index 1fac70e..fe68872 100644
+--- a/src/scenegraph/CWorld.cpp
++++ b/src/scenegraph/CWorld.cpp
+@@ -23,6 +23,7 @@
+ #include "CWorld.h"
+ #include "CLight.h"
+ //---------------------------------------------------------------------------
++#include <string.h>
+ 
+ #ifndef _MSVC
+ #include <float.h>
+diff --git a/src/timers/CPrecisionTimer.cpp b/src/timers/CPrecisionTimer.cpp
+index 7863b02..efc15a7 100644
+--- a/src/timers/CPrecisionTimer.cpp
++++ b/src/timers/CPrecisionTimer.cpp
+@@ -143,7 +143,7 @@ void *timer_thread_func(void *cptimer)
+       double start_time = clock.getCPUtime();
+ 
+       // Run the user's callback
+-      internal_timer_callback(0,0,(DWORD)(cpt),0,0);
++      internal_timer_callback(cpt);
+ 
+       // Found out how much time we have left
+       double end_time = clock.getCPUtime();
+@@ -401,7 +401,7 @@ bool cPrecisionTimer::stop()
+ #ifdef _WIN32
+ void CALLBACK internal_timer_callback(UINT uTimerID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2)
+ #else
+-void internal_timer_callback(UINT uTimerID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2)
++void internal_timer_callback(cPrecisionTimer* dwUser)
+ #endif
+ {
+     cPrecisionTimer* timer = (cPrecisionTimer*)(dwUser);
+diff --git a/src/timers/CPrecisionTimer.h b/src/timers/CPrecisionTimer.h
+index c5e498a..3fe8c27 100644
+--- a/src/timers/CPrecisionTimer.h
++++ b/src/timers/CPrecisionTimer.h
+@@ -66,9 +66,8 @@ void CALLBACK internal_timer_callback(UINT uTimerID, UINT uMsg, DWORD dwUser, DW
+ 
+ #else
+ 
+-typedef unsigned int UINT;
+-typedef unsigned int DWORD;
+-void internal_timer_callback(UINT uTimerID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2);
++class cPrecisionTimer;
++void internal_timer_callback(cPrecisionTimer* cpt);
+ 
+ #endif
+ 
+@@ -174,7 +173,7 @@ class cPrecisionTimer
+ #ifdef _WIN32
+   friend void CALLBACK internal_timer_callback(UINT uTimerID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2);
+ #else
+-  friend void internal_timer_callback(UINT uTimerID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2);
++  friend void internal_timer_callback(cPrecisionTimer *cpt);
+ #endif
+ 
+ #ifdef _POSIX
+diff --git a/src/tools/CMeta3dofPointer.cpp b/src/tools/CMeta3dofPointer.cpp
+index 2caef40..303f044 100644
+--- a/src/tools/CMeta3dofPointer.cpp
++++ b/src/tools/CMeta3dofPointer.cpp
+@@ -117,7 +117,7 @@ cMeta3dofPointer::cMeta3dofPointer(cWorld* a_world, unsigned int a_deviceNumber,
+ 
+     // No linux support yet for the virtual device or the f6s...
+ 
+-#ifdef _WIN32
++#ifndef _DISABLE_FREEDOM6S_SUPPORT
+ 
+     // try to open Freedom6S device
+     m_device = new cFreedom6SDevice();
+@@ -134,7 +134,24 @@ cMeta3dofPointer::cMeta3dofPointer(cWorld* a_world, unsigned int a_deviceNumber,
+       delete m_device;
+       m_device = NULL;
+     }
++#endif
++
++#ifndef _DISABLE_LIBNIFALCON_DEVICE_SUPPORT
++    // try to open Libnifalcon device
++    m_device = new cLibNIFalconDevice();
++    systemAvailable = m_device->isSystemAvailable();
+ 
++    if (systemAvailable)
++    {
++      m_device->open();
++      m_physicalDevice = DEVICE_LIBNIFALCON;
++      return;
++    }
++    else
++    {
++      delete m_device;
++      m_device = NULL;
++    }
+ #endif
+ 
+ // No Linux virtual device yet...
+diff --git a/src/tools/CMeta3dofPointer.h b/src/tools/CMeta3dofPointer.h
+index e52f609..99d1784 100644
+--- a/src/tools/CMeta3dofPointer.h
++++ b/src/tools/CMeta3dofPointer.h
+@@ -27,10 +27,11 @@
+ #include "CPhantomDevices.h"
+ #include "CDeltaDevices.h"
+ #include "CFalconDevice.h"
++#include "CFreedom6S3dofPointer.h"
++#include "CLibNIFalconDevice.h"
+ 
+ #ifdef _WIN32
+ #include "CVirtualDevice.h"
+-#include "CFreedom6S3dofPointer.h"
+ #endif
+ 
+ //---------------------------------------------------------------------------
+@@ -43,6 +44,7 @@
+ #define DEVICE_VIRTUAL 2
+ #define DEVICE_MPB     3
+ #define DEVICE_FALCON  4
++#define DEVICE_LIBNIFALCON  5
+ #define DEVICE_UNINITIALIZED -1
+ 
+ //===========================================================================

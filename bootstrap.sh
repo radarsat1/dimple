@@ -625,6 +625,7 @@ case $(uname) in
 	DL="wget -O"
     MD5=md5sum
 	MD5CUT="awk {print\$1}"
+    chai_PATCH=chai3d-1.62.patch
 	chai_DIR=chai3d/linux
 
     scons
@@ -640,7 +641,7 @@ case $(uname) in
 	DL="curl -Lo"
     MD5=md5
 	MD5CUT="cut -f2 -d="
-    chai_PATCH=chai3d-1.61-darwin.patch
+    chai_PATCH=chai3d-1.62.patch
 	chai_DIR=chai3d/darwin
     scons
     samplerate
