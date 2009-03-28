@@ -309,9 +309,9 @@ void ODEObject::update()
 
     cVector3d pos(getPosition());
     cVector3d vel(o->m_position - pos);
-    o->m_accel.set(o->m_velocity - vel);
-    o->m_velocity.set(vel);
-    o->m_position.set(pos);
+    (o->m_velocity - vel).copyto(o->m_accel);
+    vel.copyto(o->m_velocity);
+    pos.copyto(o->m_position);
 }
 
 /****** ODEConstraint ******/
@@ -396,6 +396,19 @@ void OscSphereODE::on_rotation()
 void OscSphereODE::on_position()
 {
     dGeomSetPosition(m_odeGeom, m_position.x, m_position.y, m_position.z);
+}
+
+void OscSphereODE::on_velocity()
+{
+    dBodySetLinearVel(m_odeBody, m_velocity.x, m_velocity.y, m_velocity.z);
+}
+
+void OscSphereODE::on_accel()
+{
+    dBodySetForce(m_odeBody,
+                  m_accel.x / m_odeMass.mass,
+                  m_accel.y / m_odeMass.mass,
+                  m_accel.z / m_odeMass.mass);
 }
 
 void OscSphereODE::on_force()
@@ -490,6 +503,19 @@ void OscPrismODE::on_rotation()
     m[10] = m_rotation.getCol2().z;
     m[11] = 0;
     dGeomSetRotation(m_odeGeom, m);
+}
+
+void OscPrismODE::on_velocity()
+{
+    dBodySetLinearVel(m_odeBody, m_velocity.x, m_velocity.y, m_velocity.z);
+}
+
+void OscPrismODE::on_accel()
+{
+    dBodySetForce(m_odeBody,
+                  m_accel.x * m_odeMass.mass,
+                  m_accel.y * m_odeMass.mass,
+                  m_accel.z * m_odeMass.mass);
 }
 
 void OscPrismODE::on_force()

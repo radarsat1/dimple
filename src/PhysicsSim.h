@@ -230,6 +230,8 @@ protected:
     virtual void on_force();
     virtual void on_position();
     virtual void on_rotation(); 
+    virtual void on_velocity();
+    virtual void on_accel();
     virtual void on_mass();
     virtual void on_density();
 
@@ -251,6 +253,8 @@ protected:
     virtual void on_force();
     virtual void on_position();
     virtual void on_rotation(); 
+    virtual void on_velocity();
+    virtual void on_accel();
     virtual void on_mass();
     virtual void on_density();
 

@@ -69,6 +69,7 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     m_force.setSetCallback(set_force, this, DIMPLE_THREAD_PHYSICS);
     m_color.setSetCallback(set_color, this, DIMPLE_THREAD_PHYSICS);
     m_velocity.setSetCallback(set_velocity, this, DIMPLE_THREAD_PHYSICS);
+    m_accel.setSetCallback(set_accel, this, DIMPLE_THREAD_PHYSICS);
     m_friction_static.setSetCallback(set_friction_static, this, DIMPLE_THREAD_HAPTICS);
     m_friction_dynamic.setSetCallback(set_friction_dynamic, this, DIMPLE_THREAD_HAPTICS);
     m_texture_image.setSetCallback((OscString::SetCallback*)setTextureImage, this, DIMPLE_THREAD_HAPTICS);
