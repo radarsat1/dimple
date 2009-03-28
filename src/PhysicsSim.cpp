@@ -438,7 +438,7 @@ int OscSphereODE::push_handler(const char *path, const char *types,
                                void *data, void *user_data)
 {
     OscSphereODE *me = static_cast<OscSphereODE*>(user_data);
-    me->m_force.set(argv[0]->f, argv[1]->f, argv[2]->f);
+    cVector3d(argv[0]->f, argv[1]->f, argv[2]->f).copyto(me->m_force);
     dBodyAddForceAtPos(me->m_odeBody,
                        argv[0]->f, argv[1]->f, argv[2]->f,
                        argv[3]->f, argv[4]->f, argv[5]->f);
@@ -546,7 +546,7 @@ int OscPrismODE::push_handler(const char *path, const char *types, lo_arg **argv
                               int argc, void *data, void *user_data)
 {
     OscPrismODE *me = static_cast<OscPrismODE*>(user_data);
-    me->m_force.set(argv[0]->f, argv[1]->f, argv[2]->f);
+    cVector3d(argv[0]->f, argv[1]->f, argv[2]->f).copyto(me->m_force);
     dBodyAddForceAtPos(me->m_odeBody,
                        argv[0]->f, argv[1]->f, argv[2]->f,
                        argv[3]->f, argv[4]->f, argv[5]->f);
