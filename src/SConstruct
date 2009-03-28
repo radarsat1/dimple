@@ -25,8 +25,23 @@ try:
 except:
     debug = False
 
+# Some functions to check for pkg-config
+def CheckPKGConfig(context, version):
+    context.Message( 'Checking for pkg-config... ' )
+    ret = context.TryAction('pkg-config --atleast-pkgconfig-version=%s'
+                            % version)[0]
+    context.Result( ret )
+    return ret
+                   
+def CheckPKG(context, name):
+    context.Message( 'Checking for %s... ' % name )
+    ret = context.TryAction('pkg-config --exists \'%s\'' % name)[0]
+    context.Result( ret )
+    return ret
+
 # Start configuration
-conf = Configure(env)
+conf = Configure(env, custom_tests = { 'CheckPKGConfig' : CheckPKGConfig,
+                                       'CheckPKG' : CheckPKG })
 
 # Get current DIMPLE version
 VERSION = getoutput(['sh','../util/version.sh'])
@@ -39,6 +54,14 @@ if not conf.CheckLibWithHeader('samplerate', 'samplerate.h', 'C'):
     if not conf.CheckLibWithHeader('samplerate', 'samplerate.h', 'C'):
         print 'libsamplerate not found.'
         env.Exit(-1)
+
+### LibNIFalcon ###
+# Check if libnifalcon is available
+
+if not conf.CheckPKGConfig('0.15.0'):
+    print 'pkg-config >= 0.15.0 not found.'
+elif conf.CheckPKG('libnifalcon'):
+    env.ParseConfig('pkg-config --cflags --libs libnifalcon')
 
 ### CHAI 3D ###
 env.Append(CPPDEFINES = ['_POSIX', 'LINUX', '_LINUX',
