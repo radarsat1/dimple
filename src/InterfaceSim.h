@@ -387,6 +387,38 @@ protected:
     FWD_OSCVECTOR3(up,Simulation::ST_VISUAL);
 };
 
+class OscCursorInterface : public OscSphere
+{
+public:
+    OscCursorInterface(cGenericObject *p, const char *name, OscBase *parent=NULL)
+        : OscSphere(p, name, parent)
+        {
+            m_position.setGetCallback(on_get_position, this, DIMPLE_THREAD_PHYSICS);
+            m_velocity.setGetCallback(on_get_velocity, this, DIMPLE_THREAD_PHYSICS);
+            m_accel.setGetCallback(on_get_accel, this, DIMPLE_THREAD_PHYSICS);
+            m_color.setGetCallback(on_get_color, this, DIMPLE_THREAD_PHYSICS);
+            m_radius.setGetCallback(on_get_radius, this, DIMPLE_THREAD_PHYSICS);
+            m_force.setGetCallback(on_get_force, this, DIMPLE_THREAD_PHYSICS);
+            m_mass.setGetCallback(on_get_mass, this, DIMPLE_THREAD_PHYSICS);
+            m_density.setGetCallback(on_get_density, this, DIMPLE_THREAD_PHYSICS);
+            m_visible.setGetCallback(on_get_visible, this, DIMPLE_THREAD_PHYSICS);
+        }
+    virtual ~OscCursorInterface() {}
+
+protected:
+    FWD_OSCVECTOR3(position,Simulation::ST_HAPTICS);
+    FWD_OSCVECTOR3(velocity,Simulation::ST_HAPTICS);
+    FWD_OSCVECTOR3(accel,Simulation::ST_HAPTICS);
+    FWD_OSCMATRIX3(rotation,Simulation::ST_HAPTICS);
+    FWD_OSCVECTOR3(color,Simulation::ST_VISUAL);
+    FWD_OSCSCALAR(radius,Simulation::ST_HAPTICS);
+    FWD_OSCVECTOR3(force,Simulation::ST_HAPTICS);
+    FWD_OSCSCALAR(mass,Simulation::ST_HAPTICS);
+    FWD_OSCSCALAR(density,Simulation::ST_HAPTICS);
+    FWD_OSCSCALAR(collide,Simulation::ST_HAPTICS);
+    FWD_OSCBOOLEAN(visible,Simulation::ST_VISUAL);
+};
+
 class OscResponseInterface : public OscResponse
 {
 public:
