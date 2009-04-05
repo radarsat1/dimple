@@ -352,9 +352,9 @@ ODEConstraint::~ODEConstraint()
 OscSphereODE::OscSphereODE(dWorldID odeWorld, dSpaceID odeSpace, const char *name, OscBase *parent)
     : OscSphere(NULL, name, parent), ODEObject(odeWorld, odeSpace)
 {
-    m_odeGeom = dCreateSphere(m_odeSpace, 0.01);
+    m_odeGeom = dCreateSphere(m_odeSpace, m_radius.m_value);
     dGeomSetPosition(m_odeGeom, 0, 0, 0);
-    dMassSetSphere(&m_odeMass, m_density.m_value, 0.01);
+    dMassSetSphere(&m_odeMass, m_density.m_value, m_radius.m_value);
     dBodySetMass(m_odeBody, &m_odeMass);
     dGeomSetBody(m_odeGeom, m_odeBody);
     dBodySetPosition(m_odeBody, 0, 0, 0);

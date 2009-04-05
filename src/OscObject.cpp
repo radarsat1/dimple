@@ -331,9 +331,8 @@ OscPrism::OscPrism(cGenericObject* p, const char *name, OscBase* parent)
 OscSphere::OscSphere(cGenericObject* p, const char *name, OscBase* parent)
     : OscObject(p, name, parent), m_radius("radius", this)
 {
-//    addHandler("radius", "f", OscSphere::radius_handler);
-//    m_radius.setCallback((OscScalar::set_callback*)OscSphere::setRadius, this, DIMPLE_THREAD_PHYSICS);
     m_radius.setSetCallback(set_radius, this, DIMPLE_THREAD_PHYSICS);
+    m_radius.m_value = 0.01;
 }
 
 /*

@@ -240,7 +240,7 @@ CHAIObject::~CHAIObject()
 OscSphereCHAI::OscSphereCHAI(cWorld *world, const char *name, OscBase *parent)
     : OscSphere(NULL, name, parent), CHAIObject(world)
 {
-    m_pSphere = new cShapeSphere(0.01);
+    m_pSphere = new cShapeSphere(m_radius.m_value);
     world->addChild(m_pSphere);
     m_pSphere->computeGlobalPositions();
 
