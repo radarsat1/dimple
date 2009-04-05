@@ -18,8 +18,6 @@
 
 typedef std::map<OscValue*, struct ValueTimerPair*>::iterator value_iter;
 typedef std::pair<OscValue*, struct ValueTimerPair*> value_pair;
-ValueTimer valuetimer;
-
 
 void ValueTimer::addValue(OscValue* oscval, int interval_ms)
 {

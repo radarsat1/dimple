@@ -41,6 +41,4 @@ class ValueTimer
     std::map<OscValue*, struct ValueTimerPair*> m_values;
 };
 
-extern ValueTimer valuetimer;
-
 #endif // _VALUETIMER_H_

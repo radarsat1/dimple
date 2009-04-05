@@ -634,9 +634,6 @@ void ode_simStep()
 	dJointGroupEmpty (ode_contact_group);
 
     physics_steps_since_haptic_loop ++;
-
-    // Check if any values need to be sent
-    valuetimer.onTimer(PHYSICS_TIMESTEP_MS);
 }
 
 //---------------------------------------------------------------------------

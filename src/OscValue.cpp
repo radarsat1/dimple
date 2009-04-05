@@ -35,7 +35,7 @@ OscValue::OscValue(const char *name, OscBase *parent)
 
 OscValue::~OscValue()
 {
-    valuetimer.removeValue(this);
+    simulation()->valuetimer().removeValue(this);
 }
 
 int OscValue::get_handler(const char *path, const char *types, lo_arg **argv,
