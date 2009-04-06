@@ -324,6 +324,7 @@ OscPrism::OscPrism(cGenericObject* p, const char *name, OscBase* parent)
     : OscObject(p, name, parent), m_size("size", this)
 {
     m_size.setSetCallback(set_size, this, DIMPLE_THREAD_PHYSICS);
+    cVector3d(0.01, 0.01, 0.01).copyto(m_size);
 }
 
 // ----------------------------------------------------------------------------------

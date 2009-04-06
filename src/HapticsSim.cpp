@@ -278,7 +278,6 @@ OscPrismCHAI::OscPrismCHAI(cWorld *world, const char *name, OscBase *parent)
     : OscPrism(NULL, name, parent), CHAIObject(world)
 {
     m_pPrism = new cMesh(world);
-    m_size.set(0.01, 0.01, 0.01);
     createPrism();
     world->addChild(m_pPrism);
     m_pPrism->computeGlobalPositions();

@@ -450,9 +450,9 @@ int OscSphereODE::push_handler(const char *path, const char *types,
 OscPrismODE::OscPrismODE(dWorldID odeWorld, dSpaceID odeSpace, const char *name, OscBase *parent)
     : OscPrism(NULL, name, parent), ODEObject(odeWorld, odeSpace)
 {
-    m_odeGeom = dCreateBox(m_odeSpace, 0.01, 0.01, 0.01);
+    m_odeGeom = dCreateBox(m_odeSpace, m_size.x, m_size.y, m_size.z);
     dGeomSetPosition(m_odeGeom, 0, 0, 0);
-    dMassSetBox(&m_odeMass, m_density.m_value, 0.01, 0.01, 0.01);
+    dMassSetBox(&m_odeMass, m_density.m_value, m_size.x, m_size.y, m_size.z);
     dBodySetMass(m_odeBody, &m_odeMass);
     dGeomSetBody(m_odeGeom, m_odeBody);
     dBodySetPosition(m_odeBody, 0, 0, 0);
