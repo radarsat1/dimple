@@ -119,6 +119,8 @@ void HapticsSim::step()
         m_cursor->addCursorMassForce();
     }
 
+    m_cursor->addCursorExtraForce();
+
     cursor->applyForces();
 
     m_counter++;
@@ -593,12 +595,29 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
 
     // set up mass as zero to begin (transparent proxy)
     m_mass.set(0);
+
+    // no extra force to begin with
+    m_nExtraForceSteps = 0;
 }
 
 OscCursorCHAI::~OscCursorCHAI()
 {
     if (m_pCursor)
         m_pCursor->getParent()->deleteChild(m_pCursor);
+}
+
+void OscCursorCHAI::on_force()
+{
+    /* apply the given force for no more than a few timesteps this
+     * setting should allow one or two physics timesteps to occur
+     * before "giving up", so to speak, allowing plenty of time for a
+     * slow servo-loop to run over the network, but still dropping the
+     * motors to zero if nothing happens for a while.*/
+
+    /* TODO: Make this timeout a configurable setting. */
+
+    m_extraForce = m_force;
+    m_nExtraForceSteps = PHYSICS_TIMESTEP_MS*2/HAPTICS_TIMESTEP_MS;
 }
 
 void OscCursorCHAI::on_radius()
@@ -647,4 +666,13 @@ void OscCursorCHAI::addCursorGrabbedForce(OscObject *pGrabbed)
     f.mul(-10);
     f.add(m_velocity * (-0.001));
     m_pCursor->m_lastComputedGlobalForce += f;
+}
+
+/*! Add any extra force provided externally by the user. */
+void OscCursorCHAI::addCursorExtraForce()
+{
+    if (m_nExtraForceSteps > 0) {
+        m_pCursor->m_lastComputedGlobalForce += m_extraForce;
+        m_nExtraForceSteps--;
+    }
 }

@@ -194,12 +194,14 @@ public:
 
     void addCursorMassForce();
     void addCursorGrabbedForce(OscObject *pGrabbed);
+    void addCursorExtraForce();
 
 protected:
     virtual void on_position()
       { object()->setPos(m_position); }
     virtual void on_rotation()
       { object()->setRot(m_rotation); }
+    virtual void on_force();
     virtual void on_radius();
     virtual void on_color()
       { object()->m_colorProxy.set(m_color.x, m_color.y, m_color.z); }
@@ -210,7 +212,9 @@ protected:
     cVector3d m_massPos;
     cVector3d m_massVel;
     cVector3d m_lastPosDiff;
+    int m_nExtraForceSteps;
 
+    cVector3d m_extraForce;
     bool m_bInitialized;
 };
 
