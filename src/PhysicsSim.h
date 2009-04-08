@@ -163,10 +163,10 @@ protected:
                 double a1z, double a2x, double a2y, double a2z);
 };
 
-class ODEObject
+class ODEObject : public OscObjectSpecial
 {
 public:
-    ODEObject(dWorldID odeWorld, dSpaceID odeSpace);
+    ODEObject(OscObject *obj, dGeomID odeGeom, dWorldID odeWorld, dSpaceID odeSpace);
     virtual ~ODEObject();
 
     cVector3d getPosition() { return cVector3d(dBodyGetPosition(m_odeBody)); }
@@ -193,12 +193,25 @@ public:
     dWorldID world() { return m_odeWorld; } //! Return the dWorldID
     dSpaceID space() { return m_odeSpace; } //! Return the dSpaceID
 
+    OscObject *object() { return m_object; }
+
 protected:
     dBodyID  m_odeBody;
     dGeomID  m_odeGeom;
     dMass	 m_odeMass;
     dWorldID m_odeWorld;
     dSpaceID m_odeSpace;
+
+    OscObject *m_object;
+
+    static void on_set_force(void* me, OscVector3 &f);
+    static void on_set_position(void* me, OscVector3 &p);
+    static void on_set_rotation(void* me, OscMatrix3 &r);
+    static void on_set_velocity(void* me, OscVector3 &v);
+    static void on_set_accel(void* me, OscVector3 &a);
+
+    static int push_handler(const char *path, const char *types, lo_arg **argv,
+                            int argc, void *data, void *user_data);
 
     friend class ODEConstraint;
 };
@@ -219,7 +232,7 @@ protected:
     dBodyID  m_odeBody2;
 };
 
-class OscSphereODE : public OscSphere, public ODEObject
+class OscSphereODE : public OscSphere
 {
 public:
 	OscSphereODE(dWorldID odeWorld, dSpaceID odeSpace, const char *name, OscBase *parent=NULL);
@@ -227,22 +240,14 @@ public:
 
 protected:
     virtual void on_radius();
-    virtual void on_force();
-    virtual void on_position();
-    virtual void on_rotation(); 
-    virtual void on_velocity();
-    virtual void on_accel();
     virtual void on_mass();
     virtual void on_density();
 
     virtual void on_grab()
         { static_cast<PhysicsSim*>(simulation())->set_grabbed(this); }
-
-    static int push_handler(const char *path, const char *types, lo_arg **argv,
-                            int argc, void *data, void *user_data);
 };
 
-class OscPrismODE : public OscPrism, public ODEObject
+class OscPrismODE : public OscPrism
 {
 public:
 	OscPrismODE(dWorldID odeWorld, dSpaceID odeSpace, const char *name, OscBase *parent=NULL);
@@ -250,19 +255,11 @@ public:
 
 protected:
     virtual void on_size();
-    virtual void on_force();
-    virtual void on_position();
-    virtual void on_rotation(); 
-    virtual void on_velocity();
-    virtual void on_accel();
     virtual void on_mass();
     virtual void on_density();
 
     virtual void on_grab()
         { static_cast<PhysicsSim*>(simulation())->set_grabbed(this); }
-
-    static int push_handler(const char *path, const char *types, lo_arg **argv,
-                            int argc, void *data, void *user_data);
 };
 
 class OscHingeODE : public OscHinge, public ODEConstraint

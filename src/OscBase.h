@@ -54,8 +54,14 @@ public:
     bool tracing() { return false; }
 #endif
 
-protected:
+    //! Add an OSC handler to this class.
+    //!
+    //! This should be protected, but since C++ doesn't allow friend
+    //! class inheritence, there is no other way to allow
+    //! specialization classes to access this method.
     virtual void addHandler(const char *methodname, const char* type, lo_method_handler h);
+
+protected:
     std::string m_name;
     std::string m_path; // generated on demand, but we cache it here
     OscBase *m_parent;
