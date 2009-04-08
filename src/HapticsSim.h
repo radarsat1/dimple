@@ -80,18 +80,47 @@ protected:
                 float x, float y, float z);
 };
 
-class CHAIObject
+class CHAIObject : public OscObjectSpecial
 {
 public:
-    CHAIObject(cWorld *world);
+    CHAIObject(OscObject *obj, cGenericObject *chai_obj, cWorld *world);
     virtual ~CHAIObject();
 
-    virtual cGenericObject *object() = 0;
+    virtual OscObject *obj() { return m_object; }
+    virtual cGenericObject *chai_object() { return m_chai_object; }
 
 protected:
+    OscObject *m_object;
+    cGenericObject *m_chai_object;
+
+    static void on_set_position(void* me, OscVector3 &p)
+        { ((CHAIObject*)me)->chai_object()->setPos(p);
+            ((CHAIObject*)me)->chai_object()->computeGlobalPositions(); }
+    static void on_set_rotation(void* me, OscMatrix3 &r)
+        { ((CHAIObject*)me)->chai_object()->setRot(r);
+            ((CHAIObject*)me)->chai_object()->computeGlobalPositions(); }
+    static void on_set_visible(void* me, OscBoolean &v)
+        { ((CHAIObject*)me)->chai_object()->setShow(v.m_value, true); }
+
+    /* TODO: the following functions cannot be done here only because
+     * CHAI doesn't define m_material as a property of cGenericObject,
+     * but of its subclasses.  This should be rectified in CHAI and
+     * then enabled here. */
+
+#if 0
+    static void on_set_color(void* me, OscVector3 &c)
+        { ((CHAIObject*)me)->chai_object()->
+                m_material.m_diffuse.set(c.x, c.y, c.z); }
+    static void on_set_friction_static(void* me, OscScalar &mus)
+        { ((CHAIObject*)me)->chai_object()->
+                m_material.setStaticFriction(mus.m_value); }
+    static void on_set_friction_dynamic(void* me, OscScalar &mud)
+        { ((CHAIObject*)me)->chai_object()->
+                m_material.setDynamicFriction(mud.m_value); }
+#endif
 };
 
-class OscSphereCHAI : public OscSphere, public CHAIObject
+class OscSphereCHAI : public OscSphere
 {
 public:
     OscSphereCHAI(cWorld *world, const char *name, OscBase *parent=NULL);
@@ -100,15 +129,10 @@ public:
     virtual cShapeSphere *object() { return m_pSphere; }
 
 protected:
-    virtual void on_position()
-      { object()->setPos(m_position); }
-    virtual void on_rotation()
-      { object()->setRot(m_rotation); }
     virtual void on_radius();
+
     virtual void on_color()
       { object()->m_material.m_diffuse.set(m_color.x, m_color.y, m_color.z); }
-    virtual void on_visible()
-        { object()->setShow(m_visible.m_value, true); }
     virtual void on_friction_static()
         { object()->m_material.setStaticFriction(m_friction_static.m_value); }
     virtual void on_friction_dynamic()
@@ -118,7 +142,7 @@ protected:
     cShapeSphere *m_pSphere;
 };
 
-class OscPrismCHAI : public OscPrism, public CHAIObject
+class OscPrismCHAI : public OscPrism
 {
 public:
     OscPrismCHAI(cWorld *world, const char *name, OscBase *parent=NULL);
@@ -127,17 +151,10 @@ public:
     virtual cMesh *object() { return m_pPrism; }
 
 protected:
-    virtual void on_position()
-        { object()->setPos(m_position);
-          object()->computeGlobalPositions(); }
-    virtual void on_rotation()
-        { object()->setRot(m_rotation);
-          object()->computeGlobalPositions(); }
+    virtual void on_size();
+
     virtual void on_color()
       { object()->m_material.m_diffuse.set(m_color.x, m_color.y, m_color.z); }
-    virtual void on_visible()
-        { object()->setShow(m_visible.m_value, true); }
-    virtual void on_size();
     virtual void on_friction_static()
         { object()->m_material.setStaticFriction(m_friction_static.m_value); }
     virtual void on_friction_dynamic()
@@ -150,7 +167,7 @@ protected:
     cMesh *m_pPrism;
 };
 
-class OscMeshCHAI : public OscMesh, public CHAIObject
+class OscMeshCHAI : public OscMesh
 {
 public:
     OscMeshCHAI(cWorld *world, const char *name, const char *filename,
@@ -160,26 +177,18 @@ public:
     virtual cMesh *object() { return m_pMesh; }
 
 protected:
-    virtual void on_position()
-        { object()->setPos(m_position);
-          object()->computeGlobalPositions(); }
-    virtual void on_rotation()
-        { object()->setRot(m_rotation);
-          object()->computeGlobalPositions(); }
     virtual void on_color()
       { object()->m_material.m_diffuse.set(m_color.x, m_color.y, m_color.z); }
     virtual void on_friction_static()
         { object()->m_material.setStaticFriction(m_friction_static.m_value); }
     virtual void on_friction_dynamic()
         { object()->m_material.setDynamicFriction(m_friction_dynamic.m_value); }
-    virtual void on_visible()
-        { object()->setShow(m_visible.m_value, true); }
     virtual void on_size();
 
     cMesh *m_pMesh;
 };
 
-class OscCursorCHAI : public OscSphere, public CHAIObject
+class OscCursorCHAI : public OscSphere
 {
 public:
     OscCursorCHAI(cWorld *world, const char *name, OscBase *parent=NULL);
@@ -197,16 +206,10 @@ public:
     void addCursorExtraForce();
 
 protected:
-    virtual void on_position()
-      { object()->setPos(m_position); }
-    virtual void on_rotation()
-      { object()->setRot(m_rotation); }
     virtual void on_force();
     virtual void on_radius();
     virtual void on_color()
       { object()->m_colorProxy.set(m_color.x, m_color.y, m_color.z); }
-    virtual void on_visible(bool visible)
-        { object()->setShow(visible, true); }
 
     cMeta3dofPointer *m_pCursor;
     cVector3d m_massPos;

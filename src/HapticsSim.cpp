@@ -208,17 +208,20 @@ void HapticsSim::set_grabbed(OscObject *pGrabbed)
 {
     Simulation::set_grabbed(pGrabbed);
 
+    CHAIObject *ob;
+
     // return previous object to normal state
-    CHAIObject *ob = dynamic_cast<CHAIObject*>(m_pGrabbedObject);
-    if (ob)
-        ob->object()->setHapticEnabled(true, true);
+    if (m_pGrabbedObject) {
+        ob = dynamic_cast<CHAIObject*>(m_pGrabbedObject->special());
+        if (ob) ob->chai_object()->setHapticEnabled(true, true);
+    }
 
     m_pGrabbedObject = pGrabbed;
 
-    ob = dynamic_cast<CHAIObject*>(m_pGrabbedObject);
-    if (ob) {
-        // remove object from haptic contact
-        ob->object()->setHapticEnabled(false, true);
+    // remove new object from haptic contact
+    if (m_pGrabbedObject) {
+        ob = dynamic_cast<CHAIObject*>(m_pGrabbedObject->special());
+        if (ob) ob->chai_object()->setHapticEnabled(false, true);
     }
 
     // set cursor visibility
@@ -229,8 +232,17 @@ void HapticsSim::set_grabbed(OscObject *pGrabbed)
 
 /****** CHAIObject ******/
 
-CHAIObject::CHAIObject(cWorld *world)
+CHAIObject::CHAIObject(OscObject *obj, cGenericObject *chai_obj, cWorld *world)
 {
+    m_object = obj;
+    m_chai_object = chai_obj;
+
+    if (!obj || !chai_obj)
+        return;
+
+    obj->m_position.setSetCallback(CHAIObject::on_set_position, this, 0);
+    obj->m_rotation.setSetCallback(CHAIObject::on_set_rotation, this, 0);
+    obj->m_visible.setSetCallback(CHAIObject::on_set_visible, this, 0);
 }
 
 CHAIObject::~CHAIObject()
@@ -240,7 +252,7 @@ CHAIObject::~CHAIObject()
 /****** OscSphereCHAI ******/
 
 OscSphereCHAI::OscSphereCHAI(cWorld *world, const char *name, OscBase *parent)
-    : OscSphere(NULL, name, parent), CHAIObject(world)
+    : OscSphere(NULL, name, parent)
 {
     m_pSphere = new cShapeSphere(m_radius.m_value);
     world->addChild(m_pSphere);
@@ -249,6 +261,8 @@ OscSphereCHAI::OscSphereCHAI(cWorld *world, const char *name, OscBase *parent)
     // User data points to the OscObject, used for identification
     // during object contact.
     m_pSphere->setUserData(this, 1);
+
+    m_pSpecial = new CHAIObject(this, m_pSphere, world);
 }
 
 OscSphereCHAI::~OscSphereCHAI()
@@ -275,7 +289,7 @@ void OscSphereCHAI::on_grab()
 /****** OscPrismCHAI ******/
 
 OscPrismCHAI::OscPrismCHAI(cWorld *world, const char *name, OscBase *parent)
-    : OscPrism(NULL, name, parent), CHAIObject(world)
+    : OscPrism(NULL, name, parent)
 {
     m_pPrism = new cMesh(world);
     createPrism();
@@ -285,6 +299,8 @@ OscPrismCHAI::OscPrismCHAI(cWorld *world, const char *name, OscBase *parent)
     // User data points to the OscObject, used for identification
     // during object contact.
     m_pPrism->setUserData(this, 1);
+
+    m_pSpecial = new CHAIObject(this, m_pPrism, world);
 }
 
 OscPrismCHAI::~OscPrismCHAI()
@@ -498,7 +514,7 @@ void OscPrismCHAI::on_grab()
 
 OscMeshCHAI::OscMeshCHAI(cWorld *world, const char *name, const char *filename,
                          OscBase *parent)
-    : OscMesh(NULL, name, filename, parent), CHAIObject(world)
+    : OscMesh(NULL, name, filename, parent)
 {
     m_pMesh = new cMesh(world);
 
@@ -533,6 +549,8 @@ OscMeshCHAI::OscMeshCHAI(cWorld *world, const char *name, const char *filename,
     // User data points to the OscObject, used for identification
     // during object contact.
     m_pMesh->setUserData(this, 1);
+
+    m_pSpecial = new CHAIObject(this, m_pMesh, world);
 }
 
 OscMeshCHAI::~OscMeshCHAI()
@@ -556,7 +574,7 @@ void OscMeshCHAI::on_size()
 /****** OscCursorCHAI ******/
 
 OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
-    : OscSphere(NULL, name, parent), CHAIObject(world)
+    : OscSphere(NULL, name, parent)
 {
     // create the cursor object
     m_pCursor = new cMeta3dofPointer(world);
@@ -597,6 +615,8 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
 
     // no extra force to begin with
     m_nExtraForceSteps = 0;
+
+    m_pSpecial = new CHAIObject(this, m_pCursor, world);
 }
 
 OscCursorCHAI::~OscCursorCHAI()

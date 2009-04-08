@@ -89,7 +89,7 @@ protected:
                 float x, float y, float z);
 };
 
-class OscCameraCHAI : public OscCamera, public CHAIObject
+class OscCameraCHAI : public OscCamera
 {
 public:
     OscCameraCHAI(cWorld *world, const char *name, OscBase *parent=NULL);

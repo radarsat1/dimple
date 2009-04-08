@@ -26,6 +26,11 @@
 #include "CODEPrism.h"
 #include "CODESphere.h"
 
+//! This class is used to override behaviour of OscObject's values
+//! that can be generalized across different types of objets.  We
+//! "assign a specialization" instead of using multiple inheritance.
+class OscObjectSpecial {public:virtual ~OscObjectSpecial(){}};
+
 //! The OscObject class keeps track of an object in the world. The object
 //! is some cGenericObject and some cODEPrimitve -- in other words, an
 //! OscObject consists of an object in the CHAI world and an object in the
@@ -74,7 +79,13 @@ class OscObject : public OscBase
     typedef std::list<OscConstraint*>::iterator
       constraint_list_iterator;
 
+    OscObjectSpecial *special() { return m_pSpecial; }
+
   protected:
+    /* This is used for any specialized behaviours defined for
+     * OscValue members. See OscObjectSpecial for more information. */
+    OscObjectSpecial *m_pSpecial;
+
 	cGenericObject* m_objChai;
 	std::vector<std::string> m_constraintLinks;
     std::map<OscObject*,int> m_collisions;

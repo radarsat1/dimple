@@ -252,8 +252,7 @@ void VisualSim::reshape(int w, int h)
 }
 
 OscCameraCHAI::OscCameraCHAI(cWorld *world, const char *name, OscBase *parent)
-    : OscCamera(name, parent),
-      CHAIObject(world)
+    : OscCamera(name, parent)
 {
     m_pCamera = new cCamera(world);
 

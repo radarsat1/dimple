@@ -37,6 +37,8 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
       m_collide("collide", this),
       m_visible("visible", this)
 {
+    m_pSpecial = NULL;
+
     // Track pointer for ODE/Chai object
     m_objChai = p;
 
@@ -117,6 +119,8 @@ OscObject::~OscObject()
         (**it).on_destroy();
         it++;
     }
+
+    if (m_pSpecial) delete m_pSpecial;
 
     ptrace(m_bTrace, ("[%s] %s.~OscObject()\n",
                       simulation()->type_str(), c_name()));
