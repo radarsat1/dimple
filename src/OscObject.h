@@ -197,6 +197,11 @@ public:
         { m_stiffness.set(arg1); m_damping.set(arg2); }
 };
 
+//! This class is used to override behaviour of OscConstraint's values
+//! that can be generalized across different types of objets.  We
+//! "assign a specialization" instead of using multiple inheritance.
+class OscConstraintSpecial {public:virtual ~OscConstraintSpecial(){}};
+
 //! The OscConstraint class keeps track of ODE constraints between two
 //! objects in the world, or between one object and some point in the
 //! coordinate space.
@@ -215,7 +220,13 @@ public:
 
     OSCMETHOD0(OscConstraint, destroy);
 
-  protected:
+    OscConstraintSpecial *special() { return m_pSpecial; }
+
+protected:
+    /* This is used for any specialized behaviours defined for
+     * OscValue members. See OscConstraintSpecial for more information. */
+    OscConstraintSpecial *m_pSpecial;
+
       OscObject *m_object1;
       OscObject *m_object2;
 

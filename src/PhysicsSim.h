@@ -216,15 +216,19 @@ protected:
     friend class ODEConstraint;
 };
 
-class ODEConstraint
+class ODEConstraint : public OscConstraintSpecial
 {
 public:
-    ODEConstraint(dWorldID odeWorld, dSpaceID odeSpace, OscObject *object1, OscObject *object2);
+    ODEConstraint(OscConstraint *c, dJointID odeJoint,
+                  dWorldID odeWorld, dSpaceID odeSpace,
+                  OscObject *object1, OscObject *object2);
     virtual ~ODEConstraint();
 
     dJointID joint() { return m_odeJoint; }
+    OscConstraint *constraint() { return m_constraint; }
 
 protected:
+    OscConstraint *m_constraint;
     dWorldID m_odeWorld;
     dSpaceID m_odeSpace;
     dJointID m_odeJoint;
@@ -262,7 +266,7 @@ protected:
         { static_cast<PhysicsSim*>(simulation())->set_grabbed(this); }
 };
 
-class OscHingeODE : public OscHinge, public ODEConstraint
+class OscHingeODE : public OscHinge
 {
 public:
     OscHingeODE(dWorldID odeWorld, dSpaceID odeSpace,
@@ -274,10 +278,11 @@ public:
 
 protected:
     virtual void on_torque()
-        { dJointAddHingeTorque(m_odeJoint, m_torque.m_value); }
+        { dJointAddHingeTorque(((ODEConstraint*)special())->joint(),
+                               m_torque.m_value); }
 };
 
-class OscHinge2ODE : public OscHinge2, public ODEConstraint
+class OscHinge2ODE : public OscHinge2
 {
 public:
     OscHinge2ODE(dWorldID odeWorld, dSpaceID odeSpace,
@@ -293,14 +298,16 @@ public:
 
 protected:
     virtual void on_torque1()
-        { dJointAddHinge2Torques(m_odeJoint, m_torque1.m_value,
-                                 m_torque2.m_value); }
+        { dJointAddHinge2Torques(
+                static_cast<ODEConstraint*>(special())->joint(),
+                m_torque1.m_value, m_torque2.m_value); }
     virtual void on_torque2()
-        { dJointAddHinge2Torques(m_odeJoint, m_torque1.m_value,
-                                 m_torque2.m_value); }
+        { dJointAddHinge2Torques(
+                static_cast<ODEConstraint*>(special())->joint(),
+                m_torque1.m_value, m_torque2.m_value); }
 };
 
-class OscFixedODE : public OscFixed, public ODEConstraint
+class OscFixedODE : public OscFixed
 {
 public:
     OscFixedODE(dWorldID odeWorld, dSpaceID odeSpace,
@@ -309,7 +316,7 @@ public:
 protected:
 };
 
-class OscBallJointODE : public OscBallJoint, public ODEConstraint
+class OscBallJointODE : public OscBallJoint
 {
 public:
     OscBallJointODE(dWorldID odeWorld, dSpaceID odeSpace,
@@ -318,7 +325,7 @@ public:
                     double x, double y, double z);
 };
 
-class OscSlideODE : public OscSlide, public ODEConstraint
+class OscSlideODE : public OscSlide
 {
 public:
     OscSlideODE(dWorldID odeWorld, dSpaceID odeSpace,
@@ -332,10 +339,12 @@ public:
 
 protected:
     virtual void on_force()
-        { dJointAddSliderForce(m_odeJoint, m_force.m_value); }
+        { dJointAddSliderForce(
+                static_cast<ODEConstraint*>(special())->joint(),
+                m_force.m_value); }
 };
 
-class OscPistonODE : public OscPiston, public ODEConstraint
+class OscPistonODE : public OscPiston
 {
 public:
     OscPistonODE(dWorldID odeWorld, dSpaceID odeSpace,
@@ -349,10 +358,12 @@ public:
 
 protected:
     virtual void on_force()
-        { dJointAddPistonForce(m_odeJoint, m_force.m_value); }
+        { dJointAddPistonForce(
+                static_cast<ODEConstraint*>(special())->joint(),
+                m_force.m_value); }
 };
 
-class OscUniversalODE : public OscUniversal, public ODEConstraint
+class OscUniversalODE : public OscUniversal
 {
 public:
     OscUniversalODE(dWorldID odeWorld, dSpaceID odeSpace,
@@ -368,11 +379,13 @@ public:
 
 protected:
     virtual void on_torque1()
-        { dJointAddUniversalTorques(m_odeJoint, m_torque1.m_value,
-                                    m_torque2.m_value); }
+        { dJointAddUniversalTorques(
+                static_cast<ODEConstraint*>(special())->joint(),
+                m_torque1.m_value, m_torque2.m_value); }
     virtual void on_torque2()
-        { dJointAddUniversalTorques(m_odeJoint, m_torque1.m_value,
-                                    m_torque2.m_value); }
+        { dJointAddUniversalTorques(
+                static_cast<ODEConstraint*>(special())->joint(),
+                m_torque1.m_value, m_torque2.m_value); }
 };
 
 #endif // _PHYSICS_SIM_H_

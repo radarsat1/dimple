@@ -491,6 +491,8 @@ OscConstraint::OscConstraint(const char *name, OscBase *parent,
     if (object1) object1->m_constraintList.push_back(this);
     if (object2) object2->m_constraintList.push_back(this);
 
+    m_pSpecial = NULL;
+
     m_stiffness = 0;
     m_damping = 0;
 
@@ -509,6 +511,9 @@ OscConstraint::OscConstraint(const char *name, OscBase *parent,
 //! Destroy the constraint
 void OscConstraint::on_destroy()
 {
+    if (m_pSpecial)
+        delete m_pSpecial;
+
     simulation()->delete_constraint(*this);
 
     /* The constraint's memory is freed in the above delete_object

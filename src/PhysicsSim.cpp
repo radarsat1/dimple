@@ -211,13 +211,7 @@ void PhysicsSim::step()
     std::map<std::string,OscObject*>::iterator it;
     for (it=world_objects.begin(); it!=world_objects.end(); it++)
     {
-        // TODO: it would be very nice to do this without involving dynamic_cast
-        ODEObject *o = dynamic_cast<ODEObject*>(it->second);
-
-        // TODO: replace the above with this once port to new inheritence model is complete
-        if (!o) {
-            o = dynamic_cast<ODEObject*>(it->second->special());
-        }
+        ODEObject *o = static_cast<ODEObject*>(it->second->special());
 
         if (o) {
             o->update();
@@ -304,8 +298,6 @@ ODEObject::ODEObject(OscObject *obj, dGeomID odeGeom, dWorldID odeWorld, dSpaceI
     m_odeBody = NULL;
     m_odeBody = dBodyCreate(m_odeWorld);
 
-    // TODO: change this to an assertion once porting to new inheritence model is complete
-    if (!m_odeGeom) return;
     assert(m_odeGeom!=NULL);
 
     dBodySetPosition(m_odeBody, 0, 0, 0);
@@ -339,13 +331,7 @@ ODEObject::~ODEObject()
 
 void ODEObject::update()
 {
-    /* TODO: Again, would be nice to avoid dynamic_cast here! */
-    OscObject *o = dynamic_cast<OscObject*>(this);
-
-    // TODO: replace the above with this once new inheritence model is complete
-    if (!o)
-        o = object();
-
+    OscObject *o = object();
     if (!o) return;
 
     cVector3d pos(getPosition());
@@ -413,14 +399,16 @@ int ODEObject::push_handler(const char *path, const char *types,
 
 /****** ODEConstraint ******/
 
-ODEConstraint::ODEConstraint(dWorldID odeWorld, dSpaceID odeSpace,
+ODEConstraint::ODEConstraint(OscConstraint *c, dJointID odeJoint,
+                             dWorldID odeWorld, dSpaceID odeSpace,
                              OscObject *object1, OscObject *object2)
 {
+    m_constraint = c;
     m_odeWorld = odeWorld;
     m_odeSpace = odeSpace;
     m_odeBody1 = 0;
     m_odeBody2 = 0;
-    m_odeJoint = 0;
+    m_odeJoint = odeJoint;
 
     ODEObject *o = NULL;
     if (object1)
@@ -429,16 +417,19 @@ ODEConstraint::ODEConstraint(dWorldID odeWorld, dSpaceID odeSpace,
     if (o)
         m_odeBody1 = o->m_odeBody;
 
-    if (!object2) {
+    if (object2) {
+        o = NULL;
+        if (object2)
+            o = dynamic_cast<ODEObject*>(object2->special());
+        if (o)
+            m_odeBody2 = o->m_odeBody;
+    }
+    else {
         printf("constraint created with bodies %#x and world.\n", m_odeBody1);
-        return;
     }
 
-    o = NULL;
-    if (object2)
-        o = dynamic_cast<ODEObject*>(object2->special());
-    if (o)
-        m_odeBody2 = o->m_odeBody;
+    if (m_odeJoint)
+        dJointAttach(m_odeJoint, m_odeBody1, m_odeBody2);
 
     printf("constraint created with bodies %#x and %#x.\n", m_odeBody1, m_odeBody2);
 }
@@ -549,19 +540,21 @@ OscHingeODE::OscHingeODE(dWorldID odeWorld, dSpaceID odeSpace,
                          const char *name, OscBase* parent,
                          OscObject *object1, OscObject *object2,
                          double x, double y, double z, double ax, double ay, double az)
-    : OscHinge(name, parent, object1, object2, x, y, z, ax, ay, az),
-      ODEConstraint(odeWorld, odeSpace, object1, object2)
+    : OscHinge(name, parent, object1, object2, x, y, z, ax, ay, az)
 {
     m_response = new OscResponse("response",this);
 
 	// create the constraint for object1
     cVector3d anchor(x,y,z);
     cVector3d axis(ax,ay,az);
-    
-    m_odeJoint = dJointCreateHinge(m_odeWorld,0);
-    dJointAttach(m_odeJoint, m_odeBody1, m_odeBody2);
-    dJointSetHingeAnchor(m_odeJoint, anchor.x, anchor.y, anchor.z);
-    dJointSetHingeAxis(m_odeJoint, axis.x, axis.y, axis.z);
+
+    dJointID odeJoint = dJointCreateHinge(odeWorld,0);
+
+    m_pSpecial = new ODEConstraint(this, odeJoint, odeWorld, odeSpace,
+                                   object1, object2);
+
+    dJointSetHingeAnchor(odeJoint, anchor.x, anchor.y, anchor.z);
+    dJointSetHingeAxis(odeJoint, axis.x, axis.y, axis.z);
 
     printf("Hinge joint created between %s and %s at anchor (%f,%f,%f), axis (%f,%f,%f)\n",
         object1->c_name(), object2?object2->c_name():"world", x,y,z,ax,ay,az);
@@ -577,7 +570,7 @@ OscHingeODE::~OscHingeODE()
 //! in the physics thread.
 void OscHingeODE::simulationCallback()
 {
-    ODEConstraint& me = *static_cast<ODEConstraint*>(this);
+    ODEConstraint& me = *static_cast<ODEConstraint*>(special());
 
     dReal angle = dJointGetHingeAngle(me.joint());
     dReal rate = dJointGetHingeAngleRate(me.joint());
@@ -602,16 +595,18 @@ OscHinge2ODE::OscHinge2ODE(dWorldID odeWorld, dSpaceID odeSpace,
                            double a1y, double a1z, double a2x,
                            double a2y, double a2z)
     : OscHinge2(name, parent, object1, object2, x, y, z,
-                a1x, a1y, a1z, a2x, a2y, a2z),
-      ODEConstraint(odeWorld, odeSpace, object1, object2)
+                a1x, a1y, a1z, a2x, a2y, a2z)
 {
     m_response = new OscResponse("response",this);
 
-    m_odeJoint = dJointCreateHinge2(m_odeWorld,0);
-    dJointAttach(m_odeJoint, m_odeBody1, m_odeBody2);
-    dJointSetHinge2Anchor(m_odeJoint, x, y, z);
-    dJointSetHinge2Axis1(m_odeJoint, a1x, a1y, a1z);
-    dJointSetHinge2Axis2(m_odeJoint, a2x, a2y, a2z);
+    dJointID odeJoint = dJointCreateHinge2(odeWorld,0);
+
+    m_pSpecial = new ODEConstraint(this, odeJoint, odeWorld, odeSpace,
+                                   object1, object2);
+
+    dJointSetHinge2Anchor(odeJoint, x, y, z);
+    dJointSetHinge2Axis1(odeJoint, a1x, a1y, a1z);
+    dJointSetHinge2Axis2(odeJoint, a2x, a2y, a2z);
 
     printf("[%s] Hinge2 joint created between %s and %s at (%f, %f, %f) for axes (%f, %f, %f) and (%f,%f,%f)\n",
            simulation()->type_str(),
@@ -628,7 +623,7 @@ OscHinge2ODE::~OscHinge2ODE()
 //! constraint to be "motorized" according to some response.
 void OscHinge2ODE::simulationCallback()
 {
-    ODEConstraint& me = *static_cast<ODEConstraint*>(this);
+    ODEConstraint& me = *static_cast<ODEConstraint*>(special());
 
     dReal angle1 = dJointGetHinge2Angle1(me.joint());
     dReal rate1 = dJointGetHinge2Angle1Rate(me.joint());
@@ -657,13 +652,15 @@ void OscHinge2ODE::simulationCallback()
 OscFixedODE::OscFixedODE(dWorldID odeWorld, dSpaceID odeSpace,
                          const char *name, OscBase* parent,
                          OscObject *object1, OscObject *object2)
-    : OscFixed(name, parent, object1, object2),
-      ODEConstraint(odeWorld, odeSpace, object1, object2)
+    : OscFixed(name, parent, object1, object2)
 {
-    if (m_odeBody2) {
-        m_odeJoint = dJointCreateFixed(m_odeWorld,0);
-        dJointAttach(m_odeJoint, m_odeBody1, m_odeBody2);
-        dJointSetFixed(m_odeJoint);
+    if (object2) {
+        dJointID odeJoint = dJointCreateFixed(odeWorld,0);
+
+        m_pSpecial = new ODEConstraint(this, odeJoint, odeWorld, odeSpace,
+                                       object1, object2);
+
+        dJointSetFixed(odeJoint);
     }
     else {
         ODEObject *o = NULL;
@@ -671,6 +668,9 @@ OscFixedODE::OscFixedODE(dWorldID odeWorld, dSpaceID odeSpace,
             o = dynamic_cast<ODEObject*>(object1->special());
         if (o)
             o->disconnectBody();
+
+        m_pSpecial = new ODEConstraint(this, NULL, odeWorld, odeSpace,
+                                       object1, object2);
     }
 
     printf("[%s] Fixed joint created between %s and %s.\n",
@@ -683,12 +683,14 @@ OscBallJointODE::OscBallJointODE(dWorldID odeWorld, dSpaceID odeSpace,
                                  const char *name, OscBase *parent,
                                  OscObject *object1, OscObject *object2,
                                  double x, double y, double z)
-    : OscBallJoint(name, parent, object1, object2, x, y, z),
-      ODEConstraint(odeWorld, odeSpace, object1, object2)
+    : OscBallJoint(name, parent, object1, object2, x, y, z)
 {
-    m_odeJoint = dJointCreateBall(m_odeWorld,0);
-    dJointAttach(m_odeJoint, m_odeBody1, m_odeBody2);
-    dJointSetBallAnchor(m_odeJoint, x, y, z);
+    dJointID odeJoint = dJointCreateBall(odeWorld,0);
+
+    m_pSpecial = new ODEConstraint(this, odeJoint, odeWorld, odeSpace,
+                                   object1, object2);
+
+    dJointSetBallAnchor(odeJoint, x, y, z);
 
     printf("[%s] Ball joint created between %s and %s at (%f,%f,%f)\n",
            simulation()->type_str(),
@@ -700,14 +702,16 @@ OscSlideODE::OscSlideODE(dWorldID odeWorld, dSpaceID odeSpace,
                          const char *name, OscBase *parent,
                          OscObject *object1, OscObject *object2,
                          double ax, double ay, double az)
-    : OscSlide(name, parent, object1, object2, ax, ay, az),
-      ODEConstraint(odeWorld, odeSpace, object1, object2)
+    : OscSlide(name, parent, object1, object2, ax, ay, az)
 {
     m_response = new OscResponse("response",this);
 
-    m_odeJoint = dJointCreateSlider(m_odeWorld,0);
-    dJointAttach(m_odeJoint, m_odeBody1, m_odeBody2);
-    dJointSetSliderAxis(m_odeJoint, ax, ay, az);
+    dJointID odeJoint = dJointCreateSlider(odeWorld,0);
+
+    m_pSpecial = new ODEConstraint(this, odeJoint, odeWorld, odeSpace,
+                                   object1, object2);
+
+    dJointSetSliderAxis(odeJoint, ax, ay, az);
     /* TODO access to dJointGetSliderPosition */
 
     printf("[%s] Sliding joint created between %s and %s on axis (%f,%f,%f)\n",
@@ -723,7 +727,7 @@ OscSlideODE::~OscSlideODE()
 
 void OscSlideODE::simulationCallback()
 {
-    ODEConstraint& me = *static_cast<ODEConstraint*>(this);
+    ODEConstraint& me = *static_cast<ODEConstraint*>(special());
 
     dReal pos = dJointGetSliderPosition(me.joint());
     dReal rate = dJointGetSliderPositionRate(me.joint());
@@ -743,8 +747,7 @@ OscPistonODE::OscPistonODE(dWorldID odeWorld, dSpaceID odeSpace,
                            OscObject *object1, OscObject *object2,
                            double x, double y, double z,
                            double ax, double ay, double az)
-    : OscPiston(name, parent, object1, object2, x, y, z, ax, ay, az),
-      ODEConstraint(odeWorld, odeSpace, object1, object2)
+    : OscPiston(name, parent, object1, object2, x, y, z, ax, ay, az)
 {
     m_response = new OscResponse("response",this);
 
@@ -752,10 +755,13 @@ OscPistonODE::OscPistonODE(dWorldID odeWorld, dSpaceID odeSpace,
     cVector3d anchor(x,y,z);
     cVector3d axis(ax,ay,az);
 
-    m_odeJoint = dJointCreatePiston(m_odeWorld,0);
-    dJointAttach(m_odeJoint, m_odeBody1, m_odeBody2);
-    dJointSetPistonAnchor(m_odeJoint, anchor.x, anchor.y, anchor.z);
-    dJointSetPistonAxis(m_odeJoint, axis.x, axis.y, axis.z);
+    dJointID odeJoint = dJointCreatePiston(odeWorld,0);
+
+    m_pSpecial = new ODEConstraint(this, odeJoint, odeWorld, odeSpace,
+                                   object1, object2);
+
+    dJointSetPistonAnchor(odeJoint, anchor.x, anchor.y, anchor.z);
+    dJointSetPistonAxis(odeJoint, axis.x, axis.y, axis.z);
 
     printf("Piston joint created between %s and %s at anchor (%f,%f,%f), axis (%f,%f,%f)\n",
         object1->c_name(), object2?object2->c_name():"world", x,y,z,ax,ay,az);
@@ -768,7 +774,7 @@ OscPistonODE::~OscPistonODE()
 
 void OscPistonODE::simulationCallback()
 {
-    ODEConstraint& me = *static_cast<ODEConstraint*>(this);
+    ODEConstraint& me = *static_cast<ODEConstraint*>(special());
 
     dReal pos = dJointGetPistonPosition(me.joint());
     dReal rate = dJointGetPistonPositionRate(me.joint());
@@ -789,16 +795,18 @@ OscUniversalODE::OscUniversalODE(dWorldID odeWorld, dSpaceID odeSpace,
                                  double a1y, double a1z, double a2x,
                                  double a2y, double a2z)
     : OscUniversal(name, parent, object1, object2, x, y, z,
-                   a1x, a1y, a1z, a2x, a2y, a2z),
-      ODEConstraint(odeWorld, odeSpace, object1, object2)
+                   a1x, a1y, a1z, a2x, a2y, a2z)
 {
     m_response = new OscResponse("response",this);
 
-    m_odeJoint = dJointCreateUniversal(m_odeWorld,0);
-    dJointAttach(m_odeJoint, m_odeBody1, m_odeBody2);
-    dJointSetUniversalAnchor(m_odeJoint, x, y, z);
-    dJointSetUniversalAxis1(m_odeJoint, a1x, a1y, a1z);
-    dJointSetUniversalAxis2(m_odeJoint, a2x, a2y, a2z);
+    dJointID odeJoint = dJointCreateUniversal(odeWorld,0);
+
+    m_pSpecial = new ODEConstraint(this, odeJoint, odeWorld, odeSpace,
+                                   object1, object2);
+
+    dJointSetUniversalAnchor(odeJoint, x, y, z);
+    dJointSetUniversalAxis1(odeJoint, a1x, a1y, a1z);
+    dJointSetUniversalAxis2(odeJoint, a2x, a2y, a2z);
 
     printf("[%s] Universal joint created between %s and %s at (%f, %f, %f) for axes (%f, %f, %f) and (%f,%f,%f)\n",
            simulation()->type_str(),
@@ -815,7 +823,7 @@ OscUniversalODE::~OscUniversalODE()
 //! constraint to be "motorized" according to some response.
 void OscUniversalODE::simulationCallback()
 {
-    ODEConstraint& me = *static_cast<ODEConstraint*>(this);
+    ODEConstraint& me = *static_cast<ODEConstraint*>(special());
 
     dReal angle1 = dJointGetUniversalAngle1(me.joint());
     dReal rate1 = dJointGetUniversalAngle1Rate(me.joint());
