@@ -200,11 +200,6 @@ void PhysicsSim::step()
     // Perform simulation step
 	dSpaceCollide (m_odeSpace, this, &ode_nearCallback);
 	dWorldStepFast1 (m_odeWorld, m_fTimestep, 5);
-    /*
-	for (int j = 0; j < dSpaceGetNumGeoms(ode_space); j++){
-		dSpaceGetGeom(ode_space, j);
-	}
-    */
 	dJointGroupEmpty (m_odeContactGroup);
 
     /* Update positions of each object in the other simulations */
@@ -241,7 +236,6 @@ void PhysicsSim::ode_nearCallback (void *data, dGeomID o1, dGeomID o2)
     PhysicsSim *me = static_cast<PhysicsSim*>(data);
 
     int i;
-    // if (o1->body && o2->body) return;
 
     // exit without doing anything if the two bodies are connected by a joint
     dBodyID b1 = dGeomGetBody(o1);

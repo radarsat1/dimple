@@ -10,6 +10,7 @@
 #include <CCamera.h>
 #include <CLight.h>
 #include <CMeta3dofPointer.h>
+#include <CShapeSphere.h>
 
 class OscCursorCHAI;
 
@@ -126,7 +127,7 @@ public:
     OscSphereCHAI(cWorld *world, const char *name, OscBase *parent=NULL);
     virtual ~OscSphereCHAI();
 
-    virtual cShapeSphere *object() { return m_pSphere; }
+    cShapeSphere *object() { return m_pSphere; }
 
 protected:
     virtual void on_radius();

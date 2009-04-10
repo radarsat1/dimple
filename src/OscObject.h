@@ -23,8 +23,6 @@
 
 #include "OscBase.h"
 #include "Simulation.h"
-#include "CODEPrism.h"
-#include "CODESphere.h"
 
 //! This class is used to override behaviour of OscObject's values
 //! that can be generalized across different types of objets.  We
@@ -41,22 +39,11 @@ class OscObject : public OscBase
 	OscObject(cGenericObject* p, const char *name, OscBase *parent=NULL);
     virtual ~OscObject();
 
-	virtual cODEPrimitive*  odePrimitive() { return dynamic_cast<cODEPrimitive*>(m_objChai); }
-	virtual cGenericObject* chaiObject()   { return dynamic_cast<cGenericObject*>(m_objChai); }
-
-	void linkConstraint(std::string &name);
-	void unlinkConstraint(std::string &name);
-
-    void updateDynamicVelocity(const dReal* vel);
-    void updateDynamicPosition(const dReal* pos);
-
     bool collidedWith(OscObject *o, int count);
 
     const OscVector3& getPosition() { return m_position; }
     const OscVector3& getVelocity() { return m_velocity; }
     const OscVector3& getAccel() { return m_accel; }
-
-    void ungrab(int thread);
 
     OSCVECTOR3(OscObject, position) {};
     OSCMATRIX3(OscObject, rotation) {};
@@ -86,8 +73,6 @@ class OscObject : public OscBase
      * OscValue members. See OscObjectSpecial for more information. */
     OscObjectSpecial *m_pSpecial;
 
-	cGenericObject* m_objChai;
-	std::vector<std::string> m_constraintLinks;
     std::map<OscObject*,int> m_collisions;
 
     static void setVelocity(OscObject *me, const OscVector3& vel);
@@ -118,9 +103,6 @@ class OscPrism : public OscObject
   public:
 	OscPrism(cGenericObject* p, const char *name, OscBase *parent=NULL);
 
-	virtual cODEPrism* odePrimitive() { return dynamic_cast<cODEPrism*>(m_objChai); }
-	virtual cMesh*     chaiObject()   { return dynamic_cast<cMesh*>(m_objChai); }
-
   protected:
     OSCVECTOR3(OscPrism, size) {};
 };
@@ -130,22 +112,10 @@ class OscSphere : public OscObject
   public:
 	OscSphere(cGenericObject* p, const char *name, OscBase *parent=NULL);
 
-	virtual cODESphere*   odePrimitive() { return dynamic_cast<cODESphere*>(m_objChai); }
-	virtual cShapeSphere* chaiObject()   { return dynamic_cast<cShapeSphere*>(m_objChai); }
-
     const OscScalar& getRadius();
 
   protected:
     OSCSCALAR(OscSphere, radius) {};
-    /*
-    OscScalar m_radius;
-    static void setRadius(void *data, const OscScalar&) {
-    printf ("OscSphere::setRadius()\n");
-    OscSphere *me = (OscSphere*)data;
-    me->onSetRadius();
-    }
-    virtual void onSetRadius() {}
-    */
 
     static int radius_handler(const char *path, const char *types, lo_arg **argv,
                               int argc, void *data, void *user_data);
@@ -156,9 +126,6 @@ class OscMesh : public OscObject
   public:
 	OscMesh(cGenericObject *p, const char *name,
             const char *filename, OscBase *parent=NULL);
-
-	virtual cODEMesh* odePrimitive() { return dynamic_cast<cODEMesh*>(m_objChai); }
-	virtual cMesh*    chaiObject()   { return dynamic_cast<cMesh*>(m_objChai); }
 
   protected:
     OSCVECTOR3(OscMesh, size) {};

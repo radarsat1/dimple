@@ -474,22 +474,7 @@ void OscPrismCHAI::createPrism(bool openbox)
             GLuint(0xff*(m_size.x + nextVertex->getPos().y ) / (2.0 * m_size.y)),
             GLuint(0xff* nextVertex->getPos().z / 2*m_size.z)
             );
-
-//        nextVertex->setColor(color);
     }
-
-    // Set object settings.  The parameters tell the object
-    // to apply this alpha level to his textures and to his
-    // children (of course he has neither right now).
-    // object->setTransparencyLevel(0.5, true, true);
-
-    // Give him some material properties...
-/*
-    m_pPrism->m_material.m_ambient.set( 0.6, 0.3, 0.3, 1.0 );
-    m_pPrism->m_material.m_diffuse.set( 0.8, 0.6, 0.6, 1.0 );
-    m_pPrism->m_material.m_specular.set( 0.9, 0.9, 0.9, 1.0 );
-    m_pPrism->m_material.setShininess(100);
-*/
 }
 
 void OscPrismCHAI::on_size()

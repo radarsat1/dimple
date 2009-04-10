@@ -147,11 +147,7 @@ env.Append(
 
 ### Compile the program ###
 env.Program( target = 'dimple',
-    source = ['CODEMesh.cpp',
-              'CODEPotentialProxy.cpp',
-              'CODEPrimitive.cpp',
-              'CODEPrism.cpp',
-              'CODESphere.cpp',
+    source = ['CODEPotentialProxy.cpp',
               'OscObject.cpp',
               'OscValue.cpp',
               'ValueTimer.cpp',
