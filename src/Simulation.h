@@ -6,7 +6,7 @@
 #include "OscValue.h"
 #include "ValueTimer.h"
 #include "CPrecisionClock.h"
-#include "CircBuffer.h"
+#include "LoQueue.h"
 
 class SphereFactory;
 class PrismFactory;
@@ -33,7 +33,7 @@ public:
     float timestep() { return m_fTimestep; }
     int type() { return m_type; }
 
-    CircBufferNoLock m_queue;
+    LoQueue m_queue;
 
 protected:
     lo_address m_addr;
@@ -91,7 +91,7 @@ class Simulation : public OscBase
         { m_simulationList.push_back(new SimulationInfo(sim)); }
 
     //! Add a queue to the list of queues to poll for messages.
-    void add_queue(CircBufferNoLock *queue)
+    void add_queue(LoQueue *queue)
     // TODO: mutexes here, but this is only done once at the beginning
     // so we're probably safe.
         { m_queueList.push_back(queue); }
@@ -163,7 +163,7 @@ class Simulation : public OscBase
     std::vector<SimulationInfo*> m_simulationList;
 
     //! List of FIFO queues to check for incoming messages.
-    std::vector<CircBufferNoLock*> m_queueList;
+    std::vector<LoQueue*> m_queueList;
 
     //! Timer to ensure simulation steps are distributed in real time.
     cPrecisionClock m_clock;

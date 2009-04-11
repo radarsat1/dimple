@@ -581,6 +581,8 @@ void* Simulation::run(void* param)
 
     printf("[%s] Simulation running.\n", me->type_str());
 
+    std::vector<LoQueue*>::iterator qit;
+
     int step_ms = (int)(me->m_fTimestep*1000);
     int step_us = (int)(me->m_fTimestep*1000000);
     int step_left = step_ms;
@@ -593,6 +595,10 @@ void* Simulation::run(void* param)
         while (lo_server_recv_noblock(me->m_server, step_left) > 0) {
             step_left = step_ms-(me->m_clock.getCurrentTime()/1000);
             if (step_left < 0) step_left = 0;
+            for (qit=me->m_queueList.begin();
+                 qit!=me->m_queueList.end(); qit++) {
+                while ((*qit)->read_and_dispatch()) {}
+            }
         }
         me->m_clock.stop();
         me->step();
@@ -771,7 +777,11 @@ void Simulation::send(bool throttle, const char *path, const char *types, ...)
             continue;
 #endif
 
+#if 1
         lo_send_message((*it)->addr(), path, msg);
+#else
+        (*it)->m_queue.write_lo_message(path, msg);
+#endif
     }
 
     lo_message_free(msg);
@@ -795,7 +805,11 @@ void Simulation::sendtotype(int type, bool throttle, const char *path, const cha
             if (throttle && should_throttle(path, **it))
                 continue;
 
+#if 1
             lo_send_message((*it)->addr(), path, msg);
+#else
+            (*it)->m_queue.write_lo_message(path, msg);
+#endif
         }
     }
 
