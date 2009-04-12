@@ -226,6 +226,8 @@ public:
 
     dJointID joint() { return m_odeJoint; }
     OscConstraint *constraint() { return m_constraint; }
+    dBodyID body1() { return m_odeBody1; }
+    dBodyID body2() { return m_odeBody2; }
 
 protected:
     OscConstraint *m_constraint;
@@ -312,6 +314,8 @@ class OscFixedODE : public OscFixed
 public:
     OscFixedODE(dWorldID odeWorld, dSpaceID odeSpace,
                 const char *name, OscBase *parent, OscObject *object1, OscObject *object2);
+
+    virtual ~OscFixedODE();
 
 protected:
 };

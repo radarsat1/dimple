@@ -672,6 +672,12 @@ OscFixedODE::OscFixedODE(dWorldID odeWorld, dSpaceID odeSpace,
         object1->c_name(), object2?object2->c_name():"world");
 }
 
+OscFixedODE::~OscFixedODE()
+{
+    ODEConstraint *c = static_cast<ODEConstraint*>(special());
+    if (!object2())
+        static_cast<ODEObject*>(object1()->special())->connectBody();
+}
 
 OscBallJointODE::OscBallJointODE(dWorldID odeWorld, dSpaceID odeSpace,
                                  const char *name, OscBase *parent,
