@@ -224,17 +224,17 @@ public:
     OscSphereInterface(cGenericObject *p, const char *name, OscBase *parent=NULL)
         : OscSphere(p, name, parent)
         {
-            m_position.setGetCallback(on_get_position, this, DIMPLE_THREAD_PHYSICS);
-            m_velocity.setGetCallback(on_get_velocity, this, DIMPLE_THREAD_PHYSICS);
-            m_accel.setGetCallback(on_get_accel, this, DIMPLE_THREAD_PHYSICS);
-            m_color.setGetCallback(on_get_color, this, DIMPLE_THREAD_PHYSICS);
-            m_radius.setGetCallback(on_get_radius, this, DIMPLE_THREAD_PHYSICS);
-            m_force.setGetCallback(on_get_force, this, DIMPLE_THREAD_PHYSICS);
-            m_mass.setGetCallback(on_get_mass, this, DIMPLE_THREAD_PHYSICS);
-            m_density.setGetCallback(on_get_density, this, DIMPLE_THREAD_PHYSICS);
-            m_friction_static.setGetCallback(on_get_friction_static, this, DIMPLE_THREAD_PHYSICS);
-            m_friction_dynamic.setGetCallback(on_get_friction_dynamic, this, DIMPLE_THREAD_PHYSICS);
-            m_visible.setGetCallback(on_get_visible, this, DIMPLE_THREAD_PHYSICS);
+            m_position.setGetCallback(on_get_position, this);
+            m_velocity.setGetCallback(on_get_velocity, this);
+            m_accel.setGetCallback(on_get_accel, this);
+            m_color.setGetCallback(on_get_color, this);
+            m_radius.setGetCallback(on_get_radius, this);
+            m_force.setGetCallback(on_get_force, this);
+            m_mass.setGetCallback(on_get_mass, this);
+            m_density.setGetCallback(on_get_density, this);
+            m_friction_static.setGetCallback(on_get_friction_static, this);
+            m_friction_dynamic.setGetCallback(on_get_friction_dynamic, this);
+            m_visible.setGetCallback(on_get_visible, this);
 
             addHandler("push", "ffffff", OscSphereInterface::push_handler);
         }
@@ -275,17 +275,17 @@ public:
     OscPrismInterface(cGenericObject *p, const char *name, OscBase *parent=NULL)
         : OscPrism(p, name, parent)
         {
-            m_position.setGetCallback(on_get_position, this, DIMPLE_THREAD_PHYSICS);
-            m_velocity.setGetCallback(on_get_velocity, this, DIMPLE_THREAD_PHYSICS);
-            m_accel.setGetCallback(on_get_accel, this, DIMPLE_THREAD_PHYSICS);
-            m_color.setGetCallback(on_get_color, this, DIMPLE_THREAD_PHYSICS);
-            m_force.setGetCallback(on_get_force, this, DIMPLE_THREAD_PHYSICS);
-            m_size.setGetCallback(on_get_size, this, DIMPLE_THREAD_PHYSICS);
-            m_mass.setGetCallback(on_get_mass, this, DIMPLE_THREAD_PHYSICS);
-            m_density.setGetCallback(on_get_density, this, DIMPLE_THREAD_PHYSICS);
-            m_friction_static.setGetCallback(on_get_friction_static, this, DIMPLE_THREAD_PHYSICS);
-            m_friction_dynamic.setGetCallback(on_get_friction_dynamic, this, DIMPLE_THREAD_PHYSICS);
-            m_visible.setGetCallback(on_get_visible, this, DIMPLE_THREAD_PHYSICS);
+            m_position.setGetCallback(on_get_position, this);
+            m_velocity.setGetCallback(on_get_velocity, this);
+            m_accel.setGetCallback(on_get_accel, this);
+            m_color.setGetCallback(on_get_color, this);
+            m_force.setGetCallback(on_get_force, this);
+            m_size.setGetCallback(on_get_size, this);
+            m_mass.setGetCallback(on_get_mass, this);
+            m_density.setGetCallback(on_get_density, this);
+            m_friction_static.setGetCallback(on_get_friction_static, this);
+            m_friction_dynamic.setGetCallback(on_get_friction_dynamic, this);
+            m_visible.setGetCallback(on_get_visible, this);
 
             addHandler("push", "ffffff", OscPrismInterface::push_handler);
         }
@@ -327,15 +327,15 @@ public:
                      const char *filename, OscBase *parent=NULL)
         : OscMesh(p, name, filename, parent)
         {
-            m_position.setGetCallback(on_get_position, this, DIMPLE_THREAD_PHYSICS);
-            m_velocity.setGetCallback(on_get_velocity, this, DIMPLE_THREAD_PHYSICS);
-            m_accel.setGetCallback(on_get_accel, this, DIMPLE_THREAD_PHYSICS);
-            m_color.setGetCallback(on_get_color, this, DIMPLE_THREAD_PHYSICS);
-            m_friction_static.setGetCallback(on_get_friction_static, this, DIMPLE_THREAD_PHYSICS);
-            m_friction_dynamic.setGetCallback(on_get_friction_dynamic, this, DIMPLE_THREAD_PHYSICS);
-            m_force.setGetCallback(on_get_force, this, DIMPLE_THREAD_PHYSICS);
-            m_size.setGetCallback(on_get_size, this, DIMPLE_THREAD_PHYSICS);
-            m_visible.setGetCallback(on_get_visible, this, DIMPLE_THREAD_PHYSICS);
+            m_position.setGetCallback(on_get_position, this);
+            m_velocity.setGetCallback(on_get_velocity, this);
+            m_accel.setGetCallback(on_get_accel, this);
+            m_color.setGetCallback(on_get_color, this);
+            m_friction_static.setGetCallback(on_get_friction_static, this);
+            m_friction_dynamic.setGetCallback(on_get_friction_dynamic, this);
+            m_force.setGetCallback(on_get_force, this);
+            m_size.setGetCallback(on_get_size, this);
+            m_visible.setGetCallback(on_get_visible, this);
 
             addHandler("push", "ffffff", OscMeshInterface::push_handler);
         }
@@ -375,9 +375,9 @@ public:
     OscCameraInterface(const char *name, OscBase *parent=NULL)
         : OscCamera(name, parent)
         {
-            m_position.setGetCallback(on_get_position, this, DIMPLE_THREAD_PHYSICS);
-            m_lookat.setGetCallback(on_get_lookat, this, DIMPLE_THREAD_PHYSICS);
-            m_up.setGetCallback(on_get_up, this, DIMPLE_THREAD_PHYSICS);
+            m_position.setGetCallback(on_get_position, this);
+            m_lookat.setGetCallback(on_get_lookat, this);
+            m_up.setGetCallback(on_get_up, this);
         }
     virtual ~OscCameraInterface() {}
 
@@ -393,15 +393,15 @@ public:
     OscCursorInterface(cGenericObject *p, const char *name, OscBase *parent=NULL)
         : OscSphere(p, name, parent)
         {
-            m_position.setGetCallback(on_get_position, this, DIMPLE_THREAD_PHYSICS);
-            m_velocity.setGetCallback(on_get_velocity, this, DIMPLE_THREAD_PHYSICS);
-            m_accel.setGetCallback(on_get_accel, this, DIMPLE_THREAD_PHYSICS);
-            m_color.setGetCallback(on_get_color, this, DIMPLE_THREAD_PHYSICS);
-            m_radius.setGetCallback(on_get_radius, this, DIMPLE_THREAD_PHYSICS);
-            m_force.setGetCallback(on_get_force, this, DIMPLE_THREAD_PHYSICS);
-            m_mass.setGetCallback(on_get_mass, this, DIMPLE_THREAD_PHYSICS);
-            m_density.setGetCallback(on_get_density, this, DIMPLE_THREAD_PHYSICS);
-            m_visible.setGetCallback(on_get_visible, this, DIMPLE_THREAD_PHYSICS);
+            m_position.setGetCallback(on_get_position, this);
+            m_velocity.setGetCallback(on_get_velocity, this);
+            m_accel.setGetCallback(on_get_accel, this);
+            m_color.setGetCallback(on_get_color, this);
+            m_radius.setGetCallback(on_get_radius, this);
+            m_force.setGetCallback(on_get_force, this);
+            m_mass.setGetCallback(on_get_mass, this);
+            m_density.setGetCallback(on_get_density, this);
+            m_visible.setGetCallback(on_get_visible, this);
         }
     virtual ~OscCursorInterface() {}
 

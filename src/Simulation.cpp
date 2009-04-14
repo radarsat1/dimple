@@ -518,8 +518,8 @@ Simulation::Simulation(const char *port, int type)
     m_bStarted = false;
     m_bSelfTimed = true;
 
-    m_collide.setSetCallback(set_collide, this, DIMPLE_THREAD_PHYSICS);
-    m_gravity.setSetCallback(set_gravity, this, DIMPLE_THREAD_PHYSICS);
+    m_collide.setSetCallback(set_collide, this);
+    m_gravity.setSetCallback(set_gravity, this);
 }
 
 Simulation::~Simulation()

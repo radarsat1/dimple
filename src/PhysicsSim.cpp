@@ -308,11 +308,11 @@ ODEObject::ODEObject(OscObject *obj, dGeomID odeGeom, dWorldID odeWorld, dSpaceI
 
     if (!obj) return;
 
-    obj->m_rotation.setSetCallback(ODEObject::on_set_rotation, this, 0);
-    obj->m_position.setSetCallback(ODEObject::on_set_position, this, 0);
-    obj->m_velocity.setSetCallback(ODEObject::on_set_velocity, this, 0);
-    obj->m_accel.setSetCallback(ODEObject::on_set_accel, this, 0);
-    obj->m_force.setSetCallback(ODEObject::on_set_force, this, 0);
+    obj->m_rotation.setSetCallback(ODEObject::on_set_rotation, this);
+    obj->m_position.setSetCallback(ODEObject::on_set_position, this);
+    obj->m_velocity.setSetCallback(ODEObject::on_set_velocity, this);
+    obj->m_accel.setSetCallback(ODEObject::on_set_accel, this);
+    obj->m_force.setSetCallback(ODEObject::on_set_force, this);
 
     obj->addHandler("push", "ffffff", ODEObject::push_handler);
 }

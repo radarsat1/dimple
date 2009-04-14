@@ -57,18 +57,18 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     m_friction_dynamic.set(0.5);
 
     // Set callbacks for when values change
-    m_position.setSetCallback(set_position, this, DIMPLE_THREAD_PHYSICS);
-    m_rotation.setSetCallback(set_rotation, this, DIMPLE_THREAD_PHYSICS);
-    m_force.setSetCallback(set_force, this, DIMPLE_THREAD_PHYSICS);
-    m_color.setSetCallback(set_color, this, DIMPLE_THREAD_PHYSICS);
-    m_velocity.setSetCallback(set_velocity, this, DIMPLE_THREAD_PHYSICS);
-    m_accel.setSetCallback(set_accel, this, DIMPLE_THREAD_PHYSICS);
-    m_friction_static.setSetCallback(set_friction_static, this, DIMPLE_THREAD_HAPTICS);
-    m_friction_dynamic.setSetCallback(set_friction_dynamic, this, DIMPLE_THREAD_HAPTICS);
-    m_mass.setSetCallback(set_mass, this, DIMPLE_THREAD_PHYSICS);
-    m_density.setSetCallback(set_density, this, DIMPLE_THREAD_PHYSICS);
-    m_collide.setSetCallback(set_collide, this, DIMPLE_THREAD_PHYSICS);
-    m_visible.setSetCallback(set_visible, this, DIMPLE_THREAD_PHYSICS);
+    m_position.setSetCallback(set_position, this);
+    m_rotation.setSetCallback(set_rotation, this);
+    m_force.setSetCallback(set_force, this);
+    m_color.setSetCallback(set_color, this);
+    m_velocity.setSetCallback(set_velocity, this);
+    m_accel.setSetCallback(set_accel, this);
+    m_friction_static.setSetCallback(set_friction_static, this);
+    m_friction_dynamic.setSetCallback(set_friction_dynamic, this);
+    m_mass.setSetCallback(set_mass, this);
+    m_density.setSetCallback(set_density, this);
+    m_collide.setSetCallback(set_collide, this);
+    m_visible.setSetCallback(set_visible, this);
 
     // If the new object is supposed to be a part of a
     // composite object, find it and join.
@@ -151,14 +151,14 @@ void OscObject::on_destroy()
 OscPrism::OscPrism(cGenericObject* p, const char *name, OscBase* parent)
     : OscObject(p, name, parent), m_size("size", this)
 {
-    m_size.setSetCallback(set_size, this, DIMPLE_THREAD_PHYSICS);
+    m_size.setSetCallback(set_size, this);
     cVector3d(0.01, 0.01, 0.01).copyto(m_size);
 }
 
 OscSphere::OscSphere(cGenericObject* p, const char *name, OscBase* parent)
     : OscObject(p, name, parent), m_radius("radius", this)
 {
-    m_radius.setSetCallback(set_radius, this, DIMPLE_THREAD_PHYSICS);
+    m_radius.setSetCallback(set_radius, this);
     m_radius.m_value = 0.01;
 }
 
@@ -167,7 +167,7 @@ OscMesh::OscMesh(cGenericObject *p, const char *name,
     : OscObject(p, name, parent),
       m_size("size", this)
 {
-    m_size.setSetCallback(set_size, this, DIMPLE_THREAD_PHYSICS);
+    m_size.setSetCallback(set_size, this);
 }
 
 OscCamera::OscCamera(const char *name, OscBase *parent)
@@ -176,9 +176,9 @@ OscCamera::OscCamera(const char *name, OscBase *parent)
       m_lookat("lookat", this),
       m_up("up", this)
 {
-    m_position.setSetCallback(set_position, this, DIMPLE_THREAD_PHYSICS);
-    m_lookat.setSetCallback(set_lookat, this, DIMPLE_THREAD_PHYSICS);
-    m_up.setSetCallback(set_up, this, DIMPLE_THREAD_PHYSICS);
+    m_position.setSetCallback(set_position, this);
+    m_lookat.setSetCallback(set_lookat, this);
+    m_up.setSetCallback(set_up, this);
 }
 
 OscResponse::OscResponse(const char* name, OscBase *parent)
@@ -187,9 +187,9 @@ OscResponse::OscResponse(const char* name, OscBase *parent)
       m_damping("damping", this),
       m_offset("offset", this)
 {
-    m_stiffness.setSetCallback(set_stiffness, this, DIMPLE_THREAD_PHYSICS);
-    m_damping.setSetCallback(set_damping, this, DIMPLE_THREAD_PHYSICS);
-    m_offset.setSetCallback(set_offset, this, DIMPLE_THREAD_PHYSICS);
+    m_stiffness.setSetCallback(set_stiffness, this);
+    m_damping.setSetCallback(set_damping, this);
+    m_offset.setSetCallback(set_offset, this);
 
     addHandler("spring", "ff", OscResponse::spring_handler);
 }
@@ -251,7 +251,7 @@ OscHinge::OscHinge(const char *name, OscBase* parent,
     : OscConstraint(name, parent, object1, object2),
       m_torque("torque", this)
 {
-    m_torque.setSetCallback(set_torque, this, DIMPLE_THREAD_PHYSICS);
+    m_torque.setSetCallback(set_torque, this);
 }
 
 //! A hinge requires a fixed anchor point and an axis
@@ -263,8 +263,8 @@ OscHinge2::OscHinge2(const char *name, OscBase *parent,
     : OscConstraint(name, parent, object1, object2),
       m_torque1("torque1", this), m_torque2("torque2", this)
 {
-    m_torque1.setSetCallback(set_torque1, this, DIMPLE_THREAD_PHYSICS);
-    m_torque2.setSetCallback(set_torque2, this, DIMPLE_THREAD_PHYSICS);
+    m_torque1.setSetCallback(set_torque1, this);
+    m_torque2.setSetCallback(set_torque2, this);
 }
 
 //! A hinge requires a fixed anchor point and an axis
@@ -276,8 +276,8 @@ OscUniversal::OscUniversal(const char *name, OscBase *parent,
     : OscConstraint(name, parent, object1, object2),
       m_torque1("torque1", this), m_torque2("torque2", this)
 {
-    m_torque1.setSetCallback(set_torque1, this, DIMPLE_THREAD_PHYSICS);
-    m_torque2.setSetCallback(set_torque2, this, DIMPLE_THREAD_PHYSICS);
+    m_torque1.setSetCallback(set_torque1, this);
+    m_torque2.setSetCallback(set_torque2, this);
 }
 
 //! A slide requires an axis
@@ -287,7 +287,7 @@ OscSlide::OscSlide(const char *name, OscBase *parent,
     : OscConstraint(name, parent, object1, object2),
       m_force("force", this)
 {
-    m_force.setSetCallback(set_force, this, DIMPLE_THREAD_PHYSICS);
+    m_force.setSetCallback(set_force, this);
 }
 
 //! A piston requires a position and an axis
@@ -297,5 +297,5 @@ OscPiston::OscPiston(const char *name, OscBase *parent, OscObject *object1,
     : OscConstraint(name, parent, object1, object2),
       m_force("force", this)
 {
-    m_force.setSetCallback(set_force, this, DIMPLE_THREAD_PHYSICS);
+    m_force.setSetCallback(set_force, this);
 }

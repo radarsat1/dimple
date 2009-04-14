@@ -240,9 +240,9 @@ CHAIObject::CHAIObject(OscObject *obj, cGenericObject *chai_obj, cWorld *world)
     if (!obj || !chai_obj)
         return;
 
-    obj->m_position.setSetCallback(CHAIObject::on_set_position, this, 0);
-    obj->m_rotation.setSetCallback(CHAIObject::on_set_rotation, this, 0);
-    obj->m_visible.setSetCallback(CHAIObject::on_set_visible, this, 0);
+    obj->m_position.setSetCallback(CHAIObject::on_set_position, this);
+    obj->m_rotation.setSetCallback(CHAIObject::on_set_rotation, this);
+    obj->m_visible.setSetCallback(CHAIObject::on_set_visible, this);
 }
 
 CHAIObject::~CHAIObject()

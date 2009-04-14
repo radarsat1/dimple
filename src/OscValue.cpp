@@ -24,10 +24,8 @@ OscValue::OscValue(const char *name, OscBase *parent)
 {
     m_set_callback = NULL;
     m_set_callback_data = NULL;
-    m_set_callback_thread = DIMPLE_THREAD_PHYSICS;
     m_get_callback = NULL;
     m_get_callback_data = NULL;
-    m_get_callback_thread = DIMPLE_THREAD_PHYSICS;
 
     addHandler("get",           "i"  , OscValue::get_handler);
     addHandler("get",           ""   , OscValue::get_handler);
@@ -139,7 +137,7 @@ OscVector3::OscVector3(const char *name, OscBase *owner)
 	  m_magnitude("magnitude", this),
       cVector3d()
 {
-    m_magnitude.setSetCallback((OscScalar::SetCallback*)set_magnitude_callback, this, DIMPLE_THREAD_PHYSICS);
+    m_magnitude.setSetCallback((OscScalar::SetCallback*)set_magnitude_callback, this);
 
     addHandler("",              "fff", OscVector3::_handler);
 }
