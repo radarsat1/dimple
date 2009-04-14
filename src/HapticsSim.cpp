@@ -65,7 +65,7 @@ HapticsSim::HapticsSim(const char *port)
     m_pSphereFactory = new HapticsSphereFactory(this);
     m_pMeshFactory = new HapticsMeshFactory(this);
 
-    m_fTimestep = HAPTICS_TIMESTEP_MS/1000.0;
+    m_fTimestep = haptics_timestep_ms/1000.0;
     printf("CHAI timestep: %f\n", m_fTimestep);
 }
 
@@ -621,7 +621,7 @@ void OscCursorCHAI::on_force()
     /* TODO: Make this timeout a configurable setting. */
 
     m_extraForce = m_force;
-    m_nExtraForceSteps = PHYSICS_TIMESTEP_MS*2/HAPTICS_TIMESTEP_MS;
+    m_nExtraForceSteps = physics_timestep_ms*2/haptics_timestep_ms;
 }
 
 void OscCursorCHAI::on_radius()

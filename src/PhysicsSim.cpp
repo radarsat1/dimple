@@ -151,7 +151,7 @@ PhysicsSim::PhysicsSim(const char *port)
 
     m_pGrabbedObject = NULL;
 
-    m_fTimestep = PHYSICS_TIMESTEP_MS/1000.0;
+    m_fTimestep = physics_timestep_ms/1000.0;
     m_counter = 0;
     printf("ODE timestep: %f\n", m_fTimestep);
 }

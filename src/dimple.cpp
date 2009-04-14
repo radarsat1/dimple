@@ -26,7 +26,16 @@
 #include "VisualSim.h"
 #include "InterfaceSim.h"
 
-lo_address address_send = lo_address_new("localhost", "7775");
+/** Defaults for global variables **/
+int visual_fps = 30;
+int visual_timestep_ms = (int)((1.0/visual_fps)*1000.0);
+int physics_timestep_ms = 10;
+int haptics_timestep_ms = 1;
+
+const char *address_send_host = "localhost";
+const char *address_send_port = "7775";
+
+lo_address address_send;
 int quit = 0;
 
 void sighandler_quit(int sig)
@@ -55,6 +64,8 @@ int main(int argc, char* argv[])
 #ifndef FLEXT_SYS
 	 signal(SIGINT, sighandler_quit);
 #endif
+
+     address_send = lo_address_new(address_send_host, address_send_port);
 
      try {
 

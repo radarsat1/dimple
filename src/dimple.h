@@ -26,10 +26,14 @@
 #include <CWorld.h>
 #include <ode/ode.h>
 
-#define FPS 30
-#define VISUAL_TIMESTEP_MS   (int)((1.0/FPS)*1000.0)
-#define PHYSICS_TIMESTEP_MS 10
-#define HAPTICS_TIMESTEP_MS 1
+/** Global options **/
+
+extern int visual_fps;
+extern int visual_timestep_ms;
+extern int physics_timestep_ms;
+extern int haptics_timestep_ms;
+
+/** Miscellaneous macros **/
 
 #ifndef WIN32
 #define Sleep(t) usleep(t*1000)

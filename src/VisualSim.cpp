@@ -74,7 +74,7 @@ VisualSim::VisualSim(const char *port)
     m_pSphereFactory = new VisualSphereFactory(this);
     m_pMeshFactory = new VisualMeshFactory(this);
 
-    m_fTimestep = VISUAL_TIMESTEP_MS/1000.0;
+    m_fTimestep = visual_timestep_ms/1000.0;
     printf("CHAI/GLUT timestep: %f\n", m_fTimestep);
 }
 
@@ -112,7 +112,7 @@ void VisualSim::initGlutWindow()
     glutAttachMenu(GLUT_RIGHT_BUTTON);
     */
 
-    glutTimerFunc(VISUAL_TIMESTEP_MS, updateDisplay, 0);
+    glutTimerFunc(visual_timestep_ms, updateDisplay, 0);
 }
 
 void VisualSim::updateDisplay(int data)
@@ -125,7 +125,7 @@ void VisualSim::updateDisplay(int data)
     glutPostRedisplay();
 
     // update again in a few ms
-    glutTimerFunc(VISUAL_TIMESTEP_MS, updateDisplay, 0);
+    glutTimerFunc(visual_timestep_ms, updateDisplay, 0);
 }
 
 void VisualSim::initialize()
