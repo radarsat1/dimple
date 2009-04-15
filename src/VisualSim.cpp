@@ -3,6 +3,7 @@
 #include "dimple.h"
 #include "VisualSim.h"
 #include "HapticsSim.h"
+#include "config.h"
 
 #include <GL/glut.h>
 #ifdef USE_FREEGLUT
