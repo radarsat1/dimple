@@ -261,6 +261,13 @@ if test x$debug = xyes || test x$DIMPLE_DEBUG = x1; then
   fi
 fi
 
+# queue size
+AC_ARG_WITH(queue-size,
+  [AS_HELP_STRING([--with-queue-size],[default size of message queues in kB, default 64])],
+  [queue_size=${withval}], [queue_size=64])
+AC_DEFINE_UNQUOTED(DEFAULT_QUEUE_SIZE, ${queue_size},
+                   [Default size of message queue in kB])
+
 AC_CONFIG_FILES([
 	Makefile
     src/Makefile

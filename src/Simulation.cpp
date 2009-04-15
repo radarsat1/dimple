@@ -507,7 +507,7 @@ int UniversalFactory::create_handler(const char *path, const char *types, lo_arg
 /****** SimulationInfo *******/
 SimulationInfo::SimulationInfo(Simulation &sim)
     : m_addr(sim.addr()), m_fTimestep(sim.timestep()),
-      m_type(sim.type()), m_queue(65536)
+      m_type(sim.type()), m_queue(msg_queue_size)
 {
     sim.add_queue(&m_queue);
 }

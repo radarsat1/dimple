@@ -20,6 +20,7 @@
 #include <signal.h>
 #include <getopt.h>
 
+#include "config.h"
 #include "dimple.h"
 
 #include "PhysicsSim.h"
@@ -32,6 +33,7 @@ int visual_fps = 30;
 int visual_timestep_ms = (int)((1.0/visual_fps)*1000.0);
 int physics_timestep_ms = 10;
 int haptics_timestep_ms = 1;
+int msg_queue_size = DEFAULT_QUEUE_SIZE*1024;
 
 char *address_send_url = "osc.udp://localhost:7775";
 

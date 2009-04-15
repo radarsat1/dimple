@@ -35,6 +35,7 @@ extern int visual_fps;
 extern int visual_timestep_ms;
 extern int physics_timestep_ms;
 extern int haptics_timestep_ms;
+extern int msg_queue_size;
 
 /** Miscellaneous macros **/
 
