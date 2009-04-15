@@ -4,11 +4,6 @@
 #include "InterfaceSim.h"
 #include "HapticsSim.h"
 
-#include <GL/glut.h>
-#ifdef USE_FREEGLUT
-#include <GL/freeglut_ext.h>
-#endif
-
 bool InterfacePrismFactory::create(const char *name, float x, float y, float z)
 {
     printf("InterfacePrismFactory (%s) is creating a prism object called '%s'\n",
