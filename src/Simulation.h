@@ -6,6 +6,7 @@
 #include "OscValue.h"
 #include "ValueTimer.h"
 #include "CPrecisionClock.h"
+#include "LoQueue.h"
 
 class SphereFactory;
 class PrismFactory;
@@ -26,12 +27,13 @@ class OscConstraint;
 class SimulationInfo
 {
 public:
-    SimulationInfo(lo_address addr, float timestep, int type)
-        : m_addr(addr), m_fTimestep(timestep), m_type(type) {}
+    SimulationInfo(Simulation &sim);
 
     lo_address addr() { return m_addr; }
     float timestep() { return m_fTimestep; }
     int type() { return m_type; }
+
+    LoQueue m_queue;
 
 protected:
     lo_address m_addr;
@@ -80,13 +82,19 @@ class Simulation : public OscBase
     float timestep() { return m_fTimestep; }
 
     //! Return the list of receivers for messages from this simulation.
-    const std::vector<SimulationInfo>& simulationList()
+    const std::vector<SimulationInfo*>& simulationList()
         { return m_simulationList; }
 
     //! Add a simulation to the list of possible receivers for
     //! messages from this simulation.
     void add_simulation(Simulation& sim)
-        { m_simulationList.push_back(SimulationInfo(sim.m_addr, sim.m_fTimestep, sim.type())); }
+        { m_simulationList.push_back(new SimulationInfo(sim)); }
+
+    //! Add a queue to the list of queues to poll for messages.
+    void add_queue(LoQueue *queue)
+    // TODO: mutexes here, but this is only done once at the beginning
+    // so we're probably safe.
+        { m_queueList.push_back(queue); }
 
     //! Send a message to all simulations in the list.
     void send(bool throttle, const char *path, const char *types, ...);
@@ -152,7 +160,10 @@ class Simulation : public OscBase
     typedef std::map<std::string,OscConstraint*>::iterator constraint_iterator;
 
     //! List of other simulations that may receive messages from this one.
-    std::vector<SimulationInfo> m_simulationList;
+    std::vector<SimulationInfo*> m_simulationList;
+
+    //! List of FIFO queues to check for incoming messages.
+    std::vector<LoQueue*> m_queueList;
 
     //! Timer to ensure simulation steps are distributed in real time.
     cPrecisionClock m_clock;

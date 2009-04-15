@@ -121,6 +121,13 @@ void VisualSim::updateDisplay(int data)
     VisualSim *me = VisualSim::m_pGlobalContext;
 
     while (lo_server_recv_noblock(me->m_server, 0)) {}
+
+    std::vector<LoQueue*>::iterator qit;
+    for (qit=me->m_queueList.begin();
+         qit!=me->m_queueList.end(); qit++) {
+        while ((*qit)->read_and_dispatch(me->m_server)) {}
+    }
+
     if (me->m_bDone) {}  // TODO
 
     glutPostRedisplay();

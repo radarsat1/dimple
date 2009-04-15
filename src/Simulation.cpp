@@ -504,6 +504,14 @@ int UniversalFactory::create_handler(const char *path, const char *types, lo_arg
     return 0;
 }
 
+/****** SimulationInfo *******/
+SimulationInfo::SimulationInfo(Simulation &sim)
+    : m_addr(sim.addr()), m_fTimestep(sim.timestep()),
+      m_type(sim.type()), m_queue(65536)
+{
+    sim.add_queue(&m_queue);
+}
+
 /****** Simulation *******/
 
 Simulation::Simulation(const char *port, int type)
@@ -573,6 +581,8 @@ void* Simulation::run(void* param)
 
     printf("[%s] Simulation running.\n", me->type_str());
 
+    std::vector<LoQueue*>::iterator qit;
+
     int step_ms = (int)(me->m_fTimestep*1000);
     int step_us = (int)(me->m_fTimestep*1000000);
     int step_left = step_ms;
@@ -585,6 +595,10 @@ void* Simulation::run(void* param)
         while (lo_server_recv_noblock(me->m_server, step_left) > 0) {
             step_left = step_ms-(me->m_clock.getCurrentTime()/1000);
             if (step_left < 0) step_left = 0;
+        }
+        for (qit=me->m_queueList.begin();
+             qit!=me->m_queueList.end(); qit++) {
+            while ((*qit)->read_and_dispatch(me->m_server)) {}
         }
         me->m_clock.stop();
         me->step();
@@ -750,7 +764,7 @@ void Simulation::send(bool throttle, const char *path, const char *types, ...)
     add_varargs(msg, ap, types);
     va_end(ap);
 
-    std::vector<SimulationInfo>::iterator it;
+    std::vector<SimulationInfo*>::iterator it;
     for (it=m_simulationList.begin();
          it!=m_simulationList.end();
          it++)
@@ -759,11 +773,15 @@ void Simulation::send(bool throttle, const char *path, const char *types, ...)
          * well as the message path. Until then it can't be used in
          * the general case. */
 #if 0
-        if (throttle && should_throttle(path, *it))
+        if (throttle && should_throttle(path, **it))
             continue;
 #endif
 
-        lo_send_message((*it).addr(), path, msg);
+#if 0
+        lo_send_message((*it)->addr(), path, msg);
+#else
+        (*it)->m_queue.write_lo_message(path, msg);
+#endif
     }
 
     lo_message_free(msg);
@@ -777,17 +795,21 @@ void Simulation::sendtotype(int type, bool throttle, const char *path, const cha
     add_varargs(msg, ap, types);
     va_end(ap);
 
-    std::vector<SimulationInfo>::iterator it;
+    std::vector<SimulationInfo*>::iterator it;
     for (it=m_simulationList.begin();
          it!=m_simulationList.end();
          it++)
     {
-        if ((*it).type() & type)
+        if ((*it)->type() & type)
         {
-            if (throttle && should_throttle(path, *it))
+            if (throttle && should_throttle(path, **it))
                 continue;
 
-            lo_send_message((*it).addr(), path, msg);
+#if 0
+            lo_send_message((*it)->addr(), path, msg);
+#else
+            (*it)->m_queue.write_lo_message(path, msg);
+#endif
         }
     }
 
