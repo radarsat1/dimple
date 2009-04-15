@@ -7,7 +7,7 @@
 
 #include <GL/glut.h>
 #ifdef USE_FREEGLUT
-#include <GL/freeglut_ext.h>
+#include <GL/freeglut.h>
 #endif
 
 bool VisualPrismFactory::create(const char *name, float x, float y, float z)
