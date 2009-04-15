@@ -19,9 +19,13 @@ AC_CHECK_PROG(pkgconfig, pkg-config, yes, no)
 
 # Checks for libraries.
 AC_CHECK_FUNC([log], [], [AC_CHECK_LIB([m],[log])])
+AC_CHECK_FUNC([getopt_long], [],
+  [AC_MSG_ERROR([Couldn't find getopt_long])])
 
 # Checks for header files.
 AC_HEADER_STDC
+AC_CHECK_HEADER([getopt.h], [],
+  [AC_MSG_ERROR([Couldn't find getopt.h.])])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
