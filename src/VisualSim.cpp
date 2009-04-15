@@ -1,5 +1,6 @@
 // -*- mode:c++; indent-tabs-mode:nil; c-basic-offset:4; compile-command:"scons debug=1" -*-
 
+#include "config.h"
 #include "dimple.h"
 #include "VisualSim.h"
 #include "HapticsSim.h"
@@ -122,11 +123,13 @@ void VisualSim::updateDisplay(int data)
 
     while (lo_server_recv_noblock(me->m_server, 0)) {}
 
+#ifdef USE_QUEUES
     std::vector<LoQueue*>::iterator qit;
     for (qit=me->m_queueList.begin();
          qit!=me->m_queueList.end(); qit++) {
         while ((*qit)->read_and_dispatch(me->m_server)) {}
     }
+#endif
 
     if (me->m_bDone) {}  // TODO
 

@@ -1,6 +1,8 @@
 // -*- mode:c++; indent-tabs-mode:nil; c-basic-offset:4; compile-command:"scons debug=1" -*-
 
 #include <lo/lo.h>
+
+#include "config.h"
 #include "dimple.h"
 #include "Simulation.h"
 #include "OscObject.h"
@@ -596,10 +598,12 @@ void* Simulation::run(void* param)
             step_left = step_ms-(me->m_clock.getCurrentTime()/1000);
             if (step_left < 0) step_left = 0;
         }
+#ifdef USE_QUEUES
         for (qit=me->m_queueList.begin();
              qit!=me->m_queueList.end(); qit++) {
             while ((*qit)->read_and_dispatch(me->m_server)) {}
         }
+#endif
         me->m_clock.stop();
         me->step();
         me->m_valueTimer.onTimer(step_ms);
@@ -777,10 +781,10 @@ void Simulation::send(bool throttle, const char *path, const char *types, ...)
             continue;
 #endif
 
-#if 0
-        lo_send_message((*it)->addr(), path, msg);
-#else
+#ifdef USE_QUEUES
         (*it)->m_queue.write_lo_message(path, msg);
+#else
+        lo_send_message((*it)->addr(), path, msg);
 #endif
     }
 
@@ -805,10 +809,10 @@ void Simulation::sendtotype(int type, bool throttle, const char *path, const cha
             if (throttle && should_throttle(path, **it))
                 continue;
 
-#if 0
-            lo_send_message((*it)->addr(), path, msg);
-#else
+#ifdef USE_QUEUES
             (*it)->m_queue.write_lo_message(path, msg);
+#else
+            lo_send_message((*it)->addr(), path, msg);
 #endif
         }
     }

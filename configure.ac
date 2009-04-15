@@ -268,6 +268,17 @@ AC_ARG_WITH(queue-size,
 AC_DEFINE_UNQUOTED(DEFAULT_QUEUE_SIZE, ${queue_size},
                    [Default size of message queue in kB])
 
+# use messages queues
+AC_ARG_ENABLE(queues,
+  [AS_HELP_STRING([--disable-queues],[don't use messages queues, instead use
+                                      UDP for inter-thread communication])],
+  [use_queues=$enableval], [use_queues=yes])
+
+if test x$use_queues = xyes; then
+  AC_DEFINE(USE_QUEUES, [1],
+    [Define to enable use of message queues for inter-thread communication.])
+fi
+
 AC_CONFIG_FILES([
 	Makefile
     src/Makefile
