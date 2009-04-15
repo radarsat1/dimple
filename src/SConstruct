@@ -80,7 +80,7 @@ if 'MINGW' in uname:
 ### LibLo ###
 
 # Link to the library using -l option,
-env.Append(LIBPATH = ['../libdeps/liblo-0.25/src/.libs'], LIBS = ['lo'])
+env.Append(LIBPATH = ['../libdeps/liblo-0.26/src/.libs'], LIBS = ['lo'])
 
 if 'win32' in sys.platform:
     env.Append(LIBS = ['wsock32'])
@@ -140,7 +140,7 @@ else:
 env.Append(
     CPPPATH = ['../libdeps/ode-0.10.1/include',
                '../libdeps/chai3d/include',
-               '../libdeps/liblo-0.25'],
+               '../libdeps/liblo-0.26'],
     LIBPATH = ['../libdeps/ode-0.10.1/ode/src/.libs'],
     LIBS = ['ode', 'pthread']
     )
