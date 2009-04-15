@@ -252,7 +252,7 @@ fi
 # debug mode (also checks for DIMPLE_DEBUG environment variable)
 AC_ARG_ENABLE(debug, [  --enable-debug          compile in debug mode],
               [debug=yes])
-if test x$debug = xyes || test x$DIMPLE_DEBUG=x1; then
+if test x$debug = xyes || test x$DIMPLE_DEBUG = x1; then
   CPPFLAGS="-DDEBUG $CPPFLAGS"
   if test "$CXXFLAGS" = "-g -O2"; then
     CXXFLAGS="-g -O0 -Wall"
