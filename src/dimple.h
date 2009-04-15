@@ -18,6 +18,9 @@
 
 #ifdef WIN32
 #include <winsock2.h>
+#ifdef interface
+#undef interface
+#endif
 #endif
 #define _WINSOCK2API_
 #include "lo/lo.h"
