@@ -46,8 +46,9 @@ void help()
         "--send-url (-u)     A LibLo-style URL specifying the address\n"
         "                    to send OSC messages to.\n"
         "                    Example: osc.udp://localhost:9000\n"
-        "                    Other protocols may be 'tcp', 'unix'.\n"
-        );
+        "                    Other protocols may be 'tcp', 'unix'.\n\n");
+    printf("--queue-size (-q)   Size of the message queues in kB.\n"
+           "                    Default is %d.\n", DEFAULT_QUEUE_SIZE);
 }
 
 void parse_command_line(int argc, char* argv[])
@@ -55,15 +56,16 @@ void parse_command_line(int argc, char* argv[])
     int c=0;
 
     struct option long_options[] = {
-        { "help",     no_argument,       0, 'h' },
-        { "send-url", optional_argument, 0, 'u' },
+        { "help",       no_argument,       0, 'h' },
+        { "send-url",   optional_argument, 0, 'u' },
+        { "queue-size", optional_argument, 0, 'q' },
         {0, 0, 0, 0}
     };
 
     while (c!=-1) {
         int option_index = 0;
 
-        c = getopt_long (argc, argv, "hu:",
+        c = getopt_long (argc, argv, "hu:q:",
                          long_options, &option_index);
 
         switch (c) {
@@ -73,6 +75,14 @@ void parse_command_line(int argc, char* argv[])
                 exit(1);
             }
             address_send_url = optarg;
+            break;
+        case 'q':
+            if (optarg==0 || atoi(optarg)<=0) {
+                printf("Error parsing --queue-size option, "
+                       "must be an integer > 0.\n");
+                exit(1);
+            }
+            msg_queue_size = atoi(optarg)*1024;
             break;
         case 'h':
             help();
