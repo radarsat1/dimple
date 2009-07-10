@@ -161,7 +161,7 @@ echo
 }
 
 chai3d() {
-chai_URL=http://chai3d.org/builds/chai3d%5Bv1.62%5D.zip
+chai_URL=http://chai3d.org/files/build-1-6-2/chai3d-1.6.2-win32.zip
 chai_TAR=chai3d-v1.62.zip
 chai_MD5=f2e894cb11bf7d0decf31c0be7e9fb57
 
