@@ -140,20 +140,16 @@ Make sure to install the C++ compiler (g++), and the OpenGL API.
 downloads & compiles libraries upon which DIMPLE depends.  It also
 patches them in certain ways when it is necessary.
 
-Additionally, since DIMPLE uses the SCons tool for building, you need
-to install Python 2.5.  Run "which python.exe" to make sure that the
-correct Python executable is on the PATH.  (Be extra careful if you
-have Cygwin installed, as it can cause PATH conflicts.)
-
-On Linux and OS X, the included compilers and Python runtime should be
-just fine for the bootstrap to succeed.
-
 If boostrap is successful, continue with compiling DIMPLE.  If you run
 into errors, you'll have to manually make sure the dependencies
 compile correctly.  Please inform me of any problems, as I'm
 interested in making the bootstrap as easy as possible.  Note that the
 bootstrap compiles only the static version of these libraries, so that
 all required code gets linked right into DIMPLE.
+
+Configure the DIMPLE build with configure:
+
+    ./configure
 
 Compile DIMPLE with make:
 
