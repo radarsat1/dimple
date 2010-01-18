@@ -2,6 +2,8 @@
 DIMPLE: The Dynamic Interactive Musically PhysicaL Environment
 ==============================================================
 
+![DIMPLE logo](./icon/dimple_sphere.png)
+
 DIMPLE is a program which allows you to construct physical
 environments using Open Sound Control messages.  This means that you
 create 3D objects and allow them to interact with each other,
@@ -30,8 +32,6 @@ Windows), and currently supports the following haptic devices:
 - SensAble Phantom (Windows)
 - MPB Technologies Freedom 6S (Windows, Linux)
 - Novint Falcon (Windows)
-
-![DIMPLE logo](./icon/dimple_sphere.png)
 
 
 Using
