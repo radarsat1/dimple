@@ -31,7 +31,7 @@ Windows), and currently supports the following haptic devices:
 
 - SensAble Phantom (Windows)
 - MPB Technologies Freedom 6S (Windows, Linux)
-- Novint Falcon (Windows)
+- Novint Falcon (Windows, OS X, Linux)
 
 
 Using
