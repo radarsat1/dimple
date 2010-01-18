@@ -568,7 +568,6 @@ case $(uname) in
     ode
     liblo
     chai3d
-    scons
     ;;
 
     CYGWIN*)
@@ -628,7 +627,6 @@ case $(uname) in
     chai_PATCH=chai3d-1.62.patch
 	chai_DIR=chai3d/linux
 
-    scons
 	ode
     chai3d
 	liblo
@@ -643,7 +641,6 @@ case $(uname) in
 	MD5CUT="cut -f2 -d="
     chai_PATCH=chai3d-1.62.patch
 	chai_DIR=chai3d/darwin
-    scons
     samplerate
     ode
 	liblo

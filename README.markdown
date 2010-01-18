@@ -159,14 +159,6 @@ Compile DIMPLE with make:
 
     make
 
-In fact, this is just a stub to execute SCons, so you can "cd src" and
-run "scons" directly if you wish.  You can also run the version of
-SCons locally downloaded by bootstrap, if you don't want to install it
-to the system:
-
-    cd src
-    python ../libdeps/scons.py
-
 If all goes well, you should now have an executable called "dimple",
 which you can execute like so:
 

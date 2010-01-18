@@ -1,4 +1,4 @@
-// -*- mode:c++; indent-tabs-mode:nil; c-basic-offset:4; compile-command:"scons debug=1" -*-
+// -*- mode:c++; indent-tabs-mode:nil; c-basic-offset:4; -*-
 
 #include "dimple.h"
 #include "HapticsSim.h"
