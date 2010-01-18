@@ -59,6 +59,7 @@ will be quite small, so these messages are usually followed up by a
 ==== Creating constraints ====
 
   /world/fixed/create <s:name> <s:object1> <s:object2>
+  /world/free/create <s:name> <s:object1> <s:object2>
   /world/ball/create <s:name> <s:object1> <s:object2> <f:anchorx> <f:anchory> <f:anchorz>
   /world/hinge/create <s:name> <s:object1> <s:object2> <f:anchorx> <f:anchory> <f:anchorz> <f:axisx> <f:axisy> <f:axisz>
   /world/hinge2/create <s:name> <s:object1> <s:object2> <f:anchorx> <f:anchory> <f:anchorz> <f:axis1x> <f:axis1y> <f:axis1z> <f:axis2x> <f:axis2y> <f:axis2z>
@@ -73,6 +74,12 @@ numbers of arguments depending on how many points and vectors are
 needed to define them.  Please see the
 [[http://opende.sourceforge.net/wiki/index.php/Manual_(Joint_Types_and_Functions)|ODE documentation section on Joints]] for more information on each
 constraint type.
+
+The "free" constraint is not really a constraint --- all the axes are
+free.  However, it is useful for establishing a response between the
+two specified objects.  It is not possible to specify a free
+constraint between an object and the world, as this already exists by
+default.
 
 ==== Object values ====
 
