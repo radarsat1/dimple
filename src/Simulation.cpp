@@ -289,6 +289,46 @@ int FixedFactory::create_handler(const char *path, const char *types, lo_arg **a
     return 0;
 }
 
+FreeFactory::FreeFactory(Simulation *parent)
+    : ShapeFactory("free", parent)
+{
+    // Name, object1, object2, x, y, z, axis x, y, z
+    addHandler("create", "sss", create_handler);
+}
+
+FreeFactory::~FreeFactory()
+{
+}
+
+int FreeFactory::create_handler(const char *path, const char *types, lo_arg **argv,
+                                int argc, void *data, void *user_data)
+{
+    FreeFactory *me = static_cast<FreeFactory*>(user_data);
+    OscObject *object1=0, *object2=0;
+
+    if (argc != 3) return -1;
+
+    if (strcmp(&argv[1]->s, "world")!=0)
+        object1 = me->simulation()->find_object(&argv[1]->s);
+    if (strcmp(&argv[2]->s, "world")!=0)
+        object2 = me->simulation()->find_object(&argv[2]->s);
+
+    // Neither object can be the world.
+    if (!object1 || !object2) {
+        printf("[%s] Error, cannot create free constraint '%s' with world.\n");
+        return -1;
+    }
+
+    // The objects cannot be the same.
+    if (object1==object2)
+        return -1;
+
+    if (!me->create(&argv[0]->s, object1, object2))
+        printf("[%s] Error creating free constraint '%s'.\n",
+               me->simulation()->type_str(), &argv[0]->s);
+    return 0;
+}
+
 BallJointFactory::BallJointFactory(Simulation *parent)
     : ShapeFactory("ball", parent)
 {

@@ -14,6 +14,7 @@ class MeshFactory;
 class HingeFactory;
 class Hinge2Factory;
 class FixedFactory;
+class FreeFactory;
 class BallJointFactory;
 class SlideFactory;
 class PistonFactory;
@@ -134,6 +135,7 @@ class Simulation : public OscBase
     HingeFactory *m_pHingeFactory;
     Hinge2Factory *m_pHinge2Factory;
     FixedFactory *m_pFixedFactory;
+    FreeFactory *m_pFreeFactory;
     BallJointFactory *m_pBallJointFactory;
     SlideFactory *m_pSlideFactory;
     PistonFactory *m_pPistonFactory;
@@ -276,6 +278,21 @@ class FixedFactory : public ShapeFactory
 public:
     FixedFactory(Simulation *parent);
     virtual ~FixedFactory();
+
+protected:
+    // message handlers
+    static int create_handler(const char *path, const char *types, lo_arg **argv,
+                              int argc, void *data, void *user_data);
+
+    // override these functions with a specific factory subclass
+    virtual bool create(const char *name, OscObject *object1, OscObject *object2) = 0;
+};
+
+class FreeFactory : public ShapeFactory
+{
+public:
+    FreeFactory(Simulation *parent);
+    virtual ~FreeFactory();
 
 protected:
     // message handlers

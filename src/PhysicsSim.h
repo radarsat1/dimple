@@ -110,6 +110,18 @@ protected:
     bool create(const char *name, OscObject *object1, OscObject *object2);
 };
 
+class PhysicsFreeFactory : public FreeFactory
+{
+public:
+    PhysicsFreeFactory(Simulation *parent) : FreeFactory(parent) {}
+    virtual ~PhysicsFreeFactory() {}
+
+    virtual PhysicsSim* simulation() { return static_cast<PhysicsSim*>(m_parent); }
+
+protected:
+    bool create(const char *name, OscObject *object1, OscObject *object2);
+};
+
 class PhysicsBallJointFactory : public BallJointFactory
 {
 public:
@@ -313,11 +325,29 @@ class OscFixedODE : public OscFixed
 {
 public:
     OscFixedODE(dWorldID odeWorld, dSpaceID odeSpace,
-                const char *name, OscBase *parent, OscObject *object1, OscObject *object2);
+                const char *name, OscBase *parent,
+                OscObject *object1, OscObject *object2);
 
     virtual ~OscFixedODE();
 
 protected:
+};
+
+class OscFreeODE : public OscFree
+{
+public:
+    OscFreeODE(dWorldID odeWorld, dSpaceID odeSpace,
+                const char *name, OscBase *parent, OscObject *object1, OscObject *object2);
+
+    virtual ~OscFreeODE();
+
+    virtual void simulationCallback();
+
+protected:
+    virtual void on_force();
+    virtual void on_torque();
+
+    dReal m_initial_distance[3];
 };
 
 class OscBallJointODE : public OscBallJoint

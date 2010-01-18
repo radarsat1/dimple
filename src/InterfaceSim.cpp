@@ -115,6 +115,23 @@ bool InterfaceFixedFactory::create(const char *name, OscObject *object1, OscObje
     return true;
 }
 
+bool InterfaceFreeFactory::create(const char *name,
+                                  OscObject *object1, OscObject *object2)
+{
+    if (!object1) return false;
+
+    OscFree *cons = new OscFreeInterface(name, m_parent, object1, object2);
+    if (!(cons && simulation()->add_constraint(*cons)))
+        return false;
+
+    cons->traceOn();
+
+    simulation()->send(0, "/world/free/create", "sss",
+                       name, object1->c_name(), object2?object2->c_name():"world");
+
+    return true;
+}
+
 bool InterfaceBallJointFactory::create(const char *name, OscObject *object1,
                                        OscObject *object2, double x,
                                        double y, double z)
@@ -213,6 +230,7 @@ InterfaceSim::InterfaceSim(const char *port)
     m_pHingeFactory = new InterfaceHingeFactory(this);
     m_pHinge2Factory = new InterfaceHinge2Factory(this);
     m_pFixedFactory = new InterfaceFixedFactory(this);
+    m_pFreeFactory = new InterfaceFreeFactory(this);
     m_pBallJointFactory = new InterfaceBallJointFactory(this);
     m_pSlideFactory = new InterfaceSlideFactory(this);
     m_pPistonFactory = new InterfacePistonFactory(this);

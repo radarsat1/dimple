@@ -281,6 +281,22 @@ public:
         : OscConstraint(name, parent, object1, object2) {}
 };
 
+/*! The "free" constraint has all axes free, and is used purely to add
+ *  force and torque responses between two objects.  Can be used to
+ *  put a spring between two objects for example. */
+class OscFree : public OscConstraint
+{
+public:
+    OscFree(const char *name, OscBase *parent,
+            OscObject *object1, OscObject *object2);
+
+    OscResponse* m_response;
+
+protected:
+    OSCVECTOR3(OscFree, force) {};
+    OSCVECTOR3(OscFree, torque) {};
+};
+
 class OscSlide : public OscConstraint
 {
 public:

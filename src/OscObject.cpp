@@ -267,6 +267,16 @@ OscHinge2::OscHinge2(const char *name, OscBase *parent,
     m_torque2.setSetCallback(set_torque2, this);
 }
 
+//! A free contraint has no requirements.
+OscFree::OscFree(const char *name, OscBase *parent,
+                 OscObject *object1, OscObject *object2)
+    : OscConstraint(name, parent, object1, object2),
+      m_force("force", this), m_torque("torque", this)
+{
+    m_force.setSetCallback(set_force, this);
+    m_torque.setSetCallback(set_torque, this);
+}
+
 //! A hinge requires a fixed anchor point and an axis
 OscUniversal::OscUniversal(const char *name, OscBase *parent,
                            OscObject *object1, OscObject *object2,

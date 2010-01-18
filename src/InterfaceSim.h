@@ -164,6 +164,18 @@ protected:
     bool create(const char *name, OscObject *object1, OscObject *object2);
 };
 
+class InterfaceFreeFactory : public FreeFactory
+{
+public:
+    InterfaceFreeFactory(Simulation *parent) : FreeFactory(parent) {}
+    virtual ~InterfaceFreeFactory() {}
+
+    virtual InterfaceSim* simulation() { return static_cast<InterfaceSim*>(m_parent); }
+
+protected:
+    bool create(const char *name, OscObject *object1, OscObject *object2);
+};
+
 class InterfaceBallJointFactory : public BallJointFactory
 {
 public:
@@ -490,6 +502,24 @@ public:
     virtual void on_destroy() {
         simulation()->send(0, (path()+"/destroy").c_str(), "");
         OscFixed::on_destroy();
+    }
+
+protected:
+};
+
+class OscFreeInterface : public OscFree
+{
+public:
+    OscFreeInterface(const char *name, OscBase *parent,
+                      OscObject *object1, OscObject *object2)
+        : OscFree(name, parent, object1, object2)
+        { m_response = new OscResponseInterface("response",this); }
+
+    virtual ~OscFreeInterface() { delete m_response; }
+
+    virtual void on_destroy() {
+        simulation()->send(0, (path()+"/destroy").c_str(), "");
+        OscFree::on_destroy();
     }
 
 protected:

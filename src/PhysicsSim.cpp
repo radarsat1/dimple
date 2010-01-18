@@ -74,6 +74,20 @@ bool PhysicsFixedFactory::create(const char *name, OscObject *object1, OscObject
         return simulation()->add_constraint(*cons);
 }
 
+bool PhysicsFreeFactory::create(const char *name,
+                                OscObject *object1, OscObject *object2)
+{
+    OscFree *cons=NULL;
+    cons = new OscFreeODE(simulation()->odeWorld(),
+                          simulation()->odeSpace(),
+                          name, m_parent, object1, object2);
+
+    cons->m_response->traceOn();
+
+    if (cons)
+        return simulation()->add_constraint(*cons);
+}
+
 bool PhysicsBallJointFactory::create(const char *name, OscObject *object1,
                                      OscObject *object2, double x, double y,
                                      double z)
@@ -144,6 +158,7 @@ PhysicsSim::PhysicsSim(const char *port)
     m_pHingeFactory = new PhysicsHingeFactory(this);
     m_pHinge2Factory = new PhysicsHinge2Factory(this);
     m_pFixedFactory = new PhysicsFixedFactory(this);
+    m_pFreeFactory = new PhysicsFreeFactory(this);
     m_pBallJointFactory = new PhysicsBallJointFactory(this);
     m_pSlideFactory = new PhysicsSlideFactory(this);
     m_pPistonFactory = new PhysicsPistonFactory(this);
@@ -677,6 +692,81 @@ OscFixedODE::~OscFixedODE()
     ODEConstraint *c = static_cast<ODEConstraint*>(special());
     if (!object2())
         static_cast<ODEObject*>(object1()->special())->connectBody();
+}
+
+OscFreeODE::OscFreeODE(dWorldID odeWorld, dSpaceID odeSpace,
+                         const char *name, OscBase* parent,
+                         OscObject *object1, OscObject *object2)
+    : OscFree(name, parent, object1, object2)
+{
+    m_response = new OscResponse("response",this);
+
+    // The "Free" constraint is not actually an ODE constraint.
+    // However, we need an ODEConstraint to remember the objects so
+    // that they can receive forces and torques.
+
+    m_pSpecial = new ODEConstraint(this, NULL, odeWorld, odeSpace,
+                                   object1, object2);
+
+    ODEConstraint& cons = *static_cast<ODEConstraint*>(special());
+    const dReal *pos1 = dBodyGetPosition(cons.body1());
+    const dReal *pos2 = dBodyGetPosition(cons.body2());
+
+    m_initial_distance[0] = pos2[0] - pos1[0];
+    m_initial_distance[1] = pos2[1] - pos1[1];
+    m_initial_distance[2] = pos2[2] - pos1[2];
+
+    printf("[%s] Free constraint created between %s and %s.\n",
+           simulation()->type_str(),
+           object1->c_name(), object2->c_name());
+}
+
+void OscFreeODE::simulationCallback()
+{
+    ODEConstraint& me = *static_cast<ODEConstraint*>(special());
+
+    const dReal *pos1 = dBodyGetPosition(me.body1());
+    const dReal *pos2 = dBodyGetPosition(me.body2());
+
+    const dReal *vel1 = dBodyGetLinearVel(me.body1());
+    const dReal *vel2 = dBodyGetLinearVel(me.body2());
+
+    dReal force[3];
+
+    force[0] =
+        - ((pos2[0]-pos1[0]-m_initial_distance[0])
+           * m_response->m_stiffness.m_value)
+        - (vel2[0]-vel1[0]) * m_response->m_damping.m_value;
+
+    force[1] =
+        - ((pos2[1]-pos1[1]-m_initial_distance[1])
+           * m_response->m_stiffness.m_value)
+        - (vel2[1]-vel1[1]) * m_response->m_damping.m_value;
+
+    force[2] =
+        - ((pos2[2]-pos1[2]-m_initial_distance[2])
+           * m_response->m_stiffness.m_value)
+        - (vel2[2]-vel1[2]) * m_response->m_damping.m_value;
+
+    dBodyAddForce(me.body1(), -force[0], -force[1], -force[2]);
+    dBodyAddForce(me.body2(),  force[0],  force[1],  force[2]);
+}
+
+OscFreeODE::~OscFreeODE()
+{
+    delete m_response;
+}
+
+void OscFreeODE::on_force()
+{
+    // TODO
+    printf("OscFreeODE::on_force()  (not implemented)\n");
+}
+
+void OscFreeODE::on_torque()
+{
+    // TODO
+    printf("OscFreeODE::on_torque()  (not implemented)\n");
 }
 
 OscBallJointODE::OscBallJointODE(dWorldID odeWorld, dSpaceID odeSpace,
