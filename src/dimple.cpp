@@ -89,7 +89,7 @@ void parse_command_line(int argc, char* argv[])
             exit(0);
             break;
         case '?':
-            exit(1);
+            ;//exit(1);
             break;
         case -1:
             break;
