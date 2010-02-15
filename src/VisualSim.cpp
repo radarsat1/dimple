@@ -131,6 +131,9 @@ void VisualSim::updateDisplay(int data)
     }
 #endif
 
+    int step_ms = (int)(me->m_fTimestep*1000);
+    me->m_valueTimer.onTimer(step_ms);
+
     if (me->m_bDone) {}  // TODO
 
     glutPostRedisplay();
