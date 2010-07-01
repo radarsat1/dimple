@@ -116,6 +116,11 @@ AC_CHECK_LIB(glut, [glutInit], [],
 AC_CHECK_HEADER([GL/freeglut.h],
     [AC_DEFINE(USE_FREEGLUT, 1, [Define this to use freeglut features.])])
 
+# GLU
+AC_CHECK_LIB(GLU, [gluLookAt], [],
+  [AC_CHECK_LIB(glu32, [main], [],
+    AC_MSG_ERROR([Couldn't find GLU library.]))])
+
 # On MingW, the above needs glu32.
 if test x${need_glu32} = xyes
 then
