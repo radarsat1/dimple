@@ -109,6 +109,7 @@ class Simulation : public OscBase
     OSCSCALAR(Simulation, collide) {};
     OSCVECTOR3(Simulation, gravity) {};
     OSCMETHOD0(Simulation, clear);
+    OSCMETHOD0(Simulation, reset_workspace) {};
     OSCMETHOD0(Simulation, drop) { set_grabbed(NULL); }
 
     void run_unthreaded()

@@ -95,6 +95,9 @@ void HapticsSim::initialize()
     if (!m_cursor->is_initialized())
         m_bDone = true;
 
+    // ensure workspace is recalibrated
+    m_resetWorkspace = true;
+
     // initialize step count
     m_counter = 0;
 
@@ -103,12 +106,44 @@ void HapticsSim::initialize()
     Simulation::initialize();
 }
 
+void HapticsSim::updateWorkspace(cVector3d &pos)
+{
+    int i;
+    if (m_resetWorkspace) {
+        m_workspace[0] = pos;
+        m_workspace[1] = pos;
+        m_resetWorkspace = false;
+    }
+
+    for (i=0; i<3; i++) {
+        // Update workspace boundaries
+        if (pos[i] < m_workspace[0][i])
+            m_workspace[0][i] = pos[i];
+        if (pos[i] > m_workspace[1][i])
+            m_workspace[1][i] = pos[i];
+
+        float dif = (m_workspace[1][i] - m_workspace[0][i]);
+        if (dif != 0.0)
+            m_workspaceScale[i] = 2.0/(m_workspace[1][i] - m_workspace[0][i]);
+        else
+            m_workspaceScale[i] = 1;
+        m_workspaceOffset[i] = -(m_workspace[1][i] + m_workspace[0][i]) / 2.0;
+
+        // Normalize position to [-1, 1] within workspace.
+        pos[i] = (pos[i] + m_workspaceOffset[i]) * m_workspaceScale[i];
+    }
+}
+
 void HapticsSim::step()
 {
     cMeta3dofPointer *cursor = m_cursor->object();
     cursor->updatePose();
 
-    cursor->m_deviceGlobalPos.copyto(m_cursor->m_position);
+    cVector3d pos = cursor->m_deviceGlobalPos;
+    updateWorkspace(pos);
+
+    pos.copyto(cursor->m_deviceGlobalPos);
+    pos.copyto(m_cursor->m_position);
     cursor->m_deviceGlobalVel.copyto(m_cursor->m_velocity);
 
     if (m_pGrabbedObject) {
@@ -134,7 +169,6 @@ void HapticsSim::step()
         /* If in contact with an object, display the cursor at the
          * proxy location instead of the device location, so that it
          * does not show it penetrating the object. */
-        cVector3d pos(cursor->m_deviceGlobalPos);
         cProxyPointForceAlgo *algo =
             (cProxyPointForceAlgo*) cursor->m_pointForceAlgos[0];
         if (algo->getContactObject())

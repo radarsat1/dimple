@@ -252,6 +252,11 @@ void VisualSim::key(unsigned char key, int x, int y)
             me->m_bFullScreen = !me->m_bFullScreen;
             break;
         }
+        case ('w'):
+        {
+            me->sendtotype(Simulation::ST_HAPTICS, false,
+                           "/world/reset_workspace", "");
+        }
     }
 }
 

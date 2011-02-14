@@ -612,6 +612,7 @@ void Simulation::stop()
 void Simulation::initialize()
 {
     addHandler("clear", "", Simulation::clear_handler);
+    addHandler("reset_workspace", "", Simulation::reset_workspace_handler);
     addHandler("drop",  "", Simulation::drop_handler);
 }
 

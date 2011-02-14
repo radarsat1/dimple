@@ -27,15 +27,23 @@ class HapticsSim : public Simulation
     //! Set the grabbed object or ungrab by setting to NULL.
     virtual void set_grabbed(OscObject *pGrabbed);
 
+    virtual void on_reset_workspace() { m_resetWorkspace = true; }
+
   protected:
     virtual void initialize();
     virtual void step();
 
     void findContactObject();
+    void updateWorkspace(cVector3d &pos);
 
     OscObject *m_pContactObject;
     cVector3d m_lastContactPoint;
     cVector3d m_lastForce;
+
+    cVector3d m_workspace[2];
+    cVector3d m_workspaceScale;
+    cVector3d m_workspaceOffset;
+    bool m_resetWorkspace;
 
     //! A step counter
     int m_counter;
