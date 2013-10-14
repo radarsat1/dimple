@@ -34,6 +34,7 @@ int visual_timestep_ms = (int)((1.0/visual_fps)*1000.0);
 int physics_timestep_ms = 10;
 int haptics_timestep_ms = 1;
 int msg_queue_size = DEFAULT_QUEUE_SIZE*1024;
+const char *sim_spec = "vph";
 
 const char *address_send_url = "osc.udp://localhost:7775";
 
@@ -49,6 +50,9 @@ void help()
         "                    Other protocols may be 'tcp', 'unix'.\n\n");
     printf("--queue-size (-q)   Size of the message queues in kB.\n"
            "                    Default is %d.\n", DEFAULT_QUEUE_SIZE);
+    printf("--sim (-s)  A string specifying which simulations to enable.\n"
+           "            `v' for visual, `p' for physics, `h' for haptics.\n"
+           "            Defaults to \"vph\".");
 }
 
 void parse_command_line(int argc, char* argv[])
@@ -57,15 +61,16 @@ void parse_command_line(int argc, char* argv[])
 
     struct option long_options[] = {
         { "help",       no_argument,       0, 'h' },
-        { "send-url",   optional_argument, 0, 'u' },
-        { "queue-size", optional_argument, 0, 'q' },
+        { "send-url",   required_argument, 0, 'u' },
+        { "queue-size", required_argument, 0, 'q' },
+        { "sim",        required_argument, 0, 's' },
         {0, 0, 0, 0}
     };
 
     while (c!=-1) {
         int option_index = 0;
 
-        c = getopt_long (argc, argv, "hu:q:",
+        c = getopt_long (argc, argv, "hu:q:s:",
                          long_options, &option_index);
 
         switch (c) {
@@ -83,6 +88,9 @@ void parse_command_line(int argc, char* argv[])
                 exit(1);
             }
             msg_queue_size = atoi(optarg)*1024;
+            break;
+        case 's':
+            sim_spec = optarg;
             break;
         case 'h':
             help();
@@ -136,36 +144,50 @@ int main(int argc, char* argv[])
 
      try {
 
-     PhysicsSim   physics   ("7771");
-     HapticsSim   haptics   ("7772");
-     VisualSim    visual    ("7773");
+     PhysicsSim   *physics = NULL;
+     HapticsSim   *haptics = NULL;
+     VisualSim    *visual = NULL;
      InterfaceSim interface ("7774");
+
+     if (strchr(sim_spec, 'p')!=NULL)
+         physics = new PhysicsSim("7771");
+
+     if (strchr(sim_spec, 'h')!=NULL)
+         haptics = new HapticsSim("7772");
+
+     if (strchr(sim_spec, 'v')!=NULL)
+         visual = new VisualSim("7773");
 
      // Physics can change object positions
      // in any of the other simulations
-     physics.add_simulation(haptics);
-     physics.add_simulation(visual);
+     if (physics) {
+         if (haptics) physics->add_simulation(*haptics);
+         if (visual)  physics->add_simulation(*visual);
+     }
 
      // Haptics can add force to objects
      // in the physics simulation.
-     haptics.add_simulation(physics);
-     haptics.add_simulation(visual);
+     if (haptics) {
+         if (physics) haptics->add_simulation(*physics);
+         if (visual)  haptics->add_simulation(*visual);
+     }
 
      // Visual can send a message to haptics due to keyboard
      // shortcuts. (e.g. reset_workspace.)
-     visual.add_simulation(haptics);
+     if (visual && haptics)
+         visual->add_simulation(*haptics);
 
      // Interface can modify anything in
      // any other simulation.
-     interface.add_simulation(physics);
-     interface.add_simulation(haptics);
-     interface.add_simulation(visual);
+     if (physics) interface.add_simulation(*physics);
+     if (haptics) interface.add_simulation(*haptics);
+     if (visual)  interface.add_simulation(*visual);
 
      // Start all simulations
-     physics.start();
-     haptics.start();
+     if (physics) physics->start();
+     if (haptics) haptics->start();
      interface.start();
-     visual.run_unthreaded();
+     if (visual) visual->run_unthreaded();
 
 #ifndef FLEXT_SYS
 	 // initially loop just waiting for messages
