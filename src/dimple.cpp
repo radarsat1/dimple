@@ -35,7 +35,7 @@ int physics_timestep_ms = 10;
 int haptics_timestep_ms = 1;
 int msg_queue_size = DEFAULT_QUEUE_SIZE*1024;
 
-char *address_send_url = "osc.udp://localhost:7775";
+const char *address_send_url = "osc.udp://localhost:7775";
 
 lo_address address_send;
 int quit = 0;
