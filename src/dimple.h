@@ -21,6 +21,8 @@
 #ifdef interface
 #undef interface
 #endif
+#else
+#include <unistd.h>
 #endif
 #define _WINSOCK2API_
 #include "lo/lo.h"
