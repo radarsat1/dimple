@@ -21,6 +21,7 @@ AC_CHECK_PROG(pkgconfig, pkg-config, yes, no)
 AC_CHECK_FUNC([log], [], [AC_CHECK_LIB([m],[log])])
 AC_CHECK_FUNC([getopt_long], [],
   [AC_MSG_ERROR([Couldn't find getopt_long])])
+AC_CHECK_LIB([dl],[dlopen])
 
 # Checks for header files.
 AC_HEADER_STDC
