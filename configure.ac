@@ -1,7 +1,7 @@
 AC_PREREQ(2.57)
 
 AC_DEFUN([DIMPLE_VER],[m4_esyscmd([util/version.sh | tr -d '\n'])])
-AC_INIT([dimple], [DIMPLE_VER], [dimple@music.mcgill.ca])
+AC_INIT([dimple], DIMPLE_VER, [dimple@music.mcgill.ca])
 
 CPPFLAGS="$CPPFLAGS -DDIMPLE_VERSION=\\\"DIMPLE_VER\\\""
 
