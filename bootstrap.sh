@@ -139,7 +139,7 @@ case $(uname) in
 
 	*)
     echo Configuring $ode_DIR
-    if !(cd $ode_DIR && env ./configure --disable-shared); then
+    if !(cd $ode_DIR && env ./configure CC=gcc-4.6 CXX=g++-4.6 LIBS=-lX11 --disable-shared); then
     	echo "Error configuring $ode_DIR"
 	    exit
     fi
