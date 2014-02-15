@@ -145,19 +145,19 @@ esac
 # CHAI 3D
 CPPFLAGS="$CPPFLAGS $CHAI_FLAGS"
 save_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/chai3d/include"
-AC_CHECK_HEADER(CGenericObject.h, [],
+CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/../chai3d/src"
+AC_CHECK_HEADER(scenegraph/CGenericObject.h, [],
   [CPPFLAGS="$save_CPPFLAGS"
   unset ac_cv_header_CGenericObject_h
-  AC_CHECK_HEADER(CGenericObject.h, [],
+  AC_CHECK_HEADER(scenegraph/CGenericObject.h, [],
      [AC_MSG_ERROR([Couldn't find CHAI 3D headers.])])])
 
 save_LDFLAGS="$LDFLAGS"
-LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/chai3d/lib/${CHAI_SUFFIX}"
-AC_CHECK_LIB(chai3d_${CHAI_SUFFIX}, [main], [],
+LDFLAGS="$LDFLAGS -L${abs_srcdir}/../chai3d/lib/${CHAI_SUFFIX}"
+AC_CHECK_LIB(chai3d, [main], [],
   [LDFLAGS="$save_LDFLAGS"
   unset ac_cv_lib_chai3d_${CHAI_SUFFIX}_main
-  AC_CHECK_LIB(chai3d_${CHAI_SUFFIX}, [main], [],
+  AC_CHECK_LIB(chai3d, [main], [],
     AC_MSG_ERROR([Couldn't find CHAI 3D library.]))])
 
 # ODE
