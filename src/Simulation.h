@@ -3,9 +3,11 @@
 #ifndef _SIMULATION_H_
 #define _SIMULATION_H_
 
+#include <pthread.h>
+
 #include "OscValue.h"
 #include "ValueTimer.h"
-#include "CPrecisionClock.h"
+#include "timers/CPrecisionClock.h"
 #include "LoQueue.h"
 
 class SphereFactory;

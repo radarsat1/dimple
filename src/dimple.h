@@ -28,7 +28,7 @@
 #include "lo/lo.h"
 #include "AudioStreamer.h"
 #include <map>
-#include <CWorld.h>
+#include <scenegraph/CWorld.h>
 #include <ode/ode.h>
 
 /** Global options **/

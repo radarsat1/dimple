@@ -19,7 +19,7 @@
 #ifndef CODEPotentialProxyH
 #define CODEPotentialProxyH
 //---------------------------------------------------------------------------
-#include <CPotentialFieldForceAlgo.h>
+#include <forces/CPotentialFieldForceAlgo.h>
 //---------------------------------------------------------------------------
 
 //===========================================================================

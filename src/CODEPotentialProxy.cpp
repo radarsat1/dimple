@@ -17,7 +17,7 @@
 
 //---------------------------------------------------------------------------
 #include "CODEPotentialProxy.h"
-#include "CWorld.h"
+#include <scenegraph/CWorld.h>
 //---------------------------------------------------------------------------
 
 //===========================================================================
@@ -43,8 +43,9 @@ cVector3d cODEPotentialProxy::computeForces(const cVector3d& a_nextDevicePos)
         int numObjects = m_world->getNumChildren();
         for (int i=0; i<numObjects; i++)
         {
+			 /*
             if (m_world->getChild(i)->getHapticEnabled()) {
-                cVector3d nextForce = m_world->getChild(i)->computeForces(a_nextDevicePos);
+				 cVector3d nextForce = m_world->getChild(i)->computeInteractions(a_nextDevicePos, a_nextDeviceVel);
                 if (nextForce.lengthsq()!=0) {
                     m_lastContactObject = m_world->getChild(i);
                     // TODO: determine contact point on potential field
@@ -54,6 +55,7 @@ cVector3d cODEPotentialProxy::computeForces(const cVector3d& a_nextDevicePos)
                 }
                 force.add(nextForce);
             }
+			 */
         }
     }
 

@@ -6,9 +6,9 @@
 #include "Simulation.h"
 #include "HapticsSim.h"
 
-#include <CWorld.h>
-#include <CCamera.h>
-#include <CLight.h>
+#include <scenegraph/CWorld.h>
+#include <scenegraph/CCamera.h>
+#include <scenegraph/CLight.h>
 
 class OscCameraCHAI;
 

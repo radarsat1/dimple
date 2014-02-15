@@ -17,8 +17,8 @@
 #define _OSC_VALUE_H_
 
 #include "OscBase.h"
-#include <CVector3d.h>
-#include <CMatrix3d.h>
+#include <math/CVector3d.h>
+#include <math/CMatrix3d.h>
 
 /* === Macros for easily adding member functions with associated callbacks */
 

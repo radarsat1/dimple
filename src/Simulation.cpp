@@ -631,12 +631,11 @@ void* Simulation::run(void* param)
     int step_left = step_ms;
     while (!me->m_bDone)
     {
-        me->m_clock.initialize();
-        me->m_clock.setTimeoutPeriod(step_us);
+        me->m_clock.setTimeoutPeriodSeconds(me->m_fTimestep);
         me->m_clock.start();
         step_left = me->m_bSelfTimed ? step_ms : 0;
         while (lo_server_recv_noblock(me->m_server, step_left) > 0) {
-            step_left = step_ms-(me->m_clock.getCurrentTime()/1000);
+            step_left = step_ms-(me->m_clock.getCurrentTimeSeconds()/1000);
             if (step_left < 0) step_left = 0;
         }
 #ifdef USE_QUEUES

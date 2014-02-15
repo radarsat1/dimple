@@ -6,11 +6,11 @@
 #include "Simulation.h"
 #include "OscObject.h"
 
-#include <CWorld.h>
-#include <CCamera.h>
-#include <CLight.h>
-#include <CMeta3dofPointer.h>
-#include <CShapeSphere.h>
+#include <scenegraph/CWorld.h>
+#include <scenegraph/CCamera.h>
+#include <scenegraph/CLight.h>
+#include <tools/CGeneric3dofPointer.h>
+#include <scenegraph/CShapeSphere.h>
 
 class OscCursorCHAI;
 
@@ -109,7 +109,7 @@ protected:
         { ((CHAIObject*)me)->chai_object()->setRot(r);
             ((CHAIObject*)me)->chai_object()->computeGlobalPositions(); }
     static void on_set_visible(void* me, OscBoolean &v)
-        { ((CHAIObject*)me)->chai_object()->setShow(v.m_value, true); }
+        { ((CHAIObject*)me)->chai_object()->setShowEnabled(v.m_value, true); }
 
     /* TODO: the following functions cannot be done here only because
      * CHAI doesn't define m_material as a property of cGenericObject,
@@ -203,7 +203,7 @@ public:
     OscCursorCHAI(cWorld *world, const char *name, OscBase *parent=NULL);
     virtual ~OscCursorCHAI();
 
-    virtual cMeta3dofPointer *object() { return m_pCursor; }
+    virtual cGeneric3dofPointer *object() { return m_pCursor; }
 
     bool is_initialized() { return m_bInitialized; }
 
@@ -218,9 +218,9 @@ protected:
     virtual void on_force();
     virtual void on_radius();
     virtual void on_color()
-      { object()->m_colorProxy.set(m_color.x, m_color.y, m_color.z); }
+      { object()->m_material.m_diffuse.set(m_color.x, m_color.y, m_color.z); }
 
-    cMeta3dofPointer *m_pCursor;
+    cGeneric3dofPointer *m_pCursor;
     cVector3d m_massPos;
     cVector3d m_massVel;
     cVector3d m_lastPosDiff;

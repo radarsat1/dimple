@@ -136,7 +136,7 @@ void HapticsSim::updateWorkspace(cVector3d &pos)
 
 void HapticsSim::step()
 {
-    cMeta3dofPointer *cursor = m_cursor->object();
+    cGeneric3dofPointer *cursor = m_cursor->object();
     cursor->updatePose();
 
     cVector3d pos = cursor->m_deviceGlobalPos;
@@ -150,7 +150,7 @@ void HapticsSim::step()
         cursor->m_lastComputedGlobalForce.set(0,0,0);
         m_cursor->addCursorGrabbedForce(m_pGrabbedObject);
     } else {
-        cursor->computeForces();
+        cursor->computeInteractionForces();
         m_cursor->addCursorMassForce();
     }
 
@@ -164,6 +164,7 @@ void HapticsSim::step()
     if (m_pGrabbedObject)
         update_sim |= Simulation::ST_PHYSICS;
 
+#if 0
     if (update_sim)
     {
         /* If in contact with an object, display the cursor at the
@@ -178,6 +179,7 @@ void HapticsSim::step()
                    "/world/cursor/position","fff",
                    pos.x, pos.y, pos.z);
     }
+#endif
 
     findContactObject();
 
@@ -207,7 +209,8 @@ void HapticsSim::findContactObject()
     m_pContactObject = NULL;
     cGenericObject *obj = NULL;
 
-    cMeta3dofPointer *cursor = m_cursor->object();
+#if 0
+    cGeneric3dofPointer *cursor = m_cursor->object();
     for (unsigned int i=0; i<cursor->m_pointForceAlgos.size(); i++)
     {
         cProxyPointForceAlgo* pointforce_proxy =
@@ -232,6 +235,7 @@ void HapticsSim::findContactObject()
             break;
         }
     }
+#endif
 
     // User data is set in the Osc*CHAI constructors
     if (obj)
@@ -560,7 +564,7 @@ OscMeshCHAI::OscMeshCHAI(cWorld *world, const char *name, const char *filename,
     on_size();
 
     /* setup collision detector */
-    m_pMesh->createAABBCollisionDetector(true, true);
+    m_pMesh->createAABBCollisionDetector(0.01, true, true);
 
     world->addChild(m_pMesh);
     m_pMesh->computeGlobalPositions();
@@ -596,7 +600,7 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
     : OscSphere(NULL, name, parent)
 {
     // create the cursor object
-    m_pCursor = new cMeta3dofPointer(world);
+    m_pCursor = new cGeneric3dofPointer(world);
     world->addChild(m_pCursor);
 
     // User data points to the OscObject, used for identification
@@ -604,12 +608,14 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
     m_pCursor->setUserData(this, 1);
 
     // replace the potential proxy algorithm with our own
+#if 0
     cGenericPointForceAlgo *old_proxy, *new_proxy;
     old_proxy = m_pCursor->m_pointForceAlgos[1];
     new_proxy = new cODEPotentialProxy(
         dynamic_cast<cPotentialFieldForceAlgo*>(old_proxy));
     m_pCursor->m_pointForceAlgos[1] = new_proxy;
     delete old_proxy;
+#endif
 
     if (m_pCursor->initialize()) {
         m_bInitialized = false;
@@ -623,8 +629,10 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
     m_pCursor->rotate(cVector3d(0,0,1),-90.0*M_PI/180.0);
 
     // make it a cursor tuned for a dynamic environment
+#if 0
     ((cProxyPointForceAlgo*)m_pCursor->m_pointForceAlgos[0])
         ->enableDynamicProxy(true);
+#endif
 
     // this is necessary for the above rotation to take effect
     m_pCursor->computeGlobalPositions();
