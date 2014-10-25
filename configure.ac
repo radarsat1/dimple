@@ -162,7 +162,7 @@ AC_CHECK_LIB(chai3d_${CHAI_SUFFIX}, [main], [],
 
 # ODE
 save_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/ode-0.10.1/include"
+CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/ode-0.10.1/include -D_ODE_ODECPP_H_"
 AC_CHECK_HEADER(ode/ode.h, [],
   [CPPFLAGS="$save_CPPFLAGS"
   unset ac_cv_header_ode_ode_h
