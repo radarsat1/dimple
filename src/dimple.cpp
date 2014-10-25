@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
 
      // Visual can send a message to haptics due to keyboard
      // shortcuts. (e.g. reset_workspace.)
-     visual.add_simulation(haptics);
+     visual->add_simulation(*haptics);
 
      // Interface can modify anything in
      // any other simulation.
