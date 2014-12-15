@@ -176,7 +176,7 @@ AC_CHECK_LIB(chai3d_${CHAI_SUFFIX}, [main], [],
 
 # ODE
 save_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/ode-0.10.1/include -D_ODE_ODECPP_H_"
+CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/ode-0.13.1/include"
 AC_CHECK_HEADER(ode/ode.h, [],
   [CPPFLAGS="$save_CPPFLAGS"
   unset ac_cv_header_ode_ode_h
@@ -184,7 +184,7 @@ AC_CHECK_HEADER(ode/ode.h, [],
      [AC_MSG_ERROR([Couldn't find ODE headers.])])])
 
 save_LDFLAGS="$LDFLAGS"
-LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/ode-0.10.1/ode/src/.libs"
+LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/ode-0.13.1/ode/src/.libs"
 AC_CHECK_LIB(ode, [dBodyCreate], [],
   [LDFLAGS="$save_LDFLAGS"
   unset ac_cv_lib_ode_dBodyCreate

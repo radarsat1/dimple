@@ -87,10 +87,10 @@ echo
 }
 
 ode() {
-ode_URL=http://downloads.sourceforge.net/opende/ode-0.10.1.tar.bz2
-ode_TAR=ode-0.10.1.tar.bz2
-ode_DIR=ode-0.10.1
-ode_MD5=91c396b915539a760617437d56eb1681
+ode_URL=https://bitbucket.org/odedevs/ode/downloads/ode-0.13.1.tar.gz
+ode_TAR=ode-0.13.1.tar.gz
+ode_DIR=ode-0.13.1
+ode_MD5=00f6613b3d8e5249be60e3a513d6aebd
 
 if [ $($MD5 $ode_TAR | $MD5CUT)x != ${ode_MD5}x ]; then
 	echo Downloading $ode_TAR ...
@@ -106,7 +106,7 @@ fi
 if ! [ -d $ode_DIR ]; then
 
 echo Extracting $ode_TAR ...
-if !(tar -xjf $ode_TAR); then
+if !(tar -xzf $ode_TAR); then
 	echo "Error in archive.";
 	exit
 fi
@@ -139,7 +139,7 @@ case $(uname) in
 
 	*)
     echo Configuring $ode_DIR
-    if !(cd $ode_DIR && env ./configure CC=gcc-4.6 CXX=g++-4.6 LIBS=-lX11 --disable-shared); then
+    if !(cd $ode_DIR && env ./configure --disable-shared); then
     	echo "Error configuring $ode_DIR"
 	    exit
     fi

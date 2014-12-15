@@ -214,7 +214,7 @@ void PhysicsSim::step()
 
     // Perform simulation step
 	dSpaceCollide (m_odeSpace, this, &ode_nearCallback);
-	dWorldStepFast1 (m_odeWorld, m_fTimestep, 5);
+	dWorldQuickStep (m_odeWorld, m_fTimestep);
 	dJointGroupEmpty (m_odeContactGroup);
 
     /* Update positions of each object in the other simulations */
