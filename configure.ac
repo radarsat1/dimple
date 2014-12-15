@@ -6,6 +6,7 @@ AC_INIT([dimple], DIMPLE_VER, [dimple@music.mcgill.ca])
 CPPFLAGS="$CPPFLAGS -DDIMPLE_VERSION=\\\"DIMPLE_VER\\\""
 
 AM_CONFIG_HEADER([src/config.h])
+AC_CONFIG_MACRO_DIR([m4])
 
 AC_CANONICAL_SYSTEM
 AM_INIT_AUTOMAKE
@@ -142,6 +143,19 @@ esac
 # The "unset" commands are to reset the autoconf cache, otherwise it
 # just uses previous value and fails.
 
+# pthread
+AX_PTHREAD(
+  [CPPFLAGS="$CPPFLAGS $PTHREAD_CFLAGS"
+  LDFLAGS="$LDFLAGS $PTHREAD_CFLAGS"
+  LIBS="$PTHREAD_LIBS $LIBS"],
+  [LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/pthreads-w32-2-8-0-release"
+  unset ac_cv_lib_pthread_pthread_create
+  AC_CHECK_LIB(pthread, [pthread_create],
+    [CPPFLAGS="$CPPFLAGS -DPTW32_STATIC_LIB"
+    LIBS="-lpthread $LIBS"],
+    [AC_MSG_ERROR([Couldn't find pthread library.])],
+    [-lws2_32])])
+
 # CHAI 3D
 CPPFLAGS="$CPPFLAGS $CHAI_FLAGS"
 save_CPPFLAGS="$CPPFLAGS"
@@ -215,16 +229,6 @@ AC_CHECK_LIB(lo, [lo_server_new], [],
     unset ac_cv_lib_lo_lo_server_new
     AC_CHECK_LIB(lo, [lo_server_new], [],
       AC_MSG_ERROR([Couldn't find liblo library.]))])])
-
-# pthread
-AC_CHECK_LIB(pthread, [pthread_create], [],
-  [LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/pthreads-w32-2-8-0-release"
-  unset ac_cv_lib_pthread_pthread_create
-  AC_CHECK_LIB(pthread, [pthread_create],
-    [CPPFLAGS="$CPPFLAGS -DPTW32_STATIC_LIB"
-    LIBS="-lpthread $LIBS"],
-    [AC_MSG_ERROR([Couldn't find pthread library.])],
-    [-lws2_32])])
 
 # check if libnifalcon is available: if so, link to it
 if test x${ac_cv_prog_pkgconfig} == xyes
