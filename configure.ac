@@ -10,6 +10,8 @@ AC_CONFIG_MACRO_DIR([m4])
 
 AC_CANONICAL_SYSTEM
 AM_INIT_AUTOMAKE
+AM_MAINTAINER_MODE
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 abs_srcdir=`cd $srcdir; pwd`
 
