@@ -110,7 +110,13 @@ do
   fi
 done
 
-conf_flags="--enable-maintainer-mode"
+case x"$@" in
+  *--disable-debug*)
+  ;;
+  *)
+    conf_flags="--enable-maintainer-mode --disable-silent-rules --enable-debug"
+  ;;
+esac
 
 if test x$NOCONFIGURE = x; then
   echo Running $srcdir/configure $conf_flags "$@" ...
