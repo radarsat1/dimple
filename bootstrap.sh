@@ -8,10 +8,10 @@
 echo This script bootstraps required libraries for selected environments.
 
 liblo() {
-liblo_URL=http://downloads.sourceforge.net/liblo/liblo-0.26.tar.gz
-liblo_TAR=liblo-0.26.tar.gz
-liblo_DIR=liblo-0.26
-liblo_MD5=5351de14262560e15e7f23865293b16f
+liblo_URL=http://downloads.sourceforge.net/liblo/liblo-0.28.tar.gz
+liblo_TAR=liblo-0.28.tar.gz
+liblo_DIR=liblo-0.28
+liblo_MD5=e2a4391a08b49bb316c03e2034e06fa2
 
 if [ $($MD5 $liblo_TAR | $MD5CUT)x != ${liblo_MD5}x ]; then
 	echo Downloading $liblo_TAR ...
