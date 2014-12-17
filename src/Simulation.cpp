@@ -567,6 +567,7 @@ Simulation::Simulation(const char *port, int type)
     m_bDone = false;
     m_bStarted = false;
     m_bSelfTimed = true;
+    m_psem_init = NULL;
 
     m_collide.setSetCallback(set_collide, this);
     m_gravity.setSetCallback(set_gravity, this);
@@ -584,19 +585,38 @@ Simulation::~Simulation()
 
 bool Simulation::start()
 {
+    bool rc = true;
     if (m_bStarted)
         return true;
 
     m_bDone = false;
 
+    // Set up a semaphore to inform us that initialization is complete
+    m_psem_init = new sem_t;
+    sem_init(m_psem_init, 0, -1);
+
+    timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    ts.tv_sec += 3;
+
     if (pthread_create(&m_thread, NULL, Simulation::run, this)) {
         printf("[%s] Error creating simulation thread.", type_str());
-        return false;
+        rc = false;
     }
-    else
+    else {
         m_bStarted = true;
 
-    return true;
+        // Wait for thread to signal initialization done
+        if (sem_timedwait(m_psem_init, &ts) < 0) {
+            printf("[%s] Timed out during initialization.\n", type_str());
+            rc = false;
+        }
+    }
+
+    sem_destroy(m_psem_init);
+    delete m_psem_init;
+    m_psem_init = NULL;
+    return rc;
 }
 
 void Simulation::stop()
@@ -623,6 +643,10 @@ void* Simulation::run(void* param)
     me->initialize();
 
     printf("[%s] Simulation running.\n", me->type_str());
+
+    // Signal parent thread
+    if (me->m_psem_init)
+        sem_post(me->m_psem_init);
 
     std::vector<LoQueue*>::iterator qit;
 
