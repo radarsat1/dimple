@@ -72,8 +72,8 @@ and the **world** coordinate system.  For the latter, specify
 //object2// as ''world''.  Different constraints take different
 numbers of arguments depending on how many points and vectors are
 needed to define them.  Please see the
-[ODE documentation section on Joints](http://opende.sourceforge.net/wiki/index.php/Manual_(Joint_Types_and_Functions)) for more information on each
-constraint type.
+[ODE documentation section on Joints](http://ode-wiki.org/wiki/index.php?title=Manual:_Joint_Types_and_Functions)
+for more information on each constraint type.
 
 The "free" constraint is not really a constraint --- all the axes are
 free.  However, it is useful for establishing a response between the
