@@ -184,10 +184,15 @@ int main(int argc, char* argv[])
      if (visual)  interface.add_simulation(*visual);
 
      // Start all simulations
-     if (physics) physics->start();
-     if (haptics) haptics->start();
-     interface.start();
-     if (visual) visual->run_unthreaded();
+     bool rc = true;
+     if (physics) rc &= physics->start();
+     if (haptics) rc &= haptics->start();
+     rc &= interface.start();
+
+     if (!rc)
+         quit = 1;
+     else
+         if (visual) visual->run_unthreaded();
 
 #ifndef FLEXT_SYS
 	 // initially loop just waiting for messages
