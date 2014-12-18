@@ -53,6 +53,7 @@
                                         (interval>=0)?"i":"", interval);}
 
 class OscCameraInterface;
+class OscCursorInterface;
 
 class InterfaceSim : public Simulation
 {
@@ -84,6 +85,7 @@ class InterfaceSim : public Simulation
 
   protected:
     OscCameraInterface *m_camera;
+    OscCursorInterface *m_cursor;
     virtual void step();
 };
 

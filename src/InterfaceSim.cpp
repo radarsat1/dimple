@@ -237,7 +237,7 @@ InterfaceSim::InterfaceSim(const char *port)
     m_pUniversalFactory = new InterfaceUniversalFactory(this);
 
     m_camera = new OscCameraInterface("camera", this);
-    new OscCursorInterface(NULL, "cursor", this);
+    m_cursor = new OscCursorInterface(NULL, "cursor", this);
 
     m_fTimestep = 1;
 }
@@ -245,6 +245,7 @@ InterfaceSim::InterfaceSim(const char *port)
 InterfaceSim::~InterfaceSim()
 {
     if (m_camera) delete m_camera;
+    if (m_cursor) delete m_cursor;
 }
 
 void InterfaceSim::step()
