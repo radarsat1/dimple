@@ -74,6 +74,8 @@ HapticsSim::~HapticsSim()
     // Stop the simulation before deleting objects, otherwise thread
     // is still running and may dereference them.
     stop();
+
+    if (m_chaiWorld) delete m_chaiWorld;
 }
 
 void HapticsSim::initialize()
@@ -84,7 +86,6 @@ void HapticsSim::initialize()
 
     // create an OscObject to point to the cursor
     m_cursor = new OscCursorCHAI(m_chaiWorld, "cursor", this);
-    m_chaiWorld->addChild(m_cursor->object());
 
     // special case:
     // we know that the libnifalcon driver times itself, so don't
