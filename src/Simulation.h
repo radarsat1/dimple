@@ -25,12 +25,13 @@ class UniversalFactory;
 class OscObject;
 class OscConstraint;
 
-//! Simulation info contains copies of information needed to send a
+//! SimulationReceiver contains copies of information needed to send a
 //! simulation a message or stream of messages.
-class SimulationInfo
+class SimulationReceiver
 {
 public:
-    SimulationInfo(Simulation &sim);
+    SimulationReceiver(const char *url, int type);
+    SimulationReceiver(Simulation &sim);
 
     lo_address addr() { return m_addr; }
     float timestep() { return m_fTimestep; }
@@ -38,10 +39,13 @@ public:
 
     LoQueue m_queue;
 
+    void send_lo_message(const char *path, lo_message msg);
+
 protected:
     lo_address m_addr;
     float m_fTimestep;
     int m_type;
+    bool m_bUseQueue;
 };
 
 //! A Simulation is an OSC-controlled simulation thread which contains
@@ -85,13 +89,13 @@ class Simulation : public OscBase
     float timestep() { return m_fTimestep; }
 
     //! Return the list of receivers for messages from this simulation.
-    const std::vector<SimulationInfo*>& simulationList()
-        { return m_simulationList; }
+    const std::vector<SimulationReceiver*>& simulationList()
+        { return m_receiverList; }
 
-    //! Add a simulation to the list of possible receivers for
+    //! Add a receiver to the list of possible receivers for
     //! messages from this simulation.
-    void add_simulation(Simulation& sim)
-        { m_simulationList.push_back(new SimulationInfo(sim)); }
+    void add_receiver(Simulation *sim, const char *spec,
+                      Simulation::SimulationType type);
 
     //! Add a queue to the list of queues to poll for messages.
     void add_queue(LoQueue *queue)
@@ -166,7 +170,7 @@ class Simulation : public OscBase
     typedef std::map<std::string,OscConstraint*>::iterator constraint_iterator;
 
     //! List of other simulations that may receive messages from this one.
-    std::vector<SimulationInfo*> m_simulationList;
+    std::vector<SimulationReceiver*> m_receiverList;
 
     //! List of FIFO queues to check for incoming messages.
     std::vector<LoQueue*> m_queueList;
@@ -182,7 +186,7 @@ class Simulation : public OscBase
     typedef std::map<std::string, int>::iterator sent_messages_iterator;
 
     //! Decide whether or not to send a message or throttle it.
-    bool should_throttle(const char *path, SimulationInfo& sim_to);
+    bool should_throttle(const char *path, SimulationReceiver& sim_to);
 };
 
 class ShapeFactory : public OscBase

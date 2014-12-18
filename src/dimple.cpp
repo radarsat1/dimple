@@ -34,7 +34,10 @@ int visual_timestep_ms = (int)((1.0/visual_fps)*1000.0);
 int physics_timestep_ms = 10;
 int haptics_timestep_ms = 1;
 int msg_queue_size = DEFAULT_QUEUE_SIZE*1024;
-const char *sim_spec = "vph";
+
+static struct {
+    const char *visual, *haptics, *physics;
+} sim_spec = { "", "", "" };
 
 const char *address_send_url = "osc.udp://localhost:7775";
 
@@ -52,12 +55,16 @@ void help()
            "                    Default is %d.\n", DEFAULT_QUEUE_SIZE);
     printf("--sim (-s)  A string specifying which simulations to enable.\n"
            "            `v' for visual, `p' for physics, `h' for haptics.\n"
-           "            Defaults to \"vph\".");
+           "            May be followed by ',' and a Liblo-style URL,\n"
+           "            indicating that these components be addressed\n"
+           "            remotely. Multiple -s flags may be provided for\n"
+           "            different addresses. Defaults to \"vph\".\n");
 }
 
 void parse_command_line(int argc, char* argv[])
 {
     int c=0;
+    const char *s, *u;
 
     struct option long_options[] = {
         { "help",       no_argument,       0, 'h' },
@@ -90,7 +97,22 @@ void parse_command_line(int argc, char* argv[])
             msg_queue_size = atoi(optarg)*1024;
             break;
         case 's':
-            sim_spec = optarg;
+            s = optarg;
+            u = "local";
+            while (*s++ != 0) {
+                if (*s == ',') {
+                    u = s+1;
+                    break;
+                }
+            }
+            s = optarg;
+            while (*s != 0 && *s != ',') {
+                switch (*s++) {
+                case 'v': sim_spec.visual = u; break;
+                case 'h': sim_spec.haptics = u; break;
+                case 'p': sim_spec.physics = u; break;
+                }
+            };
             break;
         case 'h':
             help();
@@ -105,6 +127,12 @@ void parse_command_line(int argc, char* argv[])
             exit(1);
         }
     }
+
+    // If all simulations are disabled, enable all of them locally
+    if (sim_spec.visual[0] == '\0'
+        && sim_spec.haptics[0] == '\0'
+        && sim_spec.physics[0] == '\0')
+        sim_spec.visual = sim_spec.haptics = sim_spec.physics = "local";
 }
 
 void sighandler_quit(int sig)
@@ -142,47 +170,48 @@ int main(int argc, char* argv[])
      }
      printf("URL opened for sending: %s\n", address_send_url);
 
-     PhysicsSim   *physics = NULL;
-     HapticsSim   *haptics = NULL;
-     VisualSim    *visual = NULL;
+     Simulation *physics = NULL;
+     Simulation *haptics = NULL;
+     Simulation *visual = NULL;
 
      try {
 
      InterfaceSim interface ("7774");
 
-     if (strchr(sim_spec, 'p')!=NULL)
+     if (strcmp(sim_spec.physics, "local")==0)
          physics = new PhysicsSim("7771");
 
-     if (strchr(sim_spec, 'h')!=NULL)
+     if (strcmp(sim_spec.haptics, "local")==0)
          haptics = new HapticsSim("7772");
 
-     if (strchr(sim_spec, 'v')!=NULL)
+     if (strcmp(sim_spec.visual, "local")==0)
          visual = new VisualSim("7773");
 
      // Physics can change object positions
      // in any of the other simulations
      if (physics) {
-         if (haptics) physics->add_simulation(*haptics);
-         if (visual)  physics->add_simulation(*visual);
+         physics->add_receiver( haptics, sim_spec.haptics, Simulation::ST_HAPTICS );
+         physics->add_receiver( visual,  sim_spec.visual,  Simulation::ST_VISUAL  );
      }
 
      // Haptics can add force to objects
      // in the physics simulation.
      if (haptics) {
-         if (physics) haptics->add_simulation(*physics);
-         if (visual)  haptics->add_simulation(*visual);
+         haptics->add_receiver( physics, sim_spec.physics, Simulation::ST_PHYSICS );
+         haptics->add_receiver( visual,  sim_spec.visual,  Simulation::ST_VISUAL  );
      }
 
      // Visual can send a message to haptics due to keyboard
      // shortcuts. (e.g. reset_workspace.)
-     if (visual && haptics)
-         visual->add_simulation(*haptics);
+     if (visual) {
+         visual->add_receiver( haptics, sim_spec.haptics,  Simulation::ST_HAPTICS );
+     }
 
      // Interface can modify anything in
      // any other simulation.
-     if (physics) interface.add_simulation(*physics);
-     if (haptics) interface.add_simulation(*haptics);
-     if (visual)  interface.add_simulation(*visual);
+     interface.add_receiver( physics, sim_spec.physics, Simulation::ST_PHYSICS );
+     interface.add_receiver( haptics, sim_spec.haptics, Simulation::ST_HAPTICS );
+     interface.add_receiver( visual,  sim_spec.visual,  Simulation::ST_VISUAL  );
 
      // Start all simulations
      bool rc = true;

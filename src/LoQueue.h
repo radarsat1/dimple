@@ -68,6 +68,8 @@ public:
         return false;
     }
 
+    size_t size() { return m_fifo.getSize(); }
+
 protected:
     CircBufferNoLock m_fifo;
     size_t m_readsize;

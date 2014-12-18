@@ -548,12 +548,43 @@ int UniversalFactory::create_handler(const char *path, const char *types, lo_arg
     return 0;
 }
 
-/****** SimulationInfo *******/
-SimulationInfo::SimulationInfo(Simulation &sim)
+/****** SimulationReceiver *******/
+
+SimulationReceiver::SimulationReceiver(const char *url, int type)
+    : m_type(type), m_queue(0)
+{
+    m_addr = lo_address_new_from_url(url);
+    switch (m_type) {
+    case Simulation::ST_VISUAL:
+        m_fTimestep = visual_timestep_ms/1000.0;
+        break;
+    case Simulation::ST_PHYSICS:
+        m_fTimestep = physics_timestep_ms/1000.0;
+        break;
+    case Simulation::ST_HAPTICS:
+        m_fTimestep = haptics_timestep_ms/1000.0;
+        break;
+    }
+
+    m_bUseQueue = false;
+}
+
+SimulationReceiver::SimulationReceiver(Simulation &sim)
     : m_addr(sim.addr()), m_fTimestep(sim.timestep()),
       m_type(sim.type()), m_queue(msg_queue_size)
 {
+    m_bUseQueue = true;
     sim.add_queue(&m_queue);
+}
+
+void SimulationReceiver::send_lo_message(const char *path, lo_message msg)
+{
+#ifdef USE_QUEUES
+    if (m_bUseQueue)
+        m_queue.write_lo_message(path, msg);
+    else
+#endif
+        lo_send_message(addr(), path, msg);
 }
 
 /****** Simulation *******/
@@ -591,6 +622,19 @@ Simulation::~Simulation()
     m_collide.m_server = 0;
     m_gravity.m_server = 0;
     m_gravity.m_magnitude.m_server = 0;
+}
+
+void Simulation::add_receiver(Simulation *sim, const char *spec,
+                              Simulation::SimulationType type)
+{
+    SimulationReceiver *r = NULL;
+    if (sim)
+        r = new SimulationReceiver(*sim);
+    else if (spec[0] != '\0')
+        r = new SimulationReceiver(spec, type);
+
+    if (r)
+        m_receiverList.push_back(r);
 }
 
 bool Simulation::start()
@@ -851,9 +895,9 @@ void Simulation::send(bool throttle, const char *path, const char *types, ...)
     add_varargs(msg, ap, types);
     va_end(ap);
 
-    std::vector<SimulationInfo*>::iterator it;
-    for (it=m_simulationList.begin();
-         it!=m_simulationList.end();
+    std::vector<SimulationReceiver*>::iterator it;
+    for (it=m_receiverList.begin();
+         it!=m_receiverList.end();
          it++)
     {
         /* TODO: throttling must take into account the destination as
@@ -864,11 +908,7 @@ void Simulation::send(bool throttle, const char *path, const char *types, ...)
             continue;
 #endif
 
-#ifdef USE_QUEUES
-        (*it)->m_queue.write_lo_message(path, msg);
-#else
-        lo_send_message((*it)->addr(), path, msg);
-#endif
+        (*it)->send_lo_message(path, msg);
     }
 
     lo_message_free(msg);
@@ -882,9 +922,9 @@ void Simulation::sendtotype(int type, bool throttle, const char *path, const cha
     add_varargs(msg, ap, types);
     va_end(ap);
 
-    std::vector<SimulationInfo*>::iterator it;
-    for (it=m_simulationList.begin();
-         it!=m_simulationList.end();
+    std::vector<SimulationReceiver*>::iterator it;
+    for (it=m_receiverList.begin();
+         it!=m_receiverList.end();
          it++)
     {
         if ((*it)->type() & type)
@@ -892,11 +932,7 @@ void Simulation::sendtotype(int type, bool throttle, const char *path, const cha
             if (throttle && should_throttle(path, **it))
                 continue;
 
-#ifdef USE_QUEUES
-            (*it)->m_queue.write_lo_message(path, msg);
-#else
-            lo_send_message((*it)->addr(), path, msg);
-#endif
+            (*it)->send_lo_message(path, msg);
         }
     }
 
@@ -927,7 +963,7 @@ void Simulation::on_clear()
     }
 }
 
-bool Simulation::should_throttle(const char *path, SimulationInfo& sim_to)
+bool Simulation::should_throttle(const char *path, SimulationReceiver& sim_to)
 {
     sent_messages_iterator it = sent_messages.find(path);
     if (it!=sent_messages.end())
