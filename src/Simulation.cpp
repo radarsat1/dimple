@@ -579,10 +579,18 @@ Simulation::~Simulation()
 {
     stop();
 
-    if (m_server)
+    if (m_server) {
         lo_server_free(m_server);
+        m_server = 0;
+    }
 
     lo_address_free(m_addr);
+
+    // Clear lo_server pointers in OscValues, otherwise their
+    // destructors will dereference it while removing methods.
+    m_collide.m_server = 0;
+    m_gravity.m_server = 0;
+    m_gravity.m_magnitude.m_server = 0;
 }
 
 bool Simulation::start()

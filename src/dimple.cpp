@@ -142,11 +142,12 @@ int main(int argc, char* argv[])
      }
      printf("URL opened for sending: %s\n", address_send_url);
 
-     try {
-
      PhysicsSim   *physics = NULL;
      HapticsSim   *haptics = NULL;
      VisualSim    *visual = NULL;
+
+     try {
+
      InterfaceSim interface ("7774");
 
      if (strchr(sim_spec, 'p')!=NULL)
@@ -210,6 +211,10 @@ int main(int argc, char* argv[])
 #ifndef FLEXT_SYS
 	 dimple_cleanup();
 #endif
+
+     if (physics) delete physics;
+     if (visual) delete visual;
+     if (haptics) delete haptics;
 
 	 return 0;
 }

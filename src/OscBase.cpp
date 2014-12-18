@@ -61,7 +61,8 @@ OscBase::~OscBase()
     while (m_methods.size()>0) {
         method_t m = m_methods.back();
         m_methods.pop_back();
-        lo_server_del_method(m_server, m.name.c_str(), m.type.c_str());
+        if (m_server)
+            lo_server_del_method(m_server, m.name.c_str(), m.type.c_str());
     }
 }
 

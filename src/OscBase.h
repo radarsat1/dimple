@@ -77,6 +77,10 @@ protected:
         std::string type;
     };
     std::vector <method_t> m_methods;
+
+    // Simulation needs to be able to clear the m_server pointer
+    // during destruction
+    friend class Simulation;
 };
 
 #endif // _OSC_BASE_H_

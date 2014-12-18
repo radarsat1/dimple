@@ -71,6 +71,9 @@ HapticsSim::HapticsSim(const char *port)
 
 HapticsSim::~HapticsSim()
 {
+    // Stop the simulation before deleting objects, otherwise thread
+    // is still running and may dereference them.
+    stop();
 }
 
 void HapticsSim::initialize()

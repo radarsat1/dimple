@@ -82,6 +82,9 @@ VisualSim::VisualSim(const char *port)
 
 VisualSim::~VisualSim()
 {
+    // Stop the simulation before deleting objects, otherwise thread
+    // is still running and may dereference them.
+    stop();
 }
 
 void VisualSim::initGlutWindow()

@@ -173,6 +173,9 @@ PhysicsSim::PhysicsSim(const char *port)
 
 PhysicsSim::~PhysicsSim()
 {
+    // Stop the simulation before deleting objects, otherwise thread
+    // is still running and may dereference them.
+    stop();
 }
 
 void PhysicsSim::initialize()

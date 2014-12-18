@@ -244,6 +244,10 @@ InterfaceSim::InterfaceSim(const char *port)
 
 InterfaceSim::~InterfaceSim()
 {
+    // Stop the simulation before deleting objects, otherwise thread
+    // is still running and may dereference them.
+    stop();
+
     if (m_camera) delete m_camera;
     if (m_cursor) delete m_cursor;
 }
