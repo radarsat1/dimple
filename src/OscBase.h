@@ -41,7 +41,6 @@ public:
 
     OscBase *parent() { return m_parent; }
 
-    lo_server get_lo_server();
     Simulation *simulation();
 
 #ifdef DEBUG
