@@ -190,6 +190,10 @@ int main(int argc, char* argv[])
      if (haptics) rc &= haptics->start();
      rc &= interface.start();
 
+     // Re-install interrupt handler -- sometimes it is overridden by
+     // the haptics driver.
+     signal(SIGINT, sighandler_quit);
+
      if (!rc)
          quit = 1;
      else
