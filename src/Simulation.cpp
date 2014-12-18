@@ -1,5 +1,7 @@
 // -*- mode:c++; indent-tabs-mode:nil; c-basic-offset:4; -*-
 
+#include <cerrno>
+
 #include <lo/lo.h>
 
 #include "config.h"
@@ -595,8 +597,13 @@ bool Simulation::start()
     m_psem_init = new sem_t;
     sem_init(m_psem_init, 0, -1);
 
+    // We'll use a timed wait, so need to get absolute time
     timespec ts;
-    clock_gettime(CLOCK_REALTIME, &ts);
+    if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
+        perror("clock_gettime");
+        sem_destroy(m_psem_init);
+        return false;
+    }
     ts.tv_sec += 3;
 
     if (pthread_create(&m_thread, NULL, Simulation::run, this)) {
@@ -607,7 +614,10 @@ bool Simulation::start()
         m_bStarted = true;
 
         // Wait for thread to signal initialization done
-        if (sem_timedwait(m_psem_init, &ts) < 0) {
+        int s;
+        while ((s = sem_timedwait(m_psem_init, &ts)) == -1 && errno == EINTR)
+            continue;
+        if (s < 0 && errno == ETIMEDOUT) {
             printf("[%s] Timed out during initialization.\n", type_str());
             rc = false;
         }
