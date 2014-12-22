@@ -34,6 +34,7 @@ int visual_timestep_ms = (int)((1.0/visual_fps)*1000.0);
 int physics_timestep_ms = 10;
 int haptics_timestep_ms = 1;
 int msg_queue_size = DEFAULT_QUEUE_SIZE*1024;
+const char *interface_port_str = "7774";
 
 static struct {
     const char *visual, *haptics, *physics;
@@ -59,6 +60,12 @@ void help()
            "            indicating that these components be addressed\n"
            "            remotely. Multiple -s flags may be provided for\n"
            "            different addresses. Defaults to \"vph\".\n");
+    printf("--port (-p) A local port number for the OSC/UDP interface.\n"
+           "            (i.e. where external applications should send\n"
+           "            messages to communicate with DIMPLE.)  Defaults\n"
+           "            to 7774.  Ports for physics, haptics and visual\n"
+           "            simulations are consecutive following this number,\n"
+           "            respectively.\n");
 }
 
 void parse_command_line(int argc, char* argv[])
@@ -71,13 +78,14 @@ void parse_command_line(int argc, char* argv[])
         { "send-url",   required_argument, 0, 'u' },
         { "queue-size", required_argument, 0, 'q' },
         { "sim",        required_argument, 0, 's' },
+        { "port",       required_argument, 0, 'p' },
         {0, 0, 0, 0}
     };
 
     while (c!=-1) {
         int option_index = 0;
 
-        c = getopt_long (argc, argv, "hu:q:s:",
+        c = getopt_long (argc, argv, "hu:q:s:p:",
                          long_options, &option_index);
 
         switch (c) {
@@ -113,6 +121,9 @@ void parse_command_line(int argc, char* argv[])
                 case 'p': sim_spec.physics = u; break;
                 }
             };
+            break;
+        case 'p':
+            interface_port_str = optarg;
             break;
         case 'h':
             help();
@@ -176,16 +187,25 @@ int main(int argc, char* argv[])
 
      try {
 
-     InterfaceSim interface ("7774");
+     unsigned int interface_port = atoi(interface_port_str);
+     char port_str[256];
+     snprintf(port_str, 256, "%u", interface_port);
+     InterfaceSim interface (port_str);
 
-     if (strcmp(sim_spec.physics, "local")==0)
-         physics = new PhysicsSim("7771");
+     if (strcmp(sim_spec.physics, "local")==0) {
+         snprintf(port_str, 256, "%u", interface_port+1);
+         physics = new PhysicsSim(port_str);
+     }
 
-     if (strcmp(sim_spec.haptics, "local")==0)
-         haptics = new HapticsSim("7772");
+     if (strcmp(sim_spec.haptics, "local")==0) {
+         snprintf(port_str, 256, "%u", interface_port+2);
+         haptics = new HapticsSim(port_str);
+     }
 
-     if (strcmp(sim_spec.visual, "local")==0)
-         visual = new VisualSim("7773");
+     if (strcmp(sim_spec.visual, "local")==0) {
+         snprintf(port_str, 256, "%u", interface_port+3);
+         visual = new VisualSim(port_str);
+     }
 
      // Physics can change object positions
      // in any of the other simulations

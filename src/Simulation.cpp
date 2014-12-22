@@ -704,7 +704,8 @@ void* Simulation::run(void* param)
 
     me->initialize();
 
-    printf("[%s] Simulation running.\n", me->type_str());
+    printf("[%s] Simulation running on port %u.\n", me->type_str(),
+           lo_server_get_port(me->m_server));
 
     // Signal parent thread
     if (me->m_psem_init)
