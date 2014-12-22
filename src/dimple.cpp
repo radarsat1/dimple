@@ -53,19 +53,19 @@ void help()
         "                    Example: osc.udp://localhost:9000\n"
         "                    Other protocols may be 'tcp', 'unix'.\n\n");
     printf("--queue-size (-q)   Size of the message queues in kB.\n"
-           "                    Default is %d.\n", DEFAULT_QUEUE_SIZE);
+           "                    Default is %d.\n\n", DEFAULT_QUEUE_SIZE);
     printf("--sim (-s)  A string specifying which simulations to enable.\n"
            "            `v' for visual, `p' for physics, `h' for haptics.\n"
            "            May be followed by ',' and a Liblo-style URL,\n"
            "            indicating that these components be addressed\n"
            "            remotely. Multiple -s flags may be provided for\n"
-           "            different addresses. Defaults to \"vph\".\n");
-    printf("--port (-p) A local port number for the OSC/UDP interface.\n"
-           "            (i.e. where external applications should send\n"
-           "            messages to communicate with DIMPLE.)  Defaults\n"
-           "            to 7774.  Ports for physics, haptics and visual\n"
-           "            simulations are consecutive following this number,\n"
-           "            respectively.\n");
+           "            different addresses. Defaults to \"vph\".\n\n");
+    printf("--port (-p)  A local port number for the OSC/UDP interface.\n"
+           "             (i.e. where external applications should send\n"
+           "             messages to communicate with DIMPLE.)  Defaults\n"
+           "             to 7774.  Ports for physics, haptics and visual\n"
+           "             simulations are consecutive following this number,\n"
+           "             respectively.\n\n");
 }
 
 void parse_command_line(int argc, char* argv[])
