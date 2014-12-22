@@ -34,20 +34,35 @@
 #define OSCMETHOD0(t, x)                                                \
     static int x##_handler(const char *path, const char *types,         \
                            lo_arg **argv, int argc, void *data,         \
-                           void *user_data) {((t*)user_data)->on_##x();return 0;}\
+                           void *user_data) {((t*)user_data)->m_msg=data;\
+                           ((t*)user_data)->on_##x();return 0;}          \
     virtual void on_##x()
 #define OSCMETHOD1(t, x)                                                \
     static int x##_handler(const char *path, const char *types,         \
                            lo_arg **argv, int argc, void *data,         \
-                           void *user_data) {((t*)user_data)->          \
-                           on_##x(argv[0]->f);return 0;}                \
+                           void *user_data) {((t*)user_data)->m_msg=data;\
+                           ((t*)user_data)->on_##x(argv[0]->f);return 0;}\
     virtual void on_##x(float arg)
 #define OSCMETHOD2(t, x)                                                \
     static int x##_handler(const char *path, const char *types,         \
                            lo_arg **argv, int argc, void *data,         \
-                           void *user_data) {((t*)user_data)->          \
-                           on_##x(argv[0]->f, argv[1]->f);return 0;}    \
+                           void *user_data) {((t*)user_data)->m_msg=data;\
+                           ((t*)user_data)->on_##x(argv[0]->f, argv[1]->f);\
+                           return 0;}                                   \
     virtual void on_##x(float arg1, float arg2)
+#define OSCMETHOD1S(t, x)                                               \
+    static int x##_handler(const char *path, const char *types,         \
+                           lo_arg **argv, int argc, void *data,         \
+                           void *user_data) {((t*)user_data)->m_msg=data;\
+                           ((t*)user_data)->on_##x(&argv[0]->s);return 0;}\
+    virtual void on_##x(const char *arg1)
+#define OSCMETHOD2S(t, x)                                               \
+    static int x##_handler(const char *path, const char *types,         \
+                           lo_arg **argv, int argc, void *data,         \
+                           void *user_data) {((t*)user_data)->m_msg=data;\
+                           ((t*)user_data)->on_##x(&argv[0]->s,         \
+                           &argv[1]->s);return 0;} \
+    virtual void on_##x(const char *arg1, const char *arg2)
 
 /* === End of macro definitions. */
 

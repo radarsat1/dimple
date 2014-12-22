@@ -78,6 +78,9 @@ protected:
     };
     std::vector <method_t> m_methods;
 
+    //! The current lo_message, only valid for handlers.
+    lo_message m_msg;
+
     // Simulation needs to be able to clear the m_server pointer
     // during destruction
     friend class Simulation;

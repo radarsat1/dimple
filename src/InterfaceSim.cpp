@@ -256,6 +256,43 @@ void InterfaceSim::step()
 {
 }
 
+void InterfaceSim::on_add_receiver(const char *type)
+{
+    SimulationType t = str_type(type);
+    if (t == ST_UNKNOWN) return;
+
+    lo_address a = lo_message_get_source(m_msg);
+    if (!a) return;
+
+    char *url = lo_address_get_url(a);
+    if (!url) return;
+
+    // Physics can change object positions in any of the other
+    // simulations
+    if (t & ST_HAPTICS || t & ST_VISUAL)
+        sendtotype(ST_PHYSICS, 0, "/world/add_receiver_url",
+                   "ss", type, url);
+
+    // Haptics can add force to objects in the physics simulation.
+    if (t & ST_PHYSICS || t & ST_VISUAL)
+        sendtotype(ST_HAPTICS, 0, "/world/add_receiver_url",
+                   "ss", type, url);
+
+    // Visual can send a message to haptics due to keyboard
+    // shortcuts. (e.g. reset_workspace.)
+    if (t & ST_HAPTICS)
+        sendtotype(ST_VISUAL, 0, "/world/add_receiver_url",
+                   "ss", type, url);
+
+    // Interface can modify anything in any other simulation.
+    add_receiver(0, url, t, false);
+
+#ifdef DEBUG
+    printf("[%s] add_receiver(): %s, source = %s\n", type_str(), type, url);
+#endif
+    free(url);
+}
+
 int OscPrismInterface::push_handler(const char *path, const char *types,
                                     lo_arg **argv, int argc, void *data,
                                     void *user_data)

@@ -62,6 +62,7 @@ class Simulation : public OscBase
 
     //! An enumeration for the possible inherited types of simulations.
     enum SimulationType {
+        ST_UNKNOWN   = 0x00,
         ST_PHYSICS   = 0x01,
         ST_HAPTICS   = 0x02,
         ST_VISUAL    = 0x04,
@@ -74,6 +75,8 @@ class Simulation : public OscBase
 
     //! Return a string giving the type of this simulation.
     const char* type_str();
+    const char* type_str(int type);
+    SimulationType str_type(const char *type);
 
     bool add_object(OscObject& obj);
     bool delete_object(OscObject& obj);
@@ -95,7 +98,8 @@ class Simulation : public OscBase
     //! Add a receiver to the list of possible receivers for
     //! messages from this simulation.
     void add_receiver(Simulation *sim, const char *spec,
-                      Simulation::SimulationType type);
+                      Simulation::SimulationType type,
+                      bool initialization);
 
     //! Add a queue to the list of queues to poll for messages.
     void add_queue(LoQueue *queue)
@@ -117,6 +121,9 @@ class Simulation : public OscBase
     OSCMETHOD0(Simulation, clear);
     OSCMETHOD0(Simulation, reset_workspace) {};
     OSCMETHOD0(Simulation, drop) { set_grabbed(NULL); }
+    OSCMETHOD1S(Simulation, add_receiver);
+    OSCMETHOD2S(Simulation, add_receiver_url);
+    OSCMETHOD1S(Simulation, remove_receiver);
 
     void run_unthreaded()
       { run(this); }

@@ -83,6 +83,8 @@ class InterfaceSim : public Simulation
         Simulation::on_drop();
     }
 
+    virtual void on_add_receiver(const char *type);
+
   protected:
     OscCameraInterface *m_camera;
     OscCursorInterface *m_cursor;

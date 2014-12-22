@@ -40,7 +40,7 @@ static struct {
     const char *visual, *haptics, *physics;
 } sim_spec = { "", "", "" };
 
-const char *address_send_url = "osc.udp://localhost:7775";
+const char *address_send_url = "osc.udp://localhost:%u";
 
 lo_address address_send;
 int quit = 0;
@@ -79,6 +79,7 @@ void parse_command_line(int argc, char* argv[])
         { "queue-size", required_argument, 0, 'q' },
         { "sim",        required_argument, 0, 's' },
         { "port",       required_argument, 0, 'p' },
+        { "connect",    required_argument, 0, 'c' },
         {0, 0, 0, 0}
     };
 
@@ -174,12 +175,16 @@ int main(int argc, char* argv[])
      parse_command_line(argc, argv);
 #endif
 
-     address_send = lo_address_new_from_url(address_send_url);
+     unsigned int interface_port = atoi(interface_port_str);
+
+     char address_send_url_fmt[256];
+     snprintf(address_send_url_fmt, 256, address_send_url, interface_port+4);
+     address_send = lo_address_new_from_url(address_send_url_fmt);
      if (!address_send) {
-         printf("Unable to open OSC URL for sending: %s\n", address_send_url);
+         printf("Unable to open OSC URL for sending: %s\n", address_send_url_fmt);
          exit(1);
      }
-     printf("URL opened for sending: %s\n", address_send_url);
+     printf("URL opened for sending: %s\n", address_send_url_fmt);
 
      Simulation *physics = NULL;
      Simulation *haptics = NULL;
@@ -187,7 +192,6 @@ int main(int argc, char* argv[])
 
      try {
 
-     unsigned int interface_port = atoi(interface_port_str);
      char port_str[256];
      snprintf(port_str, 256, "%u", interface_port);
      InterfaceSim interface (port_str);
@@ -210,34 +214,39 @@ int main(int argc, char* argv[])
      // Physics can change object positions
      // in any of the other simulations
      if (physics) {
-         physics->add_receiver( haptics, sim_spec.haptics, Simulation::ST_HAPTICS );
-         physics->add_receiver( visual,  sim_spec.visual,  Simulation::ST_VISUAL  );
+         physics->add_receiver( haptics, sim_spec.haptics, Simulation::ST_HAPTICS, true );
+         physics->add_receiver( visual,  sim_spec.visual,  Simulation::ST_VISUAL,  true );
      }
 
      // Haptics can add force to objects
      // in the physics simulation.
      if (haptics) {
-         haptics->add_receiver( physics, sim_spec.physics, Simulation::ST_PHYSICS );
-         haptics->add_receiver( visual,  sim_spec.visual,  Simulation::ST_VISUAL  );
+         haptics->add_receiver( physics, sim_spec.physics, Simulation::ST_PHYSICS, true );
+         haptics->add_receiver( visual,  sim_spec.visual,  Simulation::ST_VISUAL,  true );
      }
 
      // Visual can send a message to haptics due to keyboard
      // shortcuts. (e.g. reset_workspace.)
      if (visual) {
-         visual->add_receiver( haptics, sim_spec.haptics,  Simulation::ST_HAPTICS );
+         visual->add_receiver( haptics, sim_spec.haptics,  Simulation::ST_HAPTICS, true );
      }
 
      // Interface can modify anything in
      // any other simulation.
-     interface.add_receiver( physics, sim_spec.physics, Simulation::ST_PHYSICS );
-     interface.add_receiver( haptics, sim_spec.haptics, Simulation::ST_HAPTICS );
-     interface.add_receiver( visual,  sim_spec.visual,  Simulation::ST_VISUAL  );
+     interface.add_receiver( physics, sim_spec.physics, Simulation::ST_PHYSICS, true );
+     interface.add_receiver( haptics, sim_spec.haptics, Simulation::ST_HAPTICS, true );
+     interface.add_receiver( visual,  sim_spec.visual,  Simulation::ST_VISUAL,  true );
 
      // Start all simulations
      bool rc = true;
      if (physics) rc &= physics->start();
-     if (haptics) rc &= haptics->start();
+     if (haptics) { rc &= haptics->start(); Sleep(1000); }
      rc &= interface.start();
+
+     // Above: even after adding the intiailization semaphore, STILL
+     // some cases where there's a mysterious race condition for
+     // OpenHaptics?!?!  Hence the Sleep(1000).  Lame.  Only happens
+     // when run with args, "-s hv".
 
      // Re-install interrupt handler -- sometimes it is overridden by
      // the haptics driver.

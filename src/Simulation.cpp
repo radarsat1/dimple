@@ -625,16 +625,64 @@ Simulation::~Simulation()
 }
 
 void Simulation::add_receiver(Simulation *sim, const char *spec,
-                              Simulation::SimulationType type)
+                              Simulation::SimulationType type,
+                              bool initialization)
 {
     SimulationReceiver *r = NULL;
     if (sim)
         r = new SimulationReceiver(*sim);
-    else if (spec[0] != '\0')
+    else if (spec[0] != '\0') {
+        // Check that we don't already have it in the list
+        std::vector<SimulationReceiver*>::iterator it;
+        for (it = m_receiverList.begin();
+             it != m_receiverList.end();
+             it++)
+        {
+            char *url = lo_address_get_url((*it)->addr());
+            if (url && strcmp(url, spec)==0) {
+                free(url);
+                return;
+            }
+            if (url) free(url);
+        }
+
         r = new SimulationReceiver(spec, type);
+
+        // Tell remote simulations about us
+        if (m_type != ST_INTERFACE && type != ST_INTERFACE) {
+            lo_send_from(r->addr(), m_server, LO_TT_IMMEDIATE,
+                         "/world/add_receiver", "s", type_str());
+        }
+
+        // We don't add remotes to the receiver list on
+        // initialization, instead we wait for the /world/add_receiver
+        // response, which allows us to set up direct connections
+        // while still going through Interface.  However, we make an
+        // exception for Visual->Phyics connection; since Visual
+        // doesn't send messages to Physics, we must explicitly allow
+        // Physics to connect unilaterally to Visual.
+        if (initialization && !(type == ST_VISUAL && m_type == ST_PHYSICS))
+        {
+            delete r;
+            return;
+        }
+    }
 
     if (r)
         m_receiverList.push_back(r);
+
+#ifdef DEBUG
+    printf("[%s] receiver list:\n", type_str());
+    std::vector<SimulationReceiver*>::iterator it;
+    for (it = m_receiverList.begin();
+         it != m_receiverList.end();
+         it++)
+    {
+        char *url = lo_address_get_url((*it)->addr());
+        printf("   %s [%s]\n", url, type_str((*it)->type()));
+        free(url);
+    }
+#endif
 }
 
 bool Simulation::start()
@@ -684,6 +732,10 @@ bool Simulation::start()
 void Simulation::stop()
 {
     printf("[%s] Ending simulation... ", type_str());
+
+    if (m_type != ST_INTERFACE)
+        send(0, "/world/remove_receiver", "s", type_str());
+
     m_bDone = true;
     if (m_bStarted)
         pthread_join(m_thread, NULL);
@@ -696,6 +748,9 @@ void Simulation::initialize()
     addHandler("clear", "", Simulation::clear_handler);
     addHandler("reset_workspace", "", Simulation::reset_workspace_handler);
     addHandler("drop",  "", Simulation::drop_handler);
+    addHandler("add_receiver", "s", Simulation::add_receiver_handler);
+    addHandler("add_receiver_url", "ss", Simulation::add_receiver_url_handler);
+    addHandler("remove_receiver", "s", Simulation::remove_receiver_handler);
 }
 
 void* Simulation::run(void* param)
@@ -704,8 +759,12 @@ void* Simulation::run(void* param)
 
     me->initialize();
 
-    printf("[%s] Simulation running on port %u.\n", me->type_str(),
-           lo_server_get_port(me->m_server));
+    if (me->m_bDone)
+        printf("[%s] Error initialization simulation, port %u.\n",
+               me->type_str(), lo_server_get_port(me->m_server));
+    else
+        printf("[%s] Simulation running on port %u.\n", me->type_str(),
+               lo_server_get_port(me->m_server));
 
     // Signal parent thread
     if (me->m_psem_init)
@@ -942,7 +1001,12 @@ void Simulation::sendtotype(int type, bool throttle, const char *path, const cha
 
 const char* Simulation::type_str()
 {
-    switch (m_type) {
+    return type_str(m_type);
+}
+
+const char* Simulation::type_str(int type)
+{
+    switch (type) {
     case ST_PHYSICS:
         return "physics";
     case ST_HAPTICS:
@@ -951,7 +1015,22 @@ const char* Simulation::type_str()
         return "visual";
     case ST_INTERFACE:
         return "interface";
+    default:
+        return NULL;
     }
+}
+
+Simulation::SimulationType Simulation::str_type(const char *type)
+{
+    if (strcmp(type, "physics")==0)
+        return ST_PHYSICS;
+    if (strcmp(type, "haptics")==0)
+        return ST_HAPTICS;
+    if (strcmp(type, "visual")==0)
+        return ST_VISUAL;
+    if (strcmp(type, "interface")==0)
+        return ST_INTERFACE;
+    return ST_UNKNOWN;
 }
 
 void Simulation::on_clear()
@@ -962,6 +1041,75 @@ void Simulation::on_clear()
         it->second->on_destroy();
         it = world_objects.begin();
     }
+}
+
+void Simulation::on_add_receiver(const char *type)
+{
+    SimulationType t = str_type(type);
+    if (t == ST_UNKNOWN) return;
+
+    lo_address a = lo_message_get_source(m_msg);
+    if (!a) return;
+
+    char *url = lo_address_get_url(a);
+    if (!url) return;
+
+    add_receiver(0, url, t, false);
+#ifdef DEBUG
+    printf("[%s] add_receiver(): %s, source = %s\n", type_str(), type, url);
+#endif
+    free(url);
+}
+
+void Simulation::on_add_receiver_url(const char *type, const char *url)
+{
+    SimulationType t = str_type(type);
+    if (t == ST_UNKNOWN) return;
+
+    add_receiver(0, url, t, false);
+#ifdef DEBUG
+    printf("[%s] add_receiver_url(): %s, source = %s\n", type_str(), type, url);
+#endif
+}
+
+void Simulation::on_remove_receiver(const char *type)
+{
+    SimulationType t = str_type(type);
+    if (t == ST_UNKNOWN) return;
+
+    lo_address a = lo_message_get_source(m_msg);
+    if (!a) return;
+
+    char *url = lo_address_get_url(a);
+    if (!url) return;
+
+    int count = 0;
+    std::vector<SimulationReceiver*>::iterator it;
+    it = m_receiverList.end();
+    do {
+        if (it != m_receiverList.end()) {
+            m_receiverList.erase(it);
+            count ++;
+        }
+
+        for (it = m_receiverList.begin();
+             it != m_receiverList.end();
+             it++)
+        {
+            char *lurl = lo_address_get_url((*it)->addr());
+            if (strcmp(url, lurl)==0) {
+                free(lurl);
+                break;
+            }
+            free(lurl);
+        }
+    } while (it != m_receiverList.end());
+
+#ifdef DEBUG
+    printf("[%s] remove_receiver(): %s, source = %s; removed %d\n",
+           type_str(), type, url, count);
+#endif
+    free(url);
 }
 
 bool Simulation::should_throttle(const char *path, SimulationReceiver& sim_to)
