@@ -3,6 +3,7 @@
 #ifndef _SIMULATION_H_
 #define _SIMULATION_H_
 
+#include <pthread.h>
 #include <semaphore.h>
 
 #include "OscValue.h"
