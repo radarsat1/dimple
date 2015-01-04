@@ -66,7 +66,7 @@ case $(uname) in
 
    *)
    echo Configuring $liblo_DIR
-   if !(cd $liblo_DIR && env CFLAGS="$liblo_CFLAGS" LDFLAGS="$liblo_LDFLAGS" LIBS="$liblo_LIBS" ./configure --disable-shared $liblo_CONFIGEXTRA); then
+   if !(cd $liblo_DIR && env CFLAGS="$liblo_CFLAGS" LDFLAGS="$liblo_LDFLAGS" LIBS="$liblo_LIBS" CXXFLAGS=fail ./configure --disable-shared $liblo_CONFIGEXTRA); then
 	  echo "Error configuring $liblo_DIR"
 	  exit
    fi
