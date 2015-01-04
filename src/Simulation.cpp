@@ -693,17 +693,24 @@ bool Simulation::start()
 
     m_bDone = false;
 
+#ifndef WIN32
     // Set up a semaphore to inform us that initialization is complete
     m_psem_init = new sem_t;
     sem_init(m_psem_init, 0, -1);
+#endif
 
     // We'll use a timed wait, so need to get absolute time
     timespec ts;
+#ifdef WIN32
+    memset(&ts, 0, sizeof(ts));
+    ts.tv_sec = (long)time(NULL)+1;
+#else
     if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
         perror("clock_gettime");
         sem_destroy(m_psem_init);
         return false;
     }
+#endif
     ts.tv_sec += 3;
 
     if (pthread_create(&m_thread, NULL, Simulation::run, this)) {
@@ -713,6 +720,7 @@ bool Simulation::start()
     else {
         m_bStarted = true;
 
+#ifndef WIN32
         // Wait for thread to signal initialization done
         int s;
         while ((s = sem_timedwait(m_psem_init, &ts)) == -1 && errno == EINTR)
@@ -721,11 +729,14 @@ bool Simulation::start()
             printf("[%s] Timed out during initialization.\n", type_str());
             rc = false;
         }
+#endif
     }
 
+#ifndef WIN32
     sem_destroy(m_psem_init);
     delete m_psem_init;
     m_psem_init = NULL;
+#endif
     return rc;
 }
 
