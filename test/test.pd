@@ -264,7 +264,7 @@
 #X msg 20 42 1;
 #X text 48 40 turn on graphics and haptics;
 #X obj 20 0 inlet;
-#X obj 278 104 dumpOSC 7775;
+#X obj 278 104 dumpOSC 7778;
 #X obj 278 127 s rosc;
 #X text 277 86 Receive on port 7775;
 #X msg 229 122 0;
