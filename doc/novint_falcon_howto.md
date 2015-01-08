@@ -157,3 +157,7 @@ On success, try to compile Dimple again:
 At this point, the HapticsSim portion of Dimple should initialize with
 success.  If not, check that `findfalcons` and `falcon_led` works
 successfully.
+
+In general, some manual configuration of CHAI under the
+`libdeps/chai3d` folder may be needed to ensure libnifalcon support is
+correctly included.  YMMV.
