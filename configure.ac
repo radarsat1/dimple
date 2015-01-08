@@ -46,7 +46,6 @@ case "$target" in
   *-*-linux* )
      CHAI_SUFFIX="linux"
      CHAI_FLAGS="-D_POSIX -DLINUX -D_LINUX -D_MAX_PATH=260"
-     CHAI_LIBS="-lHD -lHL"
   ;;
   *-*-mingw* )
      CHAI_SUFFIX="mingw"
@@ -169,15 +168,17 @@ AC_CHECK_HEADER(CGenericObject.h, [],
   AC_CHECK_HEADER(CGenericObject.h, [],
      [AC_MSG_ERROR([Couldn't find CHAI 3D headers.])])])
 
-save_LDFLAGS="$LDFLAGS"
-LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/chai3d/lib/${CHAI_SUFFIX}"
+save_LIBS="$LIBS"
+LIBS="$LIBS -L${abs_srcdir}/libdeps/chai3d/lib/${CHAI_SUFFIX}"
+# In case CHAI is using OpenHaptics
+if test -f /usr/include/HL/hl.h; then
+  LIBS="$LIBS -lHD -lHL"
+fi
 AC_CHECK_LIB(chai3d_${CHAI_SUFFIX}, [main], [],
-  [LDFLAGS="$save_LDFLAGS"
+  [LIBS="$save_LIBS"
   unset ac_cv_lib_chai3d_${CHAI_SUFFIX}_main
   AC_CHECK_LIB(chai3d_${CHAI_SUFFIX}, [main], [],
     AC_MSG_ERROR([Couldn't find CHAI 3D library.]))])
-
-LIBS="$LIBS $CHAI_LIBS"
 
 # ODE
 save_CPPFLAGS="$CPPFLAGS"
@@ -238,13 +239,13 @@ AC_CHECK_LIB(lo, [lo_server_new], [],
 # check if libnifalcon is available: if so, link to it
 if test x${ac_cv_prog_pkgconfig} == xyes
 then
-  save_LDFLAGS="$LDFLAGS"
-  LDFLAGS="$save_LDFLAGS `pkg-config --libs libnifalcon`"
+  save_LIBS="$LIBS"
+  LIBS="$save_LIBS `pkg-config --libs libnifalcon`"
   AC_CHECK_LIB(nifalcon, [main], [],
-    [LDFLAGS="$save_LDFLAGS"
+    [LIBS="$save_LIBS"
     unset ac_cv_lib_nifalcon_main
     AC_CHECK_LIB(nifalcon, [main], [],
-      [LDFLAGS="$save_LDFLAGS -L${prefix}/lib"
+      [LIBS="$save_LIBS -L${prefix}/lib"
       unset ac_cv_lib_nifalcon_main
       AC_CHECK_LIB(nifalcon, [main], [], [])])])
 
@@ -254,7 +255,7 @@ then
   case "$target" in
     *-*-darwin* )
     if test x${ac_cv_lib_nifalcon_main} = xyes; then
-      LDFLAGS="$LDFLAGS -framework IOKit -framework AppKit"
+      LIBS="$LIBS -framework IOKit -framework AppKit"
     fi
     ;;
   esac
