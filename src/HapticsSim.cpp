@@ -617,10 +617,13 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
 
     if (m_pCursor->initialize()) {
         m_bInitialized = false;
-        printf("Could not initialize haptics.\n");
+        printf("[%s] Could not initialize.\n", simulation()->type_str());
     } else {
         m_bInitialized = true;
         m_pCursor->start();
+
+        printf("[%s] Using %s device.\n",
+               simulation()->type_str(), device_str());
     }
 
     // rotate the cursor to match visual rotation
@@ -660,6 +663,19 @@ void OscCursorCHAI::on_force()
 
     m_extraForce = m_force;
     m_nExtraForceSteps = physics_timestep_ms*2/haptics_timestep_ms;
+}
+
+const char *OscCursorCHAI::device_str()
+{
+    int d = m_pCursor->getPhysicalDevice();
+    switch (d) {
+    case DEVICE_DHD: return "Delta";
+    case DEVICE_FALCON: return "Falcon";
+    case DEVICE_PHANTOM: return "Phantom";
+    case DEVICE_LIBNIFALCON: return "Falcon (libnifalcon)";
+    case DEVICE_MPB: return "Freedom 6S";
+    default: return "Unknown";
+    }
 }
 
 void OscCursorCHAI::on_radius()

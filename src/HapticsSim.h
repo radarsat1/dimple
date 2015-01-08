@@ -214,6 +214,8 @@ public:
     void addCursorGrabbedForce(OscObject *pGrabbed);
     void addCursorExtraForce();
 
+    const char *device_str();
+
 protected:
     virtual void on_force();
     virtual void on_radius();
