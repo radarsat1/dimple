@@ -46,6 +46,7 @@ case "$target" in
   *-*-linux* )
      CHAI_SUFFIX="linux"
      CHAI_FLAGS="-D_POSIX -DLINUX -D_LINUX -D_MAX_PATH=260"
+     CHAI_LIBS="-lHD -lHL"
   ;;
   *-*-mingw* )
      CHAI_SUFFIX="mingw"
@@ -175,6 +176,8 @@ AC_CHECK_LIB(chai3d_${CHAI_SUFFIX}, [main], [],
   unset ac_cv_lib_chai3d_${CHAI_SUFFIX}_main
   AC_CHECK_LIB(chai3d_${CHAI_SUFFIX}, [main], [],
     AC_MSG_ERROR([Couldn't find CHAI 3D library.]))])
+
+LIBS="$LIBS $CHAI_LIBS"
 
 # ODE
 save_CPPFLAGS="$CPPFLAGS"
