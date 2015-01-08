@@ -58,6 +58,8 @@ sudo dpkg -i ../dummy-raw1394_1_i386.deb
 
 ## Fake having old version of libraw1394 (hope it's compatible!)
 
+sudo apt-get install libraw1394-11
+
 cd /usr/lib/i386-linux-gnu
 
 sudo ln -s libraw1394.so.11.1.0 libraw1394.so.8
@@ -78,3 +80,29 @@ have permission to access `/dev/fw*` (or whichever firewire device.)
 lsmod | grep raw1394
 
 ls -l /dev/fw*
+
+## Notes for 64-bit platform
+
+Of course, replace above for 64-bit versions of packages as
+appropriate.  It seems that the x64 version of `phantomdevicedrivers_4.3-3_amd64.deb` installs libraries to `/usr/lib64`, so either make this a symlink to `/usr/lib` prior to installation, or do the following:
+
+sudo sh -c "echo /usr/lib64 >/etc/ld.so.conf.d/phantom.conf"
+
+sudo ldconfig
+
+## Check that everything works
+
+Use `PHANTOMConfiguration` and `PHANTOMTest` to ensure your device is
+recognized and works correctly.  I've noticed that these programs may
+sometimes segfault on exit -- a non-show-stopping bug that
+unfortunately affects Dimple as well.
+
+## Enable Phantom driver in CHAI 3D configuration
+
+While compilng CHAI, the HL/hl.h header file is looked for and if
+present, OpenHaptics support should be compiled in.  However, if you
+notice that the flag -D_DISABLE_PHANTOM_SUPPORT is present, you may
+need to edit `libdeps/chai3d/build/linux/Makefile`.
+
+In general, some manual configuration of CHAI under the
+`libdeps/chai3d` folder may be needed.
