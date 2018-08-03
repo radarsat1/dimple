@@ -34,10 +34,10 @@ public:
     virtual ~OscBase();
 
     const char* c_name() const { return m_name.c_str(); }
-    const std::string name() const { return m_name; }
+    const std::string& name() const { return m_name; }
 
     const char* c_path() { return path().c_str(); }
-    const std::string path() { if (m_path.empty()) m_path=(m_parent?m_parent->path():std::string())+"/"+name(); return m_path; }
+    const std::string& path() { if (m_path.empty()) m_path=(m_parent?m_parent->path():std::string())+"/"+name(); return m_path; }
 
     OscBase *parent() { return m_parent; }
 
