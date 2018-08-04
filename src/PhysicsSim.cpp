@@ -477,6 +477,11 @@ void OscSphereODE::on_radius()
 void OscSphereODE::on_mass()
 {
     ODEObject *ode_object = static_cast<ODEObject*>(special());
+    if (m_mass.m_value < 1e-9) {
+        printf("[%s] Mass for %s is too small, setting to 1e-9.\n",
+               simulation()->type_str(), c_name(), m_mass.m_value);
+        m_mass.m_value = 1e-6;
+    }
     dMassSetSphereTotal(&ode_object->mass(), m_mass.m_value, m_radius.m_value);
     dBodySetMass(ode_object->body(), &ode_object->mass());
 
