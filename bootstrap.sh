@@ -161,9 +161,9 @@ echo
 }
 
 chai3d() {
-chai_URL=http://chai3d.org/files/build-1-6-2/chai3d-1.6.2-win32.zip
-chai_TAR=chai3d-v1.62.zip
-chai_MD5=f2e894cb11bf7d0decf31c0be7e9fb57
+chai_URL=http://chai3d.org/download/chai3d-3.1.1-multiplatform.zip
+chai_TAR=chai3d-3.1.1-multiplatform.zip
+chai_MD5=e2535aad75e365aacde0facb1d99e00d
 
 if ! [ -d $chai_DIR ]; then
 
