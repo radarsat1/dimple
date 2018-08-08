@@ -560,7 +560,7 @@ case $(uname) in
     liblo_LIBS="-lws2_32"
     liblo_CONFIGEXTRA=--disable-ipv6
     chai_DIR=chai3d/mingw
-	chai_PATCH=chai3d-1.62-mingw.patch
+    #chai_PATCH=chai3d-1.62-mingw.patch
 
     freeglut
     pthreads
@@ -576,7 +576,7 @@ case $(uname) in
 	MD5CUT="awk {print\$1}"
 	freeglut_PATCH=freeglut-2.4.0-vs2005exp.patch
 	pthreads_PATCH=pthreads-w32-2-8-0-release-vs2005exp-static.patch
-	chai_PATCH=chai3d-1.61-vs2005exp.patch
+	#chai_PATCH=chai3d-1.61-vs2005exp.patch
 
 	COMPILE="$(echo $(cygpath -u $PROGRAMFILES)/Microsoft Visual Studio .NET 2003/Common7/IDE/devenv.exe)"
 	if !( [ -f "$COMPILE" ]); then
@@ -624,7 +624,7 @@ case $(uname) in
 	DL="wget -O"
     MD5=md5sum
 	MD5CUT="awk {print\$1}"
-    chai_PATCH=chai3d-1.62.patch
+  #chai_PATCH=chai3d-1.62.patch
 	chai_DIR=chai3d/linux
 
 	ode
@@ -639,7 +639,7 @@ case $(uname) in
 	DL="curl -Lo"
     MD5=md5
 	MD5CUT="cut -f2 -d="
-    chai_PATCH=chai3d-1.62.patch
+  #chai_PATCH=chai3d-1.62.patch
 	chai_DIR=chai3d/darwin
     samplerate
     ode
