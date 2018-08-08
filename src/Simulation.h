@@ -9,7 +9,7 @@
 
 #include "OscValue.h"
 #include "ValueTimer.h"
-#include "CPrecisionClock.h"
+#include "timers/CPrecisionClock.h"
 #include "LoQueue.h"
 
 class SphereFactory;

@@ -22,7 +22,7 @@ bool VisualPrismFactory::create(const char *name, float x, float y, float z)
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
-    obj->m_position.set(x, y, z);
+    obj->m_position.setd(x, y, z);
 
     return true;
 }
@@ -35,7 +35,7 @@ bool VisualSphereFactory::create(const char *name, float x, float y, float z)
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
-    obj->m_position.set(x, y, z);
+    obj->m_position.setd(x, y, z);
 
     return true;
 }
@@ -58,7 +58,7 @@ bool VisualMeshFactory::create(const char *name, const char *filename,
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
-    obj->m_position.set(x, y, z);
+    obj->m_position.setd(x, y, z);
 
     return true;
 }
@@ -155,12 +155,30 @@ void VisualSim::initialize()
     m_camera = new OscCameraCHAI(m_chaiWorld, "camera", this);
     m_chaiWorld->addChild(m_camera->object());
 
-    // Create a light source and attach it to the camera
-    m_chaiLight = new cLight(m_chaiWorld);
-    m_chaiLight->setEnabled(true);
-    m_chaiLight->setPos(cVector3d(2,0.5,1));
-    m_chaiLight->setDir(cVector3d(-2,0.5,1));
-    m_camera->object()->addChild(m_chaiLight);
+    // Create a light source and attach it to the camera so that it
+    // moves with the point of view
+    m_chaiLight0 = new cSpotLight(m_chaiWorld);
+    m_chaiLight0->setEnabled(true);
+    m_chaiLight0->setLocalPos(cVector3d(20,25,10));
+    m_chaiLight0->setDir(-m_chaiLight0->getLocalPos());
+    m_camera->object()->addChild(m_chaiLight0);
+
+    // And a second one from the other side
+    m_chaiLight1 = new cSpotLight(m_chaiWorld);
+    m_chaiLight1->setEnabled(true);
+    m_chaiLight1->setLocalPos(cVector3d(-30,5,15));
+    m_chaiLight1->setDir(-m_chaiLight1->getLocalPos());
+    m_camera->object()->addChild(m_chaiLight0);
+
+    // Support shadows
+    unsigned int i=0;
+    cSpotLight *lt;
+    while (lt = light(i++))
+    {
+        lt->setCutOffAngleDeg(30);
+        lt->setShadowMapEnabled(true);
+        lt->m_shadowMap->setQualityLow();
+    }
 
     // Cursor object created by haptics sim after device initializes,
     // so nothing to do here for the cursor.
@@ -202,6 +220,7 @@ void VisualSim::draw()
     */
 
     // render world
+    me->m_chaiWorld->updateShadowMaps(false, false);
     me->m_camera->object()->renderView(me->m_nWidth, me->m_nHeight);
 
     // check for any OpenGL errors
@@ -268,6 +287,11 @@ void VisualSim::reshape(int w, int h)
     glViewport(0, 0, w, h);
 }
 
+cSpotLight *VisualSim::light(unsigned int i)
+{
+    return i==0?m_chaiLight0:(i==1?m_chaiLight1:nullptr);
+}
+
 OscCameraCHAI::OscCameraCHAI(cWorld *world, const char *name, OscBase *parent)
     : OscCamera(name, parent)
 {
@@ -275,9 +299,9 @@ OscCameraCHAI::OscCameraCHAI(cWorld *world, const char *name, OscBase *parent)
 
     // position a camera such that X increases to the right, Y
     // increases into the screen, and Z is up.
-    m_position.set(0.0, -1.0, 0.0);
-    m_lookat.set(0.0, 0.0, 0.0);
-    m_up.set(0.0, 0.0, 1.0);
+    m_position.setd(0.0, -1.0, 0.0);
+    m_lookat.setd(0.0, 0.0, 0.0);
+    m_up.setd(0.0, 0.0, 1.0);
 
     m_pCamera->set(m_position, m_lookat, m_up);
 

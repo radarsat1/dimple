@@ -13,7 +13,7 @@ bool PhysicsPrismFactory::create(const char *name, float x, float y, float z)
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
-    obj->m_position.set(x, y, z);
+    obj->m_position.setd(x, y, z);
 
     return true;
 }
@@ -27,7 +27,7 @@ bool PhysicsSphereFactory::create(const char *name, float x, float y, float z)
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
-    obj->m_position.set(x, y, z);
+    obj->m_position.setd(x, y, z);
 
     return true;
 }
@@ -212,7 +212,7 @@ void PhysicsSim::step()
         grab_force.mul(-0.01);
         grab_force.add(m_pGrabbedODEObject->getVelocity()*(-0.0003));
         dBodyAddForce(m_pGrabbedODEObject->body(),
-                      grab_force.x, grab_force.y, grab_force.z);
+                      grab_force.x(), grab_force.y(), grab_force.z());
     }
 
     // Perform simulation step
@@ -231,11 +231,11 @@ void PhysicsSim::step()
             cVector3d pos(o->getPosition());
             cMatrix3d rot(o->getRotation());
             send(true, (it->second->path()+"/position").c_str(), "fff",
-                 pos.x,pos.y,pos.z);
+                 pos.x(),pos.y(),pos.z());
             send(true, (it->second->path()+"/rotation").c_str(), "fffffffff",
-                 rot.m[0][0], rot.m[0][1], rot.m[0][2],
-                 rot.m[1][0], rot.m[1][1], rot.m[1][2],
-                 rot.m[2][0], rot.m[2][1], rot.m[2][2]);
+                 rot(0,0), rot(0,1), rot(0,2),
+                 rot(1,0), rot(1,1), rot(1,2),
+                 rot(2,0), rot(2,1), rot(2,2));
         }
     }
 
@@ -357,42 +357,42 @@ void ODEObject::on_set_rotation(void *me, OscMatrix3 &r)
 {
     // Convert from a CHAI rotation matrix to an ODE rotation matrix
     dMatrix3 m;
-    m[ 0] = r.getCol0().x;
-    m[ 1] = r.getCol0().y;
-    m[ 2] = r.getCol0().z;
+    m[ 0] = r.getCol0().x();
+    m[ 1] = r.getCol0().y();
+    m[ 2] = r.getCol0().z();
     m[ 3] = 0;
-    m[ 4] = r.getCol1().x;
-    m[ 5] = r.getCol1().y;
-    m[ 6] = r.getCol1().z;
+    m[ 4] = r.getCol1().x();
+    m[ 5] = r.getCol1().y();
+    m[ 6] = r.getCol1().z();
     m[ 7] = 0;
-    m[ 8] = r.getCol2().x;
-    m[ 9] = r.getCol2().y;
-    m[10] = r.getCol2().z;
+    m[ 8] = r.getCol2().x();
+    m[ 9] = r.getCol2().y();
+    m[10] = r.getCol2().z();
     m[11] = 0;
     dGeomSetRotation(((ODEObject*)me)->m_odeGeom, m);
 }
 
 void ODEObject::on_set_position(void *me, OscVector3 &p)
 {
-    dGeomSetPosition(((ODEObject*)me)->m_odeGeom, p.x, p.y, p.z);
+    dGeomSetPosition(((ODEObject*)me)->m_odeGeom, p.x(), p.y(), p.z());
 }
 
 void ODEObject::on_set_velocity(void *me, OscVector3 &v)
 {
-    dBodySetLinearVel(((ODEObject*)me)->m_odeBody, v.x, v.y, v.z);
+    dBodySetLinearVel(((ODEObject*)me)->m_odeBody, v.x(), v.y(), v.z());
 }
 
 void ODEObject::on_set_accel(void *me, OscVector3 &a)
 {
     dBodySetForce(((ODEObject*)me)->m_odeBody,
-                  a.x / ((ODEObject*)me)->m_odeMass.mass,
-                  a.y / ((ODEObject*)me)->m_odeMass.mass,
-                  a.z / ((ODEObject*)me)->m_odeMass.mass);
+                  a.x() / ((ODEObject*)me)->m_odeMass.mass,
+                  a.y() / ((ODEObject*)me)->m_odeMass.mass,
+                  a.z() / ((ODEObject*)me)->m_odeMass.mass);
 }
 
 void ODEObject::on_set_force(void *me, OscVector3 &f)
 {
-    dBodyAddForce(((ODEObject*)me)->m_odeBody, f.x, f.y, f.z);
+    dBodyAddForce(((ODEObject*)me)->m_odeBody, f.x(), f.y(), f.z());
 }
 
 
@@ -503,7 +503,7 @@ void OscSphereODE::on_density()
 OscPrismODE::OscPrismODE(dWorldID odeWorld, dSpaceID odeSpace, const char *name, OscBase *parent)
     : OscPrism(NULL, name, parent)
 {
-    dGeomID odeGeom = dCreateBox(odeSpace, m_size.x, m_size.y, m_size.z);
+    dGeomID odeGeom = dCreateBox(odeSpace, m_size.x(), m_size.y(), m_size.z());
 
     m_pSpecial = new ODEObject(this, odeGeom, odeWorld, odeSpace);
     m_density.set(m_density.m_value);
@@ -511,21 +511,21 @@ OscPrismODE::OscPrismODE(dWorldID odeWorld, dSpaceID odeSpace, const char *name,
 
 void OscPrismODE::on_size()
 {
-    if (m_size.x <= 0)
-        m_size.x = 0.0001;
-    if (m_size.y <= 0)
-        m_size.y = 0.0001;
-    if (m_size.z <= 0)
-        m_size.z = 0.0001;
+    if (m_size.x() <= 0)
+        m_size.x(0.0001);
+    if (m_size.y() <= 0)
+        m_size.y(0.0001);
+    if (m_size.z() <= 0)
+        m_size.z(0.0001);
 
     ODEObject *ode_object = static_cast<ODEObject*>(special());
 
     // resize ODE geom
-    dGeomBoxSetLengths (ode_object->geom(), m_size[0], m_size[1], m_size[2]);
+    dGeomBoxSetLengths (ode_object->geom(), m_size(0), m_size(1), m_size(2));
 
     // reset the mass to maintain same density
     dMassSetBox(&ode_object->mass(), m_density.m_value,
-                m_size[0], m_size[1], m_size[2]);
+                m_size(0), m_size(1), m_size(2));
     dBodySetMass(ode_object->body(), &ode_object->mass());
 
     m_mass.m_value = ode_object->mass().mass;
@@ -535,10 +535,10 @@ void OscPrismODE::on_mass()
 {
     ODEObject *ode_object = static_cast<ODEObject*>(special());
     dMassSetBoxTotal(&ode_object->mass(), m_mass.m_value,
-                     m_size.x, m_size.y, m_size.z);
+                     m_size.x(), m_size.y(), m_size.z());
     dBodySetMass(ode_object->body(), &ode_object->mass());
 
-    dReal volume = m_size.x * m_size.y * m_size.z;
+    dReal volume = m_size.x() * m_size.y() * m_size.z();
     m_density.m_value = m_mass.m_value / volume;
 }
 
@@ -546,7 +546,7 @@ void OscPrismODE::on_density()
 {
     ODEObject *ode_object = static_cast<ODEObject*>(special());
     dMassSetBox(&ode_object->mass(), m_density.m_value,
-                m_size.x, m_size.y, m_size.z);
+                m_size.x(), m_size.y(), m_size.z());
     dBodySetMass(ode_object->body(), &ode_object->mass());
 
     m_mass.m_value = ode_object->mass().mass;
@@ -570,8 +570,8 @@ OscHingeODE::OscHingeODE(dWorldID odeWorld, dSpaceID odeSpace,
     m_pSpecial = new ODEConstraint(this, odeJoint, odeWorld, odeSpace,
                                    object1, object2);
 
-    dJointSetHingeAnchor(odeJoint, anchor.x, anchor.y, anchor.z);
-    dJointSetHingeAxis(odeJoint, axis.x, axis.y, axis.z);
+    dJointSetHingeAnchor(odeJoint, anchor.x(), anchor.y(), anchor.z());
+    dJointSetHingeAxis(odeJoint, axis.x(), axis.y(), axis.z());
 
     printf("Hinge joint created between %s and %s at anchor (%f,%f,%f), axis (%f,%f,%f)\n",
         object1->c_name(), object2?object2->c_name():"world", x,y,z,ax,ay,az);
@@ -858,8 +858,8 @@ OscPistonODE::OscPistonODE(dWorldID odeWorld, dSpaceID odeSpace,
     m_pSpecial = new ODEConstraint(this, odeJoint, odeWorld, odeSpace,
                                    object1, object2);
 
-    dJointSetPistonAnchor(odeJoint, anchor.x, anchor.y, anchor.z);
-    dJointSetPistonAxis(odeJoint, axis.x, axis.y, axis.z);
+    dJointSetPistonAnchor(odeJoint, anchor.x(), anchor.y(), anchor.z());
+    dJointSetPistonAxis(odeJoint, axis.x(), axis.y(), axis.z());
 
     printf("Piston joint created between %s and %s at anchor (%f,%f,%f), axis (%f,%f,%f)\n",
         object1->c_name(), object2?object2->c_name():"world", x,y,z,ax,ay,az);

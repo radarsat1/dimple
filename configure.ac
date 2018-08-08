@@ -39,17 +39,13 @@ AC_TYPE_SIZE_T
 case "$target" in
   *-*-darwin* )
      SYSTEM_LIBS="$SYSTEM_LIBS -framework OpenGL -framework GLUT"
-     CHAI_SUFFIX="darwin"
-     CHAI_FLAGS="-D_POSIX -DLINUX -D_LINUX -D_MAX_PATH=260"
-     # Note: yes the above 'LINUX' flags are correct.
+     CHAI_SUFFIX="darwin" # to be tested
   ;;
   *-*-linux* )
-     CHAI_SUFFIX="linux"
-     CHAI_FLAGS="-D_POSIX -DLINUX -D_LINUX -D_MAX_PATH=260"
+     CHAI_SUFFIX="lin-`uname -m`-cc"
   ;;
   *-*-mingw* )
-     CHAI_SUFFIX="mingw"
-     CHAI_FLAGS="-D_POSIX -DWIN32 -D_WIN32 -D_MSYS -D_MINGW -DNOMINMAX -D_MAX_PATH=260"
+     CHAI_SUFFIX="mingw" # to be tested
   ;;
 esac
 
@@ -159,25 +155,35 @@ AX_PTHREAD(
     [-lws2_32])])
 
 # CHAI 3D
+CHAI_DIR=${abs_srcdir}/libdeps/chai3d-3.1.1
+CHAI_LIBDIR=${CHAI_DIR}/lib/release/${CHAI_SUFFIX}
+CHAI_INCDIRS="-I${CHAI_DIR}/src -I${CHAI_DIR}/external/Eigen -I${CHAI_DIR}/external/glew/include"
 CPPFLAGS="$CPPFLAGS $CHAI_FLAGS"
 save_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/chai3d/include"
-AC_CHECK_HEADER(CGenericObject.h, [],
+CPPFLAGS="$CPPFLAGS ${CHAI_INCDIRS}"
+AC_CHECK_HEADER(chai3d.h, [],
   [CPPFLAGS="$save_CPPFLAGS"
-  unset ac_cv_header_CGenericObject_h
-  AC_CHECK_HEADER(CGenericObject.h, [],
-     [AC_MSG_ERROR([Couldn't find CHAI 3D headers.])])])
+  unset ac_cv_header_chai3d_h
+  AC_MSG_ERROR([Couldn't find CHAI 3D headers.])])
 
 save_LIBS="$LIBS"
-LIBS="$LIBS -L${abs_srcdir}/libdeps/chai3d/lib/${CHAI_SUFFIX}"
+LIBS="$LIBS -L${CHAI_LIBDIR}"
 # In case CHAI is using OpenHaptics
 if test -f /usr/include/HL/hl.h; then
   LIBS="$LIBS -lHD -lHL"
 fi
-AC_CHECK_LIB(chai3d_${CHAI_SUFFIX}, [main], [],
+# In case CHAI is using DHD
+if test -f ${CHAI_DIR}/external/DHD/lib/lin-x86_64/libdrd.a; then
+  LDFLAGS="$LDFLAGS -L${CHAI_DIR}/external/DHD/lib/lin-x86_64"
+  AC_CHECK_LIB([usb-1.0], [libusb_init])
+  AC_CHECK_LIB([drd], [dhdOpenID])
+  # TODO: compile small chai program that instantiates a haptic
+  # device, check what libraries it requires
+fi
+AC_CHECK_LIB(chai3d, [main], [],
   [LIBS="$save_LIBS"
-  unset ac_cv_lib_chai3d_${CHAI_SUFFIX}_main
-  AC_CHECK_LIB(chai3d_${CHAI_SUFFIX}, [main], [],
+  unset ac_cv_lib_chai3d_main
+  AC_CHECK_LIB(chai3d, [main], [],
     AC_MSG_ERROR([Couldn't find CHAI 3D library.]))])
 
 # ODE

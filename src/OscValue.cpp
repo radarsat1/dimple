@@ -142,28 +142,27 @@ OscVector3::OscVector3(const char *name, OscBase *owner)
     addHandler("",              "fff", OscVector3::_handler);
 }
 
-void OscVector3::set(double _x, double _y, double _z)
+//! Named setd to avoid shadowing non-virtual cVector3d::set().
+void OscVector3::setd(double _x, double _y, double _z)
 {
-    x = _x;
-    y = _y;
-    z = _z;
-    m_magnitude.set(sqrt(x*x + y*y + z*z));
+    cVector3d::set(_x, _y, _z);
+    m_magnitude.set(sqrt(_x*_x + _y*_y + _z*_z));
     if (m_set_callback)
         m_set_callback(m_set_callback_data, *this);
 }
 
 void OscVector3::send()
 {
-    lo_send(address_send, c_path(), "fff", x, y, z);
+    lo_send(address_send, c_path(), "fff", x(), y(), z());
 }
 
 void OscVector3::set_magnitude_callback(OscVector3 *me, OscScalar& s)
 {
     double ratio;
-    if (me->x==0 && me->y==0 && me->z==0)
+    if (me->x()==0 && me->y()==0 && me->z()==0)
         ratio = 0;
     else
-        ratio = s.m_value / sqrt(me->x*me->x + me->y*me->y + me->z*me->z);
+        ratio = s.m_value / me->length();
     
     *me *= ratio;
 
@@ -179,14 +178,7 @@ int OscVector3::_handler(const char *path, const char *types, lo_arg **argv,
 	 if (argc != 3)
          return 0;
 
-     me->x = argv[0]->f;
-     me->y = argv[1]->f;
-     me->z = argv[2]->f;
-     me->m_magnitude.m_value = sqrt(me->x*me->x + me->y*me->y + me->z*me->z);
-
-     if (me->m_set_callback)
-         me->m_set_callback(me->m_set_callback_data, *me);
-     
+   me->setd(argv[0]->f, argv[1]->f, argv[2]->f);
 	 return 0;
 }
 
@@ -200,9 +192,10 @@ OscMatrix3::OscMatrix3(const char *name, OscBase *owner)
     addHandler("",              "fffffffff", OscMatrix3::_handler);
 }
 
-void OscMatrix3::set(double m00, double m01, double m02,
-                     double m10, double m11, double m12,
-                     double m20, double m21, double m22)
+//! Named setd to avoid shadowing non-virtual cMatrix3d::set().
+void OscMatrix3::setd(double m00, double m01, double m02,
+                      double m10, double m11, double m12,
+                      double m20, double m21, double m22)
 {
     cMatrix3d::set(m00, m01, m02, m10, m11, m12, m20, m21, m22);
     if (m_set_callback)
@@ -212,9 +205,9 @@ void OscMatrix3::set(double m00, double m01, double m02,
 void OscMatrix3::send()
 {
     lo_send(address_send, c_path(), "fffffffff",
-            m[0][0], m[0][1], m[0][2],
-            m[1][0], m[1][1], m[1][2],
-            m[2][0], m[2][1], m[2][2]
+            (*this)(0,0), (*this)(0,1), (*this)(0,2),
+            (*this)(1,0), (*this)(1,1), (*this)(1,2),
+            (*this)(2,0), (*this)(2,1), (*this)(2,2)
         );
 }
 
@@ -226,13 +219,9 @@ int OscMatrix3::_handler(const char *path, const char *types, lo_arg **argv,
 	 if (argc != 9)
          return 0;
 
-     me->set(argv[0]->f, argv[1]->f, argv[2]->f,
-             argv[3]->f, argv[4]->f, argv[5]->f,
-             argv[6]->f, argv[7]->f, argv[8]->f);
-
-     if (me->m_set_callback)
-         me->m_set_callback(me->m_set_callback_data, *me);
-     
+     me->setd(argv[0]->f, argv[1]->f, argv[2]->f,
+              argv[3]->f, argv[4]->f, argv[5]->f,
+              argv[6]->f, argv[7]->f, argv[8]->f);
 	 return 0;
 }
 

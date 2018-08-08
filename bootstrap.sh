@@ -161,9 +161,12 @@ echo
 }
 
 chai3d() {
-chai_URL=http://chai3d.org/files/build-1-6-2/chai3d-1.6.2-win32.zip
-chai_TAR=chai3d-v1.62.zip
-chai_MD5=f2e894cb11bf7d0decf31c0be7e9fb57
+chai_URL=http://chai3d.org/download/chai3d-3.1.1-multiplatform.zip
+chai_TAR=chai3d-3.1.1-multiplatform.zip
+chai_MD5=e2535aad75e365aacde0facb1d99e00d
+if [ -z $chai_DIR ]; then
+   chai_DIR=chai3d-3.1.1
+fi
 
 if ! [ -d $chai_DIR ]; then
 
@@ -189,7 +192,7 @@ fi
 # TODO: change this to a -p1 patch to avoid confusion!
 if [ ${chai_PATCH}x != x ]; then
 echo Patching chai3d
-if !(cd chai3d; patch -p1 <../$chai_PATCH); then
+if !(cd $chai_DIR; patch -p1 <../$chai_PATCH); then
 	echo "Error applying patch" $chai_PATCH
 	exit
 fi
@@ -214,13 +217,22 @@ case $(uname) in
 	;;
 
 	*)
-	# note, tries compiling twice since sometimes it fails the first time but then works.
     echo Compiling $chai_DIR
     if !(cd $chai_DIR && make || make); then
         echo "Error compiling $chai_DIR"
         exit
     fi
-    ;;
+    chai_LIBDIR=$chai_DIR/lib/release/$(ls $chai_DIR/lib/release | head)
+    if ! [ -e $chai_LIBDIR/libchai3d.a ]; then
+        echo "Build CHAI but can't find libchai3d.a in $chai_LIBDIR"
+        exit
+    fi
+    chai_INCDIR=$chai_DIR/src
+    if ! [ -e $chai_INCDIR/chai3d.h ]; then
+        echo "Can't find chai3d.h in $chai_INCDIR"
+        exit
+    fi
+   ;;
 esac
 
 fi
@@ -560,7 +572,7 @@ case $(uname) in
     liblo_LIBS="-lws2_32"
     liblo_CONFIGEXTRA=--disable-ipv6
     chai_DIR=chai3d/mingw
-	chai_PATCH=chai3d-1.62-mingw.patch
+    #chai_PATCH=chai3d-1.62-mingw.patch
 
     freeglut
     pthreads
@@ -576,7 +588,7 @@ case $(uname) in
 	MD5CUT="awk {print\$1}"
 	freeglut_PATCH=freeglut-2.4.0-vs2005exp.patch
 	pthreads_PATCH=pthreads-w32-2-8-0-release-vs2005exp-static.patch
-	chai_PATCH=chai3d-1.61-vs2005exp.patch
+	#chai_PATCH=chai3d-1.61-vs2005exp.patch
 
 	COMPILE="$(echo $(cygpath -u $PROGRAMFILES)/Microsoft Visual Studio .NET 2003/Common7/IDE/devenv.exe)"
 	if !( [ -f "$COMPILE" ]); then
@@ -624,8 +636,7 @@ case $(uname) in
 	DL="wget -O"
     MD5=md5sum
 	MD5CUT="awk {print\$1}"
-    chai_PATCH=chai3d-1.62.patch
-	chai_DIR=chai3d/linux
+  #chai_PATCH=chai3d-1.62.patch
 
 	ode
     chai3d
@@ -639,7 +650,7 @@ case $(uname) in
 	DL="curl -Lo"
     MD5=md5
 	MD5CUT="cut -f2 -d="
-    chai_PATCH=chai3d-1.62.patch
+  #chai_PATCH=chai3d-1.62.patch
 	chai_DIR=chai3d/darwin
     samplerate
     ode

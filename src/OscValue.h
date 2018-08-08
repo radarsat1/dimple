@@ -17,8 +17,10 @@
 #define _OSC_VALUE_H_
 
 #include "OscBase.h"
-#include <CVector3d.h>
-#include <CMatrix3d.h>
+#include <math/CVector3d.h>
+#include <math/CMatrix3d.h>
+
+using namespace chai3d;
 
 /* === Macros for easily adding member functions with associated callbacks */
 
@@ -28,8 +30,8 @@
     virtual void on_##x()
 #define OSCSCALAR(c, o) OSCVALUE(c, OscScalar, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> %f\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.m_value)))
 #define OSCBOOLEAN(c, o) OSCVALUE(c, OscBoolean, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> %s\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.m_value ? "true" : "false")))
-#define OSCVECTOR3(c, o) OSCVALUE(c, OscVector3, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> (%f, %f, %f)\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.x, s.y, s.z)))
-#define OSCMATRIX3(c, o) OSCVALUE(c, OscMatrix3, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> (%f, %f, %f; %f, %f, %f; %f, %f, %f)\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.m[0][0], s.m[0][1], s.m[0][2], s.m[1][0], s.m[1][1], s.m[1][2], s.m[2][0], s.m[2][1], s.m[2][2])))
+#define OSCVECTOR3(c, o) OSCVALUE(c, OscVector3, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> (%f, %f, %f)\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.x(), s.y(), s.z())))
+#define OSCMATRIX3(c, o) OSCVALUE(c, OscMatrix3, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> (%f, %f, %f; %f, %f, %f; %f, %f, %f)\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s(0,0), s(0,1), s(0,2), s(1,0), s(1,1), s(1,2), s(2,0), s(2,1), s(2,2))))
 #define OSCSTRING(c, o) OSCVALUE(c, OscStrings, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> '%s'\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.c_str())))
 #define OSCMETHOD0(t, x)                                                \
     static int x##_handler(const char *path, const char *types,         \
@@ -163,8 +165,9 @@ class OscVector3 : public OscValue, public cVector3d
 {
   public:
     OscVector3(const char *name, OscBase *owner);
-	void set(double x, double y, double z);
-	void set(const cVector3d& vec) { set(vec.x, vec.y, vec.z); }
+    // avoid shadowing non-virtual cVector3d::set() by naming setd()
+    void setd(double x, double y, double z);
+    void setd(const cVector3d& vec) { setd(vec.x(), vec.y(), vec.z()); }
     void send();
 
 	OscScalar m_magnitude;
@@ -188,9 +191,10 @@ class OscMatrix3 : public OscValue, public cMatrix3d
 {
   public:
     OscMatrix3(const char *name, OscBase *owner);
-	void set(double m00, double m01, double m02,
-             double m10, double m11, double m12,
-             double m20, double m21, double m22);
+    // avoid shadowing non-virtual cVector3d::set() by naming setd()
+    void setd(double m00, double m01, double m02,
+              double m10, double m11, double m12,
+              double m20, double m21, double m22);
     void send();
 
     typedef void SetCallback(void*, OscMatrix3&);
