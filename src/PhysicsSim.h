@@ -22,8 +22,8 @@ class PhysicsSim : public Simulation
     static const int MAX_CONTACTS;
 
     virtual void on_gravity()
-        { dWorldSetGravity(m_odeWorld, m_gravity.x,
-                           m_gravity.y, m_gravity.z); }
+        { dWorldSetGravity(m_odeWorld, m_gravity.x(),
+                           m_gravity.y(), m_gravity.z()); }
 
     //! Set the grabbed object or ungrab by setting to NULL.
     virtual void set_grabbed(OscObject *pGrabbed);
@@ -181,8 +181,14 @@ public:
     ODEObject(OscObject *obj, dGeomID odeGeom, dWorldID odeWorld, dSpaceID odeSpace);
     virtual ~ODEObject();
 
-    cVector3d getPosition() { return cVector3d(dBodyGetPosition(m_odeBody)); }
-    cVector3d getVelocity() { return cVector3d(dBodyGetLinearVel(m_odeBody)); }
+    cVector3d getPosition() {
+      const dReal *p = dBodyGetPosition(m_odeBody);
+      return cVector3d(p[0], p[1], p[2]);
+    }
+    cVector3d getVelocity() { 
+      const dReal *v = dBodyGetLinearVel(m_odeBody);
+      return cVector3d(v[0], v[1], v[2]);
+    }
     cMatrix3d getRotation() {
       const dReal *r = dBodyGetRotation(m_odeBody); cMatrix3d m;
       m.set(r[0], r[1], r[2], r[4], r[5], r[6], r[8], r[9], r[10]);

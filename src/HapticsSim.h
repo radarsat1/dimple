@@ -6,11 +6,11 @@
 #include "Simulation.h"
 #include "OscObject.h"
 
-#include <CWorld.h>
-#include <CCamera.h>
-#include <CLight.h>
-#include <CMeta3dofPointer.h>
-#include <CShapeSphere.h>
+#include <world/CWorld.h>
+#include <display/CCamera.h>
+#include <lighting/CPositionalLight.h>
+//#include <CMeta3dofPointer.h>
+#include <world/CShapeSphere.h>
 
 class OscCursorCHAI;
 

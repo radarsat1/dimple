@@ -192,7 +192,7 @@ fi
 # TODO: change this to a -p1 patch to avoid confusion!
 if [ ${chai_PATCH}x != x ]; then
 echo Patching chai3d
-if !(cd chai3d; patch -p1 <../$chai_PATCH); then
+if !(cd $chai_DIR; patch -p1 <../$chai_PATCH); then
 	echo "Error applying patch" $chai_PATCH
 	exit
 fi
