@@ -20,7 +20,7 @@ class VisualSim : public Simulation
 
     cWorld *world() { return m_chaiWorld; }
     OscCameraCHAI *camera() { return m_camera; }
-    cLight *light() { return m_chaiLight; }
+    cPositionalLight *light() { return m_chaiLight; }
 
     virtual void on_clear();
 
@@ -37,7 +37,7 @@ class VisualSim : public Simulation
     int m_nWidth, m_nHeight;
 
     cWorld* m_chaiWorld;            //! the world in which we will create our environment
-    cLight *m_chaiLight;            //! a light source
+    cPositionalLight *m_chaiLight;            //! a light source
 
     OscCameraCHAI *m_camera;        //! an OSC-controllable camera
 

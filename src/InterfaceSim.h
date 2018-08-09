@@ -20,7 +20,7 @@
 #define FWD_OSCVECTOR3(o,t)                                             \
     virtual void on_##o() {                                             \
         simulation()->send(0,m_##o.c_path(), "fff",                     \
-                           m_##o.x, m_##o.y, m_##o.z); }                \
+                           m_##o.x(), m_##o.y(), m_##o.z()); }          \
     static void on_get_##o(void *me, OscVector3 &o, int interval){      \
         ((OscBase*)me)->simulation()->sendtotype(t,0,                   \
                                         (o.path()+"/get").c_str(),      \
@@ -28,9 +28,9 @@
 #define FWD_OSCMATRIX3(o,t)                                             \
     virtual void on_##o() {                                             \
         simulation()->send(0,m_##o.c_path(), "fffffffff",               \
-                          m_##o.m[0][0], m_##o.m[0][1], m_##o.m[0][2],  \
-                          m_##o.m[1][0], m_##o.m[1][1], m_##o.m[1][2],  \
-                          m_##o.m[2][0], m_##o.m[2][1], m_##o.m[2][2]);}\
+                           m_##o(0,0), m_##o(0,1), m_##o(0,2),          \
+                           m_##o(1,0), m_##o(1,1), m_##o(1,2),          \
+                           m_##o(2,0), m_##o(2,1), m_##o(2,2));}        \
     static void on_get_##o(void *me, OscMatrix3 &o, int interval){      \
         ((OscBase*)me)->simulation()->sendtotype(t,0,                   \
                                         (o.path()+"/get").c_str(),      \
@@ -74,7 +74,7 @@ class InterfaceSim : public Simulation
 
     virtual void on_gravity() {
         sendtotype(Simulation::ST_PHYSICS, 0, "/world/gravity",
-                   "fff", m_gravity.x, m_gravity.y, m_gravity.z);
+                   "fff", m_gravity.x(), m_gravity.y(), m_gravity.z());
         Simulation::on_gravity();
     }
 

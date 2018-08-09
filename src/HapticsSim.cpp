@@ -2,7 +2,7 @@
 
 #include "dimple.h"
 #include "HapticsSim.h"
-#include "CODEPotentialProxy.h"
+//#include "CODEPotentialProxy.h"
 
 bool HapticsPrismFactory::create(const char *name, float x, float y, float z)
 {
