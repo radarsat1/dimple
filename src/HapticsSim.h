@@ -11,7 +11,7 @@
 #include <lighting/CPositionalLight.h>
 //#include <CMeta3dofPointer.h>
 #include <world/CShapeSphere.h>
-#include <world/CMesh.h>
+#include <world/CMultiMesh.h>
 #include <tools/CToolCursor.h>
 
 class OscCursorCHAI;
@@ -185,7 +185,7 @@ public:
                 OscBase *parent=NULL);
     virtual ~OscMeshCHAI();
 
-    virtual cMesh *object() { return m_pMesh; }
+    virtual cMultiMesh *object() { return m_pMesh; }
 
 protected:
     virtual void on_color()
@@ -196,7 +196,7 @@ protected:
         { object()->m_material->setDynamicFriction(m_friction_dynamic.m_value); }
     virtual void on_size();
 
-    cMesh *m_pMesh;
+    cMultiMesh *m_pMesh;
 };
 
 class OscCursorCHAI : public OscSphere
