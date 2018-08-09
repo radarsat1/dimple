@@ -131,31 +131,34 @@ void HapticsSim::updateWorkspace(cVector3d &pos)
 
     for (i=0; i<3; i++) {
         // Update workspace boundaries
-        if (pos[i] < m_workspace[0][i])
-            m_workspace[0][i] = pos[i];
-        if (pos[i] > m_workspace[1][i])
-            m_workspace[1][i] = pos[i];
+        if (pos(i) < m_workspace[0](i))
+            m_workspace[0](i) = pos(i);
+        if (pos(i) > m_workspace[1](i))
+            m_workspace[1](i) = pos(i);
 
-        float dif = (m_workspace[1][i] - m_workspace[0][i]);
+        float dif = (m_workspace[1](i) - m_workspace[0](i));
         if (dif != 0.0)
-            m_workspaceScale[i] = 2.0/(m_workspace[1][i] - m_workspace[0][i]);
+            m_workspaceScale(i) = 2.0/(m_workspace[1](i) - m_workspace[0](i));
         else
-            m_workspaceScale[i] = 1;
-        m_workspaceOffset[i] = -(m_workspace[1][i] + m_workspace[0][i]) / 2.0;
+            m_workspaceScale(i) = 1;
+        m_workspaceOffset(i) = -(m_workspace[1](i) + m_workspace[0](i)) / 2.0;
 
         // Normalize position to [-1, 1] within workspace.
-        pos[i] = (pos[i] + m_workspaceOffset[i]) * m_workspaceScale[i];
+        pos(i) = (pos(i) + m_workspaceOffset(i)) * m_workspaceScale(i);
     }
 }
 
 void HapticsSim::step()
 {
-    cMeta3dofPointer *cursor = m_cursor->object();
+    cToolCursor *cursor = m_cursor->object();
+    /* TODO
     cursor->updatePose();
+    */
 
-    cVector3d pos = cursor->m_deviceGlobalPos;
+    cVector3d pos = cursor->getDeviceGlobalPos();
     updateWorkspace(pos);
 
+    /* TODO
     pos.copyto(cursor->m_deviceGlobalPos);
     pos.copyto(m_cursor->m_position);
     cursor->m_deviceGlobalVel.copyto(m_cursor->m_velocity);
@@ -171,6 +174,7 @@ void HapticsSim::step()
     m_cursor->addCursorExtraForce();
 
     cursor->applyForces();
+    */
 
     m_counter++;
 
@@ -183,14 +187,15 @@ void HapticsSim::step()
         /* If in contact with an object, display the cursor at the
          * proxy location instead of the device location, so that it
          * does not show it penetrating the object. */
+        /* TODO
         cProxyPointForceAlgo *algo =
             (cProxyPointForceAlgo*) cursor->m_pointForceAlgos[0];
         if (algo->getContactObject())
-            pos = algo->getProxyGlobalPosition();
+        pos = algo->getProxyGlobalPosition(); */
 
         sendtotype(update_sim, true,
                    "/world/cursor/position","fff",
-                   pos.x, pos.y, pos.z);
+                   pos.x(), pos.y(), pos.z());
     }
 
     findContactObject();
@@ -198,12 +203,12 @@ void HapticsSim::step()
     if (m_pContactObject) {
         sendtotype(Simulation::ST_PHYSICS, true,
                    (m_pContactObject->path()+"/push").c_str(), "ffffff",
-                   -m_lastForce.x,
-                   -m_lastForce.y,
-                   -m_lastForce.z,
-                   m_lastContactPoint.x,
-                   m_lastContactPoint.y,
-                   m_lastContactPoint.z);
+                   -m_lastForce.x(),
+                   -m_lastForce.y(),
+                   -m_lastForce.z(),
+                   m_lastContactPoint.x(),
+                   m_lastContactPoint.y(),
+                   m_lastContactPoint.z());
 
         bool co1 = m_pContactObject->collidedWith(m_cursor, m_counter);
         bool co2 = m_cursor->collidedWith(m_pContactObject, m_counter);
@@ -221,7 +226,8 @@ void HapticsSim::findContactObject()
     m_pContactObject = NULL;
     cGenericObject *obj = NULL;
 
-    cMeta3dofPointer *cursor = m_cursor->object();
+    cToolCursor *cursor = m_cursor->object();
+    /* TODO
     for (unsigned int i=0; i<cursor->m_pointForceAlgos.size(); i++)
     {
         cProxyPointForceAlgo* pointforce_proxy =
@@ -246,6 +252,7 @@ void HapticsSim::findContactObject()
             break;
         }
     }
+    */
 
     // User data is set in the Osc*CHAI constructors
     if (obj)
@@ -308,7 +315,11 @@ OscSphereCHAI::OscSphereCHAI(cWorld *world, const char *name, OscBase *parent)
 
     // User data points to the OscObject, used for identification
     // during object contact.
-    m_pSphere->setUserData(this, 1);
+    m_pSphere->m_userData = this;
+
+    // TODO: used to be that setUserData would have an "affect children" flag:
+    // m_pSphere->setUserData(this, 1);
+    // How to replace in Chai3d 3.2?
 
     m_pSpecial = new CHAIObject(this, m_pSphere, world);
 }
@@ -339,14 +350,14 @@ void OscSphereCHAI::on_grab()
 OscPrismCHAI::OscPrismCHAI(cWorld *world, const char *name, OscBase *parent)
     : OscPrism(NULL, name, parent)
 {
-    m_pPrism = new cMesh(world);
+    m_pPrism = new cMesh();
     createPrism();
     world->addChild(m_pPrism);
     m_pPrism->computeGlobalPositions();
 
     // User data points to the OscObject, used for identification
     // during object contact.
-    m_pPrism->setUserData(this, 1);
+    m_pPrism->m_userData = this;
 
     m_pSpecial = new CHAIObject(this, m_pPrism, world);
 }
@@ -364,24 +375,26 @@ void OscPrismCHAI::createPrism(bool openbox)
     int cur_index = 0;
     int start_index = 0;
 
+    /* TODO: check if there is a Chai3d 3.2 function for this */
+    
     // +x face
-    m_pPrism->newVertex( m_size.x/2,  m_size.y/2, -m_size.z/2);
-    m_pPrism->newVertex( m_size.x/2,  m_size.y/2,  m_size.z/2);
-    m_pPrism->newVertex( m_size.x/2, -m_size.y/2, -m_size.z/2);
+    m_pPrism->newVertex( m_size.x()/2,  m_size.y()/2, -m_size.z()/2);
+    m_pPrism->newVertex( m_size.x()/2,  m_size.y()/2,  m_size.z()/2);
+    m_pPrism->newVertex( m_size.x()/2, -m_size.y()/2, -m_size.z()/2);
     m_pPrism->newTriangle(cur_index,cur_index+1,cur_index+2);
     cur_index+=3;
 
-    m_pPrism->newVertex( m_size.x/2, -m_size.y/2, -m_size.z/2);
-    m_pPrism->newVertex( m_size.x/2,  m_size.y/2,  m_size.z/2);
-    m_pPrism->newVertex( m_size.x/2, -m_size.y/2,  m_size.z/2);
+    m_pPrism->newVertex( m_size.x()/2, -m_size.y()/2, -m_size.z()/2);
+    m_pPrism->newVertex( m_size.x()/2,  m_size.y()/2,  m_size.z()/2);
+    m_pPrism->newVertex( m_size.x()/2, -m_size.y()/2,  m_size.z()/2);
     m_pPrism->newTriangle(cur_index,cur_index+1,cur_index+2);
     cur_index+=3;
 
     for(n=start_index; n<cur_index; n++) {
         cVertex* curVertex = m_pPrism->getVertex(n);
         curVertex->setTexCoord(
-            (curVertex->getPos().y + m_size.x/2) / (2.0 * m_size.z/2),
-            (curVertex->getPos().z + m_size.x/2) / (2.0 * m_size.y/2)
+            (curVertex->getPos().y() + m_size.x()/2) / (2.0 * m_size.z()/2),
+            (curVertex->getPos().z() + m_size.x()/2) / (2.0 * m_size.y()/2)
             );
         curVertex->setNormal(1,0,0);
     }
@@ -389,23 +402,23 @@ void OscPrismCHAI::createPrism(bool openbox)
     start_index += 6;
 
     // -x face
-    m_pPrism->newVertex(-m_size.x/2,  m_size.y/2,  m_size.z/2);
-    m_pPrism->newVertex(-m_size.x/2,  m_size.y/2, -m_size.z/2);
-    m_pPrism->newVertex(-m_size.x/2, -m_size.y/2, -m_size.z/2);
+    m_pPrism->newVertex(-m_size.x()/2,  m_size.y()/2,  m_size.z()/2);
+    m_pPrism->newVertex(-m_size.x()/2,  m_size.y()/2, -m_size.z()/2);
+    m_pPrism->newVertex(-m_size.x()/2, -m_size.y()/2, -m_size.z()/2);
     m_pPrism->newTriangle(cur_index,cur_index+1,cur_index+2);
     cur_index+=3;
 
-    m_pPrism->newVertex(-m_size.x/2,  m_size.y/2,  m_size.z/2);
-    m_pPrism->newVertex(-m_size.x/2, -m_size.y/2, -m_size.z/2);
-    m_pPrism->newVertex(-m_size.x/2, -m_size.y/2,  m_size.z/2);
+    m_pPrism->newVertex(-m_size.x()/2,  m_size.y()/2,  m_size.z()/2);
+    m_pPrism->newVertex(-m_size.x()/2, -m_size.y()/2, -m_size.z()/2);
+    m_pPrism->newVertex(-m_size.x()/2, -m_size.y()/2,  m_size.z()/2);
     m_pPrism->newTriangle(cur_index,cur_index+1,cur_index+2);
     cur_index+=3;
 
     for(n=start_index; n<cur_index; n++) {
         cVertex* curVertex = m_pPrism->getVertex(n);
         curVertex->setTexCoord(
-            (curVertex->getPos().y + m_size.x/2) / (2.0 * m_size.z/2),
-            (curVertex->getPos().z + m_size.x/2) / (2.0 * m_size.y/2)
+            (curVertex->getPos().y() + m_size.x()/2) / (2.0 * m_size.z()/2),
+            (curVertex->getPos().z() + m_size.x()/2) / (2.0 * m_size.y()/2)
             );
         curVertex->setNormal(-1,0,0);
     }
@@ -413,23 +426,23 @@ void OscPrismCHAI::createPrism(bool openbox)
     start_index += 6;
 
     // +y face
-    m_pPrism->newVertex(m_size.x/2,  m_size.y/2,  m_size.z/2);
-    m_pPrism->newVertex(m_size.x/2,  m_size.y/2, -m_size.z/2);
-    m_pPrism->newVertex(-m_size.x/2, m_size.y/2, -m_size.z/2);
+    m_pPrism->newVertex(m_size.x()/2,  m_size.y()/2,  m_size.z()/2);
+    m_pPrism->newVertex(m_size.x()/2,  m_size.y()/2, -m_size.z()/2);
+    m_pPrism->newVertex(-m_size.x()/2, m_size.y()/2, -m_size.z()/2);
     m_pPrism->newTriangle(cur_index,cur_index+1,cur_index+2);
     cur_index+=3;
 
-    m_pPrism->newVertex(m_size.x/2,  m_size.y/2,  m_size.z/2);
-    m_pPrism->newVertex(-m_size.x/2, m_size.y/2, -m_size.z/2);
-    m_pPrism->newVertex(-m_size.x/2, m_size.y/2,  m_size.z/2);
+    m_pPrism->newVertex(m_size.x()/2,  m_size.y()/2,  m_size.z()/2);
+    m_pPrism->newVertex(-m_size.x()/2, m_size.y()/2, -m_size.z()/2);
+    m_pPrism->newVertex(-m_size.x()/2, m_size.y()/2,  m_size.z()/2);
     m_pPrism->newTriangle(cur_index,cur_index+1,cur_index+2);
     cur_index+=3;
 
     for(n=start_index; n<cur_index; n++) {
         cVertex* curVertex = m_pPrism->getVertex(n);
         curVertex->setTexCoord(
-            (curVertex->getPos().x + m_size.y/2) / (2.0 * m_size.z/2),
-            (curVertex->getPos().z + m_size.x/2) / (2.0 * m_size.y/2)
+            (curVertex->getPos().x() + m_size.y()/2) / (2.0 * m_size.z()/2),
+            (curVertex->getPos().z() + m_size.x()/2) / (2.0 * m_size.y()/2)
             );
         curVertex->setNormal(0,1,0);
     }
@@ -437,23 +450,23 @@ void OscPrismCHAI::createPrism(bool openbox)
     start_index += 6;
 
     // -y face
-    m_pPrism->newVertex(m_size.x/2,  -m_size.y/2,  m_size.z/2);
-    m_pPrism->newVertex(-m_size.x/2, -m_size.y/2, -m_size.z/2);
-    m_pPrism->newVertex(m_size.x/2,  -m_size.y/2, -m_size.z/2);
+    m_pPrism->newVertex(m_size.x()/2,  -m_size.y()/2,  m_size.z()/2);
+    m_pPrism->newVertex(-m_size.x()/2, -m_size.y()/2, -m_size.z()/2);
+    m_pPrism->newVertex(m_size.x()/2,  -m_size.y()/2, -m_size.z()/2);
     m_pPrism->newTriangle(cur_index,cur_index+1,cur_index+2);
     cur_index+=3;
 
-    m_pPrism->newVertex(-m_size.x/2, -m_size.y/2, -m_size.z/2);
-    m_pPrism->newVertex(m_size.x/2,  -m_size.y/2,  m_size.z/2);
-    m_pPrism->newVertex(-m_size.x/2, -m_size.y/2,  m_size.z/2);
+    m_pPrism->newVertex(-m_size.x()/2, -m_size.y()/2, -m_size.z()/2);
+    m_pPrism->newVertex(m_size.x()/2,  -m_size.y()/2,  m_size.z()/2);
+    m_pPrism->newVertex(-m_size.x()/2, -m_size.y()/2,  m_size.z()/2);
     m_pPrism->newTriangle(cur_index,cur_index+1,cur_index+2);
     cur_index+=3;
 
     for(n=start_index; n<cur_index; n++) {
         cVertex* curVertex = m_pPrism->getVertex(n);
         curVertex->setTexCoord(
-            (curVertex->getPos().x + m_size.y/2) / (2.0 * m_size.z/2),
-            (curVertex->getPos().z + m_size.x/2) / (2.0 * m_size.y/2)
+            (curVertex->getPos().x() + m_size.y()/2) / (2.0 * m_size.z()/2),
+            (curVertex->getPos().z() + m_size.x()/2) / (2.0 * m_size.y()/2)
             );
         curVertex->setNormal(0,-1,0);
     }
@@ -461,23 +474,23 @@ void OscPrismCHAI::createPrism(bool openbox)
     start_index += 6;
 
     // -z face
-    m_pPrism->newVertex(-m_size.x/2, -m_size.y/2, -m_size.z/2);
-    m_pPrism->newVertex(m_size.x/2,   m_size.y/2, -m_size.z/2);
-    m_pPrism->newVertex(m_size.x/2,  -m_size.y/2, -m_size.z/2);
+    m_pPrism->newVertex(-m_size.x()/2, -m_size.y()/2, -m_size.z()/2);
+    m_pPrism->newVertex(m_size.x()/2,   m_size.y()/2, -m_size.z()/2);
+    m_pPrism->newVertex(m_size.x()/2,  -m_size.y()/2, -m_size.z()/2);
     m_pPrism->newTriangle(cur_index,cur_index+1,cur_index+2);
     cur_index+=3;
 
-    m_pPrism->newVertex( m_size.x/2,  m_size.y/2, -m_size.z/2);
-    m_pPrism->newVertex(-m_size.x/2, -m_size.y/2, -m_size.z/2);
-    m_pPrism->newVertex(-m_size.x/2,  m_size.y/2, -m_size.z/2);
+    m_pPrism->newVertex( m_size.x()/2,  m_size.y()/2, -m_size.z()/2);
+    m_pPrism->newVertex(-m_size.x()/2, -m_size.y()/2, -m_size.z()/2);
+    m_pPrism->newVertex(-m_size.x()/2,  m_size.y()/2, -m_size.z()/2);
     m_pPrism->newTriangle(cur_index,cur_index+1,cur_index+2);
     cur_index+=3;
 
     for(n=start_index; n<cur_index; n++) {
         cVertex* curVertex = m_pPrism->getVertex(n);
         curVertex->setTexCoord(
-            (curVertex->getPos().x + m_size.y/2) / (2.0 * m_size.z/2),
-            (curVertex->getPos().y + m_size.x/2) / (2.0 * m_size.y/2)
+            (curVertex->getPos().x() + m_size.y()/2) / (2.0 * m_size.z()/2),
+            (curVertex->getPos().y() + m_size.x()/2) / (2.0 * m_size.y()/2)
             );
         curVertex->setNormal(0,0,-1);
     }
@@ -487,23 +500,23 @@ void OscPrismCHAI::createPrism(bool openbox)
     if (!openbox) {
 
         // +z face
-        m_pPrism->newVertex(-m_size.x/2, -m_size.y/2, m_size.z/2);
-        m_pPrism->newVertex(m_size.x/2,  -m_size.y/2, m_size.z/2);
-        m_pPrism->newVertex(m_size.x/2,  m_size.y/2,  m_size.z/2);
+        m_pPrism->newVertex(-m_size.x()/2, -m_size.y()/2, m_size.z()/2);
+        m_pPrism->newVertex(m_size.x()/2,  -m_size.y()/2, m_size.z()/2);
+        m_pPrism->newVertex(m_size.x()/2,  m_size.y()/2,  m_size.z()/2);
         m_pPrism->newTriangle(cur_index,cur_index+1,cur_index+2);
         cur_index+=3;
 
-        m_pPrism->newVertex(-m_size.x/2, -m_size.y/2, m_size.z/2);
-        m_pPrism->newVertex( m_size.x/2,  m_size.y/2, m_size.z/2);
-        m_pPrism->newVertex(-m_size.x/2,  m_size.y/2, m_size.z/2);
+        m_pPrism->newVertex(-m_size.x()/2, -m_size.y()/2, m_size.z()/2);
+        m_pPrism->newVertex( m_size.x()/2,  m_size.y()/2, m_size.z()/2);
+        m_pPrism->newVertex(-m_size.x()/2,  m_size.y()/2, m_size.z()/2);
         m_pPrism->newTriangle(cur_index,cur_index+1,cur_index+2);
         cur_index+=3;
 
         for(n=start_index; n<cur_index; n++) {
             cVertex* curVertex = m_pPrism->getVertex(n);
             curVertex->setTexCoord(
-                (curVertex->getPos().x + m_size.y/2) / (2.0 * m_size.z/2),
-                (curVertex->getPos().y + m_size.x/2) / (2.0 * m_size.y/2)
+                (curVertex->getPos().x() + m_size.y()/2) / (2.0 * m_size.z()/2),
+                (curVertex->getPos().y() + m_size.x()/2) / (2.0 * m_size.y()/2)
                 );
             curVertex->setNormal(0,0,1);
         }
@@ -518,9 +531,9 @@ void OscPrismCHAI::createPrism(bool openbox)
 
         cColorb color;
         color.set(
-            GLuint(0xff*(m_size.x + nextVertex->getPos().x ) / (2.0 * m_size.x)),
-            GLuint(0xff*(m_size.x + nextVertex->getPos().y ) / (2.0 * m_size.y)),
-            GLuint(0xff* nextVertex->getPos().z / 2*m_size.z)
+            GLuint(0xff*(m_size.x() + nextVertex->getPos().x() ) / (2.0 * m_size.x())),
+            GLuint(0xff*(m_size.x() + nextVertex->getPos().y() ) / (2.0 * m_size.y())),
+            GLuint(0xff* nextVertex->getPos().z() / 2*m_size.z())
             );
     }
 }
