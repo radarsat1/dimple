@@ -155,17 +155,30 @@ void VisualSim::initialize()
     m_camera = new OscCameraCHAI(m_chaiWorld, "camera", this);
     m_chaiWorld->addChild(m_camera->object());
 
-    // Create a light source and attach it to the camera
-    m_chaiLight = new cSpotLight(m_chaiWorld);
-    m_chaiLight->setEnabled(true);
-    m_chaiLight->setLocalPos(cVector3d(2,0.5,1));
-    m_chaiLight->setDir(cVector3d(-2,0.5,1));
-    m_camera->object()->addChild(m_chaiLight);
+    // Create a light source and attach it to the camera so that it
+    // moves with the point of view
+    m_chaiLight0 = new cSpotLight(m_chaiWorld);
+    m_chaiLight0->setEnabled(true);
+    m_chaiLight0->setLocalPos(cVector3d(20,25,10));
+    m_chaiLight0->setDir(-m_chaiLight0->getLocalPos());
+    m_camera->object()->addChild(m_chaiLight0);
+
+    // And a second one from the other side
+    m_chaiLight1 = new cSpotLight(m_chaiWorld);
+    m_chaiLight1->setEnabled(true);
+    m_chaiLight1->setLocalPos(cVector3d(-30,5,15));
+    m_chaiLight1->setDir(-m_chaiLight1->getLocalPos());
+    m_camera->object()->addChild(m_chaiLight0);
 
     // Support shadows
-    m_chaiLight->setCutOffAngleDeg(30);
-    m_chaiLight->setShadowMapEnabled(true);
-    m_chaiLight->m_shadowMap->setQualityLow();
+    unsigned int i=0;
+    cSpotLight *lt;
+    while (lt = light(i++))
+    {
+        lt->setCutOffAngleDeg(30);
+        lt->setShadowMapEnabled(true);
+        lt->m_shadowMap->setQualityLow();
+    }
 
     // Cursor object created by haptics sim after device initializes,
     // so nothing to do here for the cursor.
@@ -272,6 +285,11 @@ void VisualSim::reshape(int w, int h)
     me->m_nWidth = w;
     me->m_nHeight = h;
     glViewport(0, 0, w, h);
+}
+
+cSpotLight *VisualSim::light(unsigned int i)
+{
+    return i==0?m_chaiLight0:(i==1?m_chaiLight1:nullptr);
 }
 
 OscCameraCHAI::OscCameraCHAI(cWorld *world, const char *name, OscBase *parent)

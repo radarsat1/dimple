@@ -9,8 +9,8 @@
 #include <world/CWorld.h>
 #include <display/CCamera.h>
 #include <lighting/CPositionalLight.h>
-//#include <CMeta3dofPointer.h>
 #include <world/CShapeSphere.h>
+#include <world/CShapeBox.h>
 #include <world/CMultiMesh.h>
 #include <tools/CToolCursor.h>
 
@@ -152,7 +152,7 @@ public:
     OscPrismCHAI(cWorld *world, const char *name, OscBase *parent=NULL);
     virtual ~OscPrismCHAI();
 
-    virtual cMesh *object() { return m_pPrism; }
+    virtual cShapeBox *object() { return m_pPrism; }
 
 protected:
     virtual void on_size();
@@ -165,10 +165,7 @@ protected:
         { object()->m_material->setDynamicFriction(m_friction_dynamic.m_value); }
     virtual void on_grab();
 
-    //! Create a cMesh with a prism structure.
-    void createPrism(bool openbox=false);
-
-    cMesh *m_pPrism;
+    cShapeBox *m_pPrism;
 };
 
 class OscMeshCHAI : public OscMesh
