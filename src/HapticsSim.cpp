@@ -98,6 +98,16 @@ void HapticsSim::initialize()
     // quit the haptics simulation if the cursor couldn't be initialized.
     if (!m_cursor->is_initialized())
         m_bDone = true;
+    else
+    {
+        // create the corresponding visual cursor
+        simulation()->sendtotype(Simulation::ST_VISUAL, false,
+                                 "/world/sphere/create","sfff",
+                                 "cursor", 0.0, 0.0, 0.0);
+        simulation()->sendtotype(Simulation::ST_VISUAL, false,
+                                 "/world/cursor/color","fff",
+                                 1.0, 1.0, 0.0);
+    }
 
     // ensure workspace is recalibrated
     m_resetWorkspace = true;

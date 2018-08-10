@@ -162,13 +162,8 @@ void VisualSim::initialize()
     m_chaiLight->setDir(cVector3d(-2,0.5,1));
     m_camera->object()->addChild(m_chaiLight);
 
-    // Create an object to represent the cursor
-    OscSphereCHAI *pCursor = new OscSphereCHAI(m_chaiWorld, "cursor", this);
-    if (pCursor) {
-        m_chaiWorld->addChild(pCursor->object());
-        pCursor->m_position.set(0, 0, 0);
-        pCursor->m_color.set(1, 1, 0);
-    }
+    // Cursor object created by haptics sim after device initializes,
+    // so nothing to do here for the cursor.
 
     Simulation::initialize();
 }
