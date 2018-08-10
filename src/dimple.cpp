@@ -286,19 +286,4 @@ void dimple_cleanup()
 	quit = 1;
 }
 
-#if defined(WIN32) && defined(PTW32_STATIC_LIB)
-class deal_with_pthread_win32
-{
-public:
-	deal_with_pthread_win32() {
-		/* initialize win32 pthreads */
-		pthread_win32_process_attach_np();
-	}
-	~deal_with_pthread_win32() {
-		/* clean up win32 pthreads */
-		pthread_win32_process_detach_np();
-	}
-} _deal_with_pthread_win32;
-#endif
-
 //---------------------------------------------------------------------------

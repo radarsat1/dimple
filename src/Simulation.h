@@ -3,8 +3,9 @@
 #ifndef _SIMULATION_H_
 #define _SIMULATION_H_
 
-#include <pthread.h>
-#include <semaphore.h>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 
 #include "OscValue.h"
 #include "ValueTimer.h"
@@ -130,8 +131,9 @@ class Simulation : public OscBase
       { run(this); }
 
   protected:
-    pthread_t m_thread;
-    sem_t *m_psem_init;
+    std::thread m_thread;
+    std::mutex m_mutex;
+    std::condition_variable m_condvar;
     bool m_bStarted;
     bool m_bDone;
     int m_type;

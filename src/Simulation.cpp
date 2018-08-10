@@ -1,5 +1,6 @@
 // -*- mode:c++; indent-tabs-mode:nil; c-basic-offset:4; -*-
 
+#include <chrono>
 #include <cerrno>
 
 #include <lo/lo.h>
@@ -600,7 +601,6 @@ Simulation::Simulation(const char *port, int type)
     m_bDone = false;
     m_bStarted = false;
     m_bSelfTimed = true;
-    m_psem_init = NULL;
 
     m_collide.setSetCallback(set_collide, this);
     m_gravity.setSetCallback(set_gravity, this);
@@ -693,51 +693,26 @@ bool Simulation::start()
 
     m_bDone = false;
 
-#ifndef WIN32
-    // Set up a semaphore to inform us that initialization is complete
-    m_psem_init = new sem_t;
-    sem_init(m_psem_init, 0, -1);
-#endif
-
     // We'll use a timed wait, so need to get absolute time
-    timespec ts;
-#ifdef WIN32
-    memset(&ts, 0, sizeof(ts));
-    ts.tv_sec = (long)time(NULL)+1;
-#else
-    if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
-        perror("clock_gettime");
-        sem_destroy(m_psem_init);
+    auto now = std::chrono::system_clock::now();
+    std::unique_lock<std::mutex> lk(m_mutex);
+
+    try {
+        m_thread = std::thread(Simulation::run, this);
+    } catch (std::system_error &e) {
+        printf("[%s] Error creating simulation thread.", type_str());
         return false;
     }
-#endif
-    ts.tv_sec += 3;
 
-    if (pthread_create(&m_thread, NULL, Simulation::run, this)) {
-        printf("[%s] Error creating simulation thread.", type_str());
-        rc = false;
-    }
-    else {
-        m_bStarted = true;
-
-#ifndef WIN32
-        // Wait for thread to signal initialization done
-        int s;
-        while ((s = sem_timedwait(m_psem_init, &ts)) == -1 && errno == EINTR)
-            continue;
-        if (s < 0 && errno == ETIMEDOUT) {
-            printf("[%s] Timed out during initialization.\n", type_str());
-            rc = false;
-        }
-#endif
+    using namespace std::chrono_literals;
+    if (m_condvar.wait_until(lk, now+3*1s)==std::cv_status::timeout) {
+        printf("[%s] Timed out during initialization.\n", type_str());
+        return false;
     }
 
-#ifndef WIN32
-    sem_destroy(m_psem_init);
-    delete m_psem_init;
-    m_psem_init = NULL;
-#endif
-    return rc;
+    m_bStarted = true;
+
+    return true;
 }
 
 void Simulation::stop()
@@ -749,7 +724,7 @@ void Simulation::stop()
 
     m_bDone = true;
     if (m_bStarted)
-        pthread_join(m_thread, NULL);
+        m_thread.join();
     m_bStarted = false;
     printf("done.\n");
 }
@@ -778,8 +753,7 @@ void* Simulation::run(void* param)
                lo_server_get_port(me->m_server));
 
     // Signal parent thread
-    if (me->m_psem_init)
-        sem_post(me->m_psem_init);
+    me->m_condvar.notify_all();
 
     std::vector<LoQueue*>::iterator qit;
 
