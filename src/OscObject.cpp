@@ -45,10 +45,10 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     addHandler("grab"       , "i"  , OscObject::grab_handler);
 
     // Set initial physical properties
-    m_accel.set(0,0,0);
-    m_velocity.set(0,0,0);
-    m_position.set(0,0,0);
-    m_force.set(0,0,0);
+    m_accel.setd(0,0,0);
+    m_velocity.setd(0,0,0);
+    m_position.setd(0,0,0);
+    m_force.setd(0,0,0);
     m_density.set(100);
     m_visible.set(true);
 

@@ -36,20 +36,20 @@ int PrismFactory::create_handler(const char *path, const char *types, lo_arg **a
     PrismFactory *me = static_cast<PrismFactory*>(user_data);
 
     // Optional position, default (0,0,0)
-	cVector3d pos;
-	if (argc>0)
-		 pos.x = argv[1]->f;
-	if (argc>1)
-		 pos.y = argv[2]->f;
-	if (argc>2)
-		 pos.z = argv[3]->f;
+    cVector3d pos;
+    if (argc>0)
+        pos.x(argv[1]->f);
+    if (argc>1)
+        pos.y(argv[2]->f);
+    if (argc>2)
+        pos.z(argv[3]->f);
 
     OscObject *o = me->simulation()->find_object(&argv[0]->s);
     if (o)
         printf("[%s] Already an object named %s\n",
                me->simulation()->type_str(), &argv[0]->s);
     else
-        if (!me->create(&argv[0]->s, pos.x, pos.y, pos.z))
+        if (!me->create(&argv[0]->s, pos.x(), pos.y(), pos.z()))
             printf("[%s] Error creating sphere '%s'.\n",
                    me->simulation()->type_str(), &argv[0]->s);
 
@@ -73,20 +73,20 @@ int SphereFactory::create_handler(const char *path, const char *types, lo_arg **
     SphereFactory *me = static_cast<SphereFactory*>(user_data);
 
     // Optional position, default (0,0,0)
-	cVector3d pos;
-	if (argc>0)
-		 pos.x = argv[1]->f;
-	if (argc>1)
-		 pos.y = argv[2]->f;
-	if (argc>2)
-		 pos.z = argv[3]->f;
+    cVector3d pos;
+    if (argc>0)
+        pos.x(argv[1]->f);
+    if (argc>1)
+        pos.y(argv[2]->f);
+    if (argc>2)
+        pos.z(argv[3]->f);
 
     OscObject *o = me->simulation()->find_object(&argv[0]->s);
     if (o)
         printf("[%s] Already an object named %s\n",
                me->simulation()->type_str(), &argv[0]->s);
     else
-        if (!me->create(&argv[0]->s, pos.x, pos.y, pos.z))
+        if (!me->create(&argv[0]->s, pos.x(), pos.y(), pos.z()))
             printf("[%s] Error creating sphere '%s'.\n",
                    me->simulation()->type_str(), &argv[0]->s);
 
@@ -110,20 +110,20 @@ int MeshFactory::create_handler(const char *path, const char *types, lo_arg **ar
     MeshFactory *me = static_cast<MeshFactory*>(user_data);
 
     // Optional position, default (0,0,0)
-	cVector3d pos;
-	if (argc>1)
-		 pos.x = argv[2]->f;
-	if (argc>2)
-		 pos.y = argv[3]->f;
-	if (argc>3)
-		 pos.z = argv[4]->f;
+    cVector3d pos;
+    if (argc>1)
+        pos.x(argv[2]->f);
+    if (argc>2)
+        pos.y(argv[3]->f);
+    if (argc>3)
+        pos.z(argv[4]->f);
 
     OscObject *o = me->simulation()->find_object(&argv[0]->s);
     if (o)
         printf("[%s] Already an object named %s\n",
                me->simulation()->type_str(), &argv[0]->s);
     else
-        if (!me->create(&argv[0]->s, &argv[1]->s, pos.x, pos.y, pos.z))
+        if (!me->create(&argv[0]->s, &argv[1]->s, pos.x(), pos.y(), pos.z()))
             printf("[%s] Error creating mesh '%s' (%s).\n",
                    me->simulation()->type_str(), &argv[0]->s, &argv[1]->s);
 
@@ -762,12 +762,12 @@ void* Simulation::run(void* param)
     int step_left = step_ms;
     while (!me->m_bDone)
     {
-        me->m_clock.initialize();
-        me->m_clock.setTimeoutPeriod(step_us);
+        me->m_clock.reset();
+        me->m_clock.setTimeoutPeriodSeconds(me->m_fTimestep);
         me->m_clock.start();
         step_left = me->m_bSelfTimed ? step_ms : 0;
         while (lo_server_recv_noblock(me->m_server, step_left) > 0) {
-            step_left = step_ms-(me->m_clock.getCurrentTime()/1000);
+            step_left = step_ms-(me->m_clock.getCurrentTimeSeconds()/1000);
             if (step_left < 0) step_left = 0;
         }
 #ifdef USE_QUEUES

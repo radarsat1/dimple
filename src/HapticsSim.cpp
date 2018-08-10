@@ -15,7 +15,7 @@ bool HapticsPrismFactory::create(const char *name, float x, float y, float z)
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
-    obj->m_position.set(x, y, z);
+    obj->m_position.setd(x, y, z);
 
     return true;
 }
@@ -28,7 +28,7 @@ bool HapticsSphereFactory::create(const char *name, float x, float y, float z)
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
-    obj->m_position.set(x, y, z);
+    obj->m_position.setd(x, y, z);
 
     return true;
 }
@@ -50,7 +50,7 @@ bool HapticsMeshFactory::create(const char *name, const char *filename,
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
-    obj->m_position.set(x, y, z);
+    obj->m_position.setd(x, y, z);
 
     return true;
 }
@@ -151,30 +151,26 @@ void HapticsSim::updateWorkspace(cVector3d &pos)
 void HapticsSim::step()
 {
     cToolCursor *cursor = m_cursor->object();
-    /* TODO
-    cursor->updatePose();
-    */
+    cursor->updateFromDevice();
 
     cVector3d pos = cursor->getDeviceGlobalPos();
     updateWorkspace(pos);
 
-    /* TODO
-    pos.copyto(cursor->m_deviceGlobalPos);
+    cursor->setDeviceGlobalPos(pos);
     pos.copyto(m_cursor->m_position);
-    cursor->m_deviceGlobalVel.copyto(m_cursor->m_velocity);
+    cursor->getDeviceGlobalLinVel().copyto(m_cursor->m_velocity);
 
     if (m_pGrabbedObject) {
-        cursor->m_lastComputedGlobalForce.set(0,0,0);
+        cursor->setDeviceGlobalForce(0,0,0);
         m_cursor->addCursorGrabbedForce(m_pGrabbedObject);
     } else {
-        cursor->computeForces();
+        cursor->computeInteractionForces();
         m_cursor->addCursorMassForce();
     }
 
     m_cursor->addCursorExtraForce();
 
-    cursor->applyForces();
-    */
+    cursor->applyToDevice();
 
     m_counter++;
 
@@ -590,7 +586,7 @@ OscMeshCHAI::OscMeshCHAI(cWorld *world, const char *name, const char *filename,
 
     // size it to 0.1 without changing proportions
     float size = (vmax-vmin).length();
-    m_size.set(0.1/size, 0.1/size, 0.1/size);
+    m_size.setd(0.1/size, 0.1/size, 0.1/size);
     on_size();
 
     /* setup collision detector */
@@ -701,24 +697,13 @@ void OscCursorCHAI::on_force()
 
 const char *OscCursorCHAI::device_str()
 {
-    /* TODO: getHapticeDevice
-    int d = m_pCursor->getPhysicalDevice();
-    switch (d) {
-    case DEVICE_DHD: return "Delta";
-    case DEVICE_FALCON: return "Falcon";
-    case DEVICE_PHANTOM: return "Phantom";
-    case DEVICE_LIBNIFALCON: return "Falcon (libnifalcon)";
-    case DEVICE_MPB: return "Freedom 6S";
-    default: return "Unknown";
-    }
-    */
-    return "Unknown";
+    /* Using m_specifications instead of getSpecifications() to avoid
+     * returning a pointer to a temporary. */
+    return m_pCursor->getHapticDevice()->m_specifications.m_modelName.c_str();
 }
 
 void OscCursorCHAI::on_radius()
 {
-    printf("OscCursorCHAI::on_radius(). radius = %f\n", m_radius.m_value);
-
     if (!m_pCursor)
         return;
 
@@ -733,24 +718,24 @@ void OscCursorCHAI::addCursorMassForce()
 
     // if no mass, just update the mass position
     if (m_mass.m_value <= 0) {
-        m_massVel = (m_pCursor->m_deviceGlobalPos - m_massPos) / timestep;
-        m_massPos = m_pCursor->m_deviceGlobalPos;
+        m_massVel = (m_pCursor->getDeviceGlobalPos() - m_massPos) / timestep;
+        m_massPos = m_pCursor->getDeviceGlobalPos();
         return;
     }
 
     double k=10;                         // stiffness of mass-spring
     double b=0.001;//2*sqrt(k*m_mass.m_value);  // critical damping
 
-    cVector3d posdiff(m_pCursor->m_deviceGlobalPos - m_massPos);
+    cVector3d posdiff(m_pCursor->getDeviceGlobalPos() - m_massPos);
     cVector3d springVel((posdiff - m_lastPosDiff)/timestep);
     m_lastPosDiff = posdiff;
-    cVector3d veldiff(m_pCursor->m_deviceGlobalVel - m_massVel);
+    cVector3d veldiff(m_pCursor->getDeviceGlobalLinVel() - m_massVel);
     cVector3d force(-k*posdiff - b*springVel);
 
     m_massPos += m_massVel*timestep;
     m_massVel -= force/m_mass.m_value*timestep;
 
-    m_pCursor->m_lastComputedGlobalForce += force*10;
+    m_pCursor->addDeviceGlobalForce(force*10);
 }
 
 /*! Compute a force attracting the cursor toward the grabbed
@@ -760,14 +745,14 @@ void OscCursorCHAI::addCursorGrabbedForce(OscObject *pGrabbed)
     cVector3d f(m_position - pGrabbed->m_position);
     f.mul(-10);
     f.add(m_velocity * (-0.001));
-    m_pCursor->m_lastComputedGlobalForce += f;
+    m_pCursor->addDeviceGlobalForce(f);
 }
 
 /*! Add any extra force provided externally by the user. */
 void OscCursorCHAI::addCursorExtraForce()
 {
     if (m_nExtraForceSteps > 0) {
-        m_pCursor->m_lastComputedGlobalForce += m_extraForce;
+        m_pCursor->addDeviceGlobalForce(m_extraForce);
         m_nExtraForceSteps--;
     }
 }

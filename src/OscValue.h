@@ -165,8 +165,9 @@ class OscVector3 : public OscValue, public cVector3d
 {
   public:
     OscVector3(const char *name, OscBase *owner);
-	void set(double x, double y, double z);
-    void set(const cVector3d& vec) { set(vec.x(), vec.y(), vec.z()); }
+    // avoid shadowing non-virtual cVector3d::set() by naming setd()
+    void setd(double x, double y, double z);
+    void setd(const cVector3d& vec) { setd(vec.x(), vec.y(), vec.z()); }
     void send();
 
 	OscScalar m_magnitude;
@@ -190,9 +191,10 @@ class OscMatrix3 : public OscValue, public cMatrix3d
 {
   public:
     OscMatrix3(const char *name, OscBase *owner);
-	void set(double m00, double m01, double m02,
-             double m10, double m11, double m12,
-             double m20, double m21, double m22);
+    // avoid shadowing non-virtual cVector3d::set() by naming setd()
+    void setd(double m00, double m01, double m02,
+              double m10, double m11, double m12,
+              double m20, double m21, double m22);
     void send();
 
     typedef void SetCallback(void*, OscMatrix3&);

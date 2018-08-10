@@ -113,22 +113,15 @@ protected:
     static void on_set_visible(void* me, OscBoolean &v)
         { ((CHAIObject*)me)->chai_object()->setShowEnabled(v.m_value, true); }
 
-    /* TODO: the following functions cannot be done here only because
-     * CHAI doesn't define m_material as a property of cGenericObject,
-     * but of its subclasses.  This should be rectified in CHAI and
-     * then enabled here. */
-
-#if 0
     static void on_set_color(void* me, OscVector3 &c)
         { ((CHAIObject*)me)->chai_object()->
-                m_material.m_diffuse.set(c.x, c.y, c.z); }
+                m_material->m_diffuse.set(c.x(), c.y(), c.z()); }
     static void on_set_friction_static(void* me, OscScalar &mus)
         { ((CHAIObject*)me)->chai_object()->
-                m_material.setStaticFriction(mus.m_value); }
+                m_material->setStaticFriction(mus.m_value); }
     static void on_set_friction_dynamic(void* me, OscScalar &mud)
         { ((CHAIObject*)me)->chai_object()->
-                m_material.setDynamicFriction(mud.m_value); }
-#endif
+                m_material->setDynamicFriction(mud.m_value); }
 };
 
 class OscSphereCHAI : public OscSphere
