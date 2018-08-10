@@ -3,6 +3,9 @@
 #include "dimple.h"
 #include "HapticsSim.h"
 //#include "CODEPotentialProxy.h"
+#include "devices/CGenericHapticDevice.h"
+#include "devices/CHapticDeviceHandler.h"
+#include "tools/CToolCursor.h"
 
 bool HapticsPrismFactory::create(const char *name, float x, float y, float z)
 {
@@ -624,9 +627,31 @@ void OscMeshCHAI::on_size()
 OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
     : OscSphere(NULL, name, parent)
 {
+    // create haptic device handler
+    auto handler = std::make_unique<cHapticDeviceHandler>();
+    printf("[%s] Haptic devices found: %d\n", simulation()->type_str(),
+           handler->getNumDevices());
+
+    // get handle to first available haptic device on the list
+    cGenericHapticDevicePtr device;
+
+    if (handler->getDevice(device, 0) && device->open()) {
+        m_bInitialized = true;
+    } else {
+        m_bInitialized = false;
+        printf("[%s] Could not initialize.\n", simulation()->type_str());
+    }
+
     // create the cursor object
     m_pCursor = new cToolCursor(world);
-    world->addChild(m_pCursor);
+
+    if (m_bInitialized)
+    {
+        m_pCursor->setHapticDevice(device);
+        world->addChild(m_pCursor);
+
+        printf("[%s] Using %s device.\n",
+               simulation()->type_str(), device_str());
 
     // User data points to the OscObject, used for identification
     // during object contact.
@@ -642,15 +667,7 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
     delete old_proxy;
     */
 
-    if (m_pCursor->start()) {
-        m_bInitialized = false;
-        printf("[%s] Could not initialize.\n", simulation()->type_str());
-    } else {
-        m_bInitialized = true;
-
-        printf("[%s] Using %s device.\n",
-               simulation()->type_str(), device_str());
-    }
+    m_pCursor->start();
 
     // rotate the cursor to match visual rotation
     /* TODO; updateToolImagePosition?
@@ -665,6 +682,7 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
 
     // this is necessary for the above rotation to take effect
     m_pCursor->computeGlobalPositions();
+    }
 
     // set up mass as zero to begin (transparent proxy)
     m_mass.set(0);
@@ -699,7 +717,10 @@ const char *OscCursorCHAI::device_str()
 {
     /* Using m_specifications instead of getSpecifications() to avoid
      * returning a pointer to a temporary. */
-    return m_pCursor->getHapticDevice()->m_specifications.m_modelName.c_str();
+    cGenericHapticDevicePtr dev = m_pCursor->getHapticDevice();
+    if (dev)
+        return dev->m_specifications.m_modelName.c_str();
+    return "no";
 }
 
 void OscCursorCHAI::on_radius()

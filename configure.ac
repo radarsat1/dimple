@@ -172,6 +172,12 @@ LIBS="$LIBS -L${CHAI_LIBDIR}"
 if test -f /usr/include/HL/hl.h; then
   LIBS="$LIBS -lHD -lHL"
 fi
+# In case CHAI is using DHD
+if test -f ${CHAI_DIR}/external/DHD/lib/lin-x86_64/libdrd.a; then
+  LDFLAGS="$LDFLAGS -L${CHAI_DIR}/external/DHD/lib/lin-x86_64"
+  AC_CHECK_LIB([usb-1.0], [libusb_init])
+  AC_CHECK_LIB([drd], [dhdOpenID])
+fi
 AC_CHECK_LIB(chai3d, [main], [],
   [LIBS="$save_LIBS"
   unset ac_cv_lib_chai3d_main
