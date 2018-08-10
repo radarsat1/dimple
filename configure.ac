@@ -177,6 +177,8 @@ if test -f ${CHAI_DIR}/external/DHD/lib/lin-x86_64/libdrd.a; then
   LDFLAGS="$LDFLAGS -L${CHAI_DIR}/external/DHD/lib/lin-x86_64"
   AC_CHECK_LIB([usb-1.0], [libusb_init])
   AC_CHECK_LIB([drd], [dhdOpenID])
+  # TODO: compile small chai program that instantiates a haptic
+  # device, check what libraries it requires
 fi
 AC_CHECK_LIB(chai3d, [main], [],
   [LIBS="$save_LIBS"
