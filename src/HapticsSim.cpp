@@ -2,7 +2,6 @@
 
 #include "dimple.h"
 #include "HapticsSim.h"
-//#include "CODEPotentialProxy.h"
 #include "devices/CGenericHapticDevice.h"
 #include "devices/CHapticDeviceHandler.h"
 #include "tools/CToolCursor.h"
@@ -186,11 +185,7 @@ void HapticsSim::step()
         /* If in contact with an object, display the cursor at the
          * proxy location instead of the device location, so that it
          * does not show it penetrating the object. */
-        /* TODO
-        cProxyPointForceAlgo *algo =
-            (cProxyPointForceAlgo*) cursor->m_pointForceAlgos[0];
-        if (algo->getContactObject())
-        pos = algo->getProxyGlobalPosition(); */
+        pos = cursor->m_hapticPoint->getGlobalPosProxy();
 
         sendtotype(update_sim, true,
                    "/world/cursor/position","fff",
@@ -226,32 +221,14 @@ void HapticsSim::findContactObject()
     cGenericObject *obj = NULL;
 
     cToolCursor *cursor = m_cursor->object();
-    /* TODO
-    for (unsigned int i=0; i<cursor->m_pointForceAlgos.size(); i++)
+    if (cursor->m_hapticPoint->getNumCollisionEvents() > 0)
     {
-        cProxyPointForceAlgo* pointforce_proxy =
-            dynamic_cast<cProxyPointForceAlgo*>(cursor->m_pointForceAlgos[i]);
-        if ((pointforce_proxy != NULL)
-            && (pointforce_proxy->getContactObject() != NULL))
-        {
-            m_lastContactPoint = pointforce_proxy->getContactPoint();
-            m_lastForce = cursor->m_lastComputedGlobalForce;
-            obj = pointforce_proxy->getContactObject();
-            break;
-        }
-
-        cODEPotentialProxy* potential_proxy =
-            dynamic_cast<cODEPotentialProxy*>(cursor->m_pointForceAlgos[i]);
-        if ((potential_proxy != NULL)
-            && (potential_proxy->getContactObject() != NULL))
-        {
-            m_lastContactPoint = potential_proxy->getContactPoint();
-            m_lastForce = cursor->m_lastComputedGlobalForce;
-            obj = potential_proxy->getContactObject();
-            break;
-        }
+        cCollisionEvent* collisionEvent =
+            cursor->m_hapticPoint->getCollisionEvent(0);
+        m_lastContactPoint = cursor->m_hapticPoint->getGlobalPosProxy();
+        m_lastForce = cursor->getDeviceGlobalForce();
+        obj = collisionEvent->m_object;
     }
-    */
 
     // User data is set in the Osc*CHAI constructors
     if (obj)
@@ -471,16 +448,6 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
     // during object contact.
     m_pCursor->m_userData = this;
 
-    // replace the potential proxy algorithm with our own
-    /* TODO
-    cGenericPointForceAlgo *old_proxy, *new_proxy;
-    old_proxy = m_pCursor->m_pointForceAlgos[1];
-    new_proxy = new cODEPotentialProxy(
-        dynamic_cast<cPotentialFieldForceAlgo*>(old_proxy));
-    m_pCursor->m_pointForceAlgos[1] = new_proxy;
-    delete old_proxy;
-    */
-
     m_pCursor->start();
 
     // rotate the cursor to match visual rotation
@@ -489,10 +456,7 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
     */
 
     // make it a cursor tuned for a dynamic environment
-    /* TODO
-    ((cProxyPointForceAlgo*)m_pCursor->m_pointForceAlgos[0])
-        ->enableDynamicProxy(true);
-    */
+    m_pCursor->enableDynamicObjects(true);
 
     // this is necessary for the above rotation to take effect
     m_pCursor->computeGlobalPositions();
