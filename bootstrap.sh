@@ -161,11 +161,11 @@ echo
 }
 
 chai3d() {
-chai_URL=http://chai3d.org/download/chai3d-3.1.1-multiplatform.zip
-chai_TAR=chai3d-3.1.1-multiplatform.zip
-chai_MD5=e2535aad75e365aacde0facb1d99e00d
+chai_URL=http://chai3d.org/download/chai3d-3.2.0-multiplatform.zip
+chai_TAR=chai3d-3.2.0-multiplatform.zip
+chai_MD5=ad51b811c1c1cf39f4c1bb097d3f69ff
 if [ -z $chai_DIR ]; then
-   chai_DIR=chai3d-3.1.1
+   chai_DIR=chai3d-3.2.0
 fi
 
 if ! [ -d $chai_DIR ]; then

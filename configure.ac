@@ -155,7 +155,7 @@ AX_PTHREAD(
     [-lws2_32])])
 
 # CHAI 3D
-CHAI_DIR=${abs_srcdir}/libdeps/chai3d-3.1.1
+CHAI_DIR=${abs_srcdir}/libdeps/chai3d-3.2.0
 CHAI_LIBDIR=${CHAI_DIR}/lib/release/${CHAI_SUFFIX}
 CHAI_INCDIRS="-I${CHAI_DIR}/src -I${CHAI_DIR}/external/Eigen -I${CHAI_DIR}/external/glew/include"
 CPPFLAGS="$CPPFLAGS $CHAI_FLAGS"
