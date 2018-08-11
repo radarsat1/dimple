@@ -101,6 +101,10 @@ void VisualSim::initGlutWindow()
     glutInitWindowSize(m_nWidth, m_nHeight);
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
     glutCreateWindow("Dimple");
+#ifdef GLEW_VERSION
+    // initialize GLEW
+    glewInit();
+#endif
     glutDisplayFunc(draw);
     glutKeyboardFunc(key);
     glutReshapeFunc(reshape);
