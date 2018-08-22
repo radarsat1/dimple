@@ -651,7 +651,6 @@ case $(uname) in
     MD5=md5
 	MD5CUT="cut -f2 -d="
   #chai_PATCH=chai3d-1.62.patch
-	chai_DIR=chai3d/darwin
     samplerate
     ode
 	liblo
