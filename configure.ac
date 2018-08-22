@@ -39,15 +39,18 @@ AC_TYPE_SIZE_T
 case "$target" in
   *-*-darwin* )
      SYSTEM_LIBS="$SYSTEM_LIBS -framework OpenGL -framework GLUT"
-     CHAI_SUFFIX="darwin" # to be tested
+     CHAI_OS=mac # to be tested
+     CHAI_CC=clang
   ;;
   *-*-linux* )
-     CHAI_SUFFIX="lin-`uname -m`-cc"
+     CHAI_OS=lin
+     CHAI_CC=cc
   ;;
   *-*-mingw* )
-     CHAI_SUFFIX="mingw" # to be tested
+     CHAI_OS="mingw" # to be tested
   ;;
 esac
+CHAI_SUFFIX="${CHAI_OS}-`uname -m`-${CHAI_CC}"
 
 # Check for OpenGL-related libraries
 # (Skip this test on darwin)
@@ -173,8 +176,8 @@ if test -f /usr/include/HL/hl.h; then
   LIBS="$LIBS -lHD -lHL"
 fi
 # In case CHAI is using DHD
-if test -f ${CHAI_DIR}/external/DHD/lib/lin-x86_64/libdrd.a; then
-  LDFLAGS="$LDFLAGS -L${CHAI_DIR}/external/DHD/lib/lin-x86_64"
+if test -f ${CHAI_DIR}/external/DHD/lib/${CHAI_OS}-x86_64/libdrd.a; then
+  LDFLAGS="$LDFLAGS -L${CHAI_DIR}/external/DHD/lib/${CHAI_OS}-x86_64"
   AC_CHECK_LIB([usb-1.0], [libusb_init])
   AC_CHECK_LIB([drd], [dhdOpenID])
   # TODO: compile small chai program that instantiates a haptic
