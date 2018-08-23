@@ -3,17 +3,21 @@ sudo: false  # docker VM
 matrix:
   include:
   - os: linux
-    env: HOST=""
-    compiler: gcc
-  - os: linux
-    env: HOST="--host=x86_64-w64-mingw32"
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+        packages:
+          - g++-7
+    env: HOST="" MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
     compiler: gcc
   - os: osx
+    osx_image: xcode8
     env: HOST=""
     compiler: clang
 install:
 - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install libusb-dev freeglut3-dev autoconf-archive; fi
-- if [ $TRAVIS_OS_NAME = osx ]; then brew install freeglut autoconf-archive || (brew update && brew install freeglut autoconf-archive); fi
+- if [ $TRAVIS_OS_NAME = osx ]; then brew update && brew install freeglut autoconf-archive; fi
 - if [ -n "$HOST" ]; then unset CXX; unset CC; fi
 script: ./bootstrap.sh && ./autogen.sh && make
 after_script:
