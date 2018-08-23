@@ -16,6 +16,7 @@ matrix:
           - freeglut3-dev
           - autoconf-archive
           - libasound2-dev
+          - libusb-1.0-0-dev
     env: HOST="" MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
     compiler: gcc
   - os: osx

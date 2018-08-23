@@ -228,7 +228,7 @@ AC_CHECK_LIB(samplerate, [src_new], [],
 
 # liblo
 save_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/liblo-0.28"
+CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/liblo-0.29"
 AC_CHECK_HEADER(lo/lo.h, [],
   [CPPFLAGS="$save_CPPFLAGS"
   unset ac_cv_header_lo_lo_h
