@@ -19,6 +19,8 @@ matrix:
     osx_image: xcode8
     env: HOST="" MATRIX_EVAL="brew install freeglut autoconf-archive"
     compiler: clang
+before_install:
+  - eval "${MATRIX_EVAL}"
 script: ./bootstrap.sh && ./autogen.sh && make
 after_script:
 - make check
