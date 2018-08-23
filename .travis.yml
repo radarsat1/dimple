@@ -1,0 +1,28 @@
+language: cpp
+sudo: false  # docker VM
+matrix:
+  include:
+  - os: linux
+    env: HOST=""
+    compiler: gcc
+  - os: linux
+    env: HOST="--host=x86_64-w64-mingw32"
+    compiler: gcc
+  - os: osx
+    env: HOST=""
+    compiler: clang
+install:
+- if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install libusb-dev freeglut3-dev; fi
+- if [ $TRAVIS_OS_NAME = osx ]; then brew install freeglut || (brew update && brew install freeglut); fi
+- if [ -n "$HOST" ]; then unset CXX; unset CC; fi
+script: ./bootstrap.sh && ./autogen.sh && make
+after_script:
+- make check
+- make distcheck
+- make install
+notifications:
+  email:
+    recipients:
+      - radarsat1@gmail.com
+    on_success: never
+    on_failure: change
