@@ -9,13 +9,14 @@ echo This script bootstraps required libraries for selected environments.
 
 liblo() {
 liblo_URL=http://downloads.sourceforge.net/liblo/liblo-0.29.tar.gz
-liblo_TAR=liblo-0.29.tar.gz
+liblo_TAR=tarballs/liblo-0.29.tar.gz
 liblo_DIR=liblo-0.29
 liblo_MD5=b0e70bc0fb2254addf94adddf85cffd3
 
 if [ $($MD5 $liblo_TAR | $MD5CUT)x != ${liblo_MD5}x ]; then
 	echo Downloading $liblo_TAR ...
-	rm -v $liblo_TAR
+	if [ -e $liblo_TAR ]; then rm -v $liblo_TAR; fi
+  if ! [ -d tarballs ]; then mkdir tarballs; fi
     $DL $liblo_TAR $liblo_URL
 fi
 
@@ -88,13 +89,14 @@ echo
 
 ode() {
 ode_URL=https://bitbucket.org/odedevs/ode/downloads/ode-0.13.1.tar.gz
-ode_TAR=ode-0.13.1.tar.gz
+ode_TAR=tarballs/ode-0.13.1.tar.gz
 ode_DIR=ode-0.13.1
 ode_MD5=00f6613b3d8e5249be60e3a513d6aebd
 
 if [ $($MD5 $ode_TAR | $MD5CUT)x != ${ode_MD5}x ]; then
 	echo Downloading $ode_TAR ...
-	rm -v $ode_TAR
+	if [ -e $ode_TAR ]; then rm -v $ode_TAR; fi
+  if ! [ -d tarballs ]; then mkdir tarballs; fi
 	$DL $ode_TAR $ode_URL
 fi
 
@@ -162,7 +164,7 @@ echo
 
 chai3d() {
 chai_URL=http://chai3d.org/download/chai3d-3.2.0-multiplatform.zip
-chai_TAR=chai3d-3.2.0-multiplatform.zip
+chai_TAR=tarballs/chai3d-3.2.0-multiplatform.zip
 chai_MD5=ad51b811c1c1cf39f4c1bb097d3f69ff
 if [ -z $chai_DIR ]; then
    chai_DIR=chai3d-3.2.0
@@ -172,7 +174,8 @@ if ! [ -d $chai_DIR ]; then
 
 if [ $($MD5 "$chai_TAR" | $MD5CUT)x != ${chai_MD5}x ]; then
     echo Downloading $chai_TAR ...
-    rm -v $chai_TAR
+	if [ -e $chai_TAR ]; then rm -v $chai_TAR; fi
+  if ! [ -d tarballs ]; then mkdir tarballs; fi
     $DL "$chai_TAR" $chai_URL
 fi
 
@@ -244,7 +247,7 @@ echo
 
 freeglut() {
 freeglut_URL=http://downloads.sourceforge.net/freeglut/freeglut-2.4.0.tar.gz
-freeglut_TAR=freeglut-2.4.0.tar.gz
+freeglut_TAR=tarballs/freeglut-2.4.0.tar.gz
 freeglut_DIR=freeglut-2.4.0
 freeglut_MD5=6d16873bd876fbf4980a927cfbc496a1
 
@@ -252,7 +255,8 @@ if ! [ -d $freeglut_DIR ]; then
 
 if [ $($MD5 "$freeglut_TAR" | $MD5CUT)x != ${freeglut_MD5}x ]; then
     echo Downloading $freeglut_TAR ...
-    rm -v $freeglut_TAR
+	if [ -e $freeglut_TAR ]; then rm -v $freeglut_TAR; fi
+  if ! [ -d tarballs ]; then mkdir tarballs; fi
     $DL "$freeglut_TAR" $freeglut_URL
 fi
 
@@ -325,7 +329,7 @@ echo
 
 atomicops() {
 atomicops_URL=http://www.hpl.hp.com/research/linux/atomic_ops/download/libatomic_ops-1.2.tar.gz
-atomicops_TAR=libatomic_ops-1.2.tar.gz
+atomicops_TAR=tarballs/libatomic_ops-1.2.tar.gz
 atomicops_DIR=libatomic_ops-1.2
 atomicops_MD5=1b65e48271c81e3fa2d7a9a69bab7504
 
@@ -333,7 +337,8 @@ if ! [ -d $atomicops_DIR ]; then
 
 if [ $($MD5 "$atomicops_TAR" | $MD5CUT)x != ${atomicops_MD5}x ]; then
     echo Downloading $atomicops_TAR ...
-    rm -v $atomicops_TAR
+	if [ -e $atomicops_TAR ]; then rm -v $atomicops_TAR; fi
+  if ! [ -d tarballs ]; then mkdir tarballs; fi
     $DL "$atomicops_TAR" $atomicops_URL
 fi
 
@@ -368,7 +373,7 @@ echo
 
 pthreads() {
 pthreads_URL=ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-8-0-release.tar.gz
-pthreads_TAR=pthreads-w32-2-8-0-release.tar.gz
+pthreads_TAR=tarballs/pthreads-w32-2-8-0-release.tar.gz
 pthreads_DIR=pthreads-w32-2-8-0-release
 pthreads_MD5=6d30c693233b1464ef8983fedd8ccb22
 
@@ -376,7 +381,8 @@ if ! [ -d $pthreads_DIR ]; then
 
 if [ $($MD5 "$pthreads_TAR" | $MD5CUT)x != ${pthreads_MD5}x ]; then
     echo Downloading $pthreads_TAR ...
-    rm -v $pthreads_TAR
+	  if [ -e $pthreads_TAR ]; then rm -v $pthreads_TAR; fi
+    if ! [ -d tarballs ]; then mkdir tarballs; fi
     $DL "$pthreads_TAR" $pthreads_URL
 fi
 
@@ -444,39 +450,9 @@ echo pthreads Done.
 echo
 }
 
-scons() {
-scons_URL=http://downloads.sourceforge.net/scons/scons-local-0.96.1.tar.gz
-scons_TAR=scons-local-0.96.1.tar.gz
-scons_MD5=78754efc02b4a374d5082a61509879cd
-scons_DIR=scons-local-0.96.1
-
-if ! [ -d $scons_DIR ]; then
-
-if [ $($MD5 "$scons_TAR" | $MD5CUT)x != ${scons_MD5}x ]; then
-    echo Downloading $scons_TAR ...
-    rm -v $scons_TAR
-    $DL "$scons_TAR" $scons_URL
-fi
-
-if [ $($MD5 "$scons_TAR" | $MD5CUT)x != ${scons_MD5}x ]; then
-    echo "Error in MD5 checksum for $scons_TAR"
-    exit
-fi
-fi
-
-if ! [ -d $scons_DIR ]; then
-echo Extracting "$scons_TAR" ...
-if !(tar -xzf "$scons_TAR"); then
-    echo "Error in archive.";
-    exit
-fi
-fi
-
-}
-
 samplerate() {
 samplerate_URL="http://www.mega-nerd.com/SRC/libsamplerate-0.1.2.tar.gz"
-samplerate_TAR=libsamplerate-0.1.2.tar.gz
+samplerate_TAR=tarballs/libsamplerate-0.1.2.tar.gz
 samplerate_DIR=libsamplerate-0.1.2
 samplerate_MD5=06861c2c6b8e5273c9b80cf736b9fd0e
 
@@ -484,7 +460,8 @@ if ! [ -d $samplerate_DIR ]; then
 
 if [ $($MD5 "$samplerate_TAR" | $MD5CUT)x != ${samplerate_MD5}x ]; then
     echo Downloading $samplerate_TAR ...
-    rm -v $samplerate_TAR
+	  if [ -e $samplerate_TAR ]; then rm -v $samplerate_TAR; fi
+    if ! [ -d tarballs ]; then mkdir tarballs; fi
     $DL "$samplerate_TAR" $samplerate_URL
 fi
 

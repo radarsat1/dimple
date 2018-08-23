@@ -1,5 +1,8 @@
 language: cpp
 sudo: false  # docker VM
+cache:
+  directories:
+  - libdeps/tarballs
 matrix:
   include:
   - os: linux
@@ -21,7 +24,7 @@ matrix:
     compiler: clang
 before_install:
   - eval "${MATRIX_EVAL}"
-script: ./bootstrap.sh && (./autogen.sh || cat config.log) && make
+script: ./bootstrap.sh && ls libdeps && ls libdeps/chai3d-3.2.0/src && (./autogen.sh || cat config.log) && make
 after_script:
 - make check
 - make distcheck
