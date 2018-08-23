@@ -9,16 +9,16 @@ matrix:
           - ubuntu-toolchain-r-test
         packages:
           - g++-7
+          - libusb-dev
+          - freeglut3-dev
+          - autoconf-archive
+          - libasound2-dev
     env: HOST="" MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
     compiler: gcc
   - os: osx
     osx_image: xcode8
-    env: HOST=""
+    env: HOST="" MATRIX_EVAL="brew install freeglut autoconf-archive"
     compiler: clang
-install:
-- if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install libusb-dev freeglut3-dev autoconf-archive; fi
-- if [ $TRAVIS_OS_NAME = osx ]; then brew update && brew install freeglut autoconf-archive; fi
-- if [ -n "$HOST" ]; then unset CXX; unset CC; fi
 script: ./bootstrap.sh && ./autogen.sh && make
 after_script:
 - make check

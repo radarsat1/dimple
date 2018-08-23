@@ -15,6 +15,9 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 abs_srcdir=`cd $srcdir; pwd`
 
+echo "CC is ${CC}"
+echo "CXX is ${CXX}"
+
 # Checks for programs.
 AC_LANG_CPLUSPLUS
 AC_PROG_CXX
