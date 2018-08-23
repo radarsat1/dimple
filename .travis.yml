@@ -24,7 +24,7 @@ matrix:
     compiler: clang
 before_install:
   - eval "${MATRIX_EVAL}"
-script: ./bootstrap.sh && ls libdeps && ls libdeps/chai3d-3.2.0/src && (./autogen.sh || cat config.log) && make
+script:  find libdeps && ./bootstrap.sh && ls libdeps && ls libdeps/chai3d-3.2.0/src && (./autogen.sh || cat config.log) && make
 after_script:
 - make check
 - make distcheck
