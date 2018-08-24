@@ -15,6 +15,7 @@ matrix:
           - libusb-dev
           - freeglut3-dev
           - autoconf-archive
+          - libsamplerate0-dev
           - libasound2-dev
           - libusb-1.0-0-dev
           - unzip
