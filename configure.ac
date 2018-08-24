@@ -46,7 +46,7 @@ case "$target" in
   *-*-darwin* )
      LIBS="$LIBS -framework OpenGL -framework GLUT -framework CoreAudio"
      LIBS="$LIBS -framework CoreFoundation -framework CoreServices -framework IOKit"
-     LIBS="$LIBS -framework AudioUnit -framework AudioTools"
+     LIBS="$LIBS -framework AudioUnit -framework AudioToolbox"
      CHAI_OS=mac
      if test -z "${CC}"; then
        CHAI_CC=clang;
