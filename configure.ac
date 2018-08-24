@@ -197,6 +197,8 @@ if test -f ${CHAI_DIR}/external/DHD/lib/${CHAI_OS}-x86_64/libdrd.a; then
   # TODO: compile small chai program that instantiates a haptic
   # device, check what libraries it requires
 fi
+echo ls ${CHAI_LIBDIR}
+ls ${CHAI_LIBDIR}
 AC_CHECK_LIB(chai3d, [main], [],
   [LIBS="$save_LIBS"
   unset ac_cv_lib_chai3d_main
