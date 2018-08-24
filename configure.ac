@@ -62,11 +62,23 @@ case "$target" in
   *-*-darwin* )
 
 AC_CHECK_HEADER([/System/Library/Frameworks/OpenGL.framework/Headers/gl.h],
-  [if ! test -d ${abs_srcdir}/GL; then
+  [echo abs_srcdir=\"$abs_srcdir\" PWD=\"$PWD\";
+   pwd;
+   echo ===;
+   ls -l;
+   echo ===;
+   ls -l ${abs_srcdir};
+   echo ===;
+   ls -l ${abs_srcdir}/GL;
+   echo ===;
+   if ! test -d ${abs_srcdir}/GL; then
     if ! mkdir -v ${abs_srcdir}/GL; then
 	  AC_MSG_ERROR([Error creating directory for GL framework symlink.])
     fi
    fi
+   echo ===;
+   ls -l ${abs_srcdir}/GL;
+   echo ===;
    if ! test -h ${abs_srcdir}/GL/GL; then
     if ! ln -vs /System/Library/Frameworks/OpenGL.framework/Headers ${abs_srcdir}/GL/GL; then
 	  AC_MSG_ERROR([Error creating symlink to GL framework.])
