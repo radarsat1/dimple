@@ -5,6 +5,7 @@
 #include "devices/CGenericHapticDevice.h"
 #include "devices/CHapticDeviceHandler.h"
 #include "tools/CToolCursor.h"
+#include <memory>
 
 bool HapticsPrismFactory::create(const char *name, float x, float y, float z)
 {
