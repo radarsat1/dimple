@@ -68,6 +68,8 @@ AC_CHECK_HEADER([/System/Library/Frameworks/OpenGL.framework/Headers/gl.h],
    echo ===;
    ls -l;
    echo ===;
+   whoami;
+   ls -ld ${abs_srcdir};
    ls -l ${abs_srcdir};
    echo ===;
    ls -l ${abs_srcdir}/GL;
