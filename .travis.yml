@@ -26,9 +26,9 @@ matrix:
     env: HOST="" MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
     compiler: gcc
   - os: osx
-    osx_image: xcode8
-    env: HOST="" MATRIX_EVAL="rm -fv /usr/local/include/c++ && brew install freeglut autoconf-archive gcc && CC=gcc-7 && CXX=g++-7"
-    compiler: clang
+    osx_image: xcode8.3
+    env: HOST="" MATRIX_EVAL="rm -fv /usr/local/include/c++ && brew install freeglut autoconf-archive gcc && which gcc-7 && which g++-7 && g++-7 --version && CC=gcc-7 && CXX=g++-7"
+    compiler: gcc
 before_install:
   - eval "${MATRIX_EVAL}"
 script:  ./bootstrap.sh && ls libdeps && ls libdeps/chai3d-3.2.0/src && (./autogen.sh || cat config.log) && make
