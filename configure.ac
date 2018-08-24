@@ -44,7 +44,7 @@ AC_TYPE_SIZE_T
 CHAI_ARCH="`uname -m`"
 case "$target" in
   *-*-darwin* )
-     LIBS="$LIBS -framework OpenGL -framework GLUT -framework CoreAudio"
+     LIBS="$LIBS -framework OpenGL -framework GLUT -framework CoreAudio -framework CoreFoundation"
      CHAI_OS=mac
      if test -z "${CC}"; then
        CHAI_CC=clang;
