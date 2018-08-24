@@ -420,7 +420,7 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
     : OscSphere(NULL, name, parent)
 {
     // create haptic device handler
-    auto handler = std::make_unique<cHapticDeviceHandler>();
+    auto handler = std::unique_ptr<cHapticDeviceHandler>(new cHapticDeviceHandler());
     printf("[%s] Haptic devices found: %d\n", simulation()->type_str(),
            handler->getNumDevices());
 
