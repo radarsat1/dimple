@@ -43,7 +43,7 @@ AC_TYPE_SIZE_T
 # Some simple configurations depending purely on known target systems
 case "$target" in
   *-*-darwin* )
-     SYSTEM_LIBS="$SYSTEM_LIBS -framework OpenGL -framework GLUT"
+     SYSTEM_LIBS="$SYSTEM_LIBS -framework OpenGL -framework GLUT -framework CoreAudio"
      CHAI_OS=mac # to be tested
      if test -n ${CC}; then
        CHAI_CC=clang;
