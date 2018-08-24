@@ -60,29 +60,29 @@ case "$target" in
   *-*-darwin* )
 
 AC_CHECK_HEADER([/System/Library/Frameworks/OpenGL.framework/Headers/gl.h],
-  [echo abs_builddir=\"$abs_builddir\" PWD=\"$PWD\";
+  [echo ac_abs_builddir=\"$ac_abs_builddir\" PWD=\"$PWD\";
    pwd;
    echo ===;
    ls -l;
    echo ===;
-   ls -l ${abs_builddir};
+   ls -l ${ac_abs_builddir};
    echo ===;
-   ls -l ${abs_builddir}/GL;
+   ls -l ${ac_abs_builddir}/GL;
    echo ===;
-   if ! test -d ${abs_builddir}/GL; then
-    if ! mkdir -v ${abs_builddir}/GL; then
+   if ! test -d ${ac_abs_builddir}/GL; then
+    if ! mkdir -v ${ac_abs_builddir}/GL; then
 	  AC_MSG_ERROR([Error creating directory for GL framework symlink.])
     fi
    fi
    echo ===;
-   ls -l ${abs_builddir}/GL;
+   ls -l ${ac_abs_builddir}/GL;
    echo ===;
-   if ! test -h ${abs_builddir}/GL/GL; then
-    if ! ln -vs /System/Library/Frameworks/OpenGL.framework/Headers ${abs_builddir}/GL/GL; then
+   if ! test -h ${ac_abs_builddir}/GL/GL; then
+    if ! ln -vs /System/Library/Frameworks/OpenGL.framework/Headers ${ac_abs_builddir}/GL/GL; then
 	  AC_MSG_ERROR([Error creating symlink to GL framework.])
     fi
    fi
-   CPPFLAGS="$CPPFLAGS -I${abs_builddir}/GL"
+   CPPFLAGS="$CPPFLAGS -I${ac_abs_builddir}/GL"
    LDFLAGS="$LDFLAGS -framework OpenGL"],
   [AC_MSG_ERROR([Couldn't find OpenGL framework.])])
 
@@ -90,17 +90,17 @@ AC_CHECK_HEADER([GL/gl.h], [],
   [AC_MSG_ERROR([Error using symlink to OpenGL framework.])])
 
 AC_CHECK_HEADER([/System/Library/Frameworks/GLUT.framework/Headers/glut.h],
-  [if ! test -d ${abs_builddir}/GLUT; then
-    if ! mkdir -v ${abs_builddir}/GLUT; then
+  [if ! test -d ${ac_abs_builddir}/GLUT; then
+    if ! mkdir -v ${ac_abs_builddir}/GLUT; then
 	  AC_MSG_ERROR([Error creating directory for GLUT framework symlink.])
     fi
    fi
-   if ! test -h ${abs_builddir}/GLUT/GL; then
-    if ! ln -vs /System/Library/Frameworks/GLUT.framework/Headers ${abs_builddir}/GLUT/GL; then
+   if ! test -h ${ac_abs_builddir}/GLUT/GL; then
+    if ! ln -vs /System/Library/Frameworks/GLUT.framework/Headers ${ac_abs_builddir}/GLUT/GL; then
 	  AC_MSG_ERROR([Error creating symlink to GLUT framework.])
     fi
    fi
-   CPPFLAGS="$CPPFLAGS -I${abs_builddir}/GLUT"
+   CPPFLAGS="$CPPFLAGS -I${ac_abs_builddir}/GLUT"
    LDFLAGS="$LDFLAGS -framework GLUT"],
   [AC_MSG_ERROR([Couldn't find GLUT framework.])])
 
@@ -119,11 +119,11 @@ AC_CHECK_LIB(GL, [glBegin], [],
 
 # GLUT
 AC_CHECK_LIB(glut, [glutInit], [],
-  [LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/freeglut-2.4.0/src/.libs"
+  [LDFLAGS="$LDFLAGS -L${ac_abs_srcdir}/libdeps/freeglut-2.4.0/src/.libs"
   unset ac_cv_lib_glut_glutInit
   AC_CHECK_LIB(glut, [glutInit],
     [CPPFLAGS="$CPPFLAGS -DFREEGLUT_STATIC"
-    CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/freeglut-2.4.0/include"
+    CPPFLAGS="$CPPFLAGS -I${ac_abs_srcdir}/libdeps/freeglut-2.4.0/include"
     LIBS="-lglut -lgdi32 -lwinmm -luuid -loleaut32 $LIBS"
     need_glu32=yes],
     [AC_CHECK_LIB(glut32, [glutInit], [],
@@ -163,7 +163,7 @@ AX_PTHREAD(
   [CPPFLAGS="$CPPFLAGS $PTHREAD_CFLAGS"
   LDFLAGS="$LDFLAGS $PTHREAD_CFLAGS"
   LIBS="$PTHREAD_LIBS $LIBS"],
-  [LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/pthreads-w32-2-8-0-release"
+  [LDFLAGS="$LDFLAGS -L${ac_abs_srcdir}/libdeps/pthreads-w32-2-8-0-release"
   unset ac_cv_lib_pthread_pthread_create
   AC_CHECK_LIB(pthread, [pthread_create],
     [CPPFLAGS="$CPPFLAGS -DPTW32_STATIC_LIB"
@@ -172,7 +172,7 @@ AX_PTHREAD(
     [-lws2_32])])
 
 # CHAI 3D
-CHAI_DIR=${abs_srcdir}/libdeps/chai3d-3.2.0
+CHAI_DIR=${ac_abs_srcdir}/libdeps/chai3d-3.2.0
 CHAI_LIBDIR=${CHAI_DIR}/lib/release/${CHAI_SUFFIX}
 CHAI_INCDIRS="-I${CHAI_DIR}/src -I${CHAI_DIR}/external/Eigen -I${CHAI_DIR}/external/glew/include"
 CPPFLAGS="$CPPFLAGS $CHAI_FLAGS"
@@ -207,7 +207,7 @@ AC_CHECK_LIB(chai3d, [main], [],
 
 # ODE
 save_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/ode-0.13.1/include"
+CPPFLAGS="$CPPFLAGS -I${ac_abs_srcdir}/libdeps/ode-0.13.1/include"
 AC_CHECK_HEADER(ode/ode.h, [],
   [CPPFLAGS="$save_CPPFLAGS"
   unset ac_cv_header_ode_ode_h
@@ -215,7 +215,7 @@ AC_CHECK_HEADER(ode/ode.h, [],
      [AC_MSG_ERROR([Couldn't find ODE headers.])])])
 
 save_LDFLAGS="$LDFLAGS"
-LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/ode-0.13.1/ode/src/.libs"
+LDFLAGS="$LDFLAGS -L${ac_abs_srcdir}/libdeps/ode-0.13.1/ode/src/.libs"
 AC_CHECK_LIB(ode, [dBodyCreate], [],
   [LDFLAGS="$save_LDFLAGS"
   unset ac_cv_lib_ode_dBodyCreate
@@ -224,7 +224,7 @@ AC_CHECK_LIB(ode, [dBodyCreate], [],
 
 # libsamplerate
 save_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/libsamplerate-0.1.2/src"
+CPPFLAGS="$CPPFLAGS -I${ac_abs_srcdir}/libdeps/libsamplerate-0.1.2/src"
 AC_CHECK_HEADER(samplerate.h, [],
   [CPPFLAGS="$save_CPPFLAGS"
   unset ac_cv_header_samplerate_h
@@ -232,7 +232,7 @@ AC_CHECK_HEADER(samplerate.h, [],
      [AC_MSG_ERROR([Couldn't find libsamplerate headers.])])])
 
 save_LDFLAGS="$LDFLAGS"
-LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/libsamplerate-0.1.2/src/.libs"
+LDFLAGS="$LDFLAGS -L${ac_abs_srcdir}/libdeps/libsamplerate-0.1.2/src/.libs"
 AC_CHECK_LIB(samplerate, [src_new], [],
   [LDFLAGS="$save_LDFLAGS"
   unset ac_cv_lib_samplerate_src_new
@@ -241,7 +241,7 @@ AC_CHECK_LIB(samplerate, [src_new], [],
 
 # liblo
 save_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/liblo-0.29"
+CPPFLAGS="$CPPFLAGS -I${ac_abs_srcdir}/libdeps/liblo-0.29"
 AC_CHECK_HEADER(lo/lo.h, [],
   [CPPFLAGS="$save_CPPFLAGS"
   unset ac_cv_header_lo_lo_h
@@ -250,7 +250,7 @@ AC_CHECK_HEADER(lo/lo.h, [],
 
 save_LIBS="$LIBS"
 save_LDFLAGS="$LDFLAGS"
-LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/liblo-0.29/src/.libs"
+LDFLAGS="$LDFLAGS -L${ac_abs_srcdir}/libdeps/liblo-0.29/src/.libs"
 AC_CHECK_LIB(lo, [lo_server_new], [],
   [LIBS="-lws2_32 $LIBS"
   unset ac_cv_lib_lo_lo_server_new
