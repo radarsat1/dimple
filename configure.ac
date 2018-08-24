@@ -173,7 +173,7 @@ AC_CHECK_HEADER(chai3d.h, [],
   AC_MSG_ERROR([Couldn't find CHAI 3D headers.])])
 
 save_LIBS="$LIBS"
-LDFLAGS="LDFLAGS -L${CHAI_LIBDIR}"
+LDFLAGS="$LDFLAGS -L${CHAI_LIBDIR}"
 # In case CHAI is using OpenHaptics
 if test -f /usr/include/HL/hl.h; then
   LIBS="$LIBS -lHD -lHL"
