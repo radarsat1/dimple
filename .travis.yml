@@ -34,7 +34,7 @@ before_install:
 script:  ./bootstrap.sh && ls libdeps && ls libdeps/chai3d-3.2.0/src && (./autogen.sh; cat config.log) && make
 after_script:
 - make check
-- make distcheck
+# - make distcheck # will not work without re-bootstrapping, wasteful
 - make install
 notifications:
   email:
