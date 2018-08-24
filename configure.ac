@@ -22,6 +22,7 @@ echo "CXX is ${CXX}"
 AC_LANG_CPLUSPLUS
 AC_PROG_CXX
 AC_CHECK_PROG(pkgconfig, pkg-config, yes, no)
+AX_CXX_COMPILE_STDCXX([11])
 
 # Checks for libraries.
 AC_CHECK_FUNC([log], [], [AC_CHECK_LIB([m],[log])])
