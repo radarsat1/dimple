@@ -2,7 +2,7 @@ language: cpp
 sudo: false  # docker VM
 cache:
   directories:
-  - libdeps
+  - libdeps/tarballs
 matrix:
   include:
   - os: linux
