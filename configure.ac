@@ -41,29 +41,30 @@ AC_C_CONST
 AC_TYPE_SIZE_T
 
 # Some simple configurations depending purely on known target systems
+CHAI_ARCH="`uname -m`"
 case "$target" in
   *-*-darwin* )
      SYSTEM_LIBS="$SYSTEM_LIBS -framework OpenGL -framework GLUT -framework CoreAudio"
      CHAI_OS=mac # to be tested
-     if test -n ${CC}; then
+     if test -z "${CC}"; then
        CHAI_CC=clang;
      else
-       CHAI_CC=${CC};
+       CHAI_CC="${CC}";
      fi
   ;;
   *-*-linux* )
      CHAI_OS=lin
-     if test -n ${CC}; then
+     if test -z "${CC}"; then
        CHAI_CC=cc;
      else
-       CHAI_CC=${CC};
+       CHAI_CC="${CC}";
      fi
   ;;
   *-*-mingw* )
      CHAI_OS="mingw" # to be tested
   ;;
 esac
-CHAI_SUFFIX="${CHAI_OS}-`uname -m`-${CHAI_CC}"
+CHAI_SUFFIX="${CHAI_OS}-${CHAI_ARCH}-${CHAI_CC}"
 
 # Check for OpenGL-related libraries
 # (Skip this test on darwin)
@@ -203,8 +204,10 @@ if test -f /usr/include/HL/hl.h; then
   LIBS="$LIBS -lHD -lHL"
 fi
 # In case CHAI is using DHD
-if test -f ${CHAI_DIR}/external/DHD/lib/${CHAI_OS}-x86_64/libdrd.a; then
-  LDFLAGS="$LDFLAGS -L${CHAI_DIR}/external/DHD/lib/${CHAI_OS}-x86_64"
+echo ls ${CHAI_DIR}/external/DHD/lib
+ls ${CHAI_DIR}/external/DHD/lib
+if test -f ${CHAI_DIR}/external/DHD/lib/${CHAI_OS}-${CHAI_ARCH}/libdrd.a; then
+  LDFLAGS="$LDFLAGS -L${CHAI_DIR}/external/DHD/lib/${CHAI_OS}-${CHAI_ARCH}"
   AC_CHECK_LIB([usb-1.0], [libusb_init])
   AC_CHECK_LIB([drd], [dhdOpenID])
   # TODO: compile small chai program that instantiates a haptic
