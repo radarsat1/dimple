@@ -27,7 +27,7 @@ matrix:
     compiler: gcc
   - os: osx
     osx_image: xcode8.3
-    env: HOST="" MATRIX_EVAL="brew install freeglut autoconf-archive gcc && CC=gcc-7 && CXX=g++-7"
+    env: HOST="" MATRIX_EVAL="rm -fv /usr/local/include/c++ && brew install freeglut autoconf-archive gcc && CC=gcc-7 && CXX=g++-7"
     compiler: clang
 before_install:
   - eval "${MATRIX_EVAL}"
