@@ -11,7 +11,7 @@ matrix:
         sources:
           - ubuntu-toolchain-r-test
         packages:
-          - g++-7
+          - g++-8
           - libusb-dev
           - freeglut3-dev
           - autoconf-archive
@@ -23,7 +23,7 @@ matrix:
           - libxcursor-dev
           - libxrandr-dev
           - libxinerama-dev
-    env: HOST="" MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+    env: HOST="" MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
     compiler: gcc
   - os: osx
     osx_image: xcode10
