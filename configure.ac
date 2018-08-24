@@ -45,7 +45,7 @@ case "$target" in
   *-*-darwin* )
      SYSTEM_LIBS="$SYSTEM_LIBS -framework OpenGL -framework GLUT"
      CHAI_OS=mac # to be tested
-     if [ -n ${CC} ]; then
+     if test -n ${CC}; then
        CHAI_CC=clang;
      else
        CHAI_CC=${CC};
@@ -53,7 +53,7 @@ case "$target" in
   ;;
   *-*-linux* )
      CHAI_OS=lin
-     if [ -n ${CC} ]; then
+     if test -n ${CC}; then
        CHAI_CC=cc;
      else
        CHAI_CC=${CC};
