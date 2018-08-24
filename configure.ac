@@ -44,8 +44,8 @@ AC_TYPE_SIZE_T
 CHAI_ARCH="`uname -m`"
 case "$target" in
   *-*-darwin* )
-     SYSTEM_LIBS="$SYSTEM_LIBS -framework OpenGL -framework GLUT -framework CoreAudio"
-     CHAI_OS=mac # to be tested
+     LIBS="$LIBS -framework OpenGL -framework GLUT -framework CoreAudio"
+     CHAI_OS=mac
      if test -z "${CC}"; then
        CHAI_CC=clang;
      else
@@ -97,7 +97,7 @@ AC_CHECK_HEADER([/System/Library/Frameworks/OpenGL.framework/Headers/gl.h],
     fi
    fi
    CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/GL"
-   LDFLAGS="$LDFLAGS -framework OpenGL"],
+   LIBS="$LIBS -framework OpenGL"],
   [AC_MSG_ERROR([Couldn't find OpenGL framework.])])
 
 AC_CHECK_HEADER([GL/gl.h], [],
@@ -115,7 +115,7 @@ AC_CHECK_HEADER([/System/Library/Frameworks/GLUT.framework/Headers/glut.h],
     fi
    fi
    CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/GLUT"
-   LDFLAGS="$LDFLAGS -framework GLUT"],
+   LIBS="$LIBS -framework GLUT"],
   [AC_MSG_ERROR([Couldn't find GLUT framework.])])
 
 AC_CHECK_HEADER([GL/glut.h], [],
