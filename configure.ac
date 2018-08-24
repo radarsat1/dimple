@@ -44,7 +44,8 @@ AC_TYPE_SIZE_T
 CHAI_ARCH="`uname -m`"
 case "$target" in
   *-*-darwin* )
-     LIBS="$LIBS -framework OpenGL -framework GLUT -framework CoreAudio -framework CoreFoundation"
+     LIBS="$LIBS -framework OpenGL -framework GLUT -framework CoreAudio"
+     LIBS="$LIBS -framework CoreFoundation -framework IOKit"
      CHAI_OS=mac
      if test -z "${CC}"; then
        CHAI_CC=clang;
@@ -298,7 +299,7 @@ then
   case "$target" in
     *-*-darwin* )
     if test x${ac_cv_lib_nifalcon_main} = xyes; then
-      LIBS="$LIBS -framework IOKit -framework AppKit"
+      LIBS="$LIBS -framework AppKit"
     fi
     ;;
   esac
