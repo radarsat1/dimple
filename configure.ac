@@ -14,6 +14,8 @@ AM_INIT_AUTOMAKE
 AM_MAINTAINER_MODE
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
+abs_srcdir=`cd $srcdir; pwd`
+
 echo "CC is ${CC}"
 echo "CXX is ${CXX}"
 
@@ -61,29 +63,29 @@ case "$target" in
   *-*-darwin* )
 
 AC_CHECK_HEADER([/System/Library/Frameworks/OpenGL.framework/Headers/gl.h],
-  [echo abs_builddir=\"$abs_builddir\" PWD=\"$PWD\";
+  [echo abs_srcdir=\"$abs_srcdir\" PWD=\"$PWD\";
    pwd;
    echo ===;
    ls -l;
    echo ===;
-   ls -l ${abs_builddir};
+   ls -l ${abs_srcdir};
    echo ===;
-   ls -l ${abs_builddir}/GL;
+   ls -l ${abs_srcdir}/GL;
    echo ===;
-   if ! test -d ${abs_builddir}/GL; then
-    if ! mkdir -v ${abs_builddir}/GL; then
+   if ! test -d ${abs_srcdir}/GL; then
+    if ! mkdir -v ${abs_srcdir}/GL; then
 	  AC_MSG_ERROR([Error creating directory for GL framework symlink.])
     fi
    fi
    echo ===;
-   ls -l ${abs_builddir}/GL;
+   ls -l ${abs_srcdir}/GL;
    echo ===;
-   if ! test -h ${abs_builddir}/GL/GL; then
-    if ! ln -vs /System/Library/Frameworks/OpenGL.framework/Headers ${abs_builddir}/GL/GL; then
+   if ! test -h ${abs_srcdir}/GL/GL; then
+    if ! ln -vs /System/Library/Frameworks/OpenGL.framework/Headers ${abs_srcdir}/GL/GL; then
 	  AC_MSG_ERROR([Error creating symlink to GL framework.])
     fi
    fi
-   CPPFLAGS="$CPPFLAGS -I${abs_builddir}/GL"
+   CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/GL"
    LDFLAGS="$LDFLAGS -framework OpenGL"],
   [AC_MSG_ERROR([Couldn't find OpenGL framework.])])
 
@@ -91,17 +93,17 @@ AC_CHECK_HEADER([GL/gl.h], [],
   [AC_MSG_ERROR([Error using symlink to OpenGL framework.])])
 
 AC_CHECK_HEADER([/System/Library/Frameworks/GLUT.framework/Headers/glut.h],
-  [if ! test -d ${abs_builddir}/GLUT; then
-    if ! mkdir -v ${abs_builddir}/GLUT; then
+  [if ! test -d ${abs_srcdir}/GLUT; then
+    if ! mkdir -v ${abs_srcdir}/GLUT; then
 	  AC_MSG_ERROR([Error creating directory for GLUT framework symlink.])
     fi
    fi
-   if ! test -h ${abs_builddir}/GLUT/GL; then
-    if ! ln -vs /System/Library/Frameworks/GLUT.framework/Headers ${abs_builddir}/GLUT/GL; then
+   if ! test -h ${abs_srcdir}/GLUT/GL; then
+    if ! ln -vs /System/Library/Frameworks/GLUT.framework/Headers ${abs_srcdir}/GLUT/GL; then
 	  AC_MSG_ERROR([Error creating symlink to GLUT framework.])
     fi
    fi
-   CPPFLAGS="$CPPFLAGS -I${abs_builddir}/GLUT"
+   CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/GLUT"
    LDFLAGS="$LDFLAGS -framework GLUT"],
   [AC_MSG_ERROR([Couldn't find GLUT framework.])])
 
