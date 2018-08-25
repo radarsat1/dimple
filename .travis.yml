@@ -1,5 +1,7 @@
 language: cpp
 sudo: false  # docker VM
+git:
+  depth: 99999
 cache:
   directories:
   - libdeps
