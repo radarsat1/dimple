@@ -1,11 +1,15 @@
 #!/bin/bash
 
+echo git fetch --unshallow
+git fetch --unshallow
+echo util/version.sh
+util/version.sh
+
 git clone http://github.com/radarsat1/dimple.git pages
 cd pages
 git checkout gh-pages
 cd ..
 
-git fetch --unshallow
 DIMPLE=dimple-$TRAVIS_OS_NAME-`util/version.sh`
 cp -rv install/bin/dimple pages/$DIMPLE
 echo '<p><a href="'$DIMPLE'">'$DIMPLE'</a>' >>pages/index.html
