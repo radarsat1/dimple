@@ -31,7 +31,7 @@ matrix:
     compiler: clang
 before_install:
   - eval "${MATRIX_EVAL}"
-script:  ./bootstrap.sh && ./autogen.sh --prefix=$PWD/install && make && make check && make install && find install && (ldd install/bin/dimple || otool -L install/bin/dimple) && mkdir -p pages && cp -r install/bin/dimple pages/dimple-`uname -s` && echo dimple-`uname -s` >>pages/index.html || cat config.log
+script:  ./bootstrap.sh && ./autogen.sh --prefix=$PWD/install && make && make check && make install && bash .travis-ghpages.sh || cat config.log
 after_script:
 - 
 # - make distcheck # will not work without re-bootstrapping, wasteful
