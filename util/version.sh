@@ -4,7 +4,11 @@
 # based on the number of commits since the last-tagged version, the
 # current branch, and any uncommitted changes.
 
-BRANCH="$(git branch | grep \* | sed 's,[() *],,g')"
+if [ -n "$TRAVIS_BRANCH" ]; then
+    BRANCH="$TRAVIS_BRANCH"
+else
+    BRANCH="$(git branch | grep \* | sed 's,[() *],,g')"
+fi
 
 LASTTAG="$(git tag -l | sort -rn | perl -nle 'print $_  if m/^\d+\.\d+(\.\d+)*$/' | head -n 1)"
 if [ "$LASTTAG"x = x ]; then
