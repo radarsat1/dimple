@@ -1,28 +1,12 @@
 #!/bin/bash
 
-echo find install
-find install
-echo find pages
-find pages
-
 git clone http://github.com/radarsat1/dimple.git pages
 cd pages
 git checkout gh-pages
 cd ..
 
-echo pwd
-pwd
-echo ls
-ls
-echo git fetch --unshallow
 git fetch --unshallow
-echo git describe --always
-git describe --always
-echo git branch
-git branch
-echo git log | head
-git log | head
-DIMPLE=dimple-$TRAVIS_OS_NAME-`git describe --always`
+DIMPLE=dimple-$TRAVIS_OS_NAME-`util/version.sh`
 cp -rv install/bin/dimple pages/$DIMPLE
 echo '<p><a href="'$DIMPLE'">'$DIMPLE'</a>' >>pages/index.html
 
