@@ -4,8 +4,12 @@
 # based on the number of commits since the last-tagged version, the
 # current branch, and any uncommitted changes.
 
-if [ -n "$TRAVIS_BRANCH" ]; then
-    BRANCH="$TRAVIS_BRANCH"
+if [ -n "$TRAVIS_PULL_REQUEST" ] || [ -n "$TRAVIS_BRANCH" ]; then
+    if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
+        BRANCH="$TRAVIS_BRANCH"
+    else
+        BRANCH="$TRAVIS_PULL_REQUEST_BRANCH"
+    fi
 else
     BRANCH="$(git branch | grep \* | sed 's,[() *],,g')"
 fi
