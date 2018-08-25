@@ -12,6 +12,10 @@ cd ..
 
 echo pwd
 pwd
+echo ls
+ls
+echo git fetch --unshallow
+git fetch --unshallow
 echo git describe --always
 git describe --always
 echo git branch
@@ -20,7 +24,7 @@ echo git log | head
 git log | head
 DIMPLE=dimple-$TRAVIS_OS_NAME-`git describe --always`
 cp -rv install/bin/dimple pages/$DIMPLE
-echo '<p><a href="$DIMPLE">'$DIMPLE'</a>' >>pages/index.html
+echo '<p><a href="'$DIMPLE'">'$DIMPLE'</a>' >>pages/index.html
 
 if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     ldd install/bin/dimple
