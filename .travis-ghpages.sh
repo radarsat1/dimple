@@ -10,6 +10,14 @@ cd pages
 git checkout gh-pages
 cd ..
 
+echo pwd
+pwd
+echo git describe --always
+git describe --always
+echo git branch
+git branch
+echo git log | head
+git log | head
 DIMPLE=dimple-$TRAVIS_OS_NAME-`git describe --always`
 cp -rv install/bin/dimple pages/$DIMPLE
 echo '<p><a href="$DIMPLE">'$DIMPLE'</a>' >>pages/index.html
