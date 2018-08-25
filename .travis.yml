@@ -31,14 +31,23 @@ matrix:
     compiler: clang
 before_install:
   - eval "${MATRIX_EVAL}"
-script:  ./bootstrap.sh && ls libdeps && ls libdeps/chai3d-3.2.0/src && (./autogen.sh; cat config.log) && make
+script:  ./bootstrap.sh && ./autogen.sh --prefix=$PWD/install && make && make check && make install || cat config.log
 after_script:
-- make check
+- mkdir -p pages && cp -r install/bin/dimple-`uname -s` pages/ && echo dimple-`uname -s` >>pages/index.html
 # - make distcheck # will not work without re-bootstrapping, wasteful
-- make install
 notifications:
   email:
     recipients:
       - radarsat1@gmail.com
     on_success: never
     on_failure: change
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  keep-history: false
+  on:
+    branch: travis
+  local-dir: pages
+  target-branch: gh-pages
+  verbose: true
