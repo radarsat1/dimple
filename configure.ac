@@ -210,7 +210,8 @@ echo ls ${CHAI_DIR}/external/DHD/lib
 ls ${CHAI_DIR}/external/DHD/lib
 if test -f ${CHAI_DIR}/external/DHD/lib/${CHAI_OS}-${CHAI_ARCH}/libdrd.a; then
   LDFLAGS="$LDFLAGS -L${CHAI_DIR}/external/DHD/lib/${CHAI_OS}-${CHAI_ARCH}"
-  AC_CHECK_LIB([usb-1.0], [libusb_init])
+  #  AC_CHECK_LIB([usb-1.0], [libusb_init])
+  LIBS="$LIBS /usr/local/opt/libusb/lib/libusb-1.0.a"
   AC_CHECK_LIB([drd], [dhdOpenID])
   # TODO: compile small chai program that instantiates a haptic
   # device, check what libraries it requires
