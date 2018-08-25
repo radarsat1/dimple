@@ -10,7 +10,7 @@ cd pages
 git checkout gh-pages
 cd ..
 
-DIMPLE=dimple-$TRAVIS_OS_NAME
+DIMPLE=dimple-$TRAVIS_OS_NAME-`git describe`
 cp -rv install/bin/dimple pages/$DIMPLE
 echo $DIMPLE >>pages/index.html
 
