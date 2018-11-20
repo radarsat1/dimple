@@ -433,6 +433,8 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
         printf("[%s] Could not initialize.\n", simulation()->type_str());
     }
 
+    device->calibrate();
+
     // create the cursor object
     m_pCursor = new cToolCursor(world);
 
@@ -447,6 +449,8 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
     // User data points to the OscObject, used for identification
     // during object contact.
     m_pCursor->m_userData = this;
+
+    m_pCursor->setWaitForSmallForce(true);
 
     m_pCursor->start();
 
