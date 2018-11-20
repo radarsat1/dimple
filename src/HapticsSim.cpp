@@ -298,6 +298,9 @@ OscSphereCHAI::OscSphereCHAI(cWorld *world, const char *name, OscBase *parent)
     // m_pSphere->setUserData(this, 1);
     // How to replace in Chai3d 3.2?
 
+    m_pSphere->createEffectSurface();
+    m_pSphere->m_material->setStiffness(0.8);
+
     m_pSpecial = new CHAIObject(this, m_pSphere, world);
 }
 
@@ -334,6 +337,9 @@ OscPrismCHAI::OscPrismCHAI(cWorld *world, const char *name, OscBase *parent)
     // User data points to the OscObject, used for identification
     // during object contact.
     m_pPrism->m_userData = this;
+
+    m_pPrism->createEffectSurface();
+    m_pPrism->m_material->setStiffness(0.8);
 
     m_pSpecial = new CHAIObject(this, m_pPrism, world);
 }
@@ -394,6 +400,9 @@ OscMeshCHAI::OscMeshCHAI(cWorld *world, const char *name, const char *filename,
     // during object contact.
     m_pMesh->m_userData = this;
 
+    m_pMesh->createEffectSurface();
+    m_pMesh->m_material->setStiffness(0.8);
+
     m_pSpecial = new CHAIObject(this, m_pMesh, world);
 }
 
@@ -450,6 +459,9 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
     // User data points to the OscObject, used for identification
     // during object contact.
     m_pCursor->m_userData = this;
+
+    m_pCursor->setWorkspaceRadius(1.0);
+    m_pCursor->setRadius(0.1);
 
     m_pCursor->setWaitForSmallForce(true);
 
