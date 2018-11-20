@@ -7,6 +7,10 @@
 #include "tools/CToolCursor.h"
 #include <memory>
 
+// TODO: right way to pass this around
+cHapticDeviceInfo g_hapticDeviceInfo;
+float g_maxStiffnessRatio = 0.1;
+
 bool HapticsPrismFactory::create(const char *name, float x, float y, float z)
 {
     printf("HapticsPrismFactory (%s) is creating a prism object called '%s'\n",
@@ -147,7 +151,8 @@ void HapticsSim::updateWorkspace(cVector3d &pos)
         m_workspaceOffset(i) = -(m_workspace[1](i) + m_workspace[0](i)) / 2.0;
 
         // Normalize position to [-1, 1] within workspace.
-        pos(i) = (pos(i) + m_workspaceOffset(i)) * m_workspaceScale(i);
+        // Further scale by user-specified workspace scaling. (default=1)
+        pos(i) = (pos(i) + m_workspaceOffset(i)) * m_workspaceScale(i) * m_scale(i);
     }
 }
 
@@ -168,6 +173,12 @@ void HapticsSim::step()
         m_cursor->addCursorGrabbedForce(m_pGrabbedObject);
     } else {
         cursor->computeInteractionForces();
+
+        // Compensate for workspace scaling
+        cVector3d force = cursor->getDeviceGlobalForce();
+        force = force * (m_workspaceScale * m_scale);
+        cursor->setDeviceGlobalForce(force);
+
         m_cursor->addCursorMassForce();
     }
 
@@ -229,6 +240,15 @@ void HapticsSim::findContactObject()
         m_lastContactPoint = cursor->m_hapticPoint->getGlobalPosProxy();
         m_lastForce = cursor->getDeviceGlobalForce();
         obj = collisionEvent->m_object;
+    }
+
+    if (!obj && cursor->m_hapticPoint->getNumInteractionEvents() > 0)
+    {
+        cInteractionEvent* interactionEvent =
+            cursor->m_hapticPoint->getInteractionEvent(0);
+        m_lastContactPoint = cursor->m_hapticPoint->getGlobalPosProxy();
+        m_lastForce = cursor->getDeviceGlobalForce();
+        obj = interactionEvent->m_object;
     }
 
     // User data is set in the Osc*CHAI constructors
@@ -298,6 +318,10 @@ OscSphereCHAI::OscSphereCHAI(cWorld *world, const char *name, OscBase *parent)
     // m_pSphere->setUserData(this, 1);
     // How to replace in Chai3d 3.2?
 
+    m_pSphere->createEffectSurface();
+    m_pSphere->m_material->setStiffness(g_maxStiffnessRatio
+                                        * g_hapticDeviceInfo.m_maxLinearStiffness);
+
     m_pSpecial = new CHAIObject(this, m_pSphere, world);
 }
 
@@ -334,6 +358,10 @@ OscPrismCHAI::OscPrismCHAI(cWorld *world, const char *name, OscBase *parent)
     // User data points to the OscObject, used for identification
     // during object contact.
     m_pPrism->m_userData = this;
+
+    m_pPrism->createEffectSurface();
+    m_pPrism->m_material->setStiffness(g_maxStiffnessRatio
+                                       * g_hapticDeviceInfo.m_maxLinearStiffness);
 
     m_pSpecial = new CHAIObject(this, m_pPrism, world);
 }
@@ -394,6 +422,10 @@ OscMeshCHAI::OscMeshCHAI(cWorld *world, const char *name, const char *filename,
     // during object contact.
     m_pMesh->m_userData = this;
 
+    m_pMesh->createEffectSurface();
+    m_pMesh->m_material->setStiffness(g_maxStiffnessRatio
+                                      * g_hapticDeviceInfo.m_maxLinearStiffness);
+
     m_pSpecial = new CHAIObject(this, m_pMesh, world);
 }
 
@@ -434,6 +466,8 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
         printf("[%s] Could not initialize.\n", simulation()->type_str());
     }
 
+    device->calibrate();
+
     // create the cursor object
     m_pCursor = new cToolCursor(world);
 
@@ -445,16 +479,22 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
         printf("[%s] Using %s device.\n",
                simulation()->type_str(), device_str());
 
+        // TODO: right way to pass this around
+        g_hapticDeviceInfo = device->getSpecifications();
+
     // User data points to the OscObject, used for identification
     // during object contact.
     m_pCursor->m_userData = this;
 
+    m_pCursor->setWorkspaceRadius(1.0);
+    m_pCursor->setRadius(0.1);
+
+    m_pCursor->setWaitForSmallForce(true);
+
     m_pCursor->start();
 
     // rotate the cursor to match visual rotation
-    /* TODO; updateToolImagePosition?
-    m_pCursor->rotate(cVector3d(0,0,1),-90.0*M_PI/180.0);
-    */
+    m_pCursor->rotateAboutLocalAxisDeg(cVector3d(0,0,1), -90.0);
 
     // make it a cursor tuned for a dynamic environment
     m_pCursor->enableDynamicObjects(true);
