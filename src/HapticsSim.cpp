@@ -6,6 +6,10 @@
 #include "devices/CHapticDeviceHandler.h"
 #include "tools/CToolCursor.h"
 
+// TODO: right way to pass this around
+cHapticDeviceInfo g_hapticDeviceInfo;
+float g_maxStiffnessRatio = 0.1;
+
 bool HapticsPrismFactory::create(const char *name, float x, float y, float z)
 {
     printf("HapticsPrismFactory (%s) is creating a prism object called '%s'\n",
@@ -168,6 +172,12 @@ void HapticsSim::step()
         m_cursor->addCursorGrabbedForce(m_pGrabbedObject);
     } else {
         cursor->computeInteractionForces();
+
+        // Compensate for workspace scaling
+        cVector3d force = cursor->getDeviceGlobalForce();
+        force = force * (m_workspaceScale * m_scale);
+        cursor->setDeviceGlobalForce(force);
+
         m_cursor->addCursorMassForce();
     }
 
@@ -299,7 +309,8 @@ OscSphereCHAI::OscSphereCHAI(cWorld *world, const char *name, OscBase *parent)
     // How to replace in Chai3d 3.2?
 
     m_pSphere->createEffectSurface();
-    m_pSphere->m_material->setStiffness(0.8);
+    m_pSphere->m_material->setStiffness(g_maxStiffnessRatio
+                                        * g_hapticDeviceInfo.m_maxLinearStiffness);
 
     m_pSpecial = new CHAIObject(this, m_pSphere, world);
 }
@@ -339,7 +350,8 @@ OscPrismCHAI::OscPrismCHAI(cWorld *world, const char *name, OscBase *parent)
     m_pPrism->m_userData = this;
 
     m_pPrism->createEffectSurface();
-    m_pPrism->m_material->setStiffness(0.8);
+    m_pPrism->m_material->setStiffness(g_maxStiffnessRatio
+                                       * g_hapticDeviceInfo.m_maxLinearStiffness);
 
     m_pSpecial = new CHAIObject(this, m_pPrism, world);
 }
@@ -401,7 +413,8 @@ OscMeshCHAI::OscMeshCHAI(cWorld *world, const char *name, const char *filename,
     m_pMesh->m_userData = this;
 
     m_pMesh->createEffectSurface();
-    m_pMesh->m_material->setStiffness(0.8);
+    m_pMesh->m_material->setStiffness(g_maxStiffnessRatio
+                                      * g_hapticDeviceInfo.m_maxLinearStiffness);
 
     m_pSpecial = new CHAIObject(this, m_pMesh, world);
 }
@@ -455,6 +468,9 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
 
         printf("[%s] Using %s device.\n",
                simulation()->type_str(), device_str());
+
+        // TODO: right way to pass this around
+        g_hapticDeviceInfo = device->getSpecifications();
 
     // User data points to the OscObject, used for identification
     // during object contact.
