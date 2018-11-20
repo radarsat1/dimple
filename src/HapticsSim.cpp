@@ -241,6 +241,15 @@ void HapticsSim::findContactObject()
         obj = collisionEvent->m_object;
     }
 
+    if (!obj && cursor->m_hapticPoint->getNumInteractionEvents() > 0)
+    {
+        cInteractionEvent* interactionEvent =
+            cursor->m_hapticPoint->getInteractionEvent(0);
+        m_lastContactPoint = cursor->m_hapticPoint->getGlobalPosProxy();
+        m_lastForce = cursor->getDeviceGlobalForce();
+        obj = interactionEvent->m_object;
+    }
+
     // User data is set in the Osc*CHAI constructors
     if (obj)
         m_pContactObject = (OscObject*)obj->m_userData;
