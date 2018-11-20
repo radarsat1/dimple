@@ -451,9 +451,7 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
     m_pCursor->start();
 
     // rotate the cursor to match visual rotation
-    /* TODO; updateToolImagePosition?
-    m_pCursor->rotate(cVector3d(0,0,1),-90.0*M_PI/180.0);
-    */
+    m_pCursor->rotateAboutLocalAxisDeg(cVector3d(0,0,1), -90.0);
 
     // make it a cursor tuned for a dynamic environment
     m_pCursor->enableDynamicObjects(true);
