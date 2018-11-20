@@ -593,7 +593,8 @@ void SimulationReceiver::send_lo_message(const char *path, lo_message msg)
 Simulation::Simulation(const char *port, int type)
     : OscBase("world", NULL, lo_server_new(port, NULL)),
       m_collide("collide", this),
-      m_gravity("gravity", this)
+      m_gravity("gravity", this),
+      m_scale("scale", this)
 {
     m_addr = lo_address_new("localhost", port);
     m_type = type;
@@ -604,6 +605,8 @@ Simulation::Simulation(const char *port, int type)
 
     m_collide.setSetCallback(set_collide, this);
     m_gravity.setSetCallback(set_gravity, this);
+
+    m_scale.set(1,1,1);
 }
 
 Simulation::~Simulation()

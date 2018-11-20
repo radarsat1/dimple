@@ -146,7 +146,8 @@ void HapticsSim::updateWorkspace(cVector3d &pos)
         m_workspaceOffset(i) = -(m_workspace[1](i) + m_workspace[0](i)) / 2.0;
 
         // Normalize position to [-1, 1] within workspace.
-        pos(i) = (pos(i) + m_workspaceOffset(i)) * m_workspaceScale(i);
+        // Further scale by user-specified workspace scaling. (default=1)
+        pos(i) = (pos(i) + m_workspaceOffset(i)) * m_workspaceScale(i) * m_scale(i);
     }
 }
 
