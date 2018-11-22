@@ -457,7 +457,10 @@ public:
                       OscObject *object1, OscObject *object2,
                       double x, double y, double z, double ax, double ay, double az)
         : OscHinge(name, parent, object1, object2, x, y, z, ax, ay, az)
-        { m_response = new OscResponseInterface("response",this); }
+        {
+            m_response = new OscResponseInterface("response",this);
+            m_torque.setGetCallback(on_get_torque, this);
+        }
 
     virtual ~OscHingeInterface() { delete m_response; }
 
@@ -480,7 +483,11 @@ public:
                        double a2x, double a2y, double a2z)
         : OscHinge2(name, parent, object1, object2, x, y, z,
                     a1x, a1y, a1z, a2x, a2y, a2z)
-        { m_response = new OscResponseInterface("response",this); }
+        {
+            m_response = new OscResponseInterface("response",this);
+            m_torque1.setGetCallback(on_get_torque1, this);
+            m_torque2.setGetCallback(on_get_torque2, this);
+        }
 
     virtual ~OscHinge2Interface() { delete m_response; }
 
@@ -554,7 +561,10 @@ public:
                           OscObject *object1, OscObject *object2,
                           double ax, double ay, double az)
         : OscSlide(name, parent, object1, object2, ax, ay, az)
-        { m_response = new OscResponseInterface("response",this); }
+        {
+            m_response = new OscResponseInterface("response",this);
+            m_force.setGetCallback(on_get_force, this);
+        }
 
     virtual ~OscSlideInterface() { delete m_response; }
 
@@ -574,7 +584,10 @@ public:
                        OscObject *object1, OscObject *object2,
                        double x, double y, double z, double ax, double ay, double az)
         : OscPiston(name, parent, object1, object2, x, y, z, ax, ay, az)
-        { m_response = new OscResponseInterface("response",this); }
+        {
+            m_response = new OscResponseInterface("response",this);
+            m_force.setGetCallback(on_get_force, this);
+        }
 
     virtual ~OscPistonInterface() { delete m_response; }
 
@@ -597,7 +610,11 @@ public:
                           double a2x, double a2y, double a2z)
         : OscUniversal(name, parent, object1, object2, x, y, z,
                        a1x, a1y, a1z, a2x, a2y, a2z)
-        { m_response = new OscResponseInterface("response",this); }
+        {
+            m_response = new OscResponseInterface("response",this);
+            m_torque1.setGetCallback(on_get_torque1, this);
+            m_torque2.setGetCallback(on_get_torque2, this);
+        }
 
     virtual ~OscUniversalInterface() { delete m_response; }
 
