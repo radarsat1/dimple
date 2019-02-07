@@ -6,10 +6,16 @@
 #include "HapticsSim.h"
 #include "config.h"
 
+#include <graphics/CFont.h>
+#include <resources/CFontCalibri20.h>
+#include <widgets/CLabel.h>
+#include <math/CQuaternion.h>
 #include <GL/glut.h>
 #ifdef USE_FREEGLUT
 #include <GL/freeglut.h>
 #endif
+
+using namespace chai3d;
 
 bool VisualPrismFactory::create(const char *name, float x, float y, float z)
 {
@@ -186,6 +192,14 @@ void VisualSim::initialize()
 
     // Cursor object created by haptics sim after device initializes,
     // so nothing to do here for the cursor.
+
+    // create a font
+    cFontPtr font = NEW_CFONTCALIBRI20();
+    cLabel* label = new cLabel(font);
+    m_camera->object()->m_frontLayer->addChild(label);
+    label->m_fontColor.setWhite();
+    label->setText("my message");
+    label->setLocalPos(10, label->getTextHeight());
 
     Simulation::initialize();
 }
