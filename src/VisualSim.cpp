@@ -10,6 +10,7 @@
 #include <resources/CFontCalibri20.h>
 #include <widgets/CLabel.h>
 #include <math/CQuaternion.h>
+
 #include <GL/glut.h>
 #ifdef USE_FREEGLUT
 #include <GL/freeglut.h>
@@ -69,6 +70,22 @@ bool VisualMeshFactory::create(const char *name, const char *filename,
     return true;
 }
 
+/* This struct is used to freeze camera transform during mouse interaction */
+struct VisualSim::CameraProjection {
+    cVector3d globalPos;
+    cMatrix3d globalRot;
+    double fieldViewAngleDeg;
+    int windowWidth;
+    int windowHeight;
+    bool orthographicView;
+    double orthographicWidth;
+    cStereoMode stereoMode;
+    bool mirrorHorizontal;
+    bool mirrorVertical;
+    void set(cCamera *cam, int width, int height);
+    cVector3d projectOnWindowRay(const cVector3d& vec, int x, int y);
+};
+
 /****** VisualSim ******/
 
 VisualSim *VisualSim::m_pGlobalContext = 0;
@@ -76,7 +93,8 @@ VisualSim *VisualSim::m_pGlobalContext = 0;
 VisualSim::VisualSim(const char *port)
     : Simulation(port, ST_VISUAL),
       m_camera(NULL),
-      m_bFullScreen(false)
+      m_bFullScreen(false),
+      m_selectedObject(NULL)
 {
     m_pPrismFactory = new VisualPrismFactory(this);
     m_pSphereFactory = new VisualSphereFactory(this);
@@ -84,6 +102,8 @@ VisualSim::VisualSim(const char *port)
 
     m_fTimestep = visual_timestep_ms/1000.0;
     printf("CHAI/GLUT timestep: %f\n", m_fTimestep);
+
+    m_cameraProj = new CameraProjection();
 }
 
 VisualSim::~VisualSim()
@@ -91,6 +111,8 @@ VisualSim::~VisualSim()
     // Stop the simulation before deleting objects, otherwise thread
     // is still running and may dereference them.
     stop();
+
+    delete m_cameraProj;
 }
 
 void VisualSim::initGlutWindow()
@@ -114,10 +136,8 @@ void VisualSim::initGlutWindow()
     glutDisplayFunc(draw);
     glutKeyboardFunc(key);
     glutReshapeFunc(reshape);
-    /*
-    glutMouseFunc(mouse);
-    glutMotionFunc(motion);
-    */
+    glutMouseFunc(mouseClick);
+    glutMotionFunc(mouseMotion);
 
     // create a mouse menu
     /*
@@ -303,6 +323,244 @@ void VisualSim::reshape(int w, int h)
     me->m_nWidth = w;
     me->m_nHeight = h;
     glViewport(0, 0, w, h);
+}
+
+/* This struct is used to freeze camera transform during mouse interaction */
+void VisualSim::CameraProjection::set(cCamera *cam, int width, int height) {
+
+    cVector3d projectOnWindowRay(const cVector3d& vec, int x, int y);
+    globalPos = cam->getGlobalPos();
+    globalRot = cam->getGlobalRot();
+    fieldViewAngleDeg = cam->getFieldViewAngleDeg();
+
+    // not exposed by Chai3d, but also not used by DIMPLE
+    orthographicView = false;
+    /*
+      if (cam->getOrthographicView())
+      orthographicWidth = cam->getOrthographicWidth();
+    */
+
+    stereoMode = cam->getStereoMode();
+    mirrorHorizontal = cam->getMirrorHorizontal();
+    mirrorVertical = cam->getMirrorVertical();
+
+    windowWidth = width;
+    windowHeight = height;
+}
+
+cVector3d VisualSim::CameraProjection::projectOnWindowRay(const cVector3d& vec, int x, int y)
+{
+    /* This function returns the closest point from some vector onto
+     * the ray cast from the camera at the x,y position in window
+     * coordinates.  Needed for dragging objects around with the mouse
+     * on the plane parallel to the camera plane. */
+    /* Adapted from Chai3d's selectWorld. */
+
+    // store values
+    int windowPosX = x;
+    int windowPosY = y;
+    double scaleFactorX = 1.0;
+    double scaleFactorY = 1.0;
+
+    cVector3d pos, dir;
+
+    // adjust values when passive stereo is used
+    if (stereoMode == C_STEREO_PASSIVE_LEFT_RIGHT)
+    {
+        double center = 0.5 * windowWidth;
+        if (windowPosX > center)
+        {
+            windowPosX = windowPosX - (int)center;
+        }
+        windowWidth = (int)center;
+        scaleFactorX = 2.0;
+        scaleFactorY = 1.0;
+    }
+    else if (stereoMode == C_STEREO_PASSIVE_TOP_BOTTOM)
+    {
+        double center = 0.5 * windowHeight;
+        if (windowPosY > center)
+        {
+            windowPosY = windowPosY - (int)center;
+        }
+        windowHeight = (int)center;
+        scaleFactorX = 1.0;
+        scaleFactorY = 2.0;
+    }
+
+    // adjust values when image is mirrored horizontally
+    if (mirrorHorizontal)
+    {
+        windowPosX = windowWidth - windowPosX;
+    }
+
+    // adjust values when image is mirrored vertically
+    if (mirrorVertical)
+    {
+        windowPosY = windowHeight - windowPosY;
+    }
+
+    // init variable to store result
+    if (!orthographicView)
+    {
+        // make sure we have a legitimate field of view
+        if (fabs(fieldViewAngleDeg) < 0.001f) { return vec; }
+
+        // compute the ray that leaves the eye point at the appropriate angle
+        //
+        // m_fieldViewAngleDeg / 2.0 would correspond to the _top_ of the window
+        double distCam = (scaleFactorY * windowHeight / 2.0f)
+            / cTanDeg(fieldViewAngleDeg / 2.0f);
+
+        cVector3d selectRay;
+        selectRay.set(-distCam,
+                      scaleFactorX * (windowPosX - (windowWidth / 2.0f)),
+                      scaleFactorY * (windowPosY - (windowHeight / 2.0f)));
+        selectRay.normalize();
+
+        selectRay = cMul(globalRot, selectRay);
+
+        pos = globalPos;
+        dir = selectRay;
+    }
+    else
+    {
+        double hw = (double)(windowWidth) * 0.5;
+        double hh = (double)(windowHeight)* 0.5;
+        double aspect = windowWidth / windowHeight;
+
+        // no getOrthographicWidth()
+        double offsetX = ((windowPosX - hw) / hw) * 0.5 * orthographicWidth;
+        double offsetY =-((windowPosY - hh) / hh) * 0.5 * (orthographicWidth / aspect);
+
+        pos = cAdd(globalPos,
+                   cMul(offsetX, globalRot.getCol1()),
+                   cMul(offsetY, globalRot.getCol2()));
+
+        dir = cNegate(globalRot.getCol0());
+    }
+
+    /* new location is the cloest point on the line perpendicular to
+     * the camera plane */
+    return cProjectPointOnLine(vec, pos, dir);
+}
+
+void VisualSim::mouseClick(int button, int state, int x, int y)
+{
+    VisualSim* me = VisualSim::m_pGlobalContext;
+
+    // mouse button down
+    if (state == GLUT_DOWN)
+    {
+        cCollisionRecorder recorder;
+        cCollisionSettings settings;
+        settings.m_checkForNearestCollisionOnly = true;
+
+        // update my m_globalPos and m_globalRot variables
+        me->m_chaiWorld->computeGlobalPositions(false);
+
+        // detect for any collision between mouse and scene
+        bool hit = me->m_camera->object()->
+            selectWorld(x, me->m_nHeight-y, me->m_nWidth, me->m_nHeight, recorder, settings);
+        OscObject *obj = nullptr;
+        if (hit)
+            obj = (OscObject*)recorder.m_nearestCollision.m_object->m_userData;
+        else
+            obj = (OscObject*)me->m_camera; // dangerous but we'll be careful
+
+        if (obj) {
+            // TODO: Problem if selected object is deleted!
+            me->m_selectedObject = obj;
+
+            // Freeze camera frame for interactive calculations
+            CameraProjection& proj = *me->m_cameraProj;
+            proj.set(me->m_camera->object(), me->m_nWidth, me->m_nHeight);
+
+            cVector3d pos;
+            if (obj == (OscObject*)me->m_camera)
+                pos = me->m_camera->getLookat();
+            else
+                pos = obj->getPosition();
+            me->m_selectionOffset = pos - proj.projectOnWindowRay(pos, x, me->m_nHeight-y);
+            // TODO: Not sure why necessary to invert y axis here,
+            // possibly related to cursor rotation in the
+            // OscCursorCHAI constructor.
+        }
+    }
+    else if (state == GLUT_UP)
+        me->m_selectedObject = NULL;
+}
+
+void VisualSim::mouseMotion(int x, int y)
+{
+    VisualSim* me = VisualSim::m_pGlobalContext;
+
+    if (!me->m_selectedObject)
+        return;
+
+    if (me->m_selectedObject == (OscObject*)me->m_camera)
+    {
+        cVector3d vec1 = me->m_selectionOffset;
+        cVector3d vec2 = me->m_camera->getLookat() - me->m_cameraProj->projectOnWindowRay(
+            me->m_camera->getLookat(), x, me->m_nHeight-y);
+        if (false)
+        {
+        //me->m_selectionOffset = vec2;
+        vec1.normalize();
+        vec2.normalize();
+
+        // calculate rotation from vec1 to vec2 and apply same
+        // rotation to camera position centered on lookat
+        cQuaternion q1i(0, vec1.x(), vec1.y(), vec1.z());
+        cQuaternion q2(0, vec2.x(), vec2.y(), vec2.z());
+        q1i.conj();
+        cQuaternion q(q1i*q2);
+        cVector3d cv1v2( cCross(vec1,vec2) );
+        q.w = sqrt(vec1.lengthsq()*vec2.lengthsq()) + vec1.dot(vec2);
+        q.x = cv1v2.x(); q.y = cv1v2.y(); q.z = cv1v2.z();
+        q.normalize();
+        cQuaternion qi(q);
+        qi.conj();
+
+        cVector3d& pos = me->m_cameraProj->globalPos;
+        cVector3d& lookat = me->m_camera->getLookat();
+        cVector3d pl = pos - lookat;
+        cQuaternion qpl(0, pl.x(), pl.y(), pl.z());
+        qpl = q * qpl * qi;
+        cVector3d newpos(cVector3d(qpl.x, qpl.y, qpl.z) + lookat);
+        me->m_camera->getPosition().setd(newpos);
+        }
+        else {
+            cVector3d& pos = me->m_cameraProj->globalPos;
+            cVector3d& lookat = me->m_camera->getLookat();
+            cVector3d pl = pos - lookat;
+            cMatrix3d rot(me->m_cameraProj->globalRot);
+            rot.invert();
+
+            double radius1 = pl.length();
+            double theta1 = acos(pl.z() / radius1);
+            double phi1 = atan(pl.y() / pl.x());
+
+            cVector3d rotvec(cCross(rot.getCol0(), vec2 - vec1));
+            theta1 += rotvec.x()*-3;
+            phi1 += rotvec.z()*-3;
+
+            cVector3d newvec(sin(theta1)*cos(phi1), sin(theta1)*sin(phi1), cos(theta1));
+            newvec *= radius1;
+
+            me->m_camera->getPosition().setd(lookat + newvec);
+        }
+    }
+
+    else // object, not camera
+    {
+        const cVector3d pos = me->m_cameraProj->projectOnWindowRay(
+            me->m_selectedObject->getPosition(), x, me->m_nHeight-y) + me->m_selectionOffset;
+
+        char msg[256];
+        sprintf(msg, "%s/position", me->m_selectedObject->c_path());
+        lo_send(me->addr(), msg, "fff", pos.x(), pos.y(), pos.z());
+    }
 }
 
 cSpotLight *VisualSim::light(unsigned int i)

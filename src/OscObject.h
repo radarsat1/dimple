@@ -141,6 +141,10 @@ class OscCamera : public OscBase
   public:
 	OscCamera(const char *name, OscBase *parent=NULL);
 
+    OscVector3& getPosition() { return m_position; }
+    OscVector3& getLookat() { return m_lookat; }
+    OscVector3& getUp() { return m_up; }
+
   protected:
     OSCVECTOR3(OscCamera, position) {};
     OSCVECTOR3(OscCamera, lookat) {};

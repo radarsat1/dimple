@@ -33,6 +33,10 @@ class VisualSim : public Simulation
     static void draw();
     static void key(unsigned char key, int x, int y);
     static void reshape(int w, int h);
+    static void mouseClick(int button, int state, int x, int y);
+    static void mouseMotion(int x, int y);
+
+    cVector3d projectOnWindowRay(const cVector3d& vec, int x, int y);
 
     int m_nWidth, m_nHeight;
 
@@ -49,6 +53,11 @@ class VisualSim : public Simulation
      ** used to point to the one and only VisualSim instance to give
      ** the callback functions context. */
     static VisualSim *m_pGlobalContext;
+
+    OscObject *m_selectedObject;
+    cVector3d m_selectionOffset;
+    struct CameraProjection;
+    CameraProjection *m_cameraProj;
 
     bool m_bFullScreen;
 };
