@@ -586,7 +586,6 @@ case $(uname) in
     which unzip >/dev/null || exit 1
 
     freeglut
-    pthreads
     samplerate
     ode
     liblo
