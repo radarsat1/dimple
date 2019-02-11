@@ -162,7 +162,7 @@ AC_CHECK_HEADER(chai3d.h, [],
 save_LIBS="$LIBS"
 save_LDFLAGS="$LDFLAGS"
 LDFLAGS="$LDFLAGS -L${CHAI_LIBDIR}"
-LIBS="$LIBS -lole32"
+AC_CHECK_LIB([ole32], [CoUninitialize])
 # In case CHAI is using OpenHaptics
 if test -f /usr/include/HL/hl.h; then
   LIBS="$LIBS -lHD -lHL"
