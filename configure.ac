@@ -105,12 +105,11 @@ AC_CHECK_LIB(GL, [glBegin], [],
 
 # GLUT
 AC_CHECK_LIB(glut, [glutInit], [],
-  [LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/freeglut-2.4.0/src/.libs"
+  [LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/freeglut-3.0.0/lib"
   unset ac_cv_lib_glut_glutInit
-  AC_CHECK_LIB(glut, [glutInit],
-    [CPPFLAGS="$CPPFLAGS -DFREEGLUT_STATIC"
-    CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/freeglut-2.4.0/include"
-    LIBS="-lglut -lgdi32 -lwinmm -luuid -loleaut32 $LIBS"
+  AC_CHECK_LIB(freeglut_static, [glutInit],
+    [CPPFLAGS="$CPPFLAGS -DFREEGLUT_STATIC -I${abs_srcdir}/libdeps/freeglut-3.0.0/include"
+    LIBS="-lfreeglut_static -lgdi32 -lwinmm -luuid -loleaut32 $LIBS"
     need_glu32=yes],
     [AC_CHECK_LIB(glut32, [glutInit], [],
       AC_MSG_ERROR([Couldn't find GLUT library.]))],

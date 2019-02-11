@@ -243,10 +243,10 @@ echo
 }
 
 freeglut() {
-freeglut_URL=http://downloads.sourceforge.net/freeglut/freeglut-2.4.0.tar.gz
-freeglut_TAR=freeglut-2.4.0.tar.gz
-freeglut_DIR=freeglut-2.4.0
-freeglut_MD5=6d16873bd876fbf4980a927cfbc496a1
+freeglut_URL=https://downloads.sourceforge.net/freeglut/3.0.0/freeglut-3.0.0.tar.gz
+freeglut_TAR=freeglut-3.0.0.tar.gz
+freeglut_DIR=freeglut-3.0.0
+freeglut_MD5=90c3ca4dd9d51cf32276bc5344ec9754
 
 if ! [ -d $freeglut_DIR ]; then
 
@@ -303,7 +303,7 @@ case $(uname) in
 
     *)
     echo Configuring $freeglut_DIR
-    if !(cd $freeglut_DIR && env CFLAGS=-DFREEGLUT_STATIC ./configure --disable-shared); then
+    if !(cd $freeglut_DIR && cmake . $CMAKE_EXTRA "$CMAKE_GEN" -DFREEGLUT_BUILD_STATIC_LIBS=ON  -DFREEGLUT_BUILD_SHARED_LIBS=OFF); then
         echo "Error configuring $freeglut_DIR"
         exit
     fi
@@ -562,17 +562,23 @@ cd libdeps
 
 # System-dependant bootstrapping
 case $(uname) in
-    MINGW32*)
+    MINGW32* | MINGW64* | MSYS*)
     DL="curl -L -o"
     MD5=md5sum
     MD5CUT="awk {print\$1}"
-    freeglut_PATCH=freeglut-2.4.0-mingw.patch
     liblo_CFLAGS="-I$PWD/pthreads-w32-2-8-0-release -include /mingw/include/ws2tcpip.h -D_WIN32_WINNT=0x0501 -DPTW32_BUILD_INLINED -DPTW32_STATIC_LIB -DCLEANUP=__CLEANUP_C -DDLL_VER=2"
     liblo_LDFLAGS="-L$PWD/pthreads-w32-2-8-0-release"
     liblo_LIBS="-lws2_32"
     liblo_CONFIGEXTRA=--disable-ipv6
     chai_DIR=chai3d/mingw
     #chai_PATCH=chai3d-1.62-mingw.patch
+    CMAKE_GEN='MSYS Makefiles'
+    CMAKE_EXTRA=-G
+
+    echo "Looking for programs.."
+    which patch >/dev/null || exit 1
+    which cmake >/dev/null || exit 1
+    which unzip >/dev/null || exit 1
 
     freeglut
     pthreads
