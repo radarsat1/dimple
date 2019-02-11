@@ -194,7 +194,7 @@ AC_CHECK_LIB(ode, [dBodyCreate], [],
 
 # libsamplerate
 save_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/libsamplerate-0.1.2/src"
+CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/libsamplerate-0.1.9/src"
 AC_CHECK_HEADER(samplerate.h, [],
   [CPPFLAGS="$save_CPPFLAGS"
   unset ac_cv_header_samplerate_h
@@ -202,7 +202,7 @@ AC_CHECK_HEADER(samplerate.h, [],
      [AC_MSG_ERROR([Couldn't find libsamplerate headers.])])])
 
 save_LDFLAGS="$LDFLAGS"
-LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/libsamplerate-0.1.2/src/.libs"
+LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/libsamplerate-0.1.9/src/.libs"
 AC_CHECK_LIB(samplerate, [src_new], [],
   [LDFLAGS="$save_LDFLAGS"
   unset ac_cv_lib_samplerate_src_new

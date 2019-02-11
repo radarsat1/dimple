@@ -475,10 +475,10 @@ fi
 }
 
 samplerate() {
-samplerate_URL="http://www.mega-nerd.com/SRC/libsamplerate-0.1.2.tar.gz"
-samplerate_TAR=libsamplerate-0.1.2.tar.gz
-samplerate_DIR=libsamplerate-0.1.2
-samplerate_MD5=06861c2c6b8e5273c9b80cf736b9fd0e
+samplerate_URL="http://www.mega-nerd.com/SRC/libsamplerate-0.1.9.tar.gz"
+samplerate_TAR=libsamplerate-0.1.9.tar.gz
+samplerate_DIR=libsamplerate-0.1.9
+samplerate_MD5=2b78ae9fe63b36b9fbb6267fad93f259
 
 if ! [ -d $samplerate_DIR ]; then
 
@@ -529,7 +529,11 @@ case $(uname) in
 
    *)
    echo Configuring $samplerate_DIR
-   if !(cd $samplerate_DIR && env ./configure --disable-shared); then
+   case "`uname`" in
+       *MINGW64*) HOSTBUILD= --host=x86_64-w64-mingw32 --build=x86_64-w64-mingw32 ;;
+       *)
+   esac
+   if !(cd $samplerate_DIR && env ./configure --disable-shared $HOSTBUILD); then
 	  echo "Error configuring $samplerate_DIR"
 	  exit
    fi
