@@ -566,12 +566,10 @@ case $(uname) in
     DL="curl -L -o"
     MD5=md5sum
     MD5CUT="awk {print\$1}"
-    liblo_CFLAGS="-I$PWD/pthreads-w32-2-8-0-release -include /mingw/include/ws2tcpip.h -D_WIN32_WINNT=0x0501 -DPTW32_BUILD_INLINED -DPTW32_STATIC_LIB -DCLEANUP=__CLEANUP_C -DDLL_VER=2"
-    liblo_LDFLAGS="-L$PWD/pthreads-w32-2-8-0-release"
-    liblo_LIBS="-lws2_32"
-    liblo_CONFIGEXTRA=--disable-ipv6
     chai_DIR=chai3d/mingw
     #chai_PATCH=chai3d-1.62-mingw.patch
+    liblo_LIBS="-lws2_32 -liphlpapi"
+    liblo_CONFIGEXTRA="--disable-ipv6 --with-win32-threads --enable-static --disable-shared"
     CMAKE_GEN='MSYS Makefiles'
     CMAKE_EXTRA=-G
 
