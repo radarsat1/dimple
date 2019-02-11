@@ -218,11 +218,15 @@ case $(uname) in
 
 	*)
     echo Compiling $chai_DIR
-    if !(cd $chai_DIR && make || make); then
+    if !(cd $chai_DIR && make || (cmake . $CMAKE_EXTRA "$CMAKE_GEN" && make)); then
         echo "Error compiling $chai_DIR"
         exit
     fi
-    chai_LIBDIR=$chai_DIR/lib/release/$(ls $chai_DIR/lib/release | head)
+    if [ -e $chai_DIR/libchai3d.a ]; then
+	chai_LIBDIR=$chai_DIR
+    else
+	chai_LIBDIR=$chai_DIR/lib/release/$(ls $chai_DIR/lib/release | head)
+    fi
     if ! [ -e $chai_LIBDIR/libchai3d.a ]; then
         echo "Build CHAI but can't find libchai3d.a in $chai_LIBDIR"
         exit
@@ -570,10 +574,9 @@ case $(uname) in
     DL="curl -L -o"
     MD5=md5sum
     MD5CUT="awk {print\$1}"
-    chai_DIR=chai3d/mingw
-    #chai_PATCH=chai3d-1.62-mingw.patch
     liblo_LIBS="-lws2_32 -liphlpapi"
     liblo_CONFIGEXTRA="--disable-ipv6 --with-win32-threads --enable-static --disable-shared"
+    chai_DIR=chai3d-3.2.0
     CMAKE_GEN='MSYS Makefiles'
     CMAKE_EXTRA=-G
 

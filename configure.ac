@@ -145,7 +145,11 @@ esac
 
 # CHAI 3D
 CHAI_DIR=${abs_srcdir}/libdeps/chai3d-3.2.0
-CHAI_LIBDIR=${CHAI_DIR}/lib/release/${CHAI_SUFFIX}
+if test -e "$CHAI_DIR"/libchai3d.a; then
+  CHAI_LIBDIR="$CHAI_DIR"
+else
+  CHAI_LIBDIR=${CHAI_DIR}/lib/release/${CHAI_SUFFIX}
+fi
 CHAI_INCDIRS="-I${CHAI_DIR}/src -I${CHAI_DIR}/external/Eigen -I${CHAI_DIR}/external/glew/include"
 CPPFLAGS="$CPPFLAGS $CHAI_FLAGS"
 save_CPPFLAGS="$CPPFLAGS"
@@ -156,7 +160,9 @@ AC_CHECK_HEADER(chai3d.h, [],
   AC_MSG_ERROR([Couldn't find CHAI 3D headers.])])
 
 save_LIBS="$LIBS"
-LIBS="$LIBS -L${CHAI_LIBDIR}"
+save_LDFLAGS="$LDFLAGS"
+LDFLAGS="$LDFLAGS -L${CHAI_LIBDIR}"
+LIBS="$LIBS -lole32"
 # In case CHAI is using OpenHaptics
 if test -f /usr/include/HL/hl.h; then
   LIBS="$LIBS -lHD -lHL"
@@ -171,6 +177,7 @@ if test -f ${CHAI_DIR}/external/DHD/lib/${CHAI_OS}-x86_64/libdrd.a; then
 fi
 AC_CHECK_LIB(chai3d, [main], [],
   [LIBS="$save_LIBS"
+  LDFLAGS="$save_LDFLAGS"
   unset ac_cv_lib_chai3d_main
   AC_CHECK_LIB(chai3d, [main], [],
     AC_MSG_ERROR([Couldn't find CHAI 3D library.]))])
