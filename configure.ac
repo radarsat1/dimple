@@ -135,12 +135,11 @@ AC_CHECK_LIB(GL, [glBegin], [],
 
 # GLUT
 AC_CHECK_LIB(glut, [glutInit], [],
-  [LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/freeglut-2.4.0/src/.libs"
+  [LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/freeglut-3.0.0/lib"
   unset ac_cv_lib_glut_glutInit
-  AC_CHECK_LIB(glut, [glutInit],
-    [CPPFLAGS="$CPPFLAGS -DFREEGLUT_STATIC"
-    CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/freeglut-2.4.0/include"
-    LIBS="-lglut -lgdi32 -lwinmm -luuid -loleaut32 $LIBS"
+  AC_CHECK_LIB(freeglut_static, [glutInit],
+    [CPPFLAGS="$CPPFLAGS -DFREEGLUT_STATIC -I${abs_srcdir}/libdeps/freeglut-3.0.0/include"
+    LIBS="-lfreeglut_static -lgdi32 -lwinmm -luuid -loleaut32 $LIBS"
     need_glu32=yes],
     [AC_CHECK_LIB(glut32, [glutInit], [],
       AC_MSG_ERROR([Couldn't find GLUT library.]))],
@@ -174,22 +173,13 @@ esac
 # The "unset" commands are to reset the autoconf cache, otherwise it
 # just uses previous value and fails.
 
-# pthread
-AX_PTHREAD(
-  [CPPFLAGS="$CPPFLAGS $PTHREAD_CFLAGS"
-  LDFLAGS="$LDFLAGS $PTHREAD_CFLAGS"
-  LIBS="$PTHREAD_LIBS $LIBS"],
-  [LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/pthreads-w32-2-8-0-release"
-  unset ac_cv_lib_pthread_pthread_create
-  AC_CHECK_LIB(pthread, [pthread_create],
-    [CPPFLAGS="$CPPFLAGS -DPTW32_STATIC_LIB"
-    LIBS="-lpthread $LIBS"],
-    [AC_MSG_ERROR([Couldn't find pthread library.])],
-    [-lws2_32])])
-
 # CHAI 3D
 CHAI_DIR=${abs_srcdir}/libdeps/chai3d-3.2.0
-CHAI_LIBDIR=${CHAI_DIR}/lib/release/${CHAI_SUFFIX}
+if test -e "$CHAI_DIR"/libchai3d.a; then
+  CHAI_LIBDIR="$CHAI_DIR"
+else
+  CHAI_LIBDIR=${CHAI_DIR}/lib/release/${CHAI_SUFFIX}
+fi
 CHAI_INCDIRS="-I${CHAI_DIR}/src -I${CHAI_DIR}/external/Eigen -I${CHAI_DIR}/external/glew/include"
 CPPFLAGS="$CPPFLAGS $CHAI_FLAGS"
 save_CPPFLAGS="$CPPFLAGS"
@@ -200,7 +190,9 @@ AC_CHECK_HEADER(chai3d.h, [],
   AC_MSG_ERROR([Couldn't find CHAI 3D headers.])])
 
 save_LIBS="$LIBS"
+save_LDFLAGS="$LDFLAGS"
 LDFLAGS="$LDFLAGS -L${CHAI_LIBDIR}"
+LIBS="$LIBS -lole32"
 # In case CHAI is using OpenHaptics
 if test -f /usr/include/HL/hl.h; then
   LIBS="$LIBS -lHD -lHL"
@@ -227,6 +219,7 @@ if ! [ ls ${CHAI_LIBDIR} ]; then
 fi
 AC_CHECK_LIB(chai3d, [main], [],
   [LIBS="$save_LIBS"
+  LDFLAGS="$save_LDFLAGS"
   unset ac_cv_lib_chai3d_main
   AC_CHECK_LIB(chai3d, [main], [],
     AC_MSG_ERROR([Couldn't find CHAI 3D library.]))])
@@ -250,7 +243,7 @@ AC_CHECK_LIB(ode, [dBodyCreate], [],
 
 # libsamplerate
 save_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/libsamplerate-0.1.2/src"
+CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/libsamplerate-0.1.9/src"
 AC_CHECK_HEADER(samplerate.h, [],
   [CPPFLAGS="$save_CPPFLAGS"
   unset ac_cv_header_samplerate_h
@@ -258,7 +251,7 @@ AC_CHECK_HEADER(samplerate.h, [],
      [AC_MSG_ERROR([Couldn't find libsamplerate headers.])])])
 
 save_LDFLAGS="$LDFLAGS"
-LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/libsamplerate-0.1.2/src/.libs"
+LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/libsamplerate-0.1.9/src/.libs"
 AC_CHECK_LIB(samplerate, [src_new], [],
   [LDFLAGS="$save_LDFLAGS"
   unset ac_cv_lib_samplerate_src_new
@@ -278,7 +271,7 @@ save_LIBS="$LIBS"
 save_LDFLAGS="$LDFLAGS"
 LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/liblo-0.29/src/.libs"
 AC_CHECK_LIB(lo, [lo_server_new], [],
-  [LIBS="-lws2_32 $LIBS"
+  [LIBS="-lws2_32 -liphlpapi $LIBS"
   unset ac_cv_lib_lo_lo_server_new
   AC_CHECK_LIB(lo, [lo_server_new], [],
     [LDFLAGS="$save_LDFLAGS"
