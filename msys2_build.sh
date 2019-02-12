@@ -17,6 +17,7 @@ echo == /c/ && ls /c/
 echo == /c/tools && ls /c/tools
 echo == /c/tools/msys64 && ls /c/tools/msys64
 echo == /c/tools/msys64/bin && ls /c/tools/msys64/bin
-choco install msys2
+choco search msys2
+choco install -y msys2
 echo == /c/ && ls /c/
 exit 1
