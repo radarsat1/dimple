@@ -8,7 +8,6 @@ cache:
 matrix:
   include:
   - os: windows
-    env: MATRIX_EVAL="choco install msys2 && C:\\msys64\\bin\\bash.exe -c msys2_build.sh"
 before_install:
   - eval "${MATRIX_EVAL}"
 script:  pwd && ./bootstrap.sh && ./autogen.sh --prefix=$PWD/install && make && make check && make install && bash .travis-ghpages.sh || cat config.log
