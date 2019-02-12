@@ -8,7 +8,7 @@ cache:
 matrix:
   include:
   - os: windows
-    env: MATRIX_EVAL="choco install -y msys2 && /c/tools/msys64/usr/bin/bash msys2_build.sh)"
+    env: MATRIX_EVAL="choco install -y msys2 && /c/tools/msys64/usr/bin/bash msys2_build.sh"
     filter_secrets: false # note: means we can't deploy until "secrets" bug related to choco is fixed!
 before_install:
   - eval "${MATRIX_EVAL}"
