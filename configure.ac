@@ -7,6 +7,7 @@ CPPFLAGS="$CPPFLAGS -DDIMPLE_VERSION=\\\"DIMPLE_VER\\\""
 
 AM_CONFIG_HEADER([src/config.h])
 AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_SRCDIR([bootstrap.sh])
 
 AC_CANONICAL_SYSTEM
 AM_INIT_AUTOMAKE
@@ -15,10 +16,14 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 abs_srcdir=`cd $srcdir; pwd`
 
+echo "CC is ${CC}"
+echo "CXX is ${CXX}"
+
 # Checks for programs.
 AC_LANG_CPLUSPLUS
 AC_PROG_CXX
 AC_CHECK_PROG(pkgconfig, pkg-config, yes, no)
+AX_CXX_COMPILE_STDCXX_11
 
 # Checks for libraries.
 AC_CHECK_FUNC([log], [], [AC_CHECK_LIB([m],[log])])
