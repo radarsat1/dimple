@@ -543,7 +543,8 @@ echo samplerate Done.
 echo
 }
 
-cd libdeps
+if ! [ -d libdeps ]; then mkdir libdeps || exit 1; fi
+cd libdeps || exit 1
 
 # System-dependant bootstrapping
 case $(uname) in

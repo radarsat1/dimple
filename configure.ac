@@ -173,6 +173,12 @@ esac
 # The "unset" commands are to reset the autoconf cache, otherwise it
 # just uses previous value and fails.
 
+# pthread
+m4_ifdef([AX_PTHREAD],[AX_PTHREAD(
+  [CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
+   LIBS="$LIBS $PTHREAD_LIBS"])],
+  [AC_CHECK_LIB(pthread, [pthread_create])])
+
 # CHAI 3D
 CHAI_DIR=${abs_srcdir}/libdeps/chai3d-3.2.0
 if test -e "$CHAI_DIR"/libchai3d.a; then
@@ -192,7 +198,7 @@ AC_CHECK_HEADER(chai3d.h, [],
 save_LIBS="$LIBS"
 save_LDFLAGS="$LDFLAGS"
 LDFLAGS="$LDFLAGS -L${CHAI_LIBDIR}"
-LIBS="$LIBS -lole32"
+AC_CHECK_LIB([ole32], [CoUninitialize])
 # In case CHAI is using OpenHaptics
 if test -f /usr/include/HL/hl.h; then
   LIBS="$LIBS -lHD -lHL"
@@ -279,33 +285,6 @@ AC_CHECK_LIB(lo, [lo_server_new], [],
     unset ac_cv_lib_lo_lo_server_new
     AC_CHECK_LIB(lo, [lo_server_new], [],
       AC_MSG_ERROR([Couldn't find liblo library.]))])])
-
-# check if libnifalcon is available: if so, link to it
-if test x${ac_cv_prog_pkgconfig} == xyes
-then
-  save_LIBS="$LIBS"
-  LIBS="$save_LIBS `pkg-config --libs libnifalcon`"
-  AC_CHECK_LIB(nifalcon, [main], [],
-    [LIBS="$save_LIBS"
-    unset ac_cv_lib_nifalcon_main
-    AC_CHECK_LIB(nifalcon, [main], [],
-      [LIBS="$save_LIBS -L${prefix}/lib"
-      unset ac_cv_lib_nifalcon_main
-      AC_CHECK_LIB(nifalcon, [main], [], [])])])
-
-  AC_CHECK_LIB(nifalcon_comm_libftdi, [main], [], [])
-  AC_CHECK_LIB(nifalcon_comm_libusb, [main], [], [])
-
-  case "$target" in
-    *-*-darwin* )
-    if test x${ac_cv_lib_nifalcon_main} = xyes; then
-      LIBS="$LIBS -framework AppKit"
-    fi
-    ;;
-  esac
-else
-  AC_MSG_WARN([No pkg-config found, so skipping check for libnifalcon.])
-fi
 
 # check for options
 
