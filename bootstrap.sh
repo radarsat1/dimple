@@ -251,7 +251,7 @@ echo
 
 freeglut() {
 freeglut_URL=https://downloads.sourceforge.net/freeglut/3.0.0/freeglut-3.0.0.tar.gz
-freeglut_TAR=freeglut-3.0.0.tar.gz
+freeglut_TAR=tarballs/freeglut-3.0.0.tar.gz
 freeglut_DIR=freeglut-3.0.0
 freeglut_MD5=90c3ca4dd9d51cf32276bc5344ec9754
 
@@ -456,7 +456,7 @@ echo
 
 samplerate() {
 samplerate_URL="http://www.mega-nerd.com/SRC/libsamplerate-0.1.9.tar.gz"
-samplerate_TAR=libsamplerate-0.1.9.tar.gz
+samplerate_TAR=tarballs/libsamplerate-0.1.9.tar.gz
 samplerate_DIR=libsamplerate-0.1.9
 samplerate_MD5=2b78ae9fe63b36b9fbb6267fad93f259
 
