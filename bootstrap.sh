@@ -14,9 +14,8 @@ liblo_DIR=liblo-0.29
 liblo_MD5=b0e70bc0fb2254addf94adddf85cffd3
 
 if [ $($MD5 $liblo_TAR | $MD5CUT)x != ${liblo_MD5}x ]; then
-	echo Downloading $liblo_TAR ...
-	if [ -e $liblo_TAR ]; then rm -v $liblo_TAR; fi
-  if ! [ -d tarballs ]; then mkdir tarballs; fi
+    echo Downloading $liblo_TAR ...
+    if [ -e $liblo_TAR ]; then rm -v $liblo_TAR; fi
     $DL $liblo_TAR $liblo_URL
 fi
 
@@ -94,10 +93,9 @@ ode_DIR=ode-0.13.1
 ode_MD5=00f6613b3d8e5249be60e3a513d6aebd
 
 if [ $($MD5 $ode_TAR | $MD5CUT)x != ${ode_MD5}x ]; then
-	echo Downloading $ode_TAR ...
-	if [ -e $ode_TAR ]; then rm -v $ode_TAR; fi
-  if ! [ -d tarballs ]; then mkdir tarballs; fi
-	$DL $ode_TAR $ode_URL
+    echo Downloading $ode_TAR ...
+    if [ -e $ode_TAR ]; then rm -v $ode_TAR; fi
+    $DL $ode_TAR $ode_URL
 fi
 
 if [ $($MD5 $ode_TAR | $MD5CUT)x != ${ode_MD5}x ]; then
@@ -174,8 +172,7 @@ if ! [ -d $chai_DIR ]; then
 
 if [ $($MD5 "$chai_TAR" | $MD5CUT)x != ${chai_MD5}x ]; then
     echo Downloading $chai_TAR ...
-	if [ -e $chai_TAR ]; then rm -v $chai_TAR; fi
-  if ! [ -d tarballs ]; then mkdir tarballs; fi
+    if [ -e $chai_TAR ]; then rm -v $chai_TAR; fi
     $DL "$chai_TAR" $chai_URL
 fi
 
@@ -259,8 +256,7 @@ if ! [ -d $freeglut_DIR ]; then
 
 if [ $($MD5 "$freeglut_TAR" | $MD5CUT)x != ${freeglut_MD5}x ]; then
     echo Downloading $freeglut_TAR ...
-	if [ -e $freeglut_TAR ]; then rm -v $freeglut_TAR; fi
-  if ! [ -d tarballs ]; then mkdir tarballs; fi
+    if [ -e $freeglut_TAR ]; then rm -v $freeglut_TAR; fi
     $DL "$freeglut_TAR" $freeglut_URL
 fi
 
@@ -341,8 +337,7 @@ if ! [ -d $atomicops_DIR ]; then
 
 if [ $($MD5 "$atomicops_TAR" | $MD5CUT)x != ${atomicops_MD5}x ]; then
     echo Downloading $atomicops_TAR ...
-	if [ -e $atomicops_TAR ]; then rm -v $atomicops_TAR; fi
-  if ! [ -d tarballs ]; then mkdir tarballs; fi
+    if [ -e $atomicops_TAR ]; then rm -v $atomicops_TAR; fi
     $DL "$atomicops_TAR" $atomicops_URL
 fi
 
@@ -385,8 +380,7 @@ if ! [ -d $pthreads_DIR ]; then
 
 if [ $($MD5 "$pthreads_TAR" | $MD5CUT)x != ${pthreads_MD5}x ]; then
     echo Downloading $pthreads_TAR ...
-	  if [ -e $pthreads_TAR ]; then rm -v $pthreads_TAR; fi
-    if ! [ -d tarballs ]; then mkdir tarballs; fi
+    if [ -e $pthreads_TAR ]; then rm -v $pthreads_TAR; fi
     $DL "$pthreads_TAR" $pthreads_URL
 fi
 
@@ -464,8 +458,7 @@ if ! [ -d $samplerate_DIR ]; then
 
 if [ $($MD5 "$samplerate_TAR" | $MD5CUT)x != ${samplerate_MD5}x ]; then
     echo Downloading $samplerate_TAR ...
-	  if [ -e $samplerate_TAR ]; then rm -v $samplerate_TAR; fi
-    if ! [ -d tarballs ]; then mkdir tarballs; fi
+    if [ -e $samplerate_TAR ]; then rm -v $samplerate_TAR; fi
     $DL "$samplerate_TAR" $samplerate_URL
 fi
 
@@ -543,7 +536,8 @@ echo samplerate Done.
 echo
 }
 
-if ! [ -d libdeps ]; then mkdir libdeps || exit 1; fi
+if ! [ -d libdeps ];          then mkdir libdeps          || exit 1; fi
+if ! [ -d libdeps/tarballs ]; then mkdir libdeps/tarballs || exit 1; fi
 cd libdeps || exit 1
 
 # System-dependant bootstrapping
