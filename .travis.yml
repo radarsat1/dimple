@@ -7,30 +7,8 @@ cache:
   - libdeps
 matrix:
   include:
-  - os: linux
-    addons:
-      apt:
-        sources:
-          - ubuntu-toolchain-r-test
-        packages:
-          - g++-8
-          - libusb-dev
-          - freeglut3-dev
-          - autoconf-archive
-          - libsamplerate0-dev
-          - libasound2-dev
-          - libusb-1.0-0-dev
-          - unzip
-          - libasound2-dev
-          - libxcursor-dev
-          - libxrandr-dev
-          - libxinerama-dev
-    env: HOST="" MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
-    compiler: gcc
-  - os: osx
-    osx_image: xcode10
-    env: HOST="" MATRIX_EVAL="brew install freeglut autoconf-archive"
-    compiler: clang
+  - os: windows
+    env: MATRIX_EVAL="choco install msys2 && C:\\msys64\\bin\\bash.exe -c msys2_build.sh"
 before_install:
   - eval "${MATRIX_EVAL}"
 script:  pwd && ./bootstrap.sh && ./autogen.sh --prefix=$PWD/install && make && make check && make install && bash .travis-ghpages.sh || cat config.log
@@ -43,13 +21,3 @@ notifications:
       - radarsat1@gmail.com
     on_success: never
     on_failure: change
-deploy:
-  provider: pages
-  skip-cleanup: true
-  github-token: $GITHUB_TOKEN
-  keep-history: false
-  on:
-    branch: travis
-  local-dir: pages
-  target-branch: gh-pages
-  verbose: true
