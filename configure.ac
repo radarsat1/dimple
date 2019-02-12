@@ -144,17 +144,10 @@ esac
 # just uses previous value and fails.
 
 # pthread
-AX_PTHREAD(
-  [CPPFLAGS="$CPPFLAGS $PTHREAD_CFLAGS"
-  LDFLAGS="$LDFLAGS $PTHREAD_CFLAGS"
-  LIBS="$PTHREAD_LIBS $LIBS"],
-  [LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/pthreads-w32-2-8-0-release"
-  unset ac_cv_lib_pthread_pthread_create
-  AC_CHECK_LIB(pthread, [pthread_create],
-    [CPPFLAGS="$CPPFLAGS -DPTW32_STATIC_LIB"
-    LIBS="-lpthread $LIBS"],
-    [AC_MSG_ERROR([Couldn't find pthread library.])],
-    [-lws2_32])])
+m4_ifdef([AX_PTHREAD],[AX_PTHREAD(
+  [CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
+   LIBS="$LIBS $PTHREAD_LIBS"])],
+  [AC_CHECK_LIB(pthread, [pthread_create])])
 
 # CHAI 3D
 CHAI_DIR=${abs_srcdir}/libdeps/chai3d-3.2.0
