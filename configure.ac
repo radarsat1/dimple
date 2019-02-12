@@ -41,21 +41,32 @@ AC_C_CONST
 AC_TYPE_SIZE_T
 
 # Some simple configurations depending purely on known target systems
+CHAI_ARCH="`uname -m`"
 case "$target" in
   *-*-darwin* )
-     SYSTEM_LIBS="$SYSTEM_LIBS -framework OpenGL -framework GLUT"
-     CHAI_OS=mac # to be tested
-     CHAI_CC=clang
+     LIBS="$LIBS -framework OpenGL -framework GLUT -framework CoreAudio"
+     LIBS="$LIBS -framework CoreFoundation -framework CoreServices -framework IOKit"
+     LIBS="$LIBS -framework AudioUnit -framework AudioToolbox"
+     CHAI_OS=mac
+     if test -z "${CC}"; then
+       CHAI_CC=clang;
+     else
+       CHAI_CC="${CC}";
+     fi
   ;;
   *-*-linux* )
      CHAI_OS=lin
-     CHAI_CC=cc
+     if test -z "${CC}"; then
+       CHAI_CC=cc;
+     else
+       CHAI_CC="${CC}";
+     fi
   ;;
   *-*-mingw* )
      CHAI_OS="mingw" # to be tested
   ;;
 esac
-CHAI_SUFFIX="${CHAI_OS}-`uname -m`-${CHAI_CC}"
+CHAI_SUFFIX="${CHAI_OS}-${CHAI_ARCH}-${CHAI_CC}"
 
 # Check for OpenGL-related libraries
 # (Skip this test on darwin)
@@ -74,7 +85,7 @@ AC_CHECK_HEADER([/System/Library/Frameworks/OpenGL.framework/Headers/gl.h],
     fi
    fi
    CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/GL"
-   LDFLAGS="$LDFLAGS -framework OpenGL"],
+   LIBS="$LIBS -framework OpenGL"],
   [AC_MSG_ERROR([Couldn't find OpenGL framework.])])
 
 AC_CHECK_HEADER([GL/gl.h], [],
@@ -92,7 +103,7 @@ AC_CHECK_HEADER([/System/Library/Frameworks/GLUT.framework/Headers/glut.h],
     fi
    fi
    CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/GLUT"
-   LDFLAGS="$LDFLAGS -framework GLUT"],
+   LIBS="$LIBS -framework GLUT"],
   [AC_MSG_ERROR([Couldn't find GLUT framework.])])
 
 AC_CHECK_HEADER([GL/glut.h], [],
@@ -179,9 +190,13 @@ if test -f /usr/include/HL/hl.h; then
   LIBS="$LIBS -lHD -lHL"
 fi
 # In case CHAI is using DHD
-if test -f ${CHAI_DIR}/external/DHD/lib/${CHAI_OS}-x86_64/libdrd.a; then
-  LDFLAGS="$LDFLAGS -L${CHAI_DIR}/external/DHD/lib/${CHAI_OS}-x86_64"
-  AC_CHECK_LIB([usb-1.0], [libusb_init])
+if test -f ${CHAI_DIR}/external/DHD/lib/${CHAI_OS}-${CHAI_ARCH}/libdrd.a; then
+  LDFLAGS="$LDFLAGS -L${CHAI_DIR}/external/DHD/lib/${CHAI_OS}-${CHAI_ARCH}"
+  if test -e /usr/local/opt/libusb/lib/libusb-1.0.a; then
+    LIBS="$LIBS /usr/local/opt/libusb/lib/libusb-1.0.a"
+  else
+    AC_CHECK_LIB([usb-1.0], [libusb_init])
+  fi
   AC_CHECK_LIB([drd], [dhdOpenID])
   # TODO: compile small chai program that instantiates a haptic
   # device, check what libraries it requires
