@@ -244,33 +244,6 @@ AC_CHECK_LIB(lo, [lo_server_new], [],
     AC_CHECK_LIB(lo, [lo_server_new], [],
       AC_MSG_ERROR([Couldn't find liblo library.]))])])
 
-# check if libnifalcon is available: if so, link to it
-if test x${ac_cv_prog_pkgconfig} == xyes
-then
-  save_LIBS="$LIBS"
-  LIBS="$save_LIBS `pkg-config --libs libnifalcon`"
-  AC_CHECK_LIB(nifalcon, [main], [],
-    [LIBS="$save_LIBS"
-    unset ac_cv_lib_nifalcon_main
-    AC_CHECK_LIB(nifalcon, [main], [],
-      [LIBS="$save_LIBS -L${prefix}/lib"
-      unset ac_cv_lib_nifalcon_main
-      AC_CHECK_LIB(nifalcon, [main], [], [])])])
-
-  AC_CHECK_LIB(nifalcon_comm_libftdi, [main], [], [])
-  AC_CHECK_LIB(nifalcon_comm_libusb, [main], [], [])
-
-  case "$target" in
-    *-*-darwin* )
-    if test x${ac_cv_lib_nifalcon_main} = xyes; then
-      LIBS="$LIBS -framework IOKit -framework AppKit"
-    fi
-    ;;
-  esac
-else
-  AC_MSG_WARN([No pkg-config found, so skipping check for libnifalcon.])
-fi
-
 # check for options
 
 # debug mode (also checks for DIMPLE_DEBUG environment variable)
