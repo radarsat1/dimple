@@ -10,6 +10,10 @@ which zip
 which unzip
 which cmake
 which patch
+echo == /c/ProgramData/chocolatey/bin && ls /c/ProgramData/chocolatey/bin
+echo == /c/ProgramData/chocolatey/lib/mingw/tools/install && ls /c/ProgramData/chocolatey/lib/mingw/tools/install
+echo == /c/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/bin && ls /c/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/bin
+echo == /c/ && ls /c/
 choco install msys2
-ls /c/
+echo == /c/ && ls /c/
 exit 1
