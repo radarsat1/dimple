@@ -130,15 +130,13 @@ First, execute "bootstrap.sh", like so:
 
     ./bootstrap.sh
 
-On Windows, DIMPLE now requires the *msysGit* environment.  This can
-be installed most easily by visiting the [web site][].
-
-[web site]: http://code.google.com/p/msysgit/
+On Windows, DIMPLE now requires the *MSYS2* environment.  This can
+be installed most easily by visiting the [web site](https://www.msys2.org).
 
 Make sure to install the C++ compiler (g++), and the OpenGL API.
-"curl" is also needed for the bootstrap to work.  The bootstrap script
-downloads & compiles libraries upon which DIMPLE depends.  It also
-patches them in certain ways when it is necessary.
+`curl` or `wget` is also needed for the bootstrap to work.  The
+bootstrap script downloads & compiles libraries upon which DIMPLE
+depends.  It also patches them in certain ways when it is necessary.
 
 If boostrap is successful, continue with compiling DIMPLE.  If you run
 into errors, you'll have to manually make sure the dependencies
