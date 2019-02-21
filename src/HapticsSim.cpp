@@ -395,6 +395,7 @@ OscPrismCHAI::OscPrismCHAI(cWorld *world, const char *name, OscBase *parent)
     m_pPrism = new cMesh();
     createPrism();
     m_pPrism->computeBoundaryBox();
+    m_pPrism->m_material->setBlueLight();
 
     world->addChild(m_pPrism);
     m_pPrism->computeGlobalPositions();
