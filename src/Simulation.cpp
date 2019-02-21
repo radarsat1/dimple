@@ -1031,6 +1031,8 @@ Simulation::SimulationType Simulation::str_type(const char *type)
 
 void Simulation::on_clear()
 {
+    on_drop();
+
     object_iterator it = world_objects.begin();
     while (it != world_objects.end())
     {

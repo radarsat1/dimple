@@ -299,9 +299,7 @@ void HapticsSim::findContactObject()
 
 void HapticsSim::set_grabbed(OscObject *pGrabbed)
 {
-    Simulation::set_grabbed(pGrabbed);
-
-    CHAIObject *ob;
+    CHAIObject *ob = NULL;
 
     // return previous object to normal state
     if (m_pGrabbedObject) {
@@ -309,9 +307,10 @@ void HapticsSim::set_grabbed(OscObject *pGrabbed)
         if (ob) ob->chai_object()->setHapticEnabled(true, true);
     }
 
-    m_pGrabbedObject = pGrabbed;
+    Simulation::set_grabbed(pGrabbed);
 
     // remove new object from haptic contact
+    ob = NULL;
     if (m_pGrabbedObject) {
         ob = dynamic_cast<CHAIObject*>(m_pGrabbedObject->special());
         if (ob) ob->chai_object()->setHapticEnabled(false, true);
