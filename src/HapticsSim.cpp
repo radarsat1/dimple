@@ -532,7 +532,7 @@ void OscCursorCHAI::initializeWithDevice(cWorld *world, cGenericHapticDevicePtr 
     m_pCursor->m_userData = this;
 
     m_pCursor->setWorkspaceRadius(1.0);
-    m_pCursor->setRadius(0.1);
+    m_pCursor->setRadius(0.01);
 
     m_pCursor->setWaitForSmallForce(true);
 
