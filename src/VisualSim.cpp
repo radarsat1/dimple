@@ -346,7 +346,8 @@ void VisualSim::on_clear()
     object_iterator it = world_objects.begin();
     while (it != world_objects.end())
     {
-        if (it->second->name() == "cursor")
+        if (it->second->name() == "cursor"
+            || it->second->name() == "device")
             it++;
         else {
             it->second->on_destroy();
