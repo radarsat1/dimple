@@ -244,6 +244,16 @@ int main(int argc, char* argv[])
      interface.add_receiver( haptics, sim_spec.haptics, Simulation::ST_HAPTICS, true );
      interface.add_receiver( visual,  sim_spec.visual,  Simulation::ST_VISUAL,  true );
 
+     lo_send(interface.addr(), "/world/prism/create", "sfff", "box1", 0.2f, 0.0f, 0.0f);
+     lo_send(interface.addr(), "/world/box1/size", "fff", 0.1f, 0.1f, 0.1f);
+     lo_send(interface.addr(), "/world/hinge/create", "sssffffff",
+             "box1hinge", "world", "box1",
+             0.2f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+     lo_send(interface.addr(), "/world/prism/create", "sfff", "box2", -0.2f, 0.0f, 0.0f);
+     lo_send(interface.addr(), "/world/box2/size", "fff", 0.07f, 0.07f, 0.07f);
+     lo_send(interface.addr(), "/world/prism/create", "sfff", "box3", 0.0f, 0.25f, 0.0f);
+     lo_send(interface.addr(), "/world/box3/size", "fff", 0.05f, 0.05f, 0.05f);
+
      // Start all simulations
      bool rc = true;
      if (physics) rc &= physics->start();
