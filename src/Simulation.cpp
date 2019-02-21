@@ -607,7 +607,7 @@ Simulation::Simulation(const char *port, int type)
     m_gravity.setSetCallback(set_gravity, this);
     m_scale.setSetCallback(set_scale, this);
 
-    m_scale.setd(1,1,1);
+    m_scale.setValue(1,1,1);
 }
 
 Simulation::~Simulation()

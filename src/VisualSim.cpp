@@ -29,7 +29,7 @@ bool VisualPrismFactory::create(const char *name, float x, float y, float z)
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
-    obj->m_position.setd(x, y, z);
+    obj->m_position.setValue(x, y, z);
 
     return true;
 }
@@ -42,7 +42,7 @@ bool VisualSphereFactory::create(const char *name, float x, float y, float z)
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
-    obj->m_position.setd(x, y, z);
+    obj->m_position.setValue(x, y, z);
 
     return true;
 }
@@ -65,7 +65,7 @@ bool VisualMeshFactory::create(const char *name, const char *filename,
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
-    obj->m_position.setd(x, y, z);
+    obj->m_position.setValue(x, y, z);
 
     return true;
 }
@@ -102,7 +102,7 @@ bool VisualVirtdevFactory::create(const char *name, float x, float y, float z)
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
-    obj->m_position.setd(x, y, z);
+    obj->m_position.setValue(x, y, z);
 
     return true;
 }
@@ -623,7 +623,7 @@ void VisualSim::mouseMotion(int x, int y)
         cQuaternion qpl(0, pl.x(), pl.y(), pl.z());
         qpl = q * qpl * qi;
         cVector3d newpos(cVector3d(qpl.x, qpl.y, qpl.z) + lookat);
-        me->m_camera->getPosition().setd(newpos);
+        me->m_camera->getPosition().setValue(newpos);
         }
         else {
             cVector3d& pos = me->m_cameraProj->globalPos;
@@ -643,7 +643,7 @@ void VisualSim::mouseMotion(int x, int y)
             cVector3d newvec(sin(theta1)*cos(phi1), sin(theta1)*sin(phi1), cos(theta1));
             newvec *= radius1;
 
-            me->m_camera->getPosition().setd(lookat + newvec);
+            me->m_camera->getPosition().setValue(lookat + newvec);
         }
     }
 
@@ -696,9 +696,9 @@ OscCameraCHAI::OscCameraCHAI(cWorld *world, const char *name, OscBase *parent)
 
     // position a camera such that X increases to the right, Y
     // increases into the screen, and Z is up.
-    m_position.setd(0.0, -1.0, 0.0);
-    m_lookat.setd(0.0, 0.0, 0.0);
-    m_up.setd(0.0, 0.0, 1.0);
+    m_position.setValue(0.0, -1.0, 0.0);
+    m_lookat.setValue(0.0, 0.0, 0.0);
+    m_up.setValue(0.0, 0.0, 1.0);
 
     m_pCamera->set(m_position, m_lookat, m_up);
 

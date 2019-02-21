@@ -14,7 +14,7 @@ bool InterfacePrismFactory::create(const char *name, float x, float y, float z)
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
-    obj->m_position.setd(x, y, z);
+    obj->m_position.setValue(x, y, z);
     obj->traceOn();
 
     simulation()->send(0, "/world/prism/create", "sfff", name, x, y, z);
@@ -29,7 +29,7 @@ bool InterfaceSphereFactory::create(const char *name, float x, float y, float z)
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
-    obj->m_position.setd(x, y, z);
+    obj->m_position.setValue(x, y, z);
     obj->traceOn();
 
     simulation()->send(0, "/world/sphere/create", "sfff", name, x, y, z);
@@ -45,7 +45,7 @@ bool InterfaceMeshFactory::create(const char *name, const char *filename,
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
-    obj->m_position.setd(x, y, z);
+    obj->m_position.setValue(x, y, z);
     obj->traceOn();
 
     simulation()->send(0, "/world/mesh/create", "ssfff",

@@ -45,16 +45,16 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     addHandler("grab"       , "i"  , OscObject::grab_handler);
 
     // Set initial physical properties
-    m_accel.setd(0,0,0);
-    m_velocity.setd(0,0,0);
-    m_position.setd(0,0,0);
-    m_force.setd(0,0,0);
-    m_density.set(100);
-    m_visible.set(true);
+    m_accel.setValue(0,0,0);
+    m_velocity.setValue(0,0,0);
+    m_position.setValue(0,0,0);
+    m_force.setValue(0,0,0);
+    m_density.setValue(100);
+    m_visible.setValue(true);
 
     // Sane friction defaults
-    m_friction_static.set(1);
-    m_friction_dynamic.set(0.5);
+    m_friction_static.setValue(1);
+    m_friction_dynamic.setValue(0.5);
 
     // Set callbacks for when values change
     m_position.setSetCallback(set_position, this);

@@ -95,7 +95,7 @@ class OscValue : public OscBase
   public:
     OscValue(const char *name, OscBase *owner);
     virtual ~OscValue();
-    virtual void send() = 0;
+    virtual void send() = 0; //! Send the value to user receiver.
 
     typedef void SetCallback(void*, OscValue&);
     void setSetCallback(SetCallback*c, void*d)
@@ -119,7 +119,10 @@ class OscScalar : public OscValue
 {
   public:
     OscScalar(const char *name, OscBase *owner);
-	void set(double value);
+
+    //! Set the value with or without affecting the simulation.
+	void setValue(double value, bool effect=true);
+
     void send();
 
     double m_value;
@@ -142,7 +145,10 @@ class OscBoolean : public OscValue
 {
   public:
     OscBoolean(const char *name, OscBase *owner);
-	void set(bool value);
+
+    //! Set the value with or without affecting the simulation.
+	void setValue(bool value, bool effect=true);
+
     void send();
 
     bool m_value;
@@ -165,9 +171,14 @@ class OscVector3 : public OscValue, public cVector3d
 {
   public:
     OscVector3(const char *name, OscBase *owner);
-    // avoid shadowing non-virtual cVector3d::set() by naming setd()
-    void setd(double x, double y, double z);
-    void setd(const cVector3d& vec) { setd(vec.x(), vec.y(), vec.z()); }
+
+    //! Set the value with or without affecting the simulation.
+    void setValue(double x, double y, double z, bool effect=true);
+
+    //! Set the value with or without affecting the simulation.
+    void setValue(const cVector3d& vec, bool effect=true)
+        { setValue(vec.x(), vec.y(), vec.z(), effect); }
+
     void send();
 
 	OscScalar m_magnitude;
@@ -191,10 +202,11 @@ class OscMatrix3 : public OscValue, public cMatrix3d
 {
   public:
     OscMatrix3(const char *name, OscBase *owner);
-    // avoid shadowing non-virtual cVector3d::set() by naming setd()
+
+    //! Set the value with or without affecting the simulation.
     void setd(double m00, double m01, double m02,
               double m10, double m11, double m12,
-              double m20, double m21, double m22);
+              double m20, double m21, double m22, bool effect=true);
     void send();
 
     typedef void SetCallback(void*, OscMatrix3&);
@@ -215,8 +227,11 @@ class OscString : public OscValue, public std::string
     OscString(const char *name, OscBase *owner);
     void send();
 
-    void set(const std::string& s);
-    void set(const char* s);
+    //! Set the string with or without affecting the simulation.
+    void setValue(const std::string& s, bool effect=true);
+
+    //! Set the string with or without affecting the simulation.
+    void setValue(const char* s, bool effect=true);
 
     typedef void SetCallback(void*, OscString&);
     void setSetCallback(SetCallback *c, void *d)

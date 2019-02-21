@@ -22,7 +22,7 @@ bool HapticsPrismFactory::create(const char *name, float x, float y, float z)
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
-    obj->m_position.setd(x, y, z);
+    obj->m_position.setValue(x, y, z);
 
     return true;
 }
@@ -35,7 +35,7 @@ bool HapticsSphereFactory::create(const char *name, float x, float y, float z)
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
-    obj->m_position.setd(x, y, z);
+    obj->m_position.setValue(x, y, z);
 
     return true;
 }
@@ -57,7 +57,7 @@ bool HapticsMeshFactory::create(const char *name, const char *filename,
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
-    obj->m_position.setd(x, y, z);
+    obj->m_position.setValue(x, y, z);
 
     return true;
 }
@@ -608,7 +608,7 @@ OscMeshCHAI::OscMeshCHAI(cWorld *world, const char *name, const char *filename,
 
     // size it to 0.1 without changing proportions
     float size = (vmax-vmin).length();
-    m_size.setd(0.1/size, 0.1/size, 0.1/size);
+    m_size.setValue(0.1/size, 0.1/size, 0.1/size);
     on_size();
 
     /* setup collision detector */
@@ -717,7 +717,7 @@ void OscCursorCHAI::initializeWithDevice(cWorld *world, cGenericHapticDevicePtr 
     m_pCursor->computeGlobalPositions();
 
     // set up mass as zero to begin (transparent proxy)
-    m_mass.set(0);
+    m_mass.setValue(0);
 
     // no extra force to begin with
     m_nExtraForceSteps = 0;

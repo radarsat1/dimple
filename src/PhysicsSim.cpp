@@ -13,7 +13,7 @@ bool PhysicsPrismFactory::create(const char *name, float x, float y, float z)
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
-    obj->m_position.setd(x, y, z);
+    obj->m_position.setValue(x, y, z);
 
     return true;
 }
@@ -27,7 +27,7 @@ bool PhysicsSphereFactory::create(const char *name, float x, float y, float z)
     if (!(obj && simulation()->add_object(*obj)))
             return false;
 
-    obj->m_position.setd(x, y, z);
+    obj->m_position.setValue(x, y, z);
 
     return true;
 }
@@ -460,7 +460,7 @@ OscSphereODE::OscSphereODE(dWorldID odeWorld, dSpaceID odeSpace, const char *nam
     dGeomID odeGeom = dCreateSphere(odeSpace, m_radius.m_value);
 
     m_pSpecial = new ODEObject(this, odeGeom, odeWorld, odeSpace);
-    m_density.set(m_density.m_value);
+    m_density.setValue(m_density.m_value);
 }
 
 void OscSphereODE::on_radius()
@@ -506,7 +506,7 @@ OscPrismODE::OscPrismODE(dWorldID odeWorld, dSpaceID odeSpace, const char *name,
     dGeomID odeGeom = dCreateBox(odeSpace, m_size.x(), m_size.y(), m_size.z());
 
     m_pSpecial = new ODEObject(this, odeGeom, odeWorld, odeSpace);
-    m_density.set(m_density.m_value);
+    m_density.setValue(m_density.m_value);
 }
 
 void OscPrismODE::on_size()

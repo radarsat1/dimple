@@ -165,7 +165,7 @@ public:
     OSCSCALAR(OscResponse, offset) {};
 
     OSCMETHOD2(OscResponse, spring)
-        { m_stiffness.set(arg1); m_damping.set(arg2); }
+        { m_stiffness.setValue(arg1); m_damping.setValue(arg2); }
 };
 
 //! This class is used to override behaviour of OscConstraint's values
