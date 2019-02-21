@@ -195,7 +195,9 @@ void HapticsSim::step()
 
     // Set values without feeding back changes to CHAI
     m_cursor->m_position.setValue(pos, false);
+    cVector3d acc = (m_cursor->m_velocity-vel) / timestep();
     m_cursor->m_velocity.setValue(vel, false);
+    m_cursor->m_accel.setValue(acc, false);
 
     if (m_pGrabbedObject) {
         cursor->setDeviceGlobalForce(0,0,0);
