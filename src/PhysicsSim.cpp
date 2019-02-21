@@ -346,11 +346,14 @@ void ODEObject::update()
     OscObject *o = object();
     if (!o) return;
 
-    cVector3d pos(getPosition());
-    cVector3d vel(o->m_position - pos);
-    (o->m_velocity - vel).copyto(o->m_accel);
-    vel.copyto(o->m_velocity);
-    pos.copyto(o->m_position);
+    cVector3d vel(o->m_velocity);
+    float t = object()->simulation()->timestep();
+
+    // Set position & velocity
+    // (without feeding back effect to the simulation)
+    o->m_position.setValue(getPosition(), false);
+    o->m_velocity.setValue(getVelocity(), false);
+    o->m_accel.setValue((vel - o->m_velocity) / t, false);
 }
 
 void ODEObject::on_set_rotation(void *me, OscMatrix3 &r)

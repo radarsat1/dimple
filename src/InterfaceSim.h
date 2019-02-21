@@ -24,6 +24,10 @@
     static void on_get_##o(void *me, OscVector3 &o, int interval){      \
         ((OscBase*)me)->simulation()->sendtotype(t,0,                   \
                                         (o.path()+"/get").c_str(),      \
+                                        (interval>=0)?"i":"", interval);}\
+    static void on_get_##o##_mag(void *me, OscScalar &o, int interval){ \
+        ((OscBase*)me)->simulation()->sendtotype(t,0,                   \
+                                        (o.path()+"/get").c_str(),      \
                                         (interval>=0)?"i":"", interval);}
 #define FWD_OSCMATRIX3(o,t)                                             \
     virtual void on_##o() {                                             \
@@ -254,6 +258,13 @@ public:
             m_friction_dynamic.setGetCallback(on_get_friction_dynamic, this);
             m_visible.setGetCallback(on_get_visible, this);
 
+            // TODO: also forward set handlers for magnitudes
+
+            m_position.m_magnitude.setGetCallback(on_get_position_mag, this);
+            m_velocity.m_magnitude.setGetCallback(on_get_velocity_mag, this);
+            m_accel.m_magnitude.setGetCallback(on_get_accel_mag, this);
+            m_force.m_magnitude.setGetCallback(on_get_force_mag, this);
+
             addHandler("push", "ffffff", OscSphereInterface::push_handler);
         }
     virtual ~OscSphereInterface() {}
@@ -305,6 +316,11 @@ public:
             m_friction_dynamic.setGetCallback(on_get_friction_dynamic, this);
             m_visible.setGetCallback(on_get_visible, this);
 
+            m_position.m_magnitude.setGetCallback(on_get_position_mag, this);
+            m_velocity.m_magnitude.setGetCallback(on_get_velocity_mag, this);
+            m_accel.m_magnitude.setGetCallback(on_get_accel_mag, this);
+            m_force.m_magnitude.setGetCallback(on_get_force_mag, this);
+
             addHandler("push", "ffffff", OscPrismInterface::push_handler);
         }
     virtual ~OscPrismInterface() {}
@@ -354,6 +370,11 @@ public:
             m_force.setGetCallback(on_get_force, this);
             m_size.setGetCallback(on_get_size, this);
             m_visible.setGetCallback(on_get_visible, this);
+
+            m_position.m_magnitude.setGetCallback(on_get_position_mag, this);
+            m_velocity.m_magnitude.setGetCallback(on_get_velocity_mag, this);
+            m_accel.m_magnitude.setGetCallback(on_get_accel_mag, this);
+            m_force.m_magnitude.setGetCallback(on_get_force_mag, this);
 
             addHandler("push", "ffffff", OscMeshInterface::push_handler);
         }
