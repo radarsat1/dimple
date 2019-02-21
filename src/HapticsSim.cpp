@@ -173,6 +173,8 @@ void HapticsSim::updateWorkspace(cVector3d &pos)
 
 void HapticsSim::step()
 {
+    m_chaiWorld->computeGlobalPositions(true);
+
     cToolCursor *cursor = m_cursor->object();
     cursor->updateFromDevice();
 
