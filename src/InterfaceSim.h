@@ -441,6 +441,11 @@ public:
             m_mass.setGetCallback(on_get_mass, this);
             m_density.setGetCallback(on_get_density, this);
             m_visible.setGetCallback(on_get_visible, this);
+
+            m_position.m_magnitude.setGetCallback(on_get_position_mag, this);
+            m_velocity.m_magnitude.setGetCallback(on_get_velocity_mag, this);
+            m_accel.m_magnitude.setGetCallback(on_get_accel_mag, this);
+            m_force.m_magnitude.setGetCallback(on_get_force_mag, this);
         }
     virtual ~OscCursorInterface() {}
 
