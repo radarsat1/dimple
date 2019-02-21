@@ -56,6 +56,8 @@ class HapticsSim : public Simulation
     cWorld* m_chaiWorld;            //! the world in which we will create our environment
     OscCursorCHAI* m_cursor;    //! An OscObject representing the 3D cursor.
     OscHapticsVirtdevCHAI* m_pVirtdev;
+
+    friend OscHapticsVirtdevCHAI;
 };
 
 class HapticsPrismFactory : public PrismFactory

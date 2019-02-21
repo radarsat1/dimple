@@ -666,7 +666,11 @@ OscHapticsVirtdevCHAI::~OscHapticsVirtdevCHAI()
 void OscHapticsVirtdevCHAI::on_set_position(void* _me, OscVector3 &p)
 {
     OscHapticsVirtdevCHAI *me = static_cast<OscHapticsVirtdevCHAI*>(_me);
-    me->m_pVirtdev->setPosition(p);
+
+    // Rotate virtual device position to match cursor.
+    HapticsSim *sim = static_cast<HapticsSim*>(me->simulation());
+    cMatrix3d rot(sim->m_cursor->object()->getLocalRot());
+    me->m_pVirtdev->setPosition(cMul(cInverse(rot), p));
 
     // Update visual representation of virtual device
     // TODO: should be able to throttle this but it leads to stuttering visual updates
