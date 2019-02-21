@@ -33,6 +33,8 @@ class HapticsSim : public Simulation
 
     virtual void on_reset_workspace() { m_resetWorkspace = true; }
 
+    bool m_forceEnabled;
+
   protected:
     virtual void initialize();
     virtual void step();

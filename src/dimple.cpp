@@ -34,6 +34,7 @@ int visual_timestep_ms = (int)((1.0/visual_fps)*1000.0);
 int physics_timestep_ms = 10;
 int haptics_timestep_ms = 1;
 int msg_queue_size = DEFAULT_QUEUE_SIZE*1024;
+bool force_enabled = true;
 const char *interface_port_str = "7774";
 
 static struct {
@@ -66,6 +67,7 @@ void help()
            "             to 7774.  Ports for physics, haptics and visual\n"
            "             simulations are consecutive following this number,\n"
            "             respectively.\n\n");
+    printf("--noforce (-n)  Disable force output to haptic device.\n");
 }
 
 void parse_command_line(int argc, char* argv[])
@@ -80,13 +82,14 @@ void parse_command_line(int argc, char* argv[])
         { "sim",        required_argument, 0, 's' },
         { "port",       required_argument, 0, 'p' },
         { "connect",    required_argument, 0, 'c' },
+        { "noforce",    no_argument,       0, 'n' },
         {0, 0, 0, 0}
     };
 
     while (c!=-1) {
         int option_index = 0;
 
-        c = getopt_long (argc, argv, "hu:q:s:p:",
+        c = getopt_long (argc, argv, "hu:q:s:p:c:n",
                          long_options, &option_index);
 
         switch (c) {
@@ -125,6 +128,9 @@ void parse_command_line(int argc, char* argv[])
             break;
         case 'p':
             interface_port_str = optarg;
+            break;
+        case 'n':
+            force_enabled = false;
             break;
         case 'h':
             help();
@@ -204,6 +210,7 @@ int main(int argc, char* argv[])
      if (strcmp(sim_spec.haptics, "local")==0) {
          snprintf(port_str, 256, "%u", interface_port+2);
          haptics = new HapticsSim(port_str);
+         ((HapticsSim*)haptics)->m_forceEnabled = force_enabled;
      }
 
      if (strcmp(sim_spec.visual, "local")==0) {

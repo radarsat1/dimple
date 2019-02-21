@@ -218,7 +218,8 @@ void HapticsSim::step()
     // Set force value without feeding back changes to CHAI
     m_cursor->m_force.setValue(cursor->getDeviceGlobalForce(), false);
 
-    cursor->applyToDevice();
+    if (m_forceEnabled)
+        cursor->applyToDevice();
 
     m_counter++;
 
