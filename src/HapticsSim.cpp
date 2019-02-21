@@ -102,9 +102,16 @@ void HapticsSim::initialize()
         m_bSelfTimed = false;
 #endif
 
+    // ensure workspace is recalibrated
+    m_resetWorkspace = true;
+    m_learnWorkspace = true;
+
     // quit the haptics simulation if the cursor couldn't be initialized.
     if (!m_cursor->is_initialized())
     {
+        // turn off workspace scaling
+        m_learnWorkspace = false;
+
         // create the corresponding visual cursor
         simulation()->sendtotype(Simulation::ST_VISUAL, false,
                                  "/world/sphere/create","sfff",
@@ -131,9 +138,6 @@ void HapticsSim::initialize()
             m_bDone = true;
     }
 
-    // ensure workspace is recalibrated
-    m_resetWorkspace = true;
-
     // initialize step count
     m_counter = 0;
 
@@ -142,7 +146,7 @@ void HapticsSim::initialize()
     Simulation::initialize();
 }
 
-void HapticsSim::updateWorkspace(cVector3d &pos)
+void HapticsSim::updateWorkspace(cVector3d &pos, cVector3d &vel)
 {
     int i;
     if (m_resetWorkspace) {
@@ -153,10 +157,13 @@ void HapticsSim::updateWorkspace(cVector3d &pos)
 
     for (i=0; i<3; i++) {
         // Update workspace boundaries
-        if (pos(i) < m_workspace[0](i))
-            m_workspace[0](i) = pos(i);
-        if (pos(i) > m_workspace[1](i))
-            m_workspace[1](i) = pos(i);
+        if (m_learnWorkspace)
+        {
+            if (pos(i) < m_workspace[0](i))
+                m_workspace[0](i) = pos(i);
+            if (pos(i) > m_workspace[1](i))
+                m_workspace[1](i) = pos(i);
+        }
 
         float dif = (m_workspace[1](i) - m_workspace[0](i));
         if (dif != 0.0)
@@ -168,6 +175,7 @@ void HapticsSim::updateWorkspace(cVector3d &pos)
         // Normalize position to [-1, 1] within workspace.
         // Further scale by user-specified workspace scaling. (default=1)
         pos(i) = (pos(i) + m_workspaceOffset(i)) * m_workspaceScale(i) * m_scale(i);
+        vel(i) = vel(i) * m_workspaceScale(i) * m_scale(i);
     }
 }
 
@@ -179,11 +187,15 @@ void HapticsSim::step()
     cursor->updateFromDevice();
 
     cVector3d pos = cursor->getDeviceGlobalPos();
-    updateWorkspace(pos);
+    cVector3d vel = cursor->getDeviceGlobalLinVel();
 
+    updateWorkspace(pos, vel);
     cursor->setDeviceGlobalPos(pos);
+    cursor->setDeviceGlobalLinVel(vel);
     pos.copyto(m_cursor->m_position);
-    cursor->getDeviceGlobalLinVel().copyto(m_cursor->m_velocity);
+    m_cursor->m_position.m_magnitude.m_value = pos.length();
+    vel.copyto(m_cursor->m_velocity);
+    m_cursor->m_velocity.m_magnitude.m_value = vel.length();
 
     if (m_pGrabbedObject) {
         cursor->setDeviceGlobalForce(0,0,0);
@@ -214,8 +226,7 @@ void HapticsSim::step()
         /* If in contact with an object, display the cursor at the
          * proxy location instead of the device location, so that it
          * does not show it penetrating the object. */
-        cursor->updateToolImagePosition();
-        pos = cursor->m_image->getLocalPos();
+        pos = cursor->m_image->getGlobalPos();
 
         /* It appears that non-penetrating tool position is not
          * correctly displayed for potential force algo used with

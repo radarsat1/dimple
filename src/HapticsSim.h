@@ -38,7 +38,7 @@ class HapticsSim : public Simulation
     virtual void step();
 
     void findContactObject();
-    void updateWorkspace(cVector3d &pos);
+    void updateWorkspace(cVector3d &pos, cVector3d &vel);
 
     OscObject *m_pContactObject;
     cVector3d m_lastContactPoint;
@@ -48,6 +48,7 @@ class HapticsSim : public Simulation
     cVector3d m_workspaceScale;
     cVector3d m_workspaceOffset;
     bool m_resetWorkspace;
+    bool m_learnWorkspace;
 
     //! A step counter
     int m_counter;
