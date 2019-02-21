@@ -85,6 +85,8 @@ class InterfaceSim : public Simulation
 
     virtual void on_add_receiver(const char *type);
 
+    FWD_OSCVECTOR3(scale, Simulation::ST_HAPTICS);
+
   protected:
     OscCameraInterface *m_camera;
     OscCursorInterface *m_cursor;

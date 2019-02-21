@@ -605,8 +605,9 @@ Simulation::Simulation(const char *port, int type)
 
     m_collide.setSetCallback(set_collide, this);
     m_gravity.setSetCallback(set_gravity, this);
+    m_scale.setSetCallback(set_scale, this);
 
-    m_scale.set(1,1,1);
+    m_scale.setd(1,1,1);
 }
 
 Simulation::~Simulation()
@@ -625,6 +626,8 @@ Simulation::~Simulation()
     m_collide.m_server = 0;
     m_gravity.m_server = 0;
     m_gravity.m_magnitude.m_server = 0;
+    m_scale.m_server = 0;
+    m_scale.m_magnitude.m_server = 0;
 }
 
 void Simulation::add_receiver(Simulation *sim, const char *spec,
