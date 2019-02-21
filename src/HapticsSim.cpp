@@ -452,7 +452,8 @@ OscMeshCHAI::OscMeshCHAI(cWorld *world, const char *name, const char *filename,
     // during object contact.
     m_pMesh->m_userData = this;
 
-    m_pMesh->createEffectSurface();
+    // We do not call createEffectSurface() for cMesh since
+    // finger-proxy algorithm is engaged.
     m_pMesh->m_material->setStiffness(g_maxStiffnessRatio
                                       * g_hapticDeviceInfo.m_maxLinearStiffness);
 
