@@ -70,6 +70,77 @@ bool VisualMeshFactory::create(const char *name, const char *filename,
     return true;
 }
 
+int VisualVirtdevFactory::create_handler(const char *path, const char *types, lo_arg **argv,
+                                         int argc, void *data, void *user_data)
+{
+    VisualVirtdevFactory *me = static_cast<VisualVirtdevFactory*>(user_data);
+
+    // Optional position, default (0,0,0)
+    cVector3d pos;
+    if (argc>0)
+        pos.x(argv[1]->f);
+    if (argc>1)
+        pos.y(argv[2]->f);
+    if (argc>2)
+        pos.z(argv[3]->f);
+
+    OscObject *o = me->simulation()->find_object(&argv[0]->s);
+    if (o)
+        printf("[%s] Already an object named %s\n",
+               me->simulation()->type_str(), &argv[0]->s);
+    else
+        if (!me->create(&argv[0]->s, pos.x(), pos.y(), pos.z()))
+            printf("[%s] Error creating sphere '%s'.\n",
+                   me->simulation()->type_str(), &argv[0]->s);
+}
+
+bool VisualVirtdevFactory::create(const char *name, float x, float y, float z)
+{
+    OscVisualVirtdevCHAI *obj = new OscVisualVirtdevCHAI(simulation()->world(),
+                                             name, m_parent);
+
+    if (!(obj && simulation()->add_object(*obj)))
+            return false;
+
+    obj->m_position.setd(x, y, z);
+
+    return true;
+}
+
+VisualVirtdevFactory::VisualVirtdevFactory(Simulation *parent)
+    : ShapeFactory("virtdev", parent)
+{
+    // Name, Width, Height, Depth
+    addHandler("create", "sfff", create_handler);
+}
+
+OscVisualVirtdevCHAI::OscVisualVirtdevCHAI(cWorld *world, const char *name, OscBase *parent)
+    : OscSphereCHAI(world, name, parent)
+{
+    // Create handles for manipulating virtual device in specific planes
+    m_pHandleXY = new cShapeBox(0.1,0.1,0.001);
+    m_pHandleXY->setLocalTransform(cTransform(cVector3d(0.05, 0.05, 0)));
+    m_pHandleXY->m_material->setRed();
+    m_pHandleXY->setWireMode(true, false);
+    m_pSphere->addChild(m_pHandleXY);
+
+    m_pHandleXZ = new cShapeBox(0.1,0.001,0.1);
+    m_pHandleXZ->setLocalTransform(cTransform(cVector3d(-0.05, 0, -0.05)));
+    m_pHandleXZ->m_material->setRed();
+    m_pHandleXZ->setWireMode(true, false);
+    m_pSphere->addChild(m_pHandleXZ);
+
+    m_pSphere->deleteEffectSurface();
+    m_color.set(1,0,0);
+    m_pSphere->m_material->setRed();
+
+    m_pSpecial = new CHAIObject(this, m_pSphere, world);
+}
+
+OscVisualVirtdevCHAI::~OscVisualVirtdevCHAI()
+{
+}
+
 /* This struct is used to freeze camera transform during mouse interaction */
 struct VisualSim::CameraProjection {
     cVector3d globalPos;
@@ -99,6 +170,7 @@ VisualSim::VisualSim(const char *port)
     m_pPrismFactory = new VisualPrismFactory(this);
     m_pSphereFactory = new VisualSphereFactory(this);
     m_pMeshFactory = new VisualMeshFactory(this);
+    m_pVirtdevFactory = new VisualVirtdevFactory(this);
 
     m_fTimestep = visual_timestep_ms/1000.0;
     printf("CHAI/GLUT timestep: %f\n", m_fTimestep);
@@ -455,6 +527,9 @@ void VisualSim::mouseClick(int button, int state, int x, int y)
         cCollisionRecorder recorder;
         cCollisionSettings settings;
         settings.m_checkForNearestCollisionOnly = true;
+        settings.m_checkVisibleObjects = true;
+        settings.m_checkHapticObjects = true;
+        settings.m_ignoreShapes = false;
 
         // update my m_globalPos and m_globalRot variables
         me->m_chaiWorld->computeGlobalPositions(false);
@@ -463,8 +538,18 @@ void VisualSim::mouseClick(int button, int state, int x, int y)
         bool hit = me->m_camera->object()->
             selectWorld(x, me->m_nHeight-y, me->m_nWidth, me->m_nHeight, recorder, settings);
         OscObject *obj = nullptr;
-        if (hit)
-            obj = (OscObject*)recorder.m_nearestCollision.m_object->m_userData;
+        if (hit && recorder.m_nearestCollision.m_object)
+        {
+            me->m_selectionPlane = 0;
+            OscVisualVirtdevCHAI* vdev = dynamic_cast<OscVisualVirtdevCHAI*>(me->world_objects["device"]);
+            if (vdev)
+                me->m_selectionPlane = vdev->getSelectionPlane(
+                    recorder.m_nearestCollision.m_object);
+            if (me->m_selectionPlane > 0)
+                obj = vdev;
+            else
+                obj = (OscObject*)recorder.m_nearestCollision.m_object->m_userData;
+        }
         else
             obj = (OscObject*)me->m_camera; // dangerous but we'll be careful
 
@@ -489,6 +574,16 @@ void VisualSim::mouseClick(int button, int state, int x, int y)
     }
     else if (state == GLUT_UP)
         me->m_selectedObject = NULL;
+}
+
+int OscVisualVirtdevCHAI::getSelectionPlane(cGenericObject *obj)
+{
+    if (obj == m_pHandleXY)
+        return 1;
+    else if (obj == m_pHandleXZ)
+        return 2;
+    else
+        return 0;
 }
 
 void VisualSim::mouseMotion(int x, int y)
@@ -554,12 +649,38 @@ void VisualSim::mouseMotion(int x, int y)
 
     else // object, not camera
     {
-        const cVector3d pos = me->m_cameraProj->projectOnWindowRay(
-            me->m_selectedObject->getPosition(), x, me->m_nHeight-y) + me->m_selectionOffset;
+        cVector3d pos;
+        cVector3d planeNormal(0,1,0);
+        switch (me->m_selectionPlane)
+        {
+        case 0:
+            pos = me->m_cameraProj->projectOnWindowRay(
+                me->m_selectedObject->getPosition(), x, me->m_nHeight-y) + me->m_selectionOffset;
+            break;
+        case 1: // XY
+            planeNormal.set(0,0,1);
+        case 2: { // XZ
+            cVector3d planePos = me->m_selectedObject->getPosition() - me->m_selectionOffset;
+            cCamera *cam = me->m_camera->object();
+            double distCam = (me->m_nHeight / 2.0f)
+                / cTanDeg(cam->getFieldViewAngleDeg() / 2.0f);
+            cVector3d selectRay(-distCam,
+                                (x - (me->m_nWidth / 2.0f)),
+                                (me->m_nHeight-y - (me->m_nHeight / 2.0f)));
+            selectRay.normalize();
+            selectRay = cMul(cam->getGlobalRot(), selectRay);
+            cVector3d segA = cam->getGlobalPos();
+            cVector3d segB = segA+selectRay*1000;
+            cVector3d colNormal;
+            cIntersectionSegmentPlane(segA, segB, planePos, planeNormal, pos, colNormal);
+            pos += me->m_selectionOffset;
+            break;
+        }
+        }
 
         char msg[256];
         sprintf(msg, "%s/position", me->m_selectedObject->c_path());
-        lo_send(me->addr(), msg, "fff", pos.x(), pos.y(), pos.z());
+        me->sendtotype(Simulation::ST_HAPTICS, true, msg, "fff", pos.x(), pos.y(), pos.z());
     }
 }
 

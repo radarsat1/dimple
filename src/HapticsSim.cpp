@@ -104,8 +104,6 @@ void HapticsSim::initialize()
 
     // quit the haptics simulation if the cursor couldn't be initialized.
     if (!m_cursor->is_initialized())
-        m_bDone = true;
-    else
     {
         // create the corresponding visual cursor
         simulation()->sendtotype(Simulation::ST_VISUAL, false,
@@ -114,6 +112,23 @@ void HapticsSim::initialize()
         simulation()->sendtotype(Simulation::ST_VISUAL, false,
                                  "/world/cursor/color","fff",
                                  1.0, 1.0, 0.0);
+
+        // Create a virtual device named "device"
+        simulation()->sendtotype(Simulation::ST_VISUAL, false,
+                                 "/world/virtdev/create","sfff",
+                                 "device", 0.0, 0.0, 0.0);
+        simulation()->sendtotype(Simulation::ST_VISUAL, false,
+                                 "/world/virtdev/color","fff",
+                                 1.0, 0.0, 0.0);
+
+        // Create a local object to accept messages from the virtual device
+        m_pVirtdev = new OscHapticsVirtdevCHAI(m_chaiWorld, "device", this);
+
+        // Hook it up to the cursor
+        m_cursor->initializeWithDevice(m_chaiWorld, m_pVirtdev->object());
+
+        if (!m_cursor->is_initialized())
+            m_bDone = true;
     }
 
     // ensure workspace is recalibrated
@@ -197,7 +212,20 @@ void HapticsSim::step()
         /* If in contact with an object, display the cursor at the
          * proxy location instead of the device location, so that it
          * does not show it penetrating the object. */
-        pos = cursor->m_hapticPoint->getGlobalPosProxy();
+        cursor->updateToolImagePosition();
+        pos = cursor->m_image->getLocalPos();
+
+        /* It appears that non-penetrating tool position is not
+         * correctly displayed for potential force algo used with
+         * shape primitives, since there is no "proxy".  Instead, we
+         * wills how the interaction point. Note that it also does not
+         * seem to take into account the haptic point radius. */
+        if (cursor->m_hapticPoint->getNumInteractionEvents() > 0)
+        {
+            const auto& inter = *cursor->m_hapticPoint->getInteractionEvent(0);
+            pos = inter.m_object->getGlobalPos() + cMul(inter.m_object->getGlobalRot(),
+                                                        inter.m_localSurfacePos);
+        }
 
         sendtotype(update_sim, true,
                    "/world/cursor/position","fff",
@@ -459,28 +487,42 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
     // get handle to first available haptic device on the list
     cGenericHapticDevicePtr device;
 
-    if (handler->getDevice(device, 0) && device->open()) {
-        m_bInitialized = true;
-    } else {
-        m_bInitialized = false;
+    m_bInitialized = false;
+    m_pCursor = nullptr;
+    if (handler->getDevice(device, 0))
+        initializeWithDevice(world, device);
+
+    if (!m_bInitialized)
         printf("[%s] Could not initialize.\n", simulation()->type_str());
+}
+
+void OscCursorCHAI::initializeWithDevice(cWorld *world, cGenericHapticDevicePtr device)
+{
+    if (!device->open())
+    {
+        m_bInitialized = false;
+        return;
     }
+
+    m_bInitialized = true;
 
     device->calibrate();
 
     // create the cursor object
+    if (m_pCursor) {
+        world->removeChild(m_pCursor);
+        delete m_pCursor;
+    }
     m_pCursor = new cToolCursor(world);
 
-    if (m_bInitialized)
-    {
-        m_pCursor->setHapticDevice(device);
-        world->addChild(m_pCursor);
+    m_pCursor->setHapticDevice(device);
+    world->addChild(m_pCursor);
 
-        printf("[%s] Using %s device.\n",
-               simulation()->type_str(), device_str());
+    printf("[%s] Using %s device.\n",
+           simulation()->type_str(), device_str());
 
-        // TODO: right way to pass this around
-        g_hapticDeviceInfo = device->getSpecifications();
+    // TODO: right way to pass this around
+    g_hapticDeviceInfo = device->getSpecifications();
 
     // User data points to the OscObject, used for identification
     // during object contact.
@@ -501,7 +543,6 @@ OscCursorCHAI::OscCursorCHAI(cWorld *world, const char *name, OscBase *parent)
 
     // this is necessary for the above rotation to take effect
     m_pCursor->computeGlobalPositions();
-    }
 
     // set up mass as zero to begin (transparent proxy)
     m_mass.set(0);
@@ -595,4 +636,26 @@ void OscCursorCHAI::addCursorExtraForce()
         m_pCursor->addDeviceGlobalForce(m_extraForce);
         m_nExtraForceSteps--;
     }
+}
+
+OscHapticsVirtdevCHAI::OscHapticsVirtdevCHAI(cWorld *world, const char *name, OscBase *parent)
+    : OscSphereCHAI(world, name, parent)
+{
+    m_pVirtdev = std::make_shared<cVirtualDevice>();
+    m_position.setSetCallback(OscHapticsVirtdevCHAI::on_set_position, this);
+}
+
+OscHapticsVirtdevCHAI::~OscHapticsVirtdevCHAI()
+{
+}
+
+void OscHapticsVirtdevCHAI::on_set_position(void* _me, OscVector3 &p)
+{
+    OscHapticsVirtdevCHAI *me = static_cast<OscHapticsVirtdevCHAI*>(_me);
+    me->m_pVirtdev->setPosition(p);
+
+    // Update visual representation of virtual device
+    // TODO: should be able to throttle this but it leads to stuttering visual updates
+    me->simulation()->sendtotype(Simulation::ST_VISUAL, false, "/world/device/position", "fff",
+                                 me->m_position.x(), me->m_position.y(), me->m_position.z());
 }

@@ -11,6 +11,7 @@
 #include <lighting/CSpotLight.h>
 
 class OscCameraCHAI;
+class VisualVirtdevFactory;
 
 class VisualSim : public Simulation
 {
@@ -56,8 +57,10 @@ class VisualSim : public Simulation
 
     OscObject *m_selectedObject;
     cVector3d m_selectionOffset;
+    int m_selectionPlane;
     struct CameraProjection;
     CameraProjection *m_cameraProj;
+    VisualVirtdevFactory *m_pVirtdevFactory;
 
     bool m_bFullScreen;
 };
@@ -99,6 +102,22 @@ protected:
                 float x, float y, float z);
 };
 
+class VisualVirtdevFactory : public ShapeFactory
+{
+public:
+    VisualVirtdevFactory(Simulation *parent);
+    virtual ~VisualVirtdevFactory() {}
+
+    virtual VisualSim* simulation() { return static_cast<VisualSim*>(m_parent); }
+
+protected:
+    // message handlers
+    static int create_handler(const char *path, const char *types, lo_arg **argv,
+                              int argc, void *data, void *user_data);
+
+    bool create(const char *name, float x, float y, float z);
+};
+
 class OscCameraCHAI : public OscCamera
 {
 public:
@@ -113,6 +132,27 @@ public:
 
 protected:
     cCamera *m_pCamera;
+};
+
+class OscVisualVirtdevCHAI : public OscSphereCHAI
+{
+public:
+    OscVisualVirtdevCHAI(cWorld *world, const char *name, OscBase *parent=NULL);
+    virtual ~OscVisualVirtdevCHAI();
+
+    cShapeSphere *object() { return m_pSphere; }
+
+    //! Return an integer indicate which plane obj corresponds to, or 0 if none.
+    int getSelectionPlane(cGenericObject *obj);
+
+protected:
+    // virtual void on_radius();
+
+    virtual void on_color()
+        { object()->m_material->m_diffuse.set(m_color.x(), m_color.y(), m_color.z()); }
+
+    cGenericObject *m_pHandleXY;     //! virtual device handle for XY plane
+    cGenericObject *m_pHandleXZ;     //! virtual device handle for XZ plane
 };
 
 #endif // _VISUAL_SIM_H_
