@@ -244,6 +244,7 @@ public:
 
 protected:
     OSCSCALAR(OscHinge, torque) {};
+    OSCSCALAR(OscHinge, angle) {};
 };
 
 class OscHinge2 : public OscConstraint
@@ -260,6 +261,8 @@ public:
 protected:
     OSCSCALAR(OscHinge2, torque1) {};
     OSCSCALAR(OscHinge2, torque2) {};
+    OSCSCALAR(OscHinge2, angle1) {};
+    OSCSCALAR(OscHinge2, angle2) {};
 };
 
 class OscUniversal : public OscConstraint
@@ -276,6 +279,8 @@ public:
 protected:
     OSCSCALAR(OscUniversal, torque1) {};
     OSCSCALAR(OscUniversal, torque2) {};
+    OSCSCALAR(OscUniversal, angle1) {};
+    OSCSCALAR(OscUniversal, angle2) {};
 };
 
 class OscFixed : public OscConstraint
@@ -314,6 +319,7 @@ public:
 
 protected:
     OSCSCALAR(OscSlide, force) {};
+    OSCSCALAR(OscSlide, position) {};
 };
 
 class OscPiston : public OscConstraint
@@ -327,6 +333,11 @@ public:
 
 protected:
     OSCSCALAR(OscPiston, force) {};
+    OSCSCALAR(OscPiston, position) {};
+
+    // TODO
+    // OSCSCALAR(OscPiston, torque) {};
+    // OSCSCALAR(OscPiston, angle) {};
 };
 
 #endif // _OSC_OBJECT_H_

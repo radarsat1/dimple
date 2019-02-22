@@ -249,7 +249,7 @@ OscHinge::OscHinge(const char *name, OscBase* parent,
                    OscObject *object1, OscObject *object2,
                    double x, double y, double z, double ax, double ay, double az)
     : OscConstraint(name, parent, object1, object2),
-      m_torque("torque", this)
+      m_torque("torque", this), m_angle("angle", this)
 {
     m_torque.setSetCallback(set_torque, this);
 }
@@ -261,7 +261,8 @@ OscHinge2::OscHinge2(const char *name, OscBase *parent,
                      double ax, double ay, double az,
                      double bx, double by, double bz)
     : OscConstraint(name, parent, object1, object2),
-      m_torque1("torque1", this), m_torque2("torque2", this)
+      m_torque1("torque1", this), m_torque2("torque2", this),
+      m_angle1("angle1", this), m_angle2("angle2", this)
 {
     m_torque1.setSetCallback(set_torque1, this);
     m_torque2.setSetCallback(set_torque2, this);
@@ -284,7 +285,8 @@ OscUniversal::OscUniversal(const char *name, OscBase *parent,
                            double a1x, double a1y, double a1z,
                            double a2x, double a2y, double a2z)
     : OscConstraint(name, parent, object1, object2),
-      m_torque1("torque1", this), m_torque2("torque2", this)
+      m_torque1("torque1", this), m_torque2("torque2", this),
+      m_angle1("angle1", this), m_angle2("angle2", this)
 {
     m_torque1.setSetCallback(set_torque1, this);
     m_torque2.setSetCallback(set_torque2, this);
@@ -295,7 +297,7 @@ OscSlide::OscSlide(const char *name, OscBase *parent,
                    OscObject *object1, OscObject *object2,
                    double ax, double ay, double az)
     : OscConstraint(name, parent, object1, object2),
-      m_force("force", this)
+      m_force("force", this), m_position("position", this)
 {
     m_force.setSetCallback(set_force, this);
 }
@@ -305,7 +307,7 @@ OscPiston::OscPiston(const char *name, OscBase *parent, OscObject *object1,
                      OscObject *object2, double x, double y, double z,
                      double ax, double ay, double az)
     : OscConstraint(name, parent, object1, object2),
-      m_force("force", this)
+      m_force("force", this), m_position("position", this)
 {
     m_force.setSetCallback(set_force, this);
 }

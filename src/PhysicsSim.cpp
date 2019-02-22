@@ -604,6 +604,7 @@ void OscHingeODE::simulationCallback()
     if (addtorque < -1000) addtorque = -1000;
 
     m_torque.m_value = addtorque;
+    m_angle.m_value = angle;
 
     dJointAddHingeTorque(me.joint(), addtorque);
 }
@@ -665,6 +666,9 @@ void OscHinge2ODE::simulationCallback()
 
     m_torque1.m_value = addtorque1;
     m_torque2.m_value = addtorque2;
+
+    m_angle1.m_value = angle1;
+    m_angle2.m_value = angle2;
 
     dJointAddHinge2Torques(me.joint(), addtorque1, addtorque2);
 }
@@ -838,6 +842,7 @@ void OscSlideODE::simulationCallback()
         - m_response->m_damping.m_value*rate;
 
     m_force.m_value = addforce;
+    m_position.m_value = pos;
 
     dJointAddSliderForce(me.joint(), addforce);
 }
@@ -885,6 +890,7 @@ void OscPistonODE::simulationCallback()
         - m_response->m_damping.m_value*rate;
 
     m_force.m_value = addforce;
+    m_position.m_value = pos;
 
     dJointAddPistonForce(me.joint(), addforce);
 }
@@ -942,6 +948,8 @@ void OscUniversalODE::simulationCallback()
 
     m_torque1.m_value = addtorque1;
     m_torque2.m_value = addtorque2;
+    m_angle1.m_value = angle1;
+    m_angle2.m_value = angle2;
 
     dJointAddUniversalTorques(me.joint(), addtorque1, addtorque2);
 }
