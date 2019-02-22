@@ -759,9 +759,16 @@ void* Simulation::run(void* param)
     if (me->m_bDone)
         printf("[%s] Error initialization simulation, port %u.\n",
                me->type_str(), lo_server_get_port(me->m_server));
-    else
+    else {
         printf("[%s] Simulation running on port %u.\n", me->type_str(),
                lo_server_get_port(me->m_server));
+
+        // TODO
+        // char s[1024];
+        // snprintf(s, 1024, "[%s] Simulation running on port %u.\n", me->type_str(),
+        //          lo_server_get_port(me->m_server));
+        // me->sendtotype(ST_VISUAL, true, "/world/log", "s", s);
+    }
 
     // Signal parent thread
     me->m_condvar.notify_all();

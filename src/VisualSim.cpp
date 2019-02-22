@@ -8,7 +8,6 @@
 
 #include <graphics/CFont.h>
 #include <resources/CFontCalibri20.h>
-#include <widgets/CLabel.h>
 #include <math/CQuaternion.h>
 
 #include <GL/glut.h>
@@ -165,7 +164,8 @@ VisualSim::VisualSim(const char *port)
     : Simulation(port, ST_VISUAL),
       m_camera(NULL),
       m_bFullScreen(false),
-      m_selectedObject(NULL)
+      m_selectedObject(NULL),
+      m_log("log", this)
 {
     m_pPrismFactory = new VisualPrismFactory(this);
     m_pSphereFactory = new VisualSphereFactory(this);
@@ -174,6 +174,8 @@ VisualSim::VisualSim(const char *port)
 
     m_fTimestep = visual_timestep_ms/1000.0;
     printf("CHAI/GLUT timestep: %f\n", m_fTimestep);
+
+    m_log.setSetCallback(set_log, this);
 
     m_cameraProj = new CameraProjection();
 }
@@ -185,6 +187,7 @@ VisualSim::~VisualSim()
     stop();
 
     delete m_cameraProj;
+    delete m_logLabel;
 }
 
 void VisualSim::initGlutWindow()
@@ -290,8 +293,9 @@ void VisualSim::initialize()
     cLabel* label = new cLabel(font);
     m_camera->object()->m_frontLayer->addChild(label);
     label->m_fontColor.setWhite();
-    label->setText("my message");
+    label->setText("");
     label->setLocalPos(10, label->getTextHeight());
+    m_logLabel = label;
 
     Simulation::initialize();
 }
@@ -356,6 +360,12 @@ void VisualSim::on_clear()
             it = world_objects.begin();
         }
     }
+}
+
+void VisualSim::on_log()
+{
+    m_logLabel->setText(m_log);
+    printf("log!\n");
 }
 
 void VisualSim::key(unsigned char key, int x, int y)

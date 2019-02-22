@@ -9,6 +9,7 @@
 #include <world/CWorld.h>
 #include <display/CCamera.h>
 #include <lighting/CSpotLight.h>
+#include <widgets/CLabel.h>
 
 class OscCameraCHAI;
 class VisualVirtdevFactory;
@@ -24,6 +25,9 @@ class VisualSim : public Simulation
     cSpotLight *light(unsigned int i);
 
     virtual void on_clear();
+
+    //! Message to append to log (displayed in window)
+    OSCSTRING(VisualSim, log);
 
   protected:
     virtual void initialize();
@@ -61,6 +65,8 @@ class VisualSim : public Simulation
     struct CameraProjection;
     CameraProjection *m_cameraProj;
     VisualVirtdevFactory *m_pVirtdevFactory;
+
+    cLabel* m_logLabel;
 
     bool m_bFullScreen;
 };

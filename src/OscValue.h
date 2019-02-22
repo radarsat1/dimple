@@ -32,7 +32,7 @@ using namespace chai3d;
 #define OSCBOOLEAN(c, o) OSCVALUE(c, OscBoolean, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> %s\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.m_value ? "true" : "false")))
 #define OSCVECTOR3(c, o) OSCVALUE(c, OscVector3, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> (%f, %f, %f)\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.x(), s.y(), s.z())))
 #define OSCMATRIX3(c, o) OSCVALUE(c, OscMatrix3, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> (%f, %f, %f; %f, %f, %f; %f, %f, %f)\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s(0,0), s(0,1), s(0,2), s(1,0), s(1,1), s(1,2), s(2,0), s(2,1), s(2,2))))
-#define OSCSTRING(c, o) OSCVALUE(c, OscStrings, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> '%s'\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.c_str())))
+#define OSCSTRING(c, o) OSCVALUE(c, OscString, o, ptrace(((c*)data)->m_bTrace, ("[%s] %s." _dimple_str(o) " -> '%s'\n", ((c*)data)->simulation()->type_str(), ((c*)data)->c_path(), s.c_str())))
 #define OSCMETHOD0(t, x)                                                \
     static int x##_handler(const char *path, const char *types,         \
                            lo_arg **argv, int argc, void *data,         \
