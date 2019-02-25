@@ -106,19 +106,11 @@ void HapticsSim::initialize()
     m_resetWorkspace = true;
     m_learnWorkspace = true;
 
-    // quit the haptics simulation if the cursor couldn't be initialized.
+    // create a virtual device if a real device could not be initialized.
     if (!m_cursor->is_initialized())
     {
         // turn off workspace scaling
         m_learnWorkspace = false;
-
-        // create the corresponding visual cursor
-        simulation()->sendtotype(Simulation::ST_VISUAL, false,
-                                 "/world/sphere/create","sfff",
-                                 "cursor", 0.0, 0.0, 0.0);
-        simulation()->sendtotype(Simulation::ST_VISUAL, false,
-                                 "/world/cursor/color","fff",
-                                 1.0, 1.0, 0.0);
 
         // Create a virtual device named "device"
         simulation()->sendtotype(Simulation::ST_VISUAL, false,
@@ -134,8 +126,20 @@ void HapticsSim::initialize()
         // Hook it up to the cursor
         m_cursor->initializeWithDevice(m_chaiWorld, m_pVirtdev->object());
 
+        // Quit the haptics simulation if the cursor couldn't be initialized.
         if (!m_cursor->is_initialized())
             m_bDone = true;
+    }
+
+    if (!m_bDone)
+    {
+        // create the corresponding visual cursor
+        simulation()->sendtotype(Simulation::ST_VISUAL, false,
+                                 "/world/sphere/create","sfff",
+                                 "cursor", 0.0, 0.0, 0.0);
+        simulation()->sendtotype(Simulation::ST_VISUAL, false,
+                                 "/world/cursor/color","fff",
+                                 1.0, 1.0, 0.0);
     }
 
     // initialize step count
