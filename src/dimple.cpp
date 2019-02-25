@@ -253,6 +253,7 @@ int main(int argc, char* argv[])
      lo_send(interface.addr(), "/world/box2/size", "fff", 0.07f, 0.07f, 0.07f);
      lo_send(interface.addr(), "/world/prism/create", "sfff", "box3", 0.0f, 0.25f, 0.0f);
      lo_send(interface.addr(), "/world/box3/size", "fff", 0.05f, 0.05f, 0.05f);
+     lo_send(interface.addr(), "/world/box3/force", "fff", 0.f, -0.1f, 0.f);
 
      // Start all simulations
      bool rc = true;
