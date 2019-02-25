@@ -113,11 +113,9 @@ protected:
     cGenericObject *m_chai_object;
 
     static void on_set_position(void* me, OscVector3 &p)
-        { ((CHAIObject*)me)->chai_object()->setLocalPos(p);
-            ((CHAIObject*)me)->chai_object()->computeGlobalPositions(); }
+        { ((CHAIObject*)me)->chai_object()->setLocalPos(p); }
     static void on_set_rotation(void* me, OscMatrix3 &r)
-        { ((CHAIObject*)me)->chai_object()->setLocalRot(r);
-            ((CHAIObject*)me)->chai_object()->computeGlobalPositions(); }
+        { ((CHAIObject*)me)->chai_object()->setLocalRot(r); }
     static void on_set_visible(void* me, OscBoolean &v)
         { ((CHAIObject*)me)->chai_object()->setShowEnabled(v.m_value, true); }
 

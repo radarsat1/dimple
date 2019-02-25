@@ -358,7 +358,6 @@ OscSphereCHAI::OscSphereCHAI(cWorld *world, const char *name, OscBase *parent)
 {
     m_pSphere = new cShapeSphere(m_radius.m_value);
     world->addChild(m_pSphere);
-    m_pSphere->computeGlobalPositions();
 
     // User data points to the OscObject, used for identification
     // during object contact.
@@ -407,7 +406,6 @@ OscPrismCHAI::OscPrismCHAI(cWorld *world, const char *name, OscBase *parent)
     m_pPrism->m_material->setBlueLight();
 
     world->addChild(m_pPrism);
-    m_pPrism->computeGlobalPositions();
 
     // User data points to the OscObject, used for identification
     // during object contact.
@@ -624,7 +622,6 @@ OscMeshCHAI::OscMeshCHAI(cWorld *world, const char *name, const char *filename,
     m_pMesh->createAABBCollisionDetector(0.01 /* TODO make variable OSC-accessible? */);
 
     world->addChild(m_pMesh);
-    m_pMesh->computeGlobalPositions();
 
     // User data points to the OscObject, used for identification
     // during object contact.
@@ -721,9 +718,6 @@ void OscCursorCHAI::initializeWithDevice(cWorld *world, cGenericHapticDevicePtr 
 
     // make it a cursor tuned for a dynamic environment
     m_pCursor->enableDynamicObjects(true);
-
-    // this is necessary for the above rotation to take effect
-    m_pCursor->computeGlobalPositions();
 
     // set up mass as zero to begin (transparent proxy)
     m_mass.setValue(0);
