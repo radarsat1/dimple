@@ -66,7 +66,8 @@ bool HapticsMeshFactory::create(const char *name, const char *filename,
 /****** HapticsSim ******/
 
 HapticsSim::HapticsSim(const char *port)
-    : Simulation(port, ST_HAPTICS)
+    : Simulation(port, ST_HAPTICS),
+      m_workspaceScale(1,1,1)
 {
     m_pPrismFactory = new HapticsPrismFactory(this);
     m_pSphereFactory = new HapticsSphereFactory(this);
@@ -109,9 +110,6 @@ void HapticsSim::initialize()
     // create a virtual device if a real device could not be initialized.
     if (!m_cursor->is_initialized())
     {
-        // turn off workspace scaling
-        m_learnWorkspace = false;
-
         // Create a virtual device named "device"
         simulation()->sendtotype(Simulation::ST_VISUAL, false,
                                  "/world/virtdev/create","sfff",
@@ -122,6 +120,11 @@ void HapticsSim::initialize()
 
         // Create a local object to accept messages from the virtual device
         m_pVirtdev = new OscHapticsVirtdevCHAI(m_chaiWorld, "device", this);
+
+        // turn off workspace scale learning and set scaling to
+        // virtual device scale
+        m_learnWorkspace = false;
+        m_resetWorkspace = false;
 
         // Hook it up to the cursor
         m_cursor->initializeWithDevice(m_chaiWorld, m_pVirtdev->object());
@@ -154,32 +157,40 @@ void HapticsSim::updateWorkspace(cVector3d &pos, cVector3d &vel)
 {
     int i;
     if (m_resetWorkspace) {
-        m_workspace[0] = pos;
-        m_workspace[1] = pos;
+        m_workspace[0] = pos - cVector3d(1e-4,1e-4,1e-4);
+        m_workspace[1] = pos + cVector3d(1e-4,1e-4,1e-4);
         m_resetWorkspace = false;
     }
 
+    bool changed = false;
     for (i=0; i<3; i++) {
         // Update workspace boundaries
         if (m_learnWorkspace)
         {
-            if (pos(i) < m_workspace[0](i))
+            if (pos(i) < m_workspace[0](i)) {
                 m_workspace[0](i) = pos(i);
-            if (pos(i) > m_workspace[1](i))
+                changed = true;
+            }
+            if (pos(i) > m_workspace[1](i)) {
                 m_workspace[1](i) = pos(i);
+                changed = true;
+            }
         }
 
         float dif = (m_workspace[1](i) - m_workspace[0](i));
-        if (dif != 0.0)
+        if (dif != 0.0 && changed)
+        {
             m_workspaceScale(i) = 2.0/(m_workspace[1](i) - m_workspace[0](i));
-        else
-            m_workspaceScale(i) = 1;
-        m_workspaceOffset(i) = -(m_workspace[1](i) + m_workspace[0](i)) / 2.0;
+            m_workspaceOffset(i) = -(m_workspace[1](i) + m_workspace[0](i)) / 2.0;
+        }
 
         // Normalize position to [-1, 1] within workspace.
         // Further scale by user-specified workspace scaling. (default=1)
-        pos(i) = (pos(i) + m_workspaceOffset(i)) * m_workspaceScale(i) * m_scale(i);
-        vel(i) = vel(i) * m_workspaceScale(i) * m_scale(i);
+        pos(i) = (pos(i) + m_workspaceOffset(i))
+            * m_workspaceScale(i) * m_scale(i)
+            / m_cursor->object()->getWorkspaceScaleFactor();
+        vel(i) = vel(i) * m_workspaceScale(i) * m_scale(i)
+            / m_cursor->object()->getWorkspaceScaleFactor();
     }
 }
 
@@ -241,7 +252,7 @@ void HapticsSim::step()
         /* It appears that non-penetrating tool position is not
          * correctly displayed for potential force algo used with
          * shape primitives, since there is no "proxy".  Instead, we
-         * wills how the interaction point. Note that it also does not
+         * will show the interaction point. Note that it also does not
          * seem to take into account the haptic point radius. */
         if (cursor->m_hapticPoint->getNumInteractionEvents() > 0)
         {
