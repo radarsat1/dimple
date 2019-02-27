@@ -222,7 +222,9 @@ void HapticsSim::step()
 
         // Compensate for workspace scaling
         cVector3d force = cursor->getDeviceGlobalForce();
-        force = force * (m_workspaceScale * m_scale);
+        force = force
+            / (m_workspaceScale * m_scale)
+            * m_cursor->object()->getWorkspaceScaleFactor();
         cursor->setDeviceGlobalForce(force);
 
         m_cursor->addCursorMassForce();
