@@ -52,7 +52,7 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     m_force.setValue(0,0,0);
     m_density.setValue(100);
     m_visible.setValue(true);
-    m_stiffness.setValue(1.0);
+    m_stiffness.setValue(1000);
 
     // Sane friction defaults
     m_friction_static.setValue(1);

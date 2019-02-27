@@ -609,6 +609,9 @@ Simulation::Simulation(const char *port, int type)
     m_scale.setSetCallback(set_scale, this);
 
     m_scale.setValue(1,1,1);
+
+    // No world max-stiffness enforced by default (very high value)
+    m_stiffness.setValue(10000);
 }
 
 Simulation::~Simulation()

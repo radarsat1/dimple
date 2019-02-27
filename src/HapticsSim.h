@@ -246,7 +246,7 @@ public:
         memset(&m_specifications, 0, sizeof(m_specifications));
         m_specifications.m_modelName = "virtual";
         m_specifications.m_workspaceRadius = 0.4;
-        m_specifications.m_maxLinearStiffness = 1.0;
+        m_specifications.m_maxLinearStiffness = 1000.0;
     }
     void setPosition(const cVector3d& pos) {
         m_pos = pos;
