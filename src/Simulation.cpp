@@ -594,7 +594,8 @@ Simulation::Simulation(const char *port, int type)
     : OscBase("world", NULL, lo_server_new(port, NULL)),
       m_collide("collide", this),
       m_gravity("gravity", this),
-      m_scale("scale", this)
+      m_scale("scale", this),
+      m_stiffness("stiffness", this)
 {
     m_addr = lo_address_new("localhost", port);
     m_type = type;

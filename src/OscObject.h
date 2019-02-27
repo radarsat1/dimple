@@ -56,6 +56,7 @@ class OscObject : public OscBase
     OSCSCALAR(OscObject, collide) {};
     OSCSCALAR(OscObject, friction_static) {};
     OSCSCALAR(OscObject, friction_dynamic) {};
+    OSCSCALAR(OscObject, stiffness) {};
 
     OSCMETHOD0(OscObject, grab) {};
     OSCMETHOD0(OscObject, destroy);

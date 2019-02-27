@@ -90,6 +90,7 @@ class InterfaceSim : public Simulation
     virtual void on_add_receiver(const char *type);
 
     FWD_OSCVECTOR3(scale, Simulation::ST_HAPTICS);
+    FWD_OSCSCALAR(stiffness, Simulation::ST_HAPTICS);
 
   protected:
     OscCameraInterface *m_camera;
@@ -257,6 +258,7 @@ public:
             m_friction_static.setGetCallback(on_get_friction_static, this);
             m_friction_dynamic.setGetCallback(on_get_friction_dynamic, this);
             m_visible.setGetCallback(on_get_visible, this);
+            m_stiffness.setGetCallback(on_get_stiffness, this);
 
             // TODO: also forward set handlers for magnitudes
 
@@ -296,6 +298,7 @@ protected:
     FWD_OSCSCALAR(friction_static,Simulation::ST_HAPTICS);
     FWD_OSCSCALAR(collide,Simulation::ST_PHYSICS);
     FWD_OSCBOOLEAN(visible,Simulation::ST_VISUAL);
+    FWD_OSCSCALAR(stiffness,Simulation::ST_HAPTICS);
 };
 
 class OscPrismInterface : public OscPrism
@@ -315,6 +318,7 @@ public:
             m_friction_static.setGetCallback(on_get_friction_static, this);
             m_friction_dynamic.setGetCallback(on_get_friction_dynamic, this);
             m_visible.setGetCallback(on_get_visible, this);
+            m_stiffness.setGetCallback(on_get_stiffness, this);
 
             m_position.m_magnitude.setGetCallback(on_get_position_mag, this);
             m_velocity.m_magnitude.setGetCallback(on_get_velocity_mag, this);
@@ -352,6 +356,7 @@ protected:
     FWD_OSCSCALAR(friction_static,Simulation::ST_HAPTICS);
     FWD_OSCSCALAR(collide,Simulation::ST_PHYSICS);
     FWD_OSCBOOLEAN(visible,Simulation::ST_VISUAL);
+    FWD_OSCSCALAR(stiffness,Simulation::ST_HAPTICS);
 };
 
 class OscMeshInterface : public OscMesh
@@ -370,6 +375,7 @@ public:
             m_force.setGetCallback(on_get_force, this);
             m_size.setGetCallback(on_get_size, this);
             m_visible.setGetCallback(on_get_visible, this);
+            m_stiffness.setGetCallback(on_get_stiffness, this);
 
             m_position.m_magnitude.setGetCallback(on_get_position_mag, this);
             m_velocity.m_magnitude.setGetCallback(on_get_velocity_mag, this);
@@ -406,6 +412,7 @@ protected:
     FWD_OSCSCALAR(friction_static,Simulation::ST_HAPTICS);
     FWD_OSCSCALAR(collide,Simulation::ST_PHYSICS);
     FWD_OSCBOOLEAN(visible,Simulation::ST_VISUAL);
+    FWD_OSCSCALAR(stiffness,Simulation::ST_HAPTICS);
 };
 
 class OscCameraInterface : public OscCamera

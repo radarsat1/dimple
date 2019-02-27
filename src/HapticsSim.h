@@ -35,6 +35,8 @@ class HapticsSim : public Simulation
 
     bool m_forceEnabled;
 
+    const cHapticDeviceInfo& getSpecs();
+
   protected:
     virtual void initialize();
     virtual void step();
@@ -118,6 +120,7 @@ protected:
         { ((CHAIObject*)me)->chai_object()->setLocalRot(r); }
     static void on_set_visible(void* me, OscBoolean &v)
         { ((CHAIObject*)me)->chai_object()->setShowEnabled(v.m_value, true); }
+    static void on_set_stiffness(void* me, OscScalar &s);
 
     static void on_set_color(void* me, OscVector3 &c)
         { ((CHAIObject*)me)->chai_object()->
@@ -217,6 +220,7 @@ public:
     void addCursorExtraForce();
 
     const char *device_str();
+    const cHapticDeviceInfo& getSpecs() { return m_specs; }
 
 protected:
     virtual void on_force();
@@ -232,6 +236,7 @@ protected:
 
     cVector3d m_extraForce;
     bool m_bInitialized;
+    cHapticDeviceInfo m_specs;  //! Copy of device specifications
 };
 
 class cVirtualDevice : public chai3d::cGenericHapticDevice
