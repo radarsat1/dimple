@@ -264,21 +264,6 @@ AC_CHECK_LIB(lo, [lo_server_new], [],
     AC_CHECK_LIB(lo, [lo_server_new], [],
       AC_MSG_ERROR([Couldn't find liblo library.]))])])
 
-# ultrahaptics
-save_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS -IC:/Progra~1/Ultrahaptics/include"
-AC_CHECK_HEADER(Ultrahaptics.hpp, [],
-  [CPPFLAGS="$save_CPPFLAGS"
-  unset ac_cv_header_Ultrahaptics_hpp])
-
-save_LDFLAGS="$LDFLAGS"
-LDFLAGS="$LDFLAGS -LC:/Progra~1/Ultrahaptics/lib"
-AC_CHECK_LIB(Ultrahaptics, [main],
-  [LIBS="-lUltrahaptics $LIBS"
-   AC_DEFINE([HAVE_ULTRAHAPTICS], [1], [Define if using Ultrahaptics SDK])],
-  [LDFLAGS="$save_LDFLAGS"
-  unset ac_cv_lib_Ultrahaptics_main])
-
 # check for options
 
 # debug mode (also checks for DIMPLE_DEBUG environment variable)

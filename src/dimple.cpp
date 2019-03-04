@@ -28,10 +28,6 @@
 #include "VisualSim.h"
 #include "InterfaceSim.h"
 
-#ifdef HAVE_ULTRAHAPTICS
-#include "Ultrahaptics.hpp"
-#endif
-
 /** Defaults for global variables **/
 int visual_fps = 30;
 int visual_timestep_ms = (int)((1.0/visual_fps)*1000.0);
@@ -169,9 +165,6 @@ int dimple_main(int argc, char* argv[])
 int main(int argc, char* argv[])
 #endif
 {
-    Ultrahaptics::UltrahapticsLibrary uhlib;
-    printf("Found %u Ultrahaptics devices.\n", uhlib.getDeviceCount());
-
 	 // display pretty message
 	 printf ("\n");
 	 printf ("  ==========================================================\n");
