@@ -36,6 +36,9 @@ AC_HEADER_STDC
 AC_CHECK_HEADER([getopt.h], [],
   [AC_MSG_ERROR([Couldn't find getopt.h.])])
 
+# For turning off line buffering
+AC_CHECK_FUNC([setvbuf], [AC_DEFINE(HAVE_SETVBUF, [1], [Define to 1 if setvbuf() is available.])])
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_TYPE_SIZE_T
