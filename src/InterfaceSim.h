@@ -87,7 +87,25 @@ class InterfaceSim : public Simulation
         Simulation::on_drop();
     }
 
+    virtual void on_workspace_learn() {
+        send(0, "/world/workspace/learn", "");
+        Simulation::on_workspace_learn();
+    }
+
+    virtual void on_workspace_freeze() {
+        send(0, "/world/workspace/freeze", "");
+        Simulation::on_workspace_freeze();
+    }
+
+    virtual void on_workspace_standard() {
+        send(0, "/world/workspace/standard", "");
+        Simulation::on_workspace_standard();
+    }
+
     virtual void on_add_receiver(const char *type);
+
+    FWD_OSCVECTOR3(workspace_size, Simulation::ST_HAPTICS);
+    FWD_OSCVECTOR3(workspace_center, Simulation::ST_HAPTICS);
 
     FWD_OSCVECTOR3(scale, Simulation::ST_HAPTICS);
     FWD_OSCSCALAR(stiffness, Simulation::ST_HAPTICS);

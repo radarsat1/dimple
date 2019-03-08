@@ -121,7 +121,6 @@ class Simulation : public OscBase
     OSCSCALAR(Simulation, collide) {};
     OSCVECTOR3(Simulation, gravity) {};
     OSCMETHOD0(Simulation, clear);
-    OSCMETHOD0(Simulation, reset_workspace) {};
     OSCMETHOD0(Simulation, drop) { set_grabbed(NULL); }
     OSCMETHOD1S(Simulation, add_receiver);
     OSCMETHOD2S(Simulation, add_receiver_url);
@@ -131,6 +130,12 @@ class Simulation : public OscBase
     OSCSCALAR(Simulation, grab_stiffness) {};
     OSCSCALAR(Simulation, grab_damping) {};
     OSCSCALAR(Simulation, grab_feedback) {};
+
+    OSCVECTOR3(Simulation, workspace_size) {};
+    OSCVECTOR3(Simulation, workspace_center) {};
+    OSCMETHOD0(Simulation, workspace_learn) {};
+    OSCMETHOD0(Simulation, workspace_freeze) {};
+    OSCMETHOD0(Simulation, workspace_standard) {};
 
     void run_unthreaded()
       { run(this); }

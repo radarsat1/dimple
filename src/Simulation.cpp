@@ -598,7 +598,9 @@ Simulation::Simulation(const char *port, int type)
       m_stiffness("stiffness", this),
       m_grab_stiffness("grab/stiffness", this),
       m_grab_damping("grab/damping", this),
-      m_grab_feedback("grab/feedback", this)
+      m_grab_feedback("grab/feedback", this),
+      m_workspace_size("workspace/size", this),
+      m_workspace_center("workspace/center", this)
 {
     m_addr = lo_address_new("localhost", port);
     m_type = type;
@@ -624,6 +626,9 @@ Simulation::Simulation(const char *port, int type)
     m_grab_stiffness.setSetCallback(set_grab_stiffness, this);
     m_grab_damping.setSetCallback(set_grab_damping, this);
     m_grab_feedback.setSetCallback(set_grab_feedback, this);
+
+    m_workspace_size.setSetCallback(set_workspace_size, this);
+    m_workspace_center.setSetCallback(set_workspace_center, this);
 }
 
 Simulation::~Simulation()
@@ -761,11 +766,13 @@ void Simulation::stop()
 void Simulation::initialize()
 {
     addHandler("clear", "", Simulation::clear_handler);
-    addHandler("reset_workspace", "", Simulation::reset_workspace_handler);
     addHandler("drop",  "", Simulation::drop_handler);
     addHandler("add_receiver", "s", Simulation::add_receiver_handler);
     addHandler("add_receiver_url", "ss", Simulation::add_receiver_url_handler);
     addHandler("remove_receiver", "s", Simulation::remove_receiver_handler);
+    addHandler("workspace/learn", "", Simulation::workspace_learn_handler);
+    addHandler("workspace/freeze", "", Simulation::workspace_freeze_handler);
+    addHandler("workspace/standard", "", Simulation::workspace_standard_handler);
 }
 
 void* Simulation::run(void* param)

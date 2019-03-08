@@ -239,6 +239,11 @@ InterfaceSim::InterfaceSim(const char *port)
     m_camera = new OscCameraInterface("camera", this);
     m_cursor = new OscCursorInterface(NULL, "cursor", this);
 
+    m_workspace_size.setGetCallback(on_get_workspace_size, this);
+    m_workspace_center.setGetCallback(on_get_workspace_center, this);
+    m_workspace_size.m_magnitude.setGetCallback(on_get_workspace_size_mag, this);
+    m_workspace_center.m_magnitude.setGetCallback(on_get_workspace_center_mag, this);
+
     m_fTimestep = 1;
 }
 

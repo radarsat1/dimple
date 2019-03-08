@@ -33,7 +33,11 @@ class HapticsSim : public Simulation
     //! Set the grabbed object or ungrab by setting to NULL.
     virtual void set_grabbed(OscObject *pGrabbed);
 
-    virtual void on_reset_workspace() { m_resetWorkspace = true; }
+    virtual void on_workspace_size();
+    virtual void on_workspace_center();
+    virtual void on_workspace_learn();
+    virtual void on_workspace_freeze();
+    virtual void on_workspace_standard();
 
     bool m_forceEnabled;
 
