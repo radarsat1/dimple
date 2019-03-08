@@ -385,12 +385,12 @@ void ODEObject::on_set_velocity(void *me, OscVector3 &v)
     dBodySetLinearVel(((ODEObject*)me)->m_odeBody, v.x(), v.y(), v.z());
 }
 
-void ODEObject::on_set_accel(void *me, OscVector3 &a)
+void ODEObject::on_set_accel(void *_me, OscVector3 &a)
 {
+    OscObject *me = static_cast<OscObject*>(_me);
+    me->m_force.setValue(a / ((ODEObject*)me)->m_odeMass.mass, false);
     dBodySetForce(((ODEObject*)me)->m_odeBody,
-                  a.x() / ((ODEObject*)me)->m_odeMass.mass,
-                  a.y() / ((ODEObject*)me)->m_odeMass.mass,
-                  a.z() / ((ODEObject*)me)->m_odeMass.mass);
+                  me->m_force.x(), me->m_force.y(), me->m_force.z());
 }
 
 void ODEObject::on_set_force(void *me, OscVector3 &f)
@@ -405,7 +405,7 @@ int ODEObject::push_handler(const char *path, const char *types,
 {
     OscObject *me = static_cast<OscObject*>(user_data);
     ODEObject *ode_object = static_cast<ODEObject*>(me->special());
-    cVector3d(argv[0]->f, argv[1]->f, argv[2]->f).copyto(me->m_force);
+    me->m_force.setValue(cVector3d(argv[0]->f, argv[1]->f, argv[2]->f), false);
     dBodyAddForceAtPos(ode_object->body(),
                        argv[0]->f, argv[1]->f, argv[2]->f,
                        argv[3]->f, argv[4]->f, argv[5]->f);
