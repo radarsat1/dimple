@@ -209,8 +209,8 @@ void PhysicsSim::step()
         cVector3d grab_force(m_pGrabbedObject->getPosition()
                              - m_pCursor->m_position);
 
-        grab_force.mul(-0.01);
-        grab_force.add(m_pGrabbedODEObject->getVelocity()*(-0.0003));
+        grab_force.mul(-fabs(m_grab_stiffness.m_value));
+        grab_force.add(m_pGrabbedODEObject->getVelocity()*(-fabs(m_grab_damping.m_value)));
         dBodyAddForce(m_pGrabbedODEObject->body(),
                       grab_force.x(), grab_force.y(), grab_force.z());
     }

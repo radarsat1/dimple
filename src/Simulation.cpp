@@ -595,7 +595,10 @@ Simulation::Simulation(const char *port, int type)
       m_collide("collide", this),
       m_gravity("gravity", this),
       m_scale("scale", this),
-      m_stiffness("stiffness", this)
+      m_stiffness("stiffness", this),
+      m_grab_stiffness("grab/stiffness", this),
+      m_grab_damping("grab/damping", this),
+      m_grab_feedback("grab/feedback", this)
 {
     m_addr = lo_address_new("localhost", port);
     m_type = type;
@@ -613,6 +616,14 @@ Simulation::Simulation(const char *port, int type)
     // No world max-stiffness enforced by default (very high value)
     m_stiffness.setValue(10000);
     m_stiffness.setSetCallback(set_stiffness, this);
+
+    m_grab_stiffness.setValue(0.01);
+    m_grab_damping.setValue(0.001);
+    m_grab_feedback.setValue(1000);
+
+    m_grab_stiffness.setSetCallback(set_grab_stiffness, this);
+    m_grab_damping.setSetCallback(set_grab_damping, this);
+    m_grab_feedback.setSetCallback(set_grab_feedback, this);
 }
 
 Simulation::~Simulation()

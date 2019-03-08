@@ -862,8 +862,9 @@ void OscCursorCHAI::addCursorMassForce()
 void OscCursorCHAI::addCursorGrabbedForce(OscObject *pGrabbed)
 {
     cVector3d f(m_position - pGrabbed->m_position);
-    f.mul(-10);
-    f.add(m_velocity * (-0.001));
+
+    f.mul(-fabs(simulation()->m_grab_stiffness.m_value) * fabs(simulation()->m_grab_feedback.m_value));
+    f.add(m_velocity * (-fabs(simulation()->m_grab_damping.m_value)));
     m_pCursor->addDeviceGlobalForce(f);
 }
 

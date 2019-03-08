@@ -128,6 +128,9 @@ class Simulation : public OscBase
     OSCMETHOD1S(Simulation, remove_receiver);
     OSCVECTOR3(Simulation, scale) {};
     OSCSCALAR(Simulation, stiffness) {};
+    OSCSCALAR(Simulation, grab_stiffness) {};
+    OSCSCALAR(Simulation, grab_damping) {};
+    OSCSCALAR(Simulation, grab_feedback) {};
 
     void run_unthreaded()
       { run(this); }

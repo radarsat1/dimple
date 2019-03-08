@@ -91,6 +91,9 @@ class InterfaceSim : public Simulation
 
     FWD_OSCVECTOR3(scale, Simulation::ST_HAPTICS);
     FWD_OSCSCALAR(stiffness, Simulation::ST_HAPTICS);
+    FWD_OSCSCALAR(grab_stiffness,Simulation::ST_HAPTICS);
+    FWD_OSCSCALAR(grab_damping,Simulation::ST_HAPTICS);
+    FWD_OSCSCALAR(grab_feedback,Simulation::ST_HAPTICS);
 
   protected:
     OscCameraInterface *m_camera;
