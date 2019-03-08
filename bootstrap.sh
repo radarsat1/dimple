@@ -34,12 +34,17 @@ if !(tar -xzf $liblo_TAR); then
 	exit
 fi
 
-if [ ${liblo_PATCH}x != x ]; then
-echo Patching $liblo_DIR
-if !(cd $liblo_DIR && patch -p1 <../$liblo_PATCH); then
-	echo "Error applying patch" $liblo_PATCH
-	exit
-fi
+if [ "${liblo_PATCH}"x != x ]; then
+    echo Patching liblo
+    mkdir ${liblo_DIR}/patches
+    for P in ${liblo_PATCH}; do
+        cp -v $P ${liblo_DIR}/patches/;
+        echo $P >>${liblo_DIR}/series;
+    done
+    if !(cd $liblo_DIR; quilt push); then
+	      echo "Error applying patches for liblo."
+	      exit
+    fi
 # patch requires running autoconf
 echo Running autoconf for $liblo_DIR
 if !(cd $liblo_DIR && autoconf); then
@@ -113,12 +118,17 @@ if !(tar -xzf $ode_TAR); then
 	exit
 fi
 
-if [ ${ode_PATCH}x != x ] && [ -f $ode_PATCH ]; then
-echo Patching $ode_DIR
-if !(cd $ode_DIR && patch -p1 <../$ode_PATCH); then
-	echo "Error applying patch " $ode_PATCH
-	exit
-fi
+if [ "${ode_PATCH}"x != x ] && [ -f "${ode_PATCH}" ]; then
+    echo Patching ODE
+    mkdir ${ode_DIR}/patches
+    for P in ${ode_PATCH}; do
+        cp -v $P ${ode_DIR}/patches/;
+        echo $P >>${ode_DIR}/series;
+    done
+    if !(cd $ode_DIR; quilt push); then
+	      echo "Error applying patches for ODE."
+	      exit
+    fi
 fi
 
 case $(uname) in
@@ -191,13 +201,17 @@ if !(unzip -o "$chai_TAR"); then
     exit
 fi
 
-# TODO: change this to a -p1 patch to avoid confusion!
-if [ ${chai_PATCH}x != x ]; then
-echo Patching chai3d
-if !(cd $chai_DIR; patch -p1 <../$chai_PATCH); then
-	echo "Error applying patch" $chai_PATCH
-	exit
-fi
+if [ "${chai_PATCH}"x != x ]; then
+    echo Patching chai3d
+    mkdir ${chai_DIR}/patches
+    for P in ${chai_PATCH}; do
+        cp -v $P ${chai_DIR}/patches/;
+        echo $P >>${chai_DIR}/series;
+    done
+    if !(cd $chai_DIR; quilt push); then
+	      echo "Error applying patches for CHAI."
+	      exit
+    fi
 fi
 
 case $(uname) in
@@ -275,12 +289,17 @@ if !(tar -xzf "$freeglut_TAR"); then
     exit
 fi
 
-if [ ${freeglut_PATCH}x != x ]; then
-echo Patching $freeglut_DIR
-if !(cd $freeglut_DIR && patch -p1 <../$freeglut_PATCH); then
-	echo "Error applying patch" $freeglut_PATCH
-	exit
-fi
+if [ "${freeglut_PATCH}"x != x ]; then
+    echo Patching freeglut
+    mkdir ${freeglut_DIR}/patches
+    for P in ${freeglut_PATCH}; do
+        cp -v $P ${freeglut_DIR}/patches/;
+        echo $P >>${freeglut_DIR}/series;
+    done
+    if !(cd $freeglut_DIR; quilt push); then
+	      echo "Error applying patches for freeglut."
+	      exit
+    fi
 fi
 
 case $(uname) in
@@ -356,12 +375,17 @@ if !(tar -xzf "$atomicops_TAR"); then
     exit
 fi
 
-if [ ${atomicops_PATCH}x != x ]; then
-echo Patching $atomicops_DIR
-if !(cd $atomicops_DIR && patch -p1 <../$atomicops_PATCH); then
-	echo "Error applying patch" $atomicops_PATCH
-	exit
-fi
+if [ "${atomicops_PATCH}"x != x ]; then
+    echo Patching atomicops
+    mkdir ${atomicops_DIR}/patches
+    for P in ${atomicops_PATCH}; do
+        cp -v $P ${atomicops_DIR}/patches/;
+        echo $P >>${atomicops_DIR}/series;
+    done
+    if !(cd $atomicops_DIR; quilt push); then
+	      echo "Error applying patches for atomicops."
+	      exit
+    fi
 fi
 
 fi
@@ -399,12 +423,17 @@ if !(tar -xzf "$pthreads_TAR"); then
     exit
 fi
 
-if [ ${pthreads_PATCH}x != x ]; then
-echo Patching $pthreads_DIR
-if !(cd $pthreads_DIR && patch -p1 <../$pthreads_PATCH); then
-	echo "Error applying patch" $pthreads_PATCH
-	exit
-fi
+if [ "${pthreads_PATCH}"x != x ]; then
+    echo Patching pthreads
+    mkdir ${pthreads_DIR}/patches
+    for P in ${pthreads_PATCH}; do
+        cp -v $P ${pthreads_DIR}/patches/;
+        echo $P >>${pthreads_DIR}/series;
+    done
+    if !(cd $pthreads_DIR; quilt push); then
+	      echo "Error applying patches for pthreads."
+	      exit
+    fi
 fi
 
 case $(uname) in
@@ -477,12 +506,17 @@ if !(tar -xzf "$samplerate_TAR"); then
     exit
 fi
 
-if [ ${samplerate_PATCH}x != x ]; then
-echo Patching $samplerate_DIR
-if !(cd $samplerate_DIR && patch -p1 <../$samplerate_PATCH); then
-	echo "Error applying patch" $samplerate_PATCH
-	exit
-fi
+if [ "${samplerate_PATCH}"x != x ]; then
+    echo Patching samplerate
+    mkdir ${samplerate_DIR}/patches
+    for P in ${samplerate_PATCH}; do
+        cp -v $P ${samplerate_DIR}/patches/;
+        echo $P >>${samplerate_DIR}/series;
+    done
+    if !(cd $samplerate_DIR; quilt push); then
+	      echo "Error applying patches for samplerate."
+	      exit
+    fi
 fi
 
 case $(uname) in
@@ -542,6 +576,10 @@ if ! [ -d libdeps ];          then mkdir libdeps          || exit 1; fi
 if ! [ -d libdeps/tarballs ]; then mkdir libdeps/tarballs || exit 1; fi
 cd libdeps || exit 1
 
+echo "Looking for programs.."
+which quilt >/dev/null || (echo "quilt not found."; exit 1)
+which unzip >/dev/null || (echo "unzip not found."; exit 1)
+
 # System-dependant bootstrapping
 case $(uname) in
     MINGW32* | MINGW64* | MSYS*)
@@ -555,9 +593,7 @@ case $(uname) in
     CMAKE_EXTRA=-G
 
     echo "Looking for programs.."
-    which patch >/dev/null || exit 1
-    which cmake >/dev/null || exit 1
-    which unzip >/dev/null || exit 1
+    which cmake >/dev/null || (echo "cmake not found."; exit 1)
 
     freeglut
     samplerate
