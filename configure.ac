@@ -46,8 +46,8 @@ AC_TYPE_SIZE_T
 
 # debug mode (also checks for DIMPLE_DEBUG environment variable)
 AC_ARG_ENABLE(debug, [  --enable-debug          compile in debug mode],
-              [debug=yes])
-if test x$debug = xyes || test x$DIMPLE_DEBUG = x1; then
+              [debug=$enableval])
+if test x$debug = xyes || (test x$DIMPLE_DEBUG = x1 && ! test x$debug = xno); then
   debug=yes
   CPPFLAGS="-DDEBUG $CPPFLAGS"
   if test "$CXXFLAGS" = "-g -O2"; then
