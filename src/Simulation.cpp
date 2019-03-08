@@ -719,7 +719,7 @@ bool Simulation::start()
     using namespace std::literals::chrono_literals;
     if (m_condvar.wait_until(lk, now+3*1s)==std::cv_status::timeout) {
 #else
-    std::chrono::seconds sec(1);
+    std::chrono::seconds sec(5);
     if (m_condvar.wait_until(lk, now+3*sec)==std::cv_status::timeout) {
 #endif
         printf("[%s] Timed out during initialization.\n", type_str());
