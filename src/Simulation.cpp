@@ -612,6 +612,7 @@ Simulation::Simulation(const char *port, int type)
 
     // No world max-stiffness enforced by default (very high value)
     m_stiffness.setValue(10000);
+    m_stiffness.setSetCallback(set_stiffness, this);
 }
 
 Simulation::~Simulation()
@@ -1047,8 +1048,13 @@ void Simulation::on_clear()
     object_iterator it = world_objects.begin();
     while (it != world_objects.end())
     {
-        it->second->on_destroy();
-        it = world_objects.begin();
+        if (it->second->name() == "cursor"
+            || it->second->name() == "device")
+            it++;
+        else {
+            it->second->on_destroy();
+            it = world_objects.begin();
+        }
     }
 }
 

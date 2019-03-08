@@ -345,23 +345,6 @@ void VisualSim::draw()
     glutSwapBuffers();
 }
 
-void VisualSim::on_clear()
-{
-    on_drop();
-
-    object_iterator it = world_objects.begin();
-    while (it != world_objects.end())
-    {
-        if (it->second->name() == "cursor"
-            || it->second->name() == "device")
-            it++;
-        else {
-            it->second->on_destroy();
-            it = world_objects.begin();
-        }
-    }
-}
-
 void VisualSim::on_log()
 {
     m_logLabel->setText(m_log);

@@ -43,6 +43,41 @@ AC_CHECK_FUNC([setvbuf], [AC_DEFINE(HAVE_SETVBUF, [1], [Define to 1 if setvbuf()
 AC_C_CONST
 AC_TYPE_SIZE_T
 
+#
+# check for options
+#
+
+# debug mode (also checks for DIMPLE_DEBUG environment variable)
+AC_ARG_ENABLE(debug, [  --enable-debug          compile in debug mode],
+              [debug=$enableval])
+if test x$debug = xyes || (test x$DIMPLE_DEBUG = x1 && ! test x$debug = xno); then
+  debug=yes
+  CPPFLAGS="-DDEBUG $CPPFLAGS"
+  if test "$CXXFLAGS" = "-g -O2"; then
+    CXXFLAGS="-g -O0 -Wall"
+  else
+    CXXFLAGS="$CXXFLAGS -g -O0 -Wall"
+  fi
+fi
+
+# queue size
+AC_ARG_WITH(queue-size,
+  [AS_HELP_STRING([--with-queue-size],[default size of message queues in kB, default 64])],
+  [queue_size=${withval}], [queue_size=64])
+AC_DEFINE_UNQUOTED(DEFAULT_QUEUE_SIZE, ${queue_size},
+                   [Default size of message queue in kB])
+
+# use messages queues
+AC_ARG_ENABLE(queues,
+  [AS_HELP_STRING([--disable-queues],[don't use messages queues, instead use
+                                      UDP for inter-thread communication])],
+  [use_queues=$enableval], [use_queues=yes])
+
+if test x$use_queues = xyes; then
+  AC_DEFINE(USE_QUEUES, [1],
+    [Define to enable use of message queues for inter-thread communication.])
+fi
+
 # Some simple configurations depending purely on known target systems
 CHAI_ARCH="`uname -m`"
 case "$target" in
@@ -70,6 +105,11 @@ case "$target" in
   ;;
 esac
 CHAI_SUFFIX="${CHAI_OS}-${CHAI_ARCH}-${CHAI_CC}"
+if test x$debug = xyes; then
+   CHAI_CFG=debug
+else
+   CHAI_CFG=release
+fi
 
 # Check for OpenGL-related libraries
 # (Skip this test on darwin)
@@ -173,7 +213,7 @@ CHAI_DIR=${abs_srcdir}/libdeps/chai3d-3.2.0
 if test -e "$CHAI_DIR"/libchai3d.a; then
   CHAI_LIBDIR="$CHAI_DIR"
 else
-  CHAI_LIBDIR=${CHAI_DIR}/lib/release/${CHAI_SUFFIX}
+  CHAI_LIBDIR=${CHAI_DIR}/lib/${CHAI_CFG}/${CHAI_SUFFIX}
 fi
 CHAI_INCDIRS="-I${CHAI_DIR}/src -I${CHAI_DIR}/external/Eigen -I${CHAI_DIR}/external/glew/include"
 CPPFLAGS="$CPPFLAGS $CHAI_FLAGS"
@@ -267,38 +307,7 @@ AC_CHECK_LIB(lo, [lo_server_new], [],
     AC_CHECK_LIB(lo, [lo_server_new], [],
       AC_MSG_ERROR([Couldn't find liblo library.]))])])
 
-# check for options
-
-# debug mode (also checks for DIMPLE_DEBUG environment variable)
-AC_ARG_ENABLE(debug, [  --enable-debug          compile in debug mode],
-              [debug=yes])
-if test x$debug = xyes || test x$DIMPLE_DEBUG = x1; then
-  CPPFLAGS="-DDEBUG $CPPFLAGS"
-  if test "$CXXFLAGS" = "-g -O2"; then
-    CXXFLAGS="-g -O0 -Wall"
-  else
-    CXXFLAGS="$CXXFLAGS -g -O0 -Wall"
-  fi
-fi
-
-# queue size
-AC_ARG_WITH(queue-size,
-  [AS_HELP_STRING([--with-queue-size],[default size of message queues in kB, default 64])],
-  [queue_size=${withval}], [queue_size=64])
-AC_DEFINE_UNQUOTED(DEFAULT_QUEUE_SIZE, ${queue_size},
-                   [Default size of message queue in kB])
-
-# use messages queues
-AC_ARG_ENABLE(queues,
-  [AS_HELP_STRING([--disable-queues],[don't use messages queues, instead use
-                                      UDP for inter-thread communication])],
-  [use_queues=$enableval], [use_queues=yes])
-
-if test x$use_queues = xyes; then
-  AC_DEFINE(USE_QUEUES, [1],
-    [Define to enable use of message queues for inter-thread communication.])
-fi
-
+# Configure
 AC_CONFIG_FILES([
 	Makefile
     src/Makefile

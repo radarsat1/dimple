@@ -7,6 +7,8 @@
 
 echo This script bootstraps required libraries for selected environments.
 
+MAKE="make -j4"
+
 liblo() {
 liblo_URL=http://downloads.sourceforge.net/liblo/liblo-0.30.tar.gz
 liblo_TAR=tarballs/liblo-0.30.tar.gz
@@ -32,12 +34,17 @@ if !(tar -xzf $liblo_TAR); then
 	exit
 fi
 
-if [ ${liblo_PATCH}x != x ]; then
-echo Patching $liblo_DIR
-if !(cd $liblo_DIR && patch -p1 <../$liblo_PATCH); then
-	echo "Error applying patch" $liblo_PATCH
-	exit
-fi
+if [ "${liblo_PATCH}"x != x ]; then
+    echo Patching liblo
+    mkdir ${liblo_DIR}/patches
+    for P in ${liblo_PATCH}; do
+        cp -v $P ${liblo_DIR}/patches/;
+        echo $P >>${liblo_DIR}/series;
+    done
+    if !(cd $liblo_DIR; quilt push); then
+	      echo "Error applying patches for liblo."
+	      exit
+    fi
 # patch requires running autoconf
 echo Running autoconf for $liblo_DIR
 if !(cd $liblo_DIR && autoconf); then
@@ -72,7 +79,7 @@ case $(uname) in
    fi
 
    echo Compiling $liblo_DIR
-   if !(cd $liblo_DIR && make); then
+   if !(cd $liblo_DIR && $MAKE); then
 	  echo "Error compiling $liblo_DIR"
 	  exit
    fi
@@ -111,12 +118,17 @@ if !(tar -xzf $ode_TAR); then
 	exit
 fi
 
-if [ ${ode_PATCH}x != x ] && [ -f $ode_PATCH ]; then
-echo Patching $ode_DIR
-if !(cd $ode_DIR && patch -p1 <../$ode_PATCH); then
-	echo "Error applying patch " $ode_PATCH
-	exit
-fi
+if [ "${ode_PATCH}"x != x ] && [ -f "${ode_PATCH}" ]; then
+    echo Patching ODE
+    mkdir ${ode_DIR}/patches
+    for P in ${ode_PATCH}; do
+        cp -v $P ${ode_DIR}/patches/;
+        echo $P >>${ode_DIR}/series;
+    done
+    if !(cd $ode_DIR; quilt push); then
+	      echo "Error applying patches for ODE."
+	      exit
+    fi
 fi
 
 case $(uname) in
@@ -145,7 +157,7 @@ case $(uname) in
     fi
 
     echo Compiling $ode_DIR
-    if !(cd $ode_DIR && make); then
+    if !(cd $ode_DIR && $MAKE); then
 	    echo "Error compiling $ode_DIR"
     	exit
     fi
@@ -168,6 +180,13 @@ if [ -z $chai_DIR ]; then
    chai_DIR=chai3d-3.2.0
 fi
 
+if [ -n "${DIMPLE_DEBUG}" ]; then
+    CHAI_CFG=debug
+else
+    CHAI_CFG=release
+fi
+CHAI_MAKE_ARGS=CFG=$CHAI_CFG
+
 if ! [ -d $chai_DIR ]; then
 
 if [ $($MD5 "$chai_TAR" | $MD5CUT)x != ${chai_MD5}x ]; then
@@ -189,13 +208,17 @@ if !(unzip -o "$chai_TAR"); then
     exit
 fi
 
-# TODO: change this to a -p1 patch to avoid confusion!
-if [ ${chai_PATCH}x != x ]; then
-echo Patching chai3d
-if !(cd $chai_DIR; patch -p1 <../$chai_PATCH); then
-	echo "Error applying patch" $chai_PATCH
-	exit
-fi
+if [ "${chai_PATCH}"x != x ]; then
+    echo Patching chai3d
+    mkdir ${chai_DIR}/patches
+    for P in ${chai_PATCH}; do
+        cp -v $P ${chai_DIR}/patches/;
+        echo $P >>${chai_DIR}/series;
+    done
+    if !(cd $chai_DIR; quilt push); then
+	      echo "Error applying patches for CHAI."
+	      exit
+    fi
 fi
 
 case $(uname) in
@@ -217,15 +240,15 @@ case $(uname) in
 	;;
 
 	*)
-    echo Compiling $chai_DIR
-    if !(cd $chai_DIR && make || (cmake . $CMAKE_EXTRA "$CMAKE_GEN" && make)); then
+      echo Compiling $chai_DIR
+    if !(cd $chai_DIR && $MAKE $CHAI_MAKE_ARGS || (cmake . $CMAKE_EXTRA "$CMAKE_GEN" && $MAKE)); then
         echo "Error compiling $chai_DIR"
         exit
     fi
     if [ -e $chai_DIR/libchai3d.a ]; then
 	chai_LIBDIR=$chai_DIR
     else
-	chai_LIBDIR=$chai_DIR/lib/release/$(ls $chai_DIR/lib/release | head)
+	chai_LIBDIR=$chai_DIR/lib/$CHAI_CFG/$(ls $chai_DIR/lib/$CHAI_CFG | head)
     fi
     if ! [ -e $chai_LIBDIR/libchai3d.a ]; then
         echo "Build CHAI but can't find libchai3d.a in $chai_LIBDIR"
@@ -273,12 +296,17 @@ if !(tar -xzf "$freeglut_TAR"); then
     exit
 fi
 
-if [ ${freeglut_PATCH}x != x ]; then
-echo Patching $freeglut_DIR
-if !(cd $freeglut_DIR && patch -p1 <../$freeglut_PATCH); then
-	echo "Error applying patch" $freeglut_PATCH
-	exit
-fi
+if [ "${freeglut_PATCH}"x != x ]; then
+    echo Patching freeglut
+    mkdir ${freeglut_DIR}/patches
+    for P in ${freeglut_PATCH}; do
+        cp -v $P ${freeglut_DIR}/patches/;
+        echo $P >>${freeglut_DIR}/series;
+    done
+    if !(cd $freeglut_DIR; quilt push); then
+	      echo "Error applying patches for freeglut."
+	      exit
+    fi
 fi
 
 case $(uname) in
@@ -313,7 +341,7 @@ case $(uname) in
     fi
 
     echo Compiling $freeglut_DIR
-    if !(cd $freeglut_DIR && make); then
+    if !(cd $freeglut_DIR && $MAKE); then
 	    echo "Error compiling $freeglut_DIR"
     	exit
     fi    
@@ -354,12 +382,17 @@ if !(tar -xzf "$atomicops_TAR"); then
     exit
 fi
 
-if [ ${atomicops_PATCH}x != x ]; then
-echo Patching $atomicops_DIR
-if !(cd $atomicops_DIR && patch -p1 <../$atomicops_PATCH); then
-	echo "Error applying patch" $atomicops_PATCH
-	exit
-fi
+if [ "${atomicops_PATCH}"x != x ]; then
+    echo Patching atomicops
+    mkdir ${atomicops_DIR}/patches
+    for P in ${atomicops_PATCH}; do
+        cp -v $P ${atomicops_DIR}/patches/;
+        echo $P >>${atomicops_DIR}/series;
+    done
+    if !(cd $atomicops_DIR; quilt push); then
+	      echo "Error applying patches for atomicops."
+	      exit
+    fi
 fi
 
 fi
@@ -397,12 +430,17 @@ if !(tar -xzf "$pthreads_TAR"); then
     exit
 fi
 
-if [ ${pthreads_PATCH}x != x ]; then
-echo Patching $pthreads_DIR
-if !(cd $pthreads_DIR && patch -p1 <../$pthreads_PATCH); then
-	echo "Error applying patch" $pthreads_PATCH
-	exit
-fi
+if [ "${pthreads_PATCH}"x != x ]; then
+    echo Patching pthreads
+    mkdir ${pthreads_DIR}/patches
+    for P in ${pthreads_PATCH}; do
+        cp -v $P ${pthreads_DIR}/patches/;
+        echo $P >>${pthreads_DIR}/series;
+    done
+    if !(cd $pthreads_DIR; quilt push); then
+	      echo "Error applying patches for pthreads."
+	      exit
+    fi
 fi
 
 case $(uname) in
@@ -431,7 +469,7 @@ case $(uname) in
 
     *)
     echo Compiling $pthreads_DIR
-    if !(cd $pthreads_DIR && make clean GC-static); then
+    if !(cd $pthreads_DIR && $MAKE clean GC-static); then
 	    echo "Error compiling $pthreads_DIR"
     	exit
     fi
@@ -475,12 +513,17 @@ if !(tar -xzf "$samplerate_TAR"); then
     exit
 fi
 
-if [ ${samplerate_PATCH}x != x ]; then
-echo Patching $samplerate_DIR
-if !(cd $samplerate_DIR && patch -p1 <../$samplerate_PATCH); then
-	echo "Error applying patch" $samplerate_PATCH
-	exit
-fi
+if [ "${samplerate_PATCH}"x != x ]; then
+    echo Patching samplerate
+    mkdir ${samplerate_DIR}/patches
+    for P in ${samplerate_PATCH}; do
+        cp -v $P ${samplerate_DIR}/patches/;
+        echo $P >>${samplerate_DIR}/series;
+    done
+    if !(cd $samplerate_DIR; quilt push); then
+	      echo "Error applying patches for samplerate."
+	      exit
+    fi
 fi
 
 case $(uname) in
@@ -513,7 +556,7 @@ case $(uname) in
    fi
 
    echo Compiling $samplerate_DIR
-   if !(cd $samplerate_DIR && make); then
+   if !(cd $samplerate_DIR && $MAKE); then
 	  echo "Error compiling $samplerate_DIR"
 	  exit
    fi
@@ -540,6 +583,10 @@ if ! [ -d libdeps ];          then mkdir libdeps          || exit 1; fi
 if ! [ -d libdeps/tarballs ]; then mkdir libdeps/tarballs || exit 1; fi
 cd libdeps || exit 1
 
+echo "Looking for programs.."
+which quilt >/dev/null || (echo "quilt not found."; exit 1)
+which unzip >/dev/null || (echo "unzip not found."; exit 1)
+
 # System-dependant bootstrapping
 case $(uname) in
     MINGW32* | MINGW64* | MSYS*)
@@ -549,13 +596,12 @@ case $(uname) in
     liblo_LIBS="-lws2_32 -liphlpapi"
     liblo_CONFIGEXTRA="--disable-ipv6 --with-win32-threads --enable-static --disable-shared"
     chai_DIR=chai3d-3.2.0
+    chai_PATCH=patch-chai3d-clearFromContact.patch
     CMAKE_GEN='MSYS Makefiles'
     CMAKE_EXTRA=-G
 
     echo "Looking for programs.."
-    which patch >/dev/null || exit 1
-    which cmake >/dev/null || exit 1
-    which unzip >/dev/null || exit 1
+    which cmake >/dev/null || (echo "cmake not found."; exit 1)
 
     freeglut
     samplerate
@@ -570,7 +616,7 @@ case $(uname) in
 	MD5CUT="awk {print\$1}"
 	freeglut_PATCH=freeglut-2.4.0-vs2005exp.patch
 	pthreads_PATCH=pthreads-w32-2-8-0-release-vs2005exp-static.patch
-	#chai_PATCH=chai3d-1.61-vs2005exp.patch
+	chai_PATCH=patch-chai3d-clearFromContact.patch
 
 	COMPILE="$(echo $(cygpath -u $PROGRAMFILES)/Microsoft Visual Studio .NET 2003/Common7/IDE/devenv.exe)"
 	if !( [ -f "$COMPILE" ]); then
@@ -618,7 +664,7 @@ case $(uname) in
 	DL="wget -O"
     MD5=md5sum
 	MD5CUT="awk {print\$1}"
-  #chai_PATCH=chai3d-1.62.patch
+	chai_PATCH=patch-chai3d-clearFromContact.patch
 
 	ode
     chai3d
@@ -632,7 +678,7 @@ case $(uname) in
 	DL="curl -Lo"
     MD5=md5
 	MD5CUT="cut -f2 -d="
-  #chai_PATCH=chai3d-1.62.patch
+	chai_PATCH=patch-chai3d-clearFromContact.patch
     samplerate
     ode
 	liblo

@@ -183,11 +183,9 @@ void HapticsSim::updateWorkspace(cVector3d &pos, cVector3d &vel)
 
         // Normalize position to [-1, 1] within workspace.
         // Further scale by user-specified workspace scaling. (default=1)
-        pos(i) = (pos(i) + m_workspaceOffset(i))
-            * m_workspaceScale(i) * m_scale(i)
-            / m_cursor->object()->getWorkspaceScaleFactor();
-        vel(i) = vel(i) * m_workspaceScale(i) * m_scale(i)
-            / m_cursor->object()->getWorkspaceScaleFactor();
+        pos(i) = (pos(i) + m_workspaceOffset(i)*0)
+            * m_workspaceScale(i) * m_scale(i);
+        vel(i) = vel(i) * m_workspaceScale(i) * m_scale(i);
     }
 }
 
@@ -219,9 +217,7 @@ void HapticsSim::step()
 
         // Compensate for workspace scaling
         cVector3d force = cursor->getDeviceGlobalForce();
-        force = force
-            / (m_workspaceScale * m_scale)
-            * m_cursor->object()->getWorkspaceScaleFactor();
+        force = force / (m_workspaceScale * m_scale);
         cursor->setDeviceGlobalForce(force);
 
         m_cursor->addCursorMassForce();
@@ -347,6 +343,12 @@ const cHapticDeviceInfo& HapticsSim::getSpecs()
     return m_cursor->getSpecs();
 }
 
+void HapticsSim::clear_contact_object(CHAIObject *pCHAIObject)
+{
+    m_pContactObject = nullptr;
+    m_cursor->object()->m_hapticPoint->clearFromContact(pCHAIObject->chai_object());
+}
+
 /****** CHAIObject ******/
 
 CHAIObject::CHAIObject(OscObject *obj, cGenericObject *chai_obj, cWorld *world)
@@ -469,8 +471,15 @@ OscPrismCHAI::OscPrismCHAI(cWorld *world, const char *name, OscBase *parent)
 
 OscPrismCHAI::~OscPrismCHAI()
 {
-    if (m_pPrism)
+    HapticsSim *hap = dynamic_cast<HapticsSim*>(simulation());
+    if (hap && hap->contact_object() == this)
+    {
+        hap->clear_contact_object((CHAIObject*)m_pSpecial);
+    }
+
+    if (m_pPrism) {
         m_pPrism->getParent()->deleteChild(m_pPrism);
+    }
 }
 
 // This function borrowed from dynamic_ode example in CHAI.

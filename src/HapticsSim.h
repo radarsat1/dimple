@@ -17,6 +17,7 @@
 
 class OscCursorCHAI;
 class OscHapticsVirtdevCHAI;
+class CHAIObject;
 
 class HapticsSim : public Simulation
 {
@@ -27,6 +28,7 @@ class HapticsSim : public Simulation
     cWorld *world() { return m_chaiWorld; }
 
     OscObject *contact_object() { return m_pContactObject; }
+    void clear_contact_object(CHAIObject *pCHAIObject);
 
     //! Set the grabbed object or ungrab by setting to NULL.
     virtual void set_grabbed(OscObject *pGrabbed);

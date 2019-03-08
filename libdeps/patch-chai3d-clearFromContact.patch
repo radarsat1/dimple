@@ -1,0 +1,207 @@
+From 8485be45973341584747fa8bf47b2d72beff1424 Mon Sep 17 00:00:00 2001
+From: Stephen Sinclair <radarsat1@gmail.com>
+Date: Fri, 8 Mar 2019 09:14:21 +0100
+Subject: [PATCH] Add cHapticPoint::clearFromContact().
+
+Needs to be called after removing an object from cWorld, otherwise
+dangling pointers remain.
+---
+ src/forces/CAlgorithmFingerProxy.h |  23 +++---
+ src/tools/CHapticPoint.cpp         | 111 ++++++++++++++++++++++++++++-
+ src/tools/CHapticPoint.h           |   3 +
+ 3 files changed, 124 insertions(+), 13 deletions(-)
+
+diff --git a/src/forces/CAlgorithmFingerProxy.h b/src/forces/CAlgorithmFingerProxy.h
+index 2d78929..2f4c24e 100644
+--- a/src/forces/CAlgorithmFingerProxy.h
++++ b/src/forces/CAlgorithmFingerProxy.h
+@@ -184,6 +184,17 @@ public:
+     //! Collision settings.
+     cCollisionSettings m_collisionSettings;
+ 
++    //! Collision detection recorder for searching first constraint.
++    cCollisionRecorder m_collisionRecorderConstraint0;
++
++    //! Collision detection recorder for searching second constraint.
++    cCollisionRecorder m_collisionRecorderConstraint1;
++
++    //! Collision detection recorder for searching third constraint.
++    cCollisionRecorder m_collisionRecorderConstraint2;
++
++    //! Number of collision events between proxy and triangles (0, 1, 2 or 3).
++    unsigned int m_numCollisionEvents;
+ 
+     //----------------------------------------------------------------------
+     // METHODS - RESOLUTION / ERRORS
+@@ -254,9 +265,6 @@ protected:
+     //! Tangential force.
+     cVector3d m_tangentialForce;
+ 
+-    //! Number of collision events between proxy and triangles (0, 1, 2 or 3).
+-    unsigned int m_numCollisionEvents;
+-
+     //! Radius of the proxy.
+     double m_radius;
+ 
+@@ -267,15 +275,6 @@ protected:
+ 
+ protected:
+ 
+-    //! Collision detection recorder for searching first constraint.
+-    cCollisionRecorder m_collisionRecorderConstraint0;
+-
+-    //! Collision detection recorder for searching second constraint.
+-    cCollisionRecorder m_collisionRecorderConstraint1;
+-
+-    //! Collision detection recorder for searching third constraint.
+-    cCollisionRecorder m_collisionRecorderConstraint2;
+-
+     //! Local position of contact point first object.
+     cVector3d m_contactPointLocalPos0;
+ 
+diff --git a/src/tools/CHapticPoint.cpp b/src/tools/CHapticPoint.cpp
+index 4b297a9..c980cce 100644
+--- a/src/tools/CHapticPoint.cpp
++++ b/src/tools/CHapticPoint.cpp
+@@ -470,7 +470,6 @@ cVector3d cHapticPoint::computeInteractionForces(cVector3d& a_globalPos,
+     // objects for which haptic effects have been programmed
+     cVector3d force1 = m_algorithmPotentialField->computeForces(a_globalPos, a_globalLinVel);
+ 
+-
+     ///////////////////////////////////////////////////////////////////////////
+     // FINALIZATION
+     ///////////////////////////////////////////////////////////////////////////
+@@ -629,6 +628,116 @@ bool cHapticPoint::isInContact(cGenericObject* a_object)
+     return (false);
+ }
+ 
++//==============================================================================
++/*!
++    This method removes an object from the contact list if it is in contact.
++
++    \param  a_object  Object to checked for possible contact and removed.
++
++    \return __true__ if the object is in contact with tool, __false__ otherwise.
++*/
++//==============================================================================
++bool cHapticPoint::clearFromContact(cGenericObject* a_object)
++{
++    /////////////////////////////////////////////////////////////////////
++    // verify finger-proxy algorithm 
++    /////////////////////////////////////////////////////////////////////
++    bool found = false;
++
++    // contact 2
++    if ((m_algorithmFingerProxy->m_collisionEvents[0]->m_object != NULL) &&
++        (m_algorithmFingerProxy->m_collisionEvents[1]->m_object != NULL) &&
++        (m_algorithmFingerProxy->m_collisionEvents[2]->m_object == a_object))
++    {
++        m_algorithmFingerProxy->m_collisionEvents[2]->m_object = NULL;
++        --m_algorithmFingerProxy->m_numCollisionEvents;
++        found = true;
++    }
++
++    // contact 1
++    if ((m_algorithmFingerProxy->m_collisionEvents[0]->m_object != NULL) &&
++        (m_algorithmFingerProxy->m_collisionEvents[1]->m_object == a_object))
++    {
++        m_algorithmFingerProxy->m_collisionEvents[1]->m_object =
++            m_algorithmFingerProxy->m_collisionEvents[2]->m_object;
++        m_algorithmFingerProxy->m_collisionEvents[2]->m_object = NULL;
++        --m_algorithmFingerProxy->m_numCollisionEvents;
++        found = true;
++    }
++
++    // contact 0
++    if (m_algorithmFingerProxy->m_collisionEvents[0]->m_object == a_object)
++    {
++        m_algorithmFingerProxy->m_collisionEvents[0]->m_object =
++            m_algorithmFingerProxy->m_collisionEvents[1]->m_object;
++        m_algorithmFingerProxy->m_collisionEvents[1]->m_object = 
++            m_algorithmFingerProxy->m_collisionEvents[2]->m_object;
++        m_algorithmFingerProxy->m_collisionEvents[2]->m_object = NULL;
++        --m_algorithmFingerProxy->m_numCollisionEvents;
++        found = true;
++    }
++
++    // nearest collision 2
++    if (m_algorithmFingerProxy->m_collisionRecorderConstraint2.m_nearestCollision.m_object == a_object)
++    {
++        m_algorithmFingerProxy->m_collisionRecorderConstraint2.m_nearestCollision.m_object = NULL;
++        found = true;
++    }
++
++    // nearest collision 1
++    if (m_algorithmFingerProxy->m_collisionRecorderConstraint1.m_nearestCollision.m_object == a_object)
++    {
++        m_algorithmFingerProxy->m_collisionRecorderConstraint1.m_nearestCollision.m_object = NULL;
++        found = true;
++    }
++
++    // nearest collision 0
++    if (m_algorithmFingerProxy->m_collisionRecorderConstraint0.m_nearestCollision.m_object == a_object)
++    {
++        m_algorithmFingerProxy->m_collisionRecorderConstraint0.m_nearestCollision.m_object = NULL;
++        found = true;
++    }
++
++    /////////////////////////////////////////////////////////////////////
++    // verify potential-field algorithm
++    /////////////////////////////////////////////////////////////////////
++    unsigned int num = (int)(m_algorithmPotentialField->m_interactionRecorder.m_interactions.size());
++    unsigned int i = 0;
++    while (i < num)
++    {
++        // check next interaction
++        if (m_algorithmPotentialField->m_interactionRecorder.m_interactions[i].m_object == a_object)
++        {
++            m_algorithmPotentialField->m_interactionRecorder.m_interactions[i].m_object = NULL;
++            found = true;
++        }
++
++        // increment counter
++        i++;
++    }
++
++    /////////////////////////////////////////////////////////////////////
++    // check proxy contact lists
++    /////////////////////////////////////////////////////////////////////
++    for (i = 0; i < 3; i++)
++    {
++        if (m_meshProxyContacts[i] == a_object)
++        {
++            m_meshProxyContacts[i] = NULL;
++            found = true;
++        }
++
++        if (m_audioProxyContacts[i] == a_object)
++        {
++            m_audioProxyContacts[i] = NULL;
++            found = true;
++        }
++    }
++
++    // true if object was in contact
++    return (found);
++}
++
+ 
+ //==============================================================================
+ /*!
+diff --git a/src/tools/CHapticPoint.h b/src/tools/CHapticPoint.h
+index a3a1486..6d8ba14 100644
+--- a/src/tools/CHapticPoint.h
++++ b/src/tools/CHapticPoint.h
+@@ -215,6 +215,9 @@ public:
+     //! This method checks if the tool is touching a particular object.
+     bool isInContact(cGenericObject* a_object);
+ 
++    //! This method removes an object from the contact list if it is in contact.
++    bool clearFromContact(cGenericObject* a_object);
++
+ 
+     //--------------------------------------------------------------------------
+     // PUBLIC MEMBERS - FORCE RENDERING ALGORITHMS
+-- 
+2.17.1
+
