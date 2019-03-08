@@ -584,8 +584,8 @@ if ! [ -d libdeps/tarballs ]; then mkdir libdeps/tarballs || exit 1; fi
 cd libdeps || exit 1
 
 echo "Looking for programs.."
-which quilt >/dev/null || (echo "quilt not found."; exit 1)
-which unzip >/dev/null || (echo "unzip not found."; exit 1)
+which quilt >/dev/null || ( echo "error: quilt not found."; false ) || exit 1
+which unzip >/dev/null || (echo "error: unzip not found."; false ) || exit 1
 
 # System-dependant bootstrapping
 case $(uname) in
@@ -601,7 +601,7 @@ case $(uname) in
     CMAKE_EXTRA=-G
 
     echo "Looking for programs.."
-    which cmake >/dev/null || (echo "cmake not found."; exit 1)
+    which cmake >/dev/null || (echo "cmake not found."; false ) || exit 1
 
     freeglut
     samplerate
