@@ -1,4 +1,4 @@
-#N canvas 75 170 762 607 10;
+#N canvas 1151 461 762 607 10;
 #X obj 504 139 oscformat /world/clear;
 #X obj 456 176 s osc;
 #X obj 281 153 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
@@ -1031,7 +1031,7 @@
 #X text 330 136 reset counter;
 #X text 54 383 objects collide;
 #X text 55 369 Beep when any two;
-#N canvas 67 89 463 443 forcestick 0;
+#N canvas 989 145 546 454 forcestick 0;
 #X obj 21 54 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
 -1;
 #X text 77 17 Force Stick;
@@ -1048,6 +1048,22 @@
 #X obj 21 340 oscformat /world/c1/response/spring;
 #X obj 21 365 s osc;
 #X msg 21 317 0.2 0.01;
+#X obj 230 130 s osc;
+#X obj 287 164 r rosc;
+#X obj 287 187 route list;
+#X obj 287 210 route world;
+#X obj 287 233 route stick;
+#X obj 287 256 route force;
+#X msg 230 82 100;
+#X obj 286 279 unpack 0 0 0;
+#X floatatom 287 302 15 0 0 0 - - -, f 15;
+#X floatatom 312 321 15 0 0 0 - - -, f 15;
+#X floatatom 327 341 15 0 0 0 - - -, f 15;
+#X obj 230 105 oscformat /world/stick/force/magnitude/get;
+#X obj 268 368 route magnitude;
+#X floatatom 267 391 15 0 0 0 - - -, f 15;
+#X text 230 44 example of how to get the force of the cursor on the
+stick;
 #X connect 0 0 2 0;
 #X connect 2 0 14 0;
 #X connect 2 1 11 0;
@@ -1065,6 +1081,18 @@
 #X connect 11 0 10 0;
 #X connect 12 0 13 0;
 #X connect 14 0 12 0;
+#X connect 16 0 17 0;
+#X connect 17 0 18 0;
+#X connect 18 0 19 0;
+#X connect 19 0 20 0;
+#X connect 20 0 22 0;
+#X connect 20 0 27 0;
+#X connect 21 0 26 0;
+#X connect 22 0 23 0;
+#X connect 22 1 24 0;
+#X connect 22 2 25 0;
+#X connect 26 0 15 0;
+#X connect 27 0 28 0;
 #X restore 340 285 pd forcestick;
 #X obj 340 266 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
