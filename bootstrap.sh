@@ -7,6 +7,8 @@
 
 echo This script bootstraps required libraries for selected environments.
 
+MAKE="make -j4"
+
 liblo() {
 liblo_URL=http://downloads.sourceforge.net/liblo/liblo-0.30.tar.gz
 liblo_TAR=tarballs/liblo-0.30.tar.gz
@@ -72,7 +74,7 @@ case $(uname) in
    fi
 
    echo Compiling $liblo_DIR
-   if !(cd $liblo_DIR && make); then
+   if !(cd $liblo_DIR && $MAKE); then
 	  echo "Error compiling $liblo_DIR"
 	  exit
    fi
@@ -145,7 +147,7 @@ case $(uname) in
     fi
 
     echo Compiling $ode_DIR
-    if !(cd $ode_DIR && make); then
+    if !(cd $ode_DIR && $MAKE); then
 	    echo "Error compiling $ode_DIR"
     	exit
     fi
@@ -217,8 +219,8 @@ case $(uname) in
 	;;
 
 	*)
-    echo Compiling $chai_DIR
-    if !(cd $chai_DIR && make || (cmake . $CMAKE_EXTRA "$CMAKE_GEN" && make)); then
+      echo Compiling $chai_DIR
+    if !(cd $chai_DIR && $MAKE || (cmake . $CMAKE_EXTRA "$CMAKE_GEN" && $MAKE)); then
         echo "Error compiling $chai_DIR"
         exit
     fi
@@ -313,7 +315,7 @@ case $(uname) in
     fi
 
     echo Compiling $freeglut_DIR
-    if !(cd $freeglut_DIR && make); then
+    if !(cd $freeglut_DIR && $MAKE); then
 	    echo "Error compiling $freeglut_DIR"
     	exit
     fi    
@@ -431,7 +433,7 @@ case $(uname) in
 
     *)
     echo Compiling $pthreads_DIR
-    if !(cd $pthreads_DIR && make clean GC-static); then
+    if !(cd $pthreads_DIR && $MAKE clean GC-static); then
 	    echo "Error compiling $pthreads_DIR"
     	exit
     fi
@@ -513,7 +515,7 @@ case $(uname) in
    fi
 
    echo Compiling $samplerate_DIR
-   if !(cd $samplerate_DIR && make); then
+   if !(cd $samplerate_DIR && $MAKE); then
 	  echo "Error compiling $samplerate_DIR"
 	  exit
    fi
