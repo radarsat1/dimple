@@ -180,6 +180,13 @@ if [ -z $chai_DIR ]; then
    chai_DIR=chai3d-3.2.0
 fi
 
+if [ -n "${DIMPLE_DEBUG}" ]; then
+    CHAI_CFG=debug
+else
+    CHAI_CFG=release
+fi
+CHAI_MAKE_ARGS=CFG=$CHAI_CFG
+
 if ! [ -d $chai_DIR ]; then
 
 if [ $($MD5 "$chai_TAR" | $MD5CUT)x != ${chai_MD5}x ]; then
@@ -234,14 +241,14 @@ case $(uname) in
 
 	*)
       echo Compiling $chai_DIR
-    if !(cd $chai_DIR && $MAKE || (cmake . $CMAKE_EXTRA "$CMAKE_GEN" && $MAKE)); then
+    if !(cd $chai_DIR && $MAKE $CHAI_MAKE_ARGS || (cmake . $CMAKE_EXTRA "$CMAKE_GEN" && $MAKE)); then
         echo "Error compiling $chai_DIR"
         exit
     fi
     if [ -e $chai_DIR/libchai3d.a ]; then
 	chai_LIBDIR=$chai_DIR
     else
-	chai_LIBDIR=$chai_DIR/lib/release/$(ls $chai_DIR/lib/release | head)
+	chai_LIBDIR=$chai_DIR/lib/$CHAI_CFG/$(ls $chai_DIR/lib/$CHAI_CFG | head)
     fi
     if ! [ -e $chai_LIBDIR/libchai3d.a ]; then
         echo "Build CHAI but can't find libchai3d.a in $chai_LIBDIR"
