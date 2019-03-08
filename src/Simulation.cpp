@@ -723,6 +723,8 @@ bool Simulation::start()
     if (m_condvar.wait_until(lk, now+3*sec)==std::cv_status::timeout) {
 #endif
         printf("[%s] Timed out during initialization.\n", type_str());
+        m_bDone = true;
+        m_thread.join();
         return false;
     }
 
