@@ -24,8 +24,6 @@ class VisualSim : public Simulation
     OscCameraCHAI *camera() { return m_camera; }
     cSpotLight *light(unsigned int i);
 
-    virtual void on_clear();
-
     //! Message to append to log (displayed in window)
     OSCSTRING(VisualSim, log);
 

@@ -343,6 +343,12 @@ const cHapticDeviceInfo& HapticsSim::getSpecs()
     return m_cursor->getSpecs();
 }
 
+void HapticsSim::clear_contact_object(CHAIObject *pCHAIObject)
+{
+    m_pContactObject = nullptr;
+    m_cursor->object()->m_hapticPoint->clearFromContact(pCHAIObject->chai_object());
+}
+
 /****** CHAIObject ******/
 
 CHAIObject::CHAIObject(OscObject *obj, cGenericObject *chai_obj, cWorld *world)
@@ -465,8 +471,15 @@ OscPrismCHAI::OscPrismCHAI(cWorld *world, const char *name, OscBase *parent)
 
 OscPrismCHAI::~OscPrismCHAI()
 {
-    if (m_pPrism)
+    HapticsSim *hap = dynamic_cast<HapticsSim*>(simulation());
+    if (hap && hap->contact_object() == this)
+    {
+        hap->clear_contact_object((CHAIObject*)m_pSpecial);
+    }
+
+    if (m_pPrism) {
         m_pPrism->getParent()->deleteChild(m_pPrism);
+    }
 }
 
 // This function borrowed from dynamic_ode example in CHAI.

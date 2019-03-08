@@ -1048,8 +1048,13 @@ void Simulation::on_clear()
     object_iterator it = world_objects.begin();
     while (it != world_objects.end())
     {
-        it->second->on_destroy();
-        it = world_objects.begin();
+        if (it->second->name() == "cursor"
+            || it->second->name() == "device")
+            it++;
+        else {
+            it->second->on_destroy();
+            it = world_objects.begin();
+        }
     }
 }
 
