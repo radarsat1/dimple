@@ -51,7 +51,8 @@ be configurable in the future.)
     /world/mesh/create <s:name> <s:filename.3ds> [f:x] [f:y] [f:z]
 
 These messages create a named object as either a prism, sphere, or
-arbitrary mesh, which must be specified in the .3DS file format.
+arbitrary mesh, which must be specified in a format supported by CHAI
+3D, currently this includes .3ds, .obj, and .stl file formats.
 Optionally, an initial position can be specified.  The initial size
 will be quite small, so these messages are usually followed up by a
 ''/size'' or ''/radius'' message.
