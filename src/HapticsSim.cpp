@@ -921,6 +921,7 @@ void OscCursorCHAI::addCursorExtraForce()
 OscHapticsVirtdevCHAI::OscHapticsVirtdevCHAI(cWorld *world, const char *name, OscBase *parent)
     : OscSphereCHAI(world, name, parent)
 {
+    world->removeChild(m_pSphere);
     m_pVirtdev = std::make_shared<cVirtualDevice>();
     m_position.setSetCallback(OscHapticsVirtdevCHAI::on_set_position, this);
 }
