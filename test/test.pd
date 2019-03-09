@@ -1,4 +1,4 @@
-#N canvas 657 377 762 607 10;
+#N canvas 610 377 762 607 10;
 #X obj 504 139 oscformat /world/clear;
 #X obj 456 176 s osc;
 #X obj 281 153 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
@@ -982,7 +982,7 @@
 #X obj 23 306 route magnitude;
 #X obj 24 281 route velocity acceleration;
 #X obj 33 10 inlet;
-#X obj 24 210 r rosc;
+#X obj 23 191 r rosc;
 #X obj 217 255 outlet;
 #X obj 237 233 outlet;
 #X obj 50 135 oscformat /world/3s/destroy;
@@ -990,6 +990,7 @@
 #X obj 33 52 * 30;
 #X obj 33 75 oscformat /world/3s/velocity/magnitude/get;
 #X obj 33 97 oscformat /world/3s/acceleration/magnitude/get;
+#X obj 23 214 route list;
 #X connect 1 0 22 0;
 #X connect 2 0 3 0;
 #X connect 3 0 10 0;
@@ -1007,13 +1008,14 @@
 #X connect 15 0 14 0;
 #X connect 15 1 2 0;
 #X connect 16 0 1 0;
-#X connect 17 0 13 0;
+#X connect 17 0 25 0;
 #X connect 20 0 0 0;
 #X connect 21 0 15 0;
 #X connect 22 0 23 0;
 #X connect 22 0 24 0;
 #X connect 23 0 0 0;
 #X connect 24 0 0 0;
+#X connect 25 0 13 0;
 #X restore 258 417 pd s3_accel;
 #X obj 258 395 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
