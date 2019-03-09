@@ -165,6 +165,13 @@ int dimple_main(int argc, char* argv[])
 int main(int argc, char* argv[])
 #endif
 {
+    // turn off non-existent line buffer on Windows
+#ifdef WIN32
+#ifdef HAVE_SETVBUF
+    setvbuf(stdout, 0, _IONBF, BUFSIZ);
+#endif
+#endif
+
 	 // display pretty message
 	 printf ("\n");
 	 printf ("  ==========================================================\n");

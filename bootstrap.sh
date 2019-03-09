@@ -39,7 +39,7 @@ if [ "${liblo_PATCH}"x != x ]; then
     mkdir ${liblo_DIR}/patches
     for P in ${liblo_PATCH}; do
         cp -v $P ${liblo_DIR}/patches/;
-        echo $P >>${liblo_DIR}/series;
+        echo $(basename $P) >>${liblo_DIR}/series;
     done
     if !(cd $liblo_DIR; quilt push); then
 	      echo "Error applying patches for liblo."
@@ -123,7 +123,7 @@ if [ "${ode_PATCH}"x != x ] && [ -f "${ode_PATCH}" ]; then
     mkdir ${ode_DIR}/patches
     for P in ${ode_PATCH}; do
         cp -v $P ${ode_DIR}/patches/;
-        echo $P >>${ode_DIR}/series;
+        echo $(basename $P) >>${ode_DIR}/series;
     done
     if !(cd $ode_DIR; quilt push); then
 	      echo "Error applying patches for ODE."
@@ -213,7 +213,7 @@ if [ "${chai_PATCH}"x != x ]; then
     mkdir ${chai_DIR}/patches
     for P in ${chai_PATCH}; do
         cp -v $P ${chai_DIR}/patches/;
-        echo $P >>${chai_DIR}/series;
+        echo $(basename $P) >>${chai_DIR}/series;
     done
     if !(cd $chai_DIR; quilt push); then
 	      echo "Error applying patches for CHAI."
@@ -301,7 +301,7 @@ if [ "${freeglut_PATCH}"x != x ]; then
     mkdir ${freeglut_DIR}/patches
     for P in ${freeglut_PATCH}; do
         cp -v $P ${freeglut_DIR}/patches/;
-        echo $P >>${freeglut_DIR}/series;
+        echo $(basename $P) >>${freeglut_DIR}/series;
     done
     if !(cd $freeglut_DIR; quilt push); then
 	      echo "Error applying patches for freeglut."
@@ -387,7 +387,7 @@ if [ "${atomicops_PATCH}"x != x ]; then
     mkdir ${atomicops_DIR}/patches
     for P in ${atomicops_PATCH}; do
         cp -v $P ${atomicops_DIR}/patches/;
-        echo $P >>${atomicops_DIR}/series;
+        echo $(basename $P) >>${atomicops_DIR}/series;
     done
     if !(cd $atomicops_DIR; quilt push); then
 	      echo "Error applying patches for atomicops."
@@ -435,7 +435,7 @@ if [ "${pthreads_PATCH}"x != x ]; then
     mkdir ${pthreads_DIR}/patches
     for P in ${pthreads_PATCH}; do
         cp -v $P ${pthreads_DIR}/patches/;
-        echo $P >>${pthreads_DIR}/series;
+        echo $(basename $P) >>${pthreads_DIR}/series;
     done
     if !(cd $pthreads_DIR; quilt push); then
 	      echo "Error applying patches for pthreads."
@@ -518,7 +518,7 @@ if [ "${samplerate_PATCH}"x != x ]; then
     mkdir ${samplerate_DIR}/patches
     for P in ${samplerate_PATCH}; do
         cp -v $P ${samplerate_DIR}/patches/;
-        echo $P >>${samplerate_DIR}/series;
+        echo $(basename $P) >>${samplerate_DIR}/series;
     done
     if !(cd $samplerate_DIR; quilt push); then
 	      echo "Error applying patches for samplerate."
@@ -596,7 +596,7 @@ case $(uname) in
     liblo_LIBS="-lws2_32 -liphlpapi"
     liblo_CONFIGEXTRA="--disable-ipv6 --with-win32-threads --enable-static --disable-shared"
     chai_DIR=chai3d-3.2.0
-    chai_PATCH=patch-chai3d-clearFromContact.patch
+    chai_PATCH="patches/chai3d-clearFromContact.patch patches/chai3d-tdleap-mingw64.patch"
     CMAKE_GEN='MSYS Makefiles'
     CMAKE_EXTRA=-G
 
@@ -616,7 +616,7 @@ case $(uname) in
 	MD5CUT="awk {print\$1}"
 	freeglut_PATCH=freeglut-2.4.0-vs2005exp.patch
 	pthreads_PATCH=pthreads-w32-2-8-0-release-vs2005exp-static.patch
-	chai_PATCH=patch-chai3d-clearFromContact.patch
+	chai_PATCH=patches/chai3d-clearFromContact.patch
 
 	COMPILE="$(echo $(cygpath -u $PROGRAMFILES)/Microsoft Visual Studio .NET 2003/Common7/IDE/devenv.exe)"
 	if !( [ -f "$COMPILE" ]); then
@@ -664,7 +664,7 @@ case $(uname) in
 	DL="wget -O"
     MD5=md5sum
 	MD5CUT="awk {print\$1}"
-	chai_PATCH=patch-chai3d-clearFromContact.patch
+	chai_PATCH=patches/chai3d-clearFromContact.patch
 
 	ode
     chai3d
@@ -678,7 +678,7 @@ case $(uname) in
 	DL="curl -Lo"
     MD5=md5
 	MD5CUT="cut -f2 -d="
-	chai_PATCH=patch-chai3d-clearFromContact.patch
+	chai_PATCH=patches/chai3d-clearFromContact.patch
     samplerate
     ode
 	liblo
