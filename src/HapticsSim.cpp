@@ -320,6 +320,10 @@ void HapticsSim::findContactObject()
         obj = interactionEvent->m_object;
     }
 
+    // Check parents if no user data present
+    while (obj && !obj->m_userData)
+        obj = obj->getParent();
+
     // User data is set in the Osc*CHAI constructors
     if (obj)
         m_pContactObject = (OscObject*)obj->m_userData;
