@@ -1,0 +1,617 @@
+From ff7f0dee685fb4d3446117116410f2129a5095ab Mon Sep 17 00:00:00 2001
+From: Stephen Sinclair <radarsat1@gmail.com>
+Date: Sat, 9 Mar 2019 23:33:35 +0100
+Subject: [PATCH 2/2] Add "force" capabilities to tdLeap via Ultrahaptics SDK.
+
+---
+ extras/tdLeap/include/tdLeap.h      |   4 +
+ extras/tdLeap/src/tdLeap.cpp        | 145 ++++++++++++++++++++++++++++
+ extras/tdLeap/tdLeap-VS2013.vcxproj |   8 +-
+ extras/tdLeap/tdLeap.def            |   2 +
+ src/devices/CDeltaDevices.cpp       |   5 +-
+ src/devices/CDeltaDevices.h         |   2 +-
+ src/devices/CGenericHapticDevice.h  |   2 +-
+ src/devices/CLeapDevices.cpp        |  29 ++++++
+ src/devices/CLeapDevices.h          |   4 +
+ src/devices/CMyCustomDevice.cpp     |   3 +-
+ src/devices/CMyCustomDevice.h       |   2 +-
+ src/devices/CPhantomDevices.cpp     |   2 +-
+ src/devices/CPhantomDevices.h       |   2 +-
+ src/tools/CGenericTool.cpp          |  31 ++++--
+ src/tools/CGenericTool.h            |   3 +
+ src/tools/CToolCursor.cpp           |  42 ++++++++
+ src/tools/CToolCursor.h             |   3 +
+ 17 files changed, 270 insertions(+), 19 deletions(-)
+
+diff --git a/extras/tdLeap/include/tdLeap.h b/extras/tdLeap/include/tdLeap.h
+index 24dc064..2d88b70 100644
+--- a/extras/tdLeap/include/tdLeap.h
++++ b/extras/tdLeap/include/tdLeap.h
+@@ -76,6 +76,10 @@ bool __FNCALL tdLeapGetUserSwitches(unsigned int a_userSwitches[2]);
+ // raw pointer access
+ bool __FNCALL tdLeapGetFrame(void* &a_frame);
+ 
++// ultrahaptics "forces"
++const char* __FNCALL tdLeapGetForceDeviceName(int number);
++bool __FNCALL tdLeapSetForce(chai3d::cVector3d a_force, chai3d::cVector3d a_position, int number);
++
+ //---------------------------------------------------------------------------
+ #ifdef __cplusplus
+ }
+diff --git a/extras/tdLeap/src/tdLeap.cpp b/extras/tdLeap/src/tdLeap.cpp
+index 64caa3a..907b86b 100644
+--- a/extras/tdLeap/src/tdLeap.cpp
++++ b/extras/tdLeap/src/tdLeap.cpp
+@@ -46,6 +46,10 @@ using namespace Leap;
+ #include "chai3d.h"
+ using namespace chai3d;
+ //---------------------------------------------------------------------------
++#include "UltrahapticsAmplitudeModulation.hpp"
++namespace UH = Ultrahaptics;
++#include <chrono>
++//---------------------------------------------------------------------------
+ 
+ //=============================================================================
+ // GLOBAL VARIABLES
+@@ -54,10 +58,18 @@ using namespace chai3d;
+ // Leap Motion controller
+ static Controller* _controller = NULL;
+ 
++// Ultrahaptics emitter
++static UH::AmplitudeModulation::Emitter* _emitter = NULL;
++static UH::Alignment* _alignment = NULL;
++typedef std::chrono::high_resolution_clock uh_clock;
++uh_clock::time_point _lastUHtime;
++
+ // internal Leap objects
+ static Frame*  _lastFrame;
+ static int64_t _lastFrameID = -1;
+ static Hand*   _lastHand[2];
++static cVector3d _lastForce[2];
++static cVector3d _lastForcePos[2];
+ 
+ 
+ //=============================================================================
+@@ -93,6 +105,17 @@ _allocate()
+         while (!_controller->isConnected() && sleepCount++ < 20)
+             _sleepMs(100);
+     }
++
++    if (!_emitter) {
++        _emitter = new UH::AmplitudeModulation::Emitter();
++        if (_emitter->isConnected()) {
++            _alignment = new UH::Alignment(_emitter->getDeviceInfo().getDefaultAlignment());
++            std::cout << "Found an Ultrahaptics device!" << std::endl;
++        }
++        else {
++            std::cout << "No Ultrahaptics device found." << std::endl;
++        }
++    }
+ }
+ 
+ 
+@@ -107,6 +130,11 @@ _deallocate()
+         delete _lastHand[1];
+         _controller = NULL;
+     }
++
++    if (_emitter) {
++        delete _emitter;
++        delete _alignment;
++    }
+ }
+ 
+ 
+@@ -156,6 +184,9 @@ int __FNCALL tdLeapOpen()
+         return (-1);
+     }
+ 
++    // ensure first update
++    _lastUHtime = uh_clock::now() - std::chrono::milliseconds(100);
++
+     // success
+     return (0);
+ }
+@@ -263,6 +294,51 @@ bool __FNCALL tdLeapUpdate()
+         }
+     }
+ 
++    // Update UltraHaptics at 40 Hz
++    if (!_emitter || !_emitter->isConnected())
++        return (true);
++
++    uh_clock::time_point now = uh_clock::now();
++    if ((now - _lastUHtime) > std::chrono::milliseconds(25))
++    {
++        _lastUHtime = now;
++        std::vector<UH::ControlPoint> points;
++
++        // Display a "force" at the given points with intensity proportional to the force magnitude
++        for (int i = 0; i < 2; i++)
++        {
++            double mag = _lastForce[i].length() / 10.0;
++            if (mag < 1e-2)
++                continue;
++
++            if (mag > 1)
++                mag = 1.0;
++
++            // Re-alignment
++            UH::Vector3 leap_pos;
++            if (_lastHand[i]->isValid())
++            {
++                Vector center, pos;
++                center = _lastHand[i]->frame().interactionBox().center();
++                pos = _lastHand[i]->palmPosition();
++                leap_pos.x = (_lastForcePos[i].y()*1e-3 + center.x);
++                leap_pos.y = (_lastForcePos[i].z()*1e-3 + center.y);
++                leap_pos.z = (_lastForcePos[i].x()*1e-3 + center.z);
++
++                // for now
++                leap_pos.x = _lastForcePos[i].x();
++                leap_pos.y = _lastForcePos[i].y();
++                leap_pos.z = _lastForcePos[i].z();
++
++                UH::Vector3 uh_pos = _alignment->fromTrackingPositionToDevicePosition(leap_pos);
++
++                points.push_back(UH::ControlPoint(uh_pos, mag));
++            }
++        }
++
++        _emitter->update(points.data(), points.size());
++    }
++
+     // one way or another, it worked
+     return (true);
+ }
+@@ -486,3 +562,72 @@ bool __FNCALL tdLeapGetFrame(void* &a_frame)
+         return (false);
+     }
+ }
++
++//==========================================================================
++/*!
++    Get the name of the force-display device used for a given device index.
++
++    \fn     const char* __FNCALL tdLeapGetForceDeviceName(int number)
++
++    \param  number The device index, starting at zero.
++
++    \return Return __true__ on success, __false__ otherwise.
++
++    \note
++    Always check if this function was loaded, for compatibility with
++    upstream Chai3d.
++*/
++//==========================================================================
++const char* __FNCALL tdLeapGetForceDeviceName(int number)
++{
++    if (number < 0 || number >= 2)
++        return (NULL);
++
++    // Return UltraHaptics
++    if (_emitter && _emitter->isConnected())
++        return ("UltraHaptics");
++
++    return (NULL);
++}
++
++//==========================================================================
++/*!
++    Display a "force" on the Ultrahaptics device associated with this
++    Leap, if any.
++
++    \fn       bool __FNCALL tdLeapSetForce(cVector3d a_force, cVector3d a_position, int number)
++
++    \param a_force    The "force" to display.
++    \param a_position The position associated with this force.
++    \param number     The device index for this force display.
++
++    \return Return __true__ on success, __false__ otherwise.
++
++    \note
++    Always check if this function was loaded, for compatibility with
++    upstream Chai3d.
++*/
++//==========================================================================
++bool __FNCALL tdLeapSetForce(cVector3d a_force, chai3d::cVector3d a_position, int number)
++{
++    cVector3d pos[2];
++    if (!tdLeapGetPosition(pos))
++      return false;
++
++    int i = number;
++    if (i < 0 || i >= 2)
++        return (false);
++
++    if (!_lastHand[i]->isValid())
++        return (false);
++
++    // for now
++    a_position.set(_lastHand[i]->palmPosition().x,
++        _lastHand[i]->palmPosition().y,
++        _lastHand[i]->palmPosition().z);
++
++    _lastForcePos[i] = a_position;
++    _lastForce[i] = a_force;
++
++    return (true);
++}
+diff --git a/extras/tdLeap/tdLeap-VS2013.vcxproj b/extras/tdLeap/tdLeap-VS2013.vcxproj
+index da55f34..6199592 100644
+--- a/extras/tdLeap/tdLeap-VS2013.vcxproj
++++ b/extras/tdLeap/tdLeap-VS2013.vcxproj
+@@ -87,9 +87,13 @@
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+     <TargetName>$(ProjectName)64</TargetName>
++    <LibraryPath>C:\Program Files\Ultrahaptics\lib;$(LibraryPath)</LibraryPath>
++    <IncludePath>C:\Program Files\Ultrahaptics\include;$(IncludePath)</IncludePath>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+     <TargetName>$(ProjectName)64</TargetName>
++    <LibraryPath>C:\Program Files\Ultrahaptics\lib;$(LibraryPath)</LibraryPath>
++    <IncludePath>C:\Program Files\Ultrahaptics\include;$(IncludePath)</IncludePath>
+   </PropertyGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+     <Midl>
+@@ -126,7 +130,7 @@
+       <Culture>0x0409</Culture>
+     </ResourceCompile>
+     <Link>
+-      <AdditionalDependencies>Leap.lib;%(AdditionalDependencies)</AdditionalDependencies>
++      <AdditionalDependencies>Leap.lib;Ultrahaptics.lib;%(AdditionalDependencies)</AdditionalDependencies>
+       <OutputFile>$(OutDir)/$(TargetName)$(TargetExt)</OutputFile>
+       <SuppressStartupBanner>true</SuppressStartupBanner>
+       <AdditionalLibraryDirectories>./external/LeapSDK/lib/win-$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+@@ -176,7 +180,7 @@
+       <Culture>0x0409</Culture>
+     </ResourceCompile>
+     <Link>
+-      <AdditionalDependencies>Leap.lib;%(AdditionalDependencies)</AdditionalDependencies>
++      <AdditionalDependencies>Leap.lib;Ultrahaptics.lib;%(AdditionalDependencies)</AdditionalDependencies>
+       <OutputFile>$(OutDir)/$(TargetName)$(TargetExt)</OutputFile>
+       <SuppressStartupBanner>true</SuppressStartupBanner>
+       <AdditionalLibraryDirectories>./external/LeapSDK/lib/win-$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+diff --git a/extras/tdLeap/tdLeap.def b/extras/tdLeap/tdLeap.def
+index f3a9cde..281e351 100644
+--- a/extras/tdLeap/tdLeap.def
++++ b/extras/tdLeap/tdLeap.def
+@@ -8,3 +8,5 @@ EXPORTS
+    tdLeapGetGripperAngleRad
+    tdLeapGetUserSwitches
+    tdLeapGetFrame
++   tdLeapGetForceDeviceName
++   tdLeapSetForce
+diff --git a/src/devices/CDeltaDevices.cpp b/src/devices/CDeltaDevices.cpp
+index e601e6d..d282dfe 100644
+--- a/src/devices/CDeltaDevices.cpp
++++ b/src/devices/CDeltaDevices.cpp
+@@ -1556,8 +1556,9 @@ bool cDeltaDevice::getGripperAngleRad(double& a_angle)
+ */
+ //==============================================================================
+ bool cDeltaDevice::setForceAndTorqueAndGripperForce(const cVector3d& a_force,
+-                                                   const cVector3d& a_torque,
+-                                                   double a_gripperForce)
++						    const cVector3d& a_torque,
++						    double a_gripperForce,
++						    const cVector3d& a_position)
+ {
+     // check if the system is available
+     if (!m_deviceReady) return (C_ERROR);
+diff --git a/src/devices/CDeltaDevices.h b/src/devices/CDeltaDevices.h
+index 3fa055c..68394cd 100644
+--- a/src/devices/CDeltaDevices.h
++++ b/src/devices/CDeltaDevices.h
+@@ -207,7 +207,7 @@ public:
+     virtual bool getUserSwitches(unsigned int& a_userSwitches);
+ 
+     //! This method sends a force, torque, and gripper force to the haptic device.
+-    virtual bool setForceAndTorqueAndGripperForce(const cVector3d& a_force, const cVector3d& a_torque, double a_gripperForce);
++    virtual bool setForceAndTorqueAndGripperForce(const cVector3d& a_force, const cVector3d& a_torque, double a_gripperForce, const cVector3d& a_position);
+ 
+ 
+     //--------------------------------------------------------------------------
+diff --git a/src/devices/CGenericHapticDevice.h b/src/devices/CGenericHapticDevice.h
+index 36b840b..d36777e 100644
+--- a/src/devices/CGenericHapticDevice.h
++++ b/src/devices/CGenericHapticDevice.h
+@@ -368,7 +368,7 @@ public:
+     bool  setForceAndTorque(const cVector3d& a_force, const cVector3d& a_torque) { return (setForceAndTorqueAndGripperForce(a_force, a_torque, 0.0)); }
+ 
+     //! This method sends a force [N], torque [N*m], and gripper force [N] command to the haptic device.
+-    virtual bool setForceAndTorqueAndGripperForce(const cVector3d& a_force, const cVector3d& a_torque, double a_gripperForce) { cSleepMs(1); return (m_deviceReady); }
++    virtual bool setForceAndTorqueAndGripperForce(const cVector3d& a_force, const cVector3d& a_torque, double a_gripperForce, const cVector3d& a_position = cVector3d(0,0,0)) { cSleepMs(1); return (m_deviceReady); }
+ 
+ 
+     //--------------------------------------------------------------------------
+diff --git a/src/devices/CLeapDevices.cpp b/src/devices/CLeapDevices.cpp
+index 0d970c4..989f68f 100644
+--- a/src/devices/CLeapDevices.cpp
++++ b/src/devices/CLeapDevices.cpp
+@@ -70,6 +70,8 @@ extern "C"
+     bool (__cdecl *tdLeapGetGripperAngleRad) (double a_angle[2]);
+     bool (__cdecl *tdLeapGetUserSwitches)    (unsigned int a_userSwitches[2]);
+     bool (__cdecl *tdLeapGetFrame)           (void* &a_frame);
++    bool (__cdecl *tdLeapSetForce)           (cVector3d a_force, cVector3d a_position, int number);
++    const char* (__cdecl *tdLeapGetForceDeviceName) (int number);
+ }
+ 
+ #else
+@@ -87,6 +89,8 @@ extern "C"
+     bool (*tdLeapGetGripperAngleRad) (double a_angle[2]);
+     bool (*tdLeapGetUserSwitches)    (unsigned int a_userSwitches[2]);
+     bool (*tdLeapGetFrame)           (void* &a_frame);
++    bool (*tdLeapSetForce)           (cVector3d a_force, cVector3d a_position, int number);
++    const char* (*tdLeapGetForceDeviceName) (int number);
+ }
+ 
+ #endif
+@@ -120,8 +124,10 @@ bool cLeapDevice::openLibraries()
+ 
+     // load library
+ #if defined (WIN64)
++    if (LeapDLL == NULL) LeapDLL = LoadLibrary("tdLeapWithUH64.dll");
+     if (LeapDLL == NULL) LeapDLL = LoadLibrary("tdLeap64.dll");
+ #else
++    if (LeapDLL == NULL) LeapDLL = LoadLibrary("tdLeapWithUH32.dll");
+     if (LeapDLL == NULL) LeapDLL = LoadLibrary("tdLeap32.dll");
+ #endif
+ 
+@@ -142,6 +148,8 @@ bool cLeapDevice::openLibraries()
+     tdLeapGetGripperAngleRad =              (bool (__cdecl*)(double a_angle[2]))GetProcAddress(LeapDLL, "tdLeapGetGripperAngleRad");
+     tdLeapGetUserSwitches    = (bool (__cdecl*)(unsigned int a_userSwitches[2]))GetProcAddress(LeapDLL, "tdLeapGetUserSwitches");
+     tdLeapGetFrame           =                 (bool (__cdecl*)(void* &a_frame))GetProcAddress(LeapDLL, "tdLeapGetFrame");
++    tdLeapSetForce           =                 (bool (__cdecl*)(cVector3d a_force, cVector3d a_position, int number))GetProcAddress(LeapDLL, "tdLeapSetForce");
++    tdLeapGetForceDeviceName     = (const char* (__cdecl*)(int number))GetProcAddress(LeapDLL, "tdLeapGetForceDeviceName");
+ 
+ #endif
+ 
+@@ -171,6 +179,8 @@ bool cLeapDevice::openLibraries()
+     *(void**)(&tdLeapGetGripperAngleRad) = dlsym (LeapSO, "tdLeapGetGripperAngleRad");
+     *(void**)(&tdLeapGetUserSwitches   ) = dlsym (LeapSO, "tdLeapGetUserSwitches");
+     *(void**)(&tdLeapGetFrame          ) = dlsym (LeapSO, "tdLeapGetFrame");
++    *(void**)(&tdLeapSetForce          ) = dlsym (LeapSO, "tdLeapSetForce");
++    *(void**)(&tdLeapGetForceDeviceName    ) = dlsym (LeapSO, "tdLeapGetForceDeviceName");
+ 
+ #endif
+ 
+@@ -306,6 +316,10 @@ cLeapDevice::cLeapDevice(unsigned int a_deviceNumber)
+     {
+         return;
+     }
++
++    if (tdLeapGetForceDeviceName(0))
++      m_specifications.m_modelName = m_specifications.m_modelName + std::string(" + ") + tdLeapGetForceDeviceName(0);
++
+     closeLibraries();
+ 
+     // device is available
+@@ -560,6 +574,21 @@ bool cLeapDevice::getUserSwitches(unsigned int& a_userSwitches)
+ }
+ 
+ 
++//==============================================================================
++/*!
++    Update data from controllers.
++
++    \return __true__ if the operation succeeds, __false__ otherwise.
++*/
++//==============================================================================
++bool cLeapDevice::setForceAndTorqueAndGripperForce(const cVector3d& a_force, const cVector3d& a_torque,
++						   double a_gripperForce, const cVector3d& a_position)
++{
++    if (tdLeapSetForce)
++        return tdLeapSetForce(a_force / 10.0, a_position, 0);
++    return false;
++}
++
+ //==============================================================================
+ /*!
+     Update data from controllers.
+diff --git a/src/devices/CLeapDevices.h b/src/devices/CLeapDevices.h
+index b6badd5..5b0f051 100644
+--- a/src/devices/CLeapDevices.h
++++ b/src/devices/CLeapDevices.h
+@@ -127,6 +127,10 @@ public:
+     //! This method returns the status of all user switches [__true__ = __ON__ / __false__ = __OFF__].
+     virtual bool getUserSwitches(unsigned int& a_userSwitches); 
+ 
++    //! This method sends a force [N], torque [N*m], and gripper force [N] command to the haptic device.
++    //! Here we just send a short signal to the Ultrahaptics device at the current device position.
++    virtual bool setForceAndTorqueAndGripperForce(const cVector3d& a_force, const cVector3d& a_torque,
++						  double a_gripperForce, const cVector3d& a_position);
+ 
+     //--------------------------------------------------------------------------
+     // PUBLIC STATIC METHODS:
+diff --git a/src/devices/CMyCustomDevice.cpp b/src/devices/CMyCustomDevice.cpp
+index dec0e9c..f1c8be8 100644
+--- a/src/devices/CMyCustomDevice.cpp
++++ b/src/devices/CMyCustomDevice.cpp
+@@ -564,7 +564,8 @@ bool cMyCustomDevice::getGripperAngleRad(double& a_angle)
+ //==============================================================================
+ bool cMyCustomDevice::setForceAndTorqueAndGripperForce(const cVector3d& a_force,
+                                                        const cVector3d& a_torque,
+-                                                       const double a_gripperForce)
++                                                       const double a_gripperForce,
++						       const cVector3d& a_position)
+ {
+     // check if the device is read. See step 3.
+     if (!m_deviceReady) return (C_ERROR);
+diff --git a/src/devices/CMyCustomDevice.h b/src/devices/CMyCustomDevice.h
+index 20cf595..5e7fa5b 100644
+--- a/src/devices/CMyCustomDevice.h
++++ b/src/devices/CMyCustomDevice.h
+@@ -158,7 +158,7 @@ public:
+     virtual bool getUserSwitches(unsigned int& a_userSwitches); 
+ 
+     //! This method sends a force [N] and a torque [N*m] and gripper force [N] to the haptic device.
+-    virtual bool setForceAndTorqueAndGripperForce(const cVector3d& a_force, const cVector3d& a_torque, double a_gripperForce);
++    virtual bool setForceAndTorqueAndGripperForce(const cVector3d& a_force, const cVector3d& a_torque, double a_gripperForce, const cVector3d& a_position);
+ 
+ 
+     //--------------------------------------------------------------------------
+diff --git a/src/devices/CPhantomDevices.cpp b/src/devices/CPhantomDevices.cpp
+index 972512a..23d3df9 100644
+--- a/src/devices/CPhantomDevices.cpp
++++ b/src/devices/CPhantomDevices.cpp
+@@ -797,7 +797,7 @@ bool cPhantomDevice::getRotation(cMatrix3d& a_rotation)
+     \return __true__ if the operation succeeds, __false__ otherwise.
+ */
+ //==============================================================================
+-bool cPhantomDevice::setForceAndTorqueAndGripperForce(const cVector3d& a_force, const cVector3d& a_torque, double a_gripperForce)
++bool cPhantomDevice::setForceAndTorqueAndGripperForce(const cVector3d& a_force, const cVector3d& a_torque, double a_gripperForce, const cVector3d& a_position)
+ {
+     // check if drivers are installed
+     if (!m_deviceReady)
+diff --git a/src/devices/CPhantomDevices.h b/src/devices/CPhantomDevices.h
+index d49e36e..7696fcb 100644
+--- a/src/devices/CPhantomDevices.h
++++ b/src/devices/CPhantomDevices.h
+@@ -123,7 +123,7 @@ class cPhantomDevice : public cGenericHapticDevice
+     virtual bool getUserSwitches(unsigned int& a_userSwitches); 
+ 
+     //! This method sends a force, torque, and gripper force to the haptic device.
+-    virtual bool setForceAndTorqueAndGripperForce(const cVector3d& a_force, const cVector3d& a_torque, double a_gripperForce);
++    virtual bool setForceAndTorqueAndGripperForce(const cVector3d& a_force, const cVector3d& a_torque, double a_gripperForce, const cVector3d& a_position);
+ 
+ 
+     //--------------------------------------------------------------------------
+diff --git a/src/tools/CGenericTool.cpp b/src/tools/CGenericTool.cpp
+index 374bb51..664e747 100644
+--- a/src/tools/CGenericTool.cpp
++++ b/src/tools/CGenericTool.cpp
+@@ -984,12 +984,30 @@ bool cGenericTool::applyToDevice()
+     // APPLY FORCES
+     ////////////////////////////////////////////////////////////////////////////
+ 
++    applyForces(deviceLocalForce, deviceLocalTorque, gripperForce);
++
++    // update frequency counter
++    m_freqWrite.signal(1);
++
++    // return success
++    return (C_SUCCESS);
++}
++
++//==============================================================================
++/*!
++    This method applies the latest computed force to the haptic device.
++
++    \return __true__ if the operation succeeds, __false__ otherwise.
++*/
++//==============================================================================
++bool cGenericTool::applyForces(const cVector3d& a_force, const cVector3d& a_torque, double a_gripperForce)
++{
+     // send force commands to haptic device
+     if ((m_forceOn) && (m_forceEngaged))
+     {
+-        m_hapticDevice->setForceAndTorqueAndGripperForce(deviceLocalForce, 
+-                                                         deviceLocalTorque, 
+-                                                         gripperForce);
++        m_hapticDevice->setForceAndTorqueAndGripperForce(a_force,
++							 a_torque,
++							 a_gripperForce);
+     }
+     else
+     {
+@@ -999,14 +1017,9 @@ bool cGenericTool::applyToDevice()
+                                                          0.0);
+     }
+ 
+-    // update frequency counter
+-    m_freqWrite.signal(1);
+-
+-    // return success
+-    return (C_SUCCESS);
++    return (true);
+ }
+ 
+-
+ //==============================================================================
+ /*!
+     This method enables forces to be displayed on the haptic device.
+diff --git a/src/tools/CGenericTool.h b/src/tools/CGenericTool.h
+index 4662e81..39d6789 100644
+--- a/src/tools/CGenericTool.h
++++ b/src/tools/CGenericTool.h
+@@ -651,6 +651,9 @@ protected:
+ 
+     //! This method updates the global position of this tool in the world.
+     virtual void updateGlobalPositions(const bool a_frameOnly);
++
++    //! This method sends the latest computed interaction force, torque, and gripper force to the haptic device.
++    virtual bool applyForces(const cVector3d& a_force, const cVector3d& a_torque, double a_gripperForce);
+ };
+ 
+ //------------------------------------------------------------------------------
+diff --git a/src/tools/CToolCursor.cpp b/src/tools/CToolCursor.cpp
+index 6ba7696..6ab3ae5 100644
+--- a/src/tools/CToolCursor.cpp
++++ b/src/tools/CToolCursor.cpp
+@@ -119,6 +119,48 @@ void cToolCursor::computeInteractionForces()
+ }
+ 
+ 
++//==============================================================================
++/*!
++    This method applies the latest computed force to the haptic device.
++
++    \return __true__ if the operation succeeds, __false__ otherwise.
++*/
++//==============================================================================
++bool cToolCursor::applyForces(const cVector3d& a_force, const cVector3d& a_torque, double a_gripperForce)
++{
++    // For Ultrahaptics, we need the "position" of the force
++    /* If in contact with an object, display the force at the
++     * proxy location instead of the device location, so that it
++     * does not show it penetrating the object. */
++    cVector3d pos = m_image->getGlobalPos();
++
++    /* For potential force algo, instead we will display force at the
++     * interaction point. Note that it also does not seem to take into
++     * account the haptic point radius. */
++    if (m_hapticPoint->getNumInteractionEvents() > 0)
++    {
++      const auto& inter = *m_hapticPoint->getInteractionEvent(0);
++      pos = cTranspose(m_globalRot)
++    	* (inter.m_object->getGlobalPos() + cMul(inter.m_object->getGlobalRot(),
++    						 inter.m_localSurfacePos));
++    }
++
++    // send force commands to haptic device
++    if ((m_forceOn) && (m_forceEngaged))
++    {
++        m_hapticDevice->setForceAndTorqueAndGripperForce(a_force,
++                                                         a_torque,
++                                                         a_gripperForce, pos);
++    }
++    else
++    {
++        cVector3d nullv3d (0.0, 0.0, 0.0);
++        m_hapticDevice->setForceAndTorqueAndGripperForce(nullv3d,
++                                                         nullv3d,
++                                                         0.0);
++    }
++}
++
+ //==============================================================================
+ /*!
+     This method renders the current tool using OpenGL.
+diff --git a/src/tools/CToolCursor.h b/src/tools/CToolCursor.h
+index be897b8..5962b3d 100644
+--- a/src/tools/CToolCursor.h
++++ b/src/tools/CToolCursor.h
+@@ -115,6 +115,9 @@ public:
+ 
+     //! This method updates the position and orientation of the tool image.
+     virtual void updateToolImagePosition();
++
++    //! This method sends the latest computed interaction force, torque, and gripper force to the haptic device.
++    virtual bool applyForces(const cVector3d& a_force, const cVector3d& a_torque, double a_gripperForce);
+ };
+ 
+ //------------------------------------------------------------------------------
+-- 
+2.17.1
+
