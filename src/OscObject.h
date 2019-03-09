@@ -57,6 +57,7 @@ class OscObject : public OscBase
     OSCSCALAR(OscObject, friction_static) {};
     OSCSCALAR(OscObject, friction_dynamic) {};
     OSCSCALAR(OscObject, stiffness) {};
+    OSCSTRING(OscObject, texture_image) {};
 
     OSCMETHOD0(OscObject, grab) {};
     OSCMETHOD0(OscObject, destroy);
@@ -77,9 +78,6 @@ class OscObject : public OscBase
     std::map<OscObject*,int> m_collisions;
 
     static void setVelocity(OscObject *me, const OscVector3& vel);
-
-    OscString m_texture_image;
-    static void setTextureImage(OscObject *me, const OscString& filename);
 
     static int mass_handler(const char *path, const char *types, lo_arg **argv,
                             int argc, void *data, void *user_data);

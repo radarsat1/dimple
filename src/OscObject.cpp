@@ -72,6 +72,7 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     m_collide.setSetCallback(set_collide, this);
     m_visible.setSetCallback(set_visible, this);
     m_stiffness.setSetCallback(set_stiffness, this);
+    m_texture_image.setSetCallback(set_texture_image, this);
 
     // If the new object is supposed to be a part of a
     // composite object, find it and join.

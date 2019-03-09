@@ -411,6 +411,7 @@ CHAIObject::CHAIObject(OscObject *obj, cGenericObject *chai_obj, cWorld *world)
     obj->m_rotation.setSetCallback(CHAIObject::on_set_rotation, this);
     obj->m_visible.setSetCallback(CHAIObject::on_set_visible, this);
     obj->m_stiffness.setSetCallback(CHAIObject::on_set_stiffness, this);
+    obj->m_texture_image.setSetCallback(CHAIObject::on_set_texture_image, this);
 }
 
 CHAIObject::~CHAIObject()
@@ -430,6 +431,22 @@ void CHAIObject::on_set_stiffness(void* _me, OscScalar &s)
                           hap->getSpecs().m_maxLinearStiffness)));
     me->m_object->m_stiffness.setValue(
         me->m_chai_object->m_material->getStiffness(), false);
+}
+
+void CHAIObject::on_set_texture_image(void* _me, OscString &s)
+{
+    CHAIObject* me = static_cast<CHAIObject*>(_me);
+    me->m_chai_object->m_texture = cTexture2d::create();
+    if (!me->m_chai_object->m_texture->loadFromFile(s))
+    {
+        printf("[%s] Error loading texture image \"%s\".\n",
+               me->m_object->simulation()->type_str(), s.c_str());
+        return;
+    }
+
+    // enable texture mapping
+    me->m_chai_object->setUseTexture(true);
+    me->m_chai_object->m_material->setTextureLevel(1.0); // TODO expose this
 }
 
 /****** OscSphereCHAI ******/

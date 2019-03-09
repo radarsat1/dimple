@@ -137,6 +137,7 @@ protected:
     static void on_set_friction_dynamic(void* me, OscScalar &mud)
         { ((CHAIObject*)me)->chai_object()->
                 m_material->setDynamicFriction(mud.m_value); }
+    static void on_set_texture_image(void* me, OscString &s);
 };
 
 class OscSphereCHAI : public OscSphere
