@@ -596,7 +596,7 @@ case $(uname) in
     liblo_LIBS="-lws2_32 -liphlpapi"
     liblo_CONFIGEXTRA="--disable-ipv6 --with-win32-threads --enable-static --disable-shared"
     chai_DIR=chai3d-3.2.0
-    chai_PATCH=patch-chai3d-clearFromContact.patch
+    chai_PATCH="patches/chai3d-clearFromContact.patch patches/chai3d-tdleap-mingw64.patch"
     CMAKE_GEN='MSYS Makefiles'
     CMAKE_EXTRA=-G
 

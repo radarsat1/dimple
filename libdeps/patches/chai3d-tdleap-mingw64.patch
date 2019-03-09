@@ -1,0 +1,62 @@
+From f6b3a38b3eac4492948b24f4c4664db7bc09a23d Mon Sep 17 00:00:00 2001
+From: Stephen Sinclair <radarsat1@gmail.com>
+Date: Sat, 9 Mar 2019 23:32:56 +0100
+Subject: [PATCH 1/2] Fix detection of Leap Motion when compiled with MingW64.
+
+---
+ CMakeLists.txt               | 7 ++++++-
+ extras/tdLeap/src/tdLeap.cpp | 5 ++++-
+ src/devices/CLeapDevices.cpp | 3 ++-
+ 3 files changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 16fc15f..6c97692 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -113,7 +113,12 @@ if (${CMAKE_SYSTEM_NAME} MATCHES Windows)
+ 
+   # MinGW compiler
+   elseif (MINGW)
+-    add_definitions (-DWIN32)
++    string(FIND ${CMAKE_CXX_COMPILER} "mingw64" MINGW64)
++    if (MINGW64)
++      add_definitions (-DWIN64)
++    else ()
++      add_definitions (-DWIN32)
++    endif ()
+     add_definitions (-DHAVE_GCC_DESTRUCTOR)
+     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -Wno-deprecated -std=c++0x")
+     set (CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -march=native -Wno-deprecated")
+diff --git a/extras/tdLeap/src/tdLeap.cpp b/extras/tdLeap/src/tdLeap.cpp
+index 3d610af..64caa3a 100644
+--- a/extras/tdLeap/src/tdLeap.cpp
++++ b/extras/tdLeap/src/tdLeap.cpp
+@@ -88,7 +88,10 @@ _allocate()
+         _lastFrame   = new Frame;
+         _lastHand[0] = new Hand;
+         _lastHand[1] = new Hand;
+-        _sleepMs(100);
++        unsigned int sleepCount = 0;
++        std::cout << "Looking for Leap..." << std::endl;
++        while (!_controller->isConnected() && sleepCount++ < 20)
++            _sleepMs(100);
+     }
+ }
+ 
+diff --git a/src/devices/CLeapDevices.cpp b/src/devices/CLeapDevices.cpp
+index f3fabfc..0d970c4 100644
+--- a/src/devices/CLeapDevices.cpp
++++ b/src/devices/CLeapDevices.cpp
+@@ -246,7 +246,8 @@ unsigned int cLeapDevice::getNumDevices()
+     if (s_libraryCounter < 1) return (C_ERROR);
+ 
+     // get device count
+-    unsigned int result = tdLeapGetNumDevices();
++    int result = tdLeapGetNumDevices();
++    if (result < 0) result = 0;
+ 
+     // close libraries
+     closeLibraries();
+-- 
+2.17.1
+
