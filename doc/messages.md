@@ -94,6 +94,8 @@ default.
     /world/<name>/color <f:r> <f:g> <f:b>
     /world/<name>/friction/static <f:coefficient>
     /world/<name>/friction/dynamic <f:coefficient>
+    /world/<name>/texture/image <s:filename>
+    /world/<name>/texture/level <f:coefficient>
 
 Note that ''/rotation'' takes a 3x3 rotation matrix as argument, in
 the form of 9 floating-point values.  See, for example,
@@ -200,6 +202,45 @@ Drops a grabbed object.
 
 Clears all objects in the world.
 
+    /world/stiffness <f:stiffness>
+
+Sets a maximum stiffness for all subsequently created objects.
+
+    /world/grab/stiffness <f:stiffness>
+    /world/grab/damping <f:damping>
+
+The stiffness and damping coefficients for the spring constructed
+between physics and haptics simulations when an object is grabbed.
+
+    /world/grab/feedback <f:feedback>
+
+A further scaling of the grab spring forces for haptic feedback.  This
+can be used to diminish or exaggerate the feedling of the spring as
+displayed on the device.
+
+    /workspace/learn
+
+On start-up, DIMPLE will automatically learn the input device's
+workspace and adapt to its world dimensions of the range [1,1] for all
+axes.  If this behaviour is stopped by `/world/workspace/freeze`, it
+can be reset and turned on again by issuing this command.
+
+    /workspace/freeze
+
+Stop learning the input device's workspace shape and size.
+
+    /workspace/standard
+
+Set the input workspace to have no scaling or offset, which then
+directly uses whatever input values were provided by the input device
+in CHAI 3D.
+
+    /workspace/size <f:x> <f:y> <f:z>
+    /workspace/center <f:x> <f:y> <f:z>
+
+These vectors allow to manually specify the size and center of the
+input device workspace.
+
 ### Special objects ###
 
 There are a couple of predefined special objects in the DIMPLE world.
@@ -229,3 +270,8 @@ on UDP port 7772 (the haptic thread's port) to get meaningful
 information.
 
 The cursor has most of the same parameters as other objects in DIMPLE.
+For instance you can query its position and the forces it is applying.
+
+You can also apply forces directly to the cursor by sending it
+`/world/cursor/force` messages, which allows to create a remote
+feedback loop if so desired.
