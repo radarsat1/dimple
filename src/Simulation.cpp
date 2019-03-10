@@ -643,6 +643,12 @@ Simulation::~Simulation()
     m_collide.m_server = 0;
     m_gravity.m_server = 0;
     m_gravity.m_magnitude.m_server = 0;
+    m_stiffness.m_server = 0;
+    m_grab_stiffness.m_server = 0;
+    m_grab_damping.m_server = 0;
+    m_grab_feedback.m_server = 0;
+    m_workspace_size.m_server = 0;
+    m_workspace_center.m_server = 0;
 }
 
 void Simulation::add_receiver(Simulation *sim, const char *spec,
