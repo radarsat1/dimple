@@ -31,6 +31,7 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
       m_friction_static("friction/static", this),
       m_friction_dynamic("friction/dynamic", this),
       m_texture_image("texture/image", this),
+      m_texture_level("texture/level", this),
       m_rotation("rotation", this),
       m_mass("mass", this),
       m_density("density", this),
@@ -53,6 +54,7 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     m_density.setValue(100);
     m_visible.setValue(true);
     m_stiffness.setValue(1000);
+    m_texture_level.setValue(1.0);
 
     // Sane friction defaults
     m_friction_static.setValue(1);
@@ -73,6 +75,7 @@ OscObject::OscObject(cGenericObject* p, const char *name, OscBase *parent)
     m_visible.setSetCallback(set_visible, this);
     m_stiffness.setSetCallback(set_stiffness, this);
     m_texture_image.setSetCallback(set_texture_image, this);
+    m_texture_level.setSetCallback(set_texture_level, this);
 
     // If the new object is supposed to be a part of a
     // composite object, find it and join.

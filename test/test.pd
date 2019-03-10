@@ -1,16 +1,16 @@
-#N canvas 516 377 762 607 10;
-#X obj 504 139 oscformat /world/clear;
-#X obj 456 176 s osc;
-#X obj 281 153 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
+#N canvas 521 389 762 607 10;
+#X obj 515 164 oscformat /world/clear;
+#X obj 467 201 s osc;
+#X obj 292 178 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
 -1;
-#X floatatom 116 136 5 0 0 0 - - -, f 5;
-#X text 116 161 move to create marbles;
-#X text 115 39 MarbleBox;
-#X floatatom 456 49 5 0 500 0 - - -, f 5;
+#X floatatom 127 161 5 0 0 0 - - -, f 5;
+#X text 127 186 move to create marbles;
+#X text 126 64 MarbleBox;
+#X floatatom 467 74 5 0 500 0 - - -, f 5;
 #N canvas 5 46 454 304 (subpatch) 0;
 #X array accel 1000 float 0;
 #X coords 0 30 1000 0 200 140 1 0 0;
-#X restore 429 353 graph;
+#X restore 440 378 graph;
 #N canvas 248 256 771 745 createbox 0;
 #X obj 34 18 inlet;
 #X obj 34 130 / 2;
@@ -188,10 +188,10 @@
 #X connect 53 0 32 0;
 #X connect 54 0 32 0;
 #X connect 55 0 32 0;
-#X restore 116 107 pd createbox;
-#X obj 116 80 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
--1;
-#X text 139 81 bang to create box;
+#X restore 127 132 pd createbox;
+#X obj 127 105 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X text 150 106 bang to create box;
 #N canvas 911 658 517 409 createmarble 0;
 #X obj 393 365 s osc;
 #X floatatom 28 54 5 0 0 0 - - -, f 5;
@@ -287,7 +287,7 @@
 #X connect 29 0 24 0;
 #X connect 30 0 5 1;
 #X connect 30 0 25 0;
-#X restore 281 176 pd createmarble;
+#X restore 292 201 pd createmarble;
 #N canvas 67 283 490 340 connect 0;
 #X obj 20 64 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
 ;
@@ -332,8 +332,8 @@
 #X connect 19 0 20 0;
 #X connect 21 0 18 0;
 #X connect 22 0 18 0;
-#X restore 17 129 pd connect;
-#X obj 17 108 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+#X restore 28 154 pd connect;
+#X obj 28 133 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
 #N canvas 298 168 347 393 smash 0;
 #X obj 32 15 inlet;
@@ -379,12 +379,12 @@
 #X connect 18 2 9 0;
 #X connect 18 2 8 0;
 #X connect 18 2 7 0;
-#X restore 53 287 pd smash;
-#X obj 53 263 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+#X restore 64 312 pd smash;
+#X obj 64 288 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
-#X obj 56 404 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+#X obj 67 429 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
-#X text 80 404 audio;
+#X text 91 429 audio;
 #N canvas 150 607 510 360 beepcollide 0;
 #X obj 79 73 route world;
 #X obj 79 159 print collided;
@@ -960,8 +960,8 @@
 #X connect 13 0 12 1;
 #X connect 14 0 9 0;
 #X connect 15 0 0 0;
-#X restore 56 428 pd beepcollide;
-#X msg 366 152 2;
+#X restore 67 453 pd beepcollide;
+#X msg 377 177 2;
 #N canvas 67 287 544 400 s3_accel 0;
 #X obj 33 162 s osc;
 #X obj 33 32 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
@@ -1016,24 +1016,24 @@
 #X connect 23 0 0 0;
 #X connect 24 0 0 0;
 #X connect 25 0 13 0;
-#X restore 258 417 pd s3_accel;
-#X obj 258 395 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X restore 269 442 pd s3_accel;
+#X obj 269 420 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
-#X floatatom 258 454 10 0 0 0 - - -, f 10;
-#X floatatom 257 473 10 0 0 0 - - -, f 10;
-#X text 338 473 velocity;
-#X text 337 454 acceleration;
-#X text 256 355 Tracks acceleration;
-#X text 258 369 of 3rd marble.;
-#X text 52 241 Smash 3 marbles together;
-#X text 57 452 Also makes sound;
-#X text 56 464 for MarbleBox demo.;
-#X text 456 26 Give it some gravity;
-#X text 511 161 clear the world;
-#X text 330 136 reset counter;
-#X text 54 383 objects collide;
-#X text 55 369 Beep when any two;
-#N canvas 989 145 546 454 forcestick 0;
+#X floatatom 269 479 10 0 0 0 - - -, f 10;
+#X floatatom 268 498 10 0 0 0 - - -, f 10;
+#X text 349 498 velocity;
+#X text 348 479 acceleration;
+#X text 267 380 Tracks acceleration;
+#X text 269 394 of 3rd marble.;
+#X text 63 266 Smash 3 marbles together;
+#X text 68 477 Also makes sound;
+#X text 67 489 for MarbleBox demo.;
+#X text 467 51 Give it some gravity;
+#X text 522 186 clear the world;
+#X text 341 161 reset counter;
+#X text 65 408 objects collide;
+#X text 66 394 Beep when any two;
+#N canvas 942 145 546 454 forcestick 0;
 #X obj 21 54 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
 -1;
 #X text 77 17 Force Stick;
@@ -1095,10 +1095,10 @@ stick;
 #X connect 22 2 25 0;
 #X connect 26 0 15 0;
 #X connect 27 0 28 0;
-#X restore 340 285 pd forcestick;
-#X obj 340 266 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X restore 351 310 pd forcestick;
+#X obj 351 291 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X text 338 245 Force Stick;
+#X text 349 270 Force Stick;
 #N canvas 707 116 525 300 audioforce 0;
 #X obj 25 32 r rosc;
 #X floatatom 25 142 10 0 0 0 - - -, f 10;
@@ -1132,21 +1132,20 @@ stick;
 #X connect 12 0 9 0;
 #X connect 13 0 8 0;
 #X connect 14 0 13 0;
-#X restore 472 284 pd audioforce;
-#X obj 472 261 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X restore 483 309 pd audioforce;
+#X obj 483 286 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
-#X text 496 261 audio;
-#X text 14 -17 Test patch for DIMPLE: The Dynamic Interactive Musically
+#X text 507 286 audio;
+#X text 25 8 Test patch for DIMPLE: The Dynamic Interactive Musically
 PhysicaL Environment;
-#X obj 22 349 loadbang;
-#X msg 22 370 1;
-#X text 15 87 Initialize;
-#X text 15 76 Step 1:;
-#X text 138 70 Step 2:;
-#X text 455 15 Step 3:;
-#X text 115 150 Step 4:;
-#X text 17 217 Other demonstrations:;
-#X text 21 328 Don't forget to turn on DSP!;
+#X obj 33 374 loadbang;
+#X msg 33 395 1;
+#X text 26 112 Initialize;
+#X text 26 101 Step 1:;
+#X text 149 95 Step 2:;
+#X text 466 40 Step 3:;
+#X text 126 175 Step 4:;
+#X text 32 353 Don't forget to turn on DSP!;
 #N canvas 1017 128 801 569 grab 0;
 #X obj 37 361 s osc;
 #X obj 231 19 inlet;
@@ -1233,10 +1232,10 @@ PhysicaL Environment;
 #X connect 36 0 34 0;
 #X connect 38 0 39 0;
 #X connect 39 0 37 0;
-#X restore 223 304 pd grab;
-#X msg 177 273 sphere;
-#X msg 223 273 box;
-#X msg 251 273 none;
+#X restore 234 329 pd grab;
+#X msg 188 298 sphere;
+#X msg 234 298 box;
+#X msg 262 298 none;
 #N canvas 307 188 691 688 snake 0;
 #X obj 28 14 inlet;
 #N canvas 67 89 450 300 itercount 0;
@@ -1441,11 +1440,11 @@ PhysicaL Environment;
 #X connect 30 0 22 0;
 #X connect 31 0 22 0;
 #X connect 32 0 22 0;
-#X restore 584 284 pd snake;
-#X obj 584 261 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X restore 595 309 pd snake;
+#X obj 595 286 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X text 581 240 The Snake;
-#X obj 635 260 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X text 592 265 The Snake;
+#X obj 646 285 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #N canvas 243 158 497 311 meshtest 0;
 #X obj 22 265 s osc;
@@ -1476,8 +1475,8 @@ PhysicaL Environment;
 #X connect 11 0 1 0;
 #X connect 12 0 4 0;
 #X connect 13 0 12 0;
-#X restore 16 506 pd meshtest;
-#N canvas 346 192 919 473 texturetest 0;
+#X restore 27 531 pd meshtest;
+#N canvas 67 192 924 670 texturetest 0;
 #X obj 29 81 t b b;
 #X obj 29 410 s osc;
 #X obj 337 37 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
@@ -1511,9 +1510,26 @@ PhysicaL Environment;
 #X obj 375 226 oscformat /world/t2/size;
 #X obj 67 233 oscformat /world/t1/size;
 #X obj 667 242 oscformat /world/t3/size;
+#X obj 407 452 inlet;
+#X floatatom 407 479 5 0 0 0 - - -, f 5;
+#X obj 146 529 s osc;
+#X obj 407 529 s osc;
+#X obj 659 528 s osc;
+#X obj 146 506 oscformat /world/t1/texture/level;
+#X obj 407 506 oscformat /world/t2/texture/level;
+#X obj 659 505 oscformat /world/t3/texture/level;
+#X obj 11 441 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 318 439 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 600 442 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 467 422 loadbang;
+#X msg 467 445 1;
 #X connect 0 0 4 0;
 #X connect 0 0 5 0;
 #X connect 0 0 7 0;
+#X connect 0 0 40 0;
 #X connect 0 1 8 0;
 #X connect 2 0 0 0;
 #X connect 2 0 10 0;
@@ -1528,6 +1544,7 @@ PhysicaL Environment;
 #X connect 10 0 22 0;
 #X connect 10 0 21 0;
 #X connect 10 0 13 0;
+#X connect 10 0 41 0;
 #X connect 10 1 20 0;
 #X connect 12 0 11 0;
 #X connect 13 0 29 0;
@@ -1535,6 +1552,7 @@ PhysicaL Environment;
 #X connect 15 0 27 0;
 #X connect 15 0 25 0;
 #X connect 15 0 18 0;
+#X connect 15 0 42 0;
 #X connect 15 1 24 0;
 #X connect 17 0 16 0;
 #X connect 18 0 31 0;
@@ -1551,9 +1569,21 @@ PhysicaL Environment;
 #X connect 29 0 11 0;
 #X connect 30 0 1 0;
 #X connect 31 0 16 0;
-#X restore 89 507 pd texturetest;
-#X obj 89 486 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
--1;
+#X connect 32 0 33 0;
+#X connect 33 0 37 0;
+#X connect 33 0 38 0;
+#X connect 33 0 39 0;
+#X connect 37 0 34 0;
+#X connect 38 0 35 0;
+#X connect 39 0 36 0;
+#X connect 40 0 33 0;
+#X connect 41 0 33 0;
+#X connect 42 0 33 0;
+#X connect 43 0 44 0;
+#X connect 44 0 33 0;
+#X restore 100 532 pd texturetest;
+#X obj 100 511 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
 #N canvas 180 273 313 351 cuberoom 0;
 #X obj 20 10 inlet;
 #X obj 20 34 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
@@ -1842,27 +1872,29 @@ PhysicaL Environment;
 #X connect 15 0 3 0;
 #X connect 16 0 18 0;
 #X connect 17 0 16 0;
-#X restore 181 508 pd cuberoom;
-#X floatatom 135 405 5 0 0 0 - - -, f 5;
-#X obj 481 139 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X restore 192 533 pd cuberoom;
+#X floatatom 146 430 5 0 0 0 - - -, f 5;
+#X obj 492 164 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 456 71 / -100;
-#X msg 456 93 0 0 \$1;
-#X obj 456 114 oscformat /world/gravity;
-#X obj 367 557 s osc;
-#X floatatom 367 511 5 0 0 0 - - -, f 5;
-#X text 115 39 MarbleBox;
-#X text 407 511 Set the maximum stiffness if necessary;
-#X obj 345 512 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 467 96 / -100;
+#X msg 467 118 0 0 \$1;
+#X obj 467 139 oscformat /world/gravity;
+#X obj 378 582 s osc;
+#X floatatom 378 536 5 0 0 0 - - -, f 5;
+#X text 126 64 MarbleBox;
+#X text 418 536 Set the maximum stiffness if necessary;
+#X obj 356 537 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X text 173 405 freq;
-#X obj 16 486 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+#X text 184 430 freq;
+#X obj 27 511 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
-#X obj 367 534 oscformat /world/stiffness;
+#X obj 378 559 oscformat /world/stiffness;
+#X text 30 238 Other demonstrations:;
+#X floatatom 156 510 5 0 0 0 - - -, f 5;
 #X connect 0 0 1 0;
 #X connect 2 0 11 0;
 #X connect 3 0 2 0;
-#X connect 6 0 66 0;
+#X connect 6 0 65 0;
 #X connect 9 0 8 0;
 #X connect 13 0 12 0;
 #X connect 15 0 14 0;
@@ -1875,18 +1907,19 @@ PhysicaL Environment;
 #X connect 40 0 39 0;
 #X connect 43 0 44 0;
 #X connect 44 0 16 0;
-#X connect 53 0 52 0;
-#X connect 54 0 52 0;
-#X connect 55 0 52 0;
-#X connect 57 0 56 0;
-#X connect 59 0 56 1;
-#X connect 62 0 61 0;
-#X connect 64 0 18 1;
-#X connect 65 0 0 0;
+#X connect 52 0 51 0;
+#X connect 53 0 51 0;
+#X connect 54 0 51 0;
+#X connect 56 0 55 0;
+#X connect 58 0 55 1;
+#X connect 61 0 60 0;
+#X connect 63 0 18 1;
+#X connect 64 0 0 0;
+#X connect 65 0 66 0;
 #X connect 66 0 67 0;
-#X connect 67 0 68 0;
-#X connect 68 0 1 0;
-#X connect 70 0 76 0;
-#X connect 73 0 70 0;
-#X connect 75 0 60 0;
-#X connect 76 0 69 0;
+#X connect 67 0 1 0;
+#X connect 69 0 75 0;
+#X connect 72 0 69 0;
+#X connect 74 0 59 0;
+#X connect 75 0 68 0;
+#X connect 77 0 60 1;

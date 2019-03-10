@@ -58,6 +58,7 @@ class OscObject : public OscBase
     OSCSCALAR(OscObject, friction_dynamic) {};
     OSCSCALAR(OscObject, stiffness) {};
     OSCSTRING(OscObject, texture_image) {};
+    OSCSCALAR(OscObject, texture_level) {};
 
     OSCMETHOD0(OscObject, grab) {};
     OSCMETHOD0(OscObject, destroy);
