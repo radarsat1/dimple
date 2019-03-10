@@ -187,8 +187,8 @@ void HapticsSim::updateWorkspace(cVector3d &pos, cVector3d &vel)
         // Normalize position to [-1, 1] within workspace.
         // Further scale by user-specified workspace scaling. (default=1)
         pos(i) = (pos(i) + m_workspaceOffset(i)*0)
-            * m_workspaceScale(i) * m_scale(i);
-        vel(i) = vel(i) * m_workspaceScale(i) * m_scale(i);
+            * m_workspaceScale(i);
+        vel(i) = vel(i) * m_workspaceScale(i);
     }
 
     if (changed)
@@ -226,7 +226,9 @@ void HapticsSim::step()
 
         // Compensate for workspace scaling
         cVector3d force = cursor->getDeviceGlobalForce();
-        force = force / (m_workspaceScale * m_scale);
+        force.set(force.x() / m_workspaceScale.x(),
+                  force.y() / m_workspaceScale.y(),
+                  force.z() / m_workspaceScale.z());
         cursor->setDeviceGlobalForce(force);
 
         m_cursor->addCursorMassForce();

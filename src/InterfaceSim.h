@@ -107,7 +107,6 @@ class InterfaceSim : public Simulation
     FWD_OSCVECTOR3(workspace_size, Simulation::ST_HAPTICS);
     FWD_OSCVECTOR3(workspace_center, Simulation::ST_HAPTICS);
 
-    FWD_OSCVECTOR3(scale, Simulation::ST_HAPTICS);
     FWD_OSCSCALAR(stiffness, Simulation::ST_HAPTICS);
     FWD_OSCSCALAR(grab_stiffness,Simulation::ST_HAPTICS);
     FWD_OSCSCALAR(grab_damping,Simulation::ST_HAPTICS);

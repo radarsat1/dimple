@@ -594,7 +594,6 @@ Simulation::Simulation(const char *port, int type)
     : OscBase("world", NULL, lo_server_new(port, NULL)),
       m_collide("collide", this),
       m_gravity("gravity", this),
-      m_scale("scale", this),
       m_stiffness("stiffness", this),
       m_grab_stiffness("grab/stiffness", this),
       m_grab_damping("grab/damping", this),
@@ -611,9 +610,6 @@ Simulation::Simulation(const char *port, int type)
 
     m_collide.setSetCallback(set_collide, this);
     m_gravity.setSetCallback(set_gravity, this);
-    m_scale.setSetCallback(set_scale, this);
-
-    m_scale.setValue(1,1,1);
 
     // No world max-stiffness enforced by default (very high value)
     m_stiffness.setValue(10000);
@@ -647,8 +643,6 @@ Simulation::~Simulation()
     m_collide.m_server = 0;
     m_gravity.m_server = 0;
     m_gravity.m_magnitude.m_server = 0;
-    m_scale.m_server = 0;
-    m_scale.m_magnitude.m_server = 0;
 }
 
 void Simulation::add_receiver(Simulation *sim, const char *spec,
