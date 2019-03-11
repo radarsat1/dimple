@@ -41,7 +41,7 @@ if [ "${liblo_PATCH}"x != x ]; then
         cp -v $P ${liblo_DIR}/patches/;
         echo $(basename $P) >>${liblo_DIR}/series;
     done
-    if !(cd $liblo_DIR; quilt push); then
+    if !(cd $liblo_DIR; quilt push -a); then
 	      echo "Error applying patches for liblo."
 	      exit
     fi
@@ -125,7 +125,7 @@ if [ "${ode_PATCH}"x != x ] && [ -f "${ode_PATCH}" ]; then
         cp -v $P ${ode_DIR}/patches/;
         echo $(basename $P) >>${ode_DIR}/series;
     done
-    if !(cd $ode_DIR; quilt push); then
+    if !(cd $ode_DIR; quilt push -a); then
 	      echo "Error applying patches for ODE."
 	      exit
     fi
@@ -215,7 +215,7 @@ if [ "${chai_PATCH}"x != x ]; then
         cp -v $P ${chai_DIR}/patches/;
         echo $(basename $P) >>${chai_DIR}/series;
     done
-    if !(cd $chai_DIR; quilt push); then
+    if !(cd $chai_DIR; quilt push -a); then
 	      echo "Error applying patches for CHAI."
 	      exit
     fi
@@ -303,7 +303,7 @@ if [ "${freeglut_PATCH}"x != x ]; then
         cp -v $P ${freeglut_DIR}/patches/;
         echo $(basename $P) >>${freeglut_DIR}/series;
     done
-    if !(cd $freeglut_DIR; quilt push); then
+    if !(cd $freeglut_DIR; quilt push -a); then
 	      echo "Error applying patches for freeglut."
 	      exit
     fi
@@ -389,7 +389,7 @@ if [ "${atomicops_PATCH}"x != x ]; then
         cp -v $P ${atomicops_DIR}/patches/;
         echo $(basename $P) >>${atomicops_DIR}/series;
     done
-    if !(cd $atomicops_DIR; quilt push); then
+    if !(cd $atomicops_DIR; quilt push -a); then
 	      echo "Error applying patches for atomicops."
 	      exit
     fi
@@ -437,7 +437,7 @@ if [ "${pthreads_PATCH}"x != x ]; then
         cp -v $P ${pthreads_DIR}/patches/;
         echo $(basename $P) >>${pthreads_DIR}/series;
     done
-    if !(cd $pthreads_DIR; quilt push); then
+    if !(cd $pthreads_DIR; quilt push -a); then
 	      echo "Error applying patches for pthreads."
 	      exit
     fi
@@ -520,7 +520,7 @@ if [ "${samplerate_PATCH}"x != x ]; then
         cp -v $P ${samplerate_DIR}/patches/;
         echo $(basename $P) >>${samplerate_DIR}/series;
     done
-    if !(cd $samplerate_DIR; quilt push); then
+    if !(cd $samplerate_DIR; quilt push -a); then
 	      echo "Error applying patches for samplerate."
 	      exit
     fi
