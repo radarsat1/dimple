@@ -414,6 +414,7 @@ CHAIObject::CHAIObject(OscObject *obj, cGenericObject *chai_obj, cWorld *world)
     obj->m_visible.setSetCallback(CHAIObject::on_set_visible, this);
     obj->m_stiffness.setSetCallback(CHAIObject::on_set_stiffness, this);
     obj->m_texture_image.setSetCallback(CHAIObject::on_set_texture_image, this);
+    obj->m_texture_level.setSetCallback(CHAIObject::on_set_texture_level, this);
 }
 
 CHAIObject::~CHAIObject()
@@ -441,25 +442,34 @@ void CHAIObject::on_set_texture_image(void* _me, OscString &s)
 
     if (!s.empty())
     {
-        me->m_chai_object->m_texture = cTexture2d::create();
+        me->chai_object()->m_texture = cTexture2d::create();
         if (!me->m_chai_object->m_texture->loadFromFile(s))
         {
             printf("[%s] Error loading texture image \"%s\".\n",
-                   me->m_object->simulation()->type_str(), s.c_str());
+                   me->obj()->simulation()->type_str(), s.c_str());
             return;
         }
-        me->m_object->m_texture_level.m_value = 2.0;
+
+        // white color for texture mixing
+        me->chai_object()->m_material->setWhite();
+
+        // create normal map from texture data
+        cNormalMapPtr normalMap = cNormalMap::create();
+        normalMap->createMap(me->chai_object()->m_texture);
+        me->chai_object()->m_normalMap = normalMap;
 
         // enable texture mapping
-        me->m_chai_object->setUseTexture(true);
-        me->m_chai_object->m_material->setTextureLevel(me->m_object->m_texture_level.m_value);
-        me->m_chai_object->m_texture->setEnabled(true);
+        me->chai_object()->setUseTexture(true);
+        me->chai_object()->m_material->setTextureLevel(me->m_object->m_texture_level.m_value);
+        me->chai_object()->m_texture->setEnabled(true);
     }
     else
     {
         me->m_chai_object->setUseTexture(false);
         if (me->m_chai_object->m_texture)
             me->m_chai_object->m_texture->setEnabled(false);
+        const cVector3d &c(me->obj()->m_color);
+        me->chai_object()->m_material->m_diffuse.set(c.x(), c.y(), c.z());
     }
 }
 

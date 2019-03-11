@@ -138,6 +138,9 @@ protected:
         { ((CHAIObject*)me)->chai_object()->
                 m_material->setDynamicFriction(mud.m_value); }
     static void on_set_texture_image(void* me, OscString &s);
+    static void on_set_texture_level(void *me, OscScalar &level)
+        { ((CHAIObject*)me)->chai_object()->
+                m_material->setTextureLevel(level.m_value); }
 };
 
 class OscSphereCHAI : public OscSphere
