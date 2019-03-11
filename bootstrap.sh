@@ -587,6 +587,9 @@ echo "Looking for programs.."
 which quilt >/dev/null || ( echo "error: quilt not found."; false ) || exit 1
 which unzip >/dev/null || (echo "error: unzip not found."; false ) || exit 1
 
+# Configs for any system
+chai_PATCH="patches/chai3d-clearFromContact.patch patches/chai3d-force-scale.patch"
+
 # System-dependant bootstrapping
 case $(uname) in
     MINGW32* | MINGW64* | MSYS*)
@@ -596,7 +599,7 @@ case $(uname) in
     liblo_LIBS="-lws2_32 -liphlpapi"
     liblo_CONFIGEXTRA="--disable-ipv6 --with-win32-threads --enable-static --disable-shared"
     chai_DIR=chai3d-3.2.0
-    chai_PATCH="patches/chai3d-clearFromContact.patch patches/chai3d-tdleap-mingw64.patch"
+    chai_PATCH="patches/chai3d-clearFromContact.patch patches/chai3d-force-scale.patch patches/chai3d-tdleap-mingw64.patch"
     CMAKE_GEN='MSYS Makefiles'
     CMAKE_EXTRA=-G
 
@@ -616,7 +619,6 @@ case $(uname) in
 	MD5CUT="awk {print\$1}"
 	freeglut_PATCH=freeglut-2.4.0-vs2005exp.patch
 	pthreads_PATCH=pthreads-w32-2-8-0-release-vs2005exp-static.patch
-	chai_PATCH=patches/chai3d-clearFromContact.patch
 
 	COMPILE="$(echo $(cygpath -u $PROGRAMFILES)/Microsoft Visual Studio .NET 2003/Common7/IDE/devenv.exe)"
 	if !( [ -f "$COMPILE" ]); then
@@ -664,7 +666,6 @@ case $(uname) in
 	DL="wget -O"
     MD5=md5sum
 	MD5CUT="awk {print\$1}"
-	chai_PATCH=patches/chai3d-clearFromContact.patch
 
 	ode
     chai3d
@@ -678,7 +679,6 @@ case $(uname) in
 	DL="curl -Lo"
     MD5=md5
 	MD5CUT="cut -f2 -d="
-	chai_PATCH=patches/chai3d-clearFromContact.patch
     samplerate
     ode
 	liblo

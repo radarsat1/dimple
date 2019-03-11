@@ -1,0 +1,37 @@
+From d9728a4ba0c6132133301f59cf4183148c1a1d60 Mon Sep 17 00:00:00 2001
+From: Stephen Sinclair <radarsat1@gmail.com>
+Date: Mon, 11 Mar 2019 13:51:44 +0100
+Subject: [PATCH] Compensate for workspace scaling in tool force.
+
+---
+ src/tools/CGenericTool.cpp | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/tools/CGenericTool.cpp b/src/tools/CGenericTool.cpp
+index 664e747..303ec91 100644
+--- a/src/tools/CGenericTool.cpp
++++ b/src/tools/CGenericTool.cpp
+@@ -886,9 +886,9 @@ bool cGenericTool::applyToDevice()
+     if ((m_hapticDevice == nullptr) || (!m_enabled)) { return (C_ERROR); }
+ 
+     // retrieve force values to be applied to device
+-    cVector3d deviceLocalForce = m_deviceLocalForce;
++    cVector3d deviceLocalForce = m_deviceLocalForce / m_workspaceScaleFactor;
+     cVector3d deviceLocalTorque = m_deviceLocalTorque;
+-    double gripperForce = m_gripperForce;
++    double gripperForce = m_gripperForce / m_workspaceScaleFactor;
+ 
+ 
+     ////////////////////////////////////////////////////////////////////////////
+@@ -902,7 +902,7 @@ bool cGenericTool::applyToDevice()
+         if (m_useWaitForSmallForce)
+         {
+             // check if desired force is smaller that threshold.
+-            if (m_deviceLocalForce.length() < m_smallForceThresh)
++            if (deviceLocalForce.length() < m_smallForceThresh)
+             {
+                 // engage forces only if small forces have been maintained for three cycles.
+                 if (m_smallForceCounter > 3)
+-- 
+2.17.1
+
