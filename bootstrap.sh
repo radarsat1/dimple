@@ -603,6 +603,9 @@ case $(uname) in
     CMAKE_GEN='MSYS Makefiles'
     CMAKE_EXTRA=-G
 
+    export QUILTRC=1 # otherwise line ending errors
+    export QUILT_PATCH_OPTS=--binary
+
     echo "Looking for programs.."
     which cmake >/dev/null || (echo "cmake not found."; false ) || exit 1
 
