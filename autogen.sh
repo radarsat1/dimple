@@ -110,18 +110,21 @@ do
   fi
 done
 
-case x"$@" in
-  *--disable-debug*)
-  ;;
-  *)
-    conf_flags="--enable-maintainer-mode --disable-silent-rules --enable-debug"
-  ;;
-esac
+for arg in $@; do
+    case x"$arg" in
+        x--disable-debug)
+            ;;
+        x--no-configure)
+            echo Skipping configure process.
+            exit 0
+            ;;
+        *)
+            conf_flags="--enable-maintainer-mode --disable-silent-rules --enable-debug"
+            break
+            ;;
+    esac
+done
 
-if test x$NOCONFIGURE = x; then
-  echo Running $srcdir/configure $conf_flags "$@" ...
-  $srcdir/configure $conf_flags "$@" \
-  && echo Now type \`make\' to compile. || exit 1
-else
-  echo Skipping configure process.
-fi
+echo Running $srcdir/configure $conf_flags "$@" ...
+$srcdir/configure $conf_flags "$@" \
+    && echo Now type \`make\' to compile. || exit 1
