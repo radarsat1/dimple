@@ -1,8 +1,10 @@
+#!/bin/bash
+
 # This script will download the LibLo library,
 # and patch it so it can be compiled using
 # Visual Studio 2003 (MSVC7).
 
-# For Windows, this script is intended to be run using Cygwin.
+# For Windows, this script is intended to be run using MSYS2.
 # Required packages: tar, patch, coreutils
 
 echo This script bootstraps required libraries for selected environments.
