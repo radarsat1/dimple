@@ -11,9 +11,23 @@ echo This script bootstraps required libraries for selected environments.
 
 MAKE="make -j4"
 
+LIBDEPSDIR="`pwd`/libdeps"
+if [ -n "$1" ]; then
+    if [ x"$1" = "x-h" ] || [ x"$1" = "x--help" ]; then
+        echo "./bootstrap.sh [libdeps] [tarballs]"
+        exit 0
+    fi
+    LIBDEPSDIR="$1"
+fi
+
+TARBALLSDIR="$LIBDEPSDIR/tarballs"
+if [ -n "$2" ]; then
+    TARBALLSDIR="$2"
+fi
+
 liblo() {
 liblo_URL=http://downloads.sourceforge.net/liblo/liblo-0.30.tar.gz
-liblo_TAR=tarballs/liblo-0.30.tar.gz
+liblo_TAR=$TARBALLSDIR/liblo-0.30.tar.gz
 liblo_DIR=liblo-0.30
 liblo_MD5=fa1a9d45f86fc18fb54019f670ff2262
 
@@ -97,7 +111,7 @@ echo
 
 ode() {
 ode_URL=https://bitbucket.org/odedevs/ode/downloads/ode-0.13.1.tar.gz
-ode_TAR=tarballs/ode-0.13.1.tar.gz
+ode_TAR=$TARBALLSDIR/ode-0.13.1.tar.gz
 ode_DIR=ode-0.13.1
 ode_MD5=00f6613b3d8e5249be60e3a513d6aebd
 
@@ -176,7 +190,7 @@ echo
 
 chai3d() {
 chai_URL=http://chai3d.org/download/chai3d-3.2.0-multiplatform.zip
-chai_TAR=tarballs/chai3d-3.2.0-multiplatform.zip
+chai_TAR=$TARBALLSDIR/chai3d-3.2.0-multiplatform.zip
 chai_MD5=ad51b811c1c1cf39f4c1bb097d3f69ff
 if [ -z $chai_DIR ]; then
    chai_DIR=chai3d-3.2.0
@@ -273,7 +287,7 @@ echo
 
 freeglut() {
 freeglut_URL=https://downloads.sourceforge.net/freeglut/3.0.0/freeglut-3.0.0.tar.gz
-freeglut_TAR=tarballs/freeglut-3.0.0.tar.gz
+freeglut_TAR=$TARBALLSDIR/freeglut-3.0.0.tar.gz
 freeglut_DIR=freeglut-3.0.0
 freeglut_MD5=90c3ca4dd9d51cf32276bc5344ec9754
 
@@ -359,7 +373,7 @@ echo
 
 atomicops() {
 atomicops_URL=http://www.hpl.hp.com/research/linux/atomic_ops/download/libatomic_ops-1.2.tar.gz
-atomicops_TAR=tarballs/libatomic_ops-1.2.tar.gz
+atomicops_TAR=$TARBALLSDIR/libatomic_ops-1.2.tar.gz
 atomicops_DIR=libatomic_ops-1.2
 atomicops_MD5=1b65e48271c81e3fa2d7a9a69bab7504
 
@@ -407,7 +421,7 @@ echo
 
 pthreads() {
 pthreads_URL=ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-8-0-release.tar.gz
-pthreads_TAR=tarballs/pthreads-w32-2-8-0-release.tar.gz
+pthreads_TAR=$TARBALLSDIR/pthreads-w32-2-8-0-release.tar.gz
 pthreads_DIR=pthreads-w32-2-8-0-release
 pthreads_MD5=6d30c693233b1464ef8983fedd8ccb22
 
@@ -490,7 +504,7 @@ echo
 
 samplerate() {
 samplerate_URL="http://www.mega-nerd.com/SRC/libsamplerate-0.1.9.tar.gz"
-samplerate_TAR=tarballs/libsamplerate-0.1.9.tar.gz
+samplerate_TAR=$TARBALLSDIR/libsamplerate-0.1.9.tar.gz
 samplerate_DIR=libsamplerate-0.1.9
 samplerate_MD5=2b78ae9fe63b36b9fbb6267fad93f259
 
@@ -581,9 +595,9 @@ echo samplerate Done.
 echo
 }
 
-if ! [ -d libdeps ];          then mkdir libdeps          || exit 1; fi
-if ! [ -d libdeps/tarballs ]; then mkdir libdeps/tarballs || exit 1; fi
-cd libdeps || exit 1
+if ! [ -d $LIBDEPSDIR  ]; then mkdir $LIBDEPSDIR  || exit 1; fi
+if ! [ -d $TARBALLSDIR ]; then mkdir $TARBALLSDIR || exit 1; fi
+cd $LIBDEPSDIR || exit 1
 
 echo "Looking for programs.."
 which quilt >/dev/null || ( echo "error: quilt not found."; false ) || exit 1
