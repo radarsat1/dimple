@@ -247,7 +247,7 @@ fi
 
 if ! [ -d $chai_DIR ]; then
 echo Extracting "$chai_TAR" ...
-if !(unzip -o "$chai_TAR"); then
+if !(unzip -q -o "$chai_TAR"); then
     echo "Error in archive.";
     exit
 fi
