@@ -1,0 +1,4 @@
+baseURL = "http://radarsat1.github.io/dimple/"
+languageCode = "en-us"
+title = "Dimple"
+theme = "simplicity"
