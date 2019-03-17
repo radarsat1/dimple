@@ -314,6 +314,10 @@ AC_CHECK_LIB(lo, [lo_server_new], [],
     AC_CHECK_LIB(lo, [lo_server_new], [],
       AC_MSG_ERROR([Couldn't find liblo library.]))])])
 
+# Next test does not pass if std=c++11 (equivalent) is not in CPPFLAGS
+STD11=$(echo $CXXFLAGS; tr ' ' '\n' | grep std=)
+CPPFLAGS="$STD11 $CPPFLAGS"
+
 # if we have the mingw32 thread replacement headers, put them on the path
 if test -d ${LIBDEPSDIR}/mingw-std-threads-4e22f33ff3a32a81436582cd0c427893e353516c; then
 save_CPPFLAGS="$CPPFLAGS"
