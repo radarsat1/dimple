@@ -318,7 +318,7 @@ AC_CHECK_LIB(lo, [lo_server_new], [],
 if test -d ${LIBDEPSDIR}/mingw-std-threads-4e22f33ff3a32a81436582cd0c427893e353516c; then
 save_CPPFLAGS="$CPPFLAGS"
 CPPFLAGS="$CPPFLAGS -I${LIBDEPSDIR}/mingw-std-threads-4e22f33ff3a32a81436582cd0c427893e353516c"
-AC_CHECK_HEADER(thread,
+AC_CHECK_HEADER(mingw.thread.h,
   [CPPFLAGS="$CPPFLAGS -D_WIN32_WINNT=0x0600 -DWINVER=0x0600"
    LDFLAGS="$LDFLAGS -static-libgcc -static-libstdc++"
    HAVE_MINGW_STD_THREADS=1
