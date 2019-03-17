@@ -11,19 +11,47 @@ echo This script bootstraps required libraries for selected environments.
 
 MAKE="make -j4"
 
-LIBDEPSDIR="`pwd`/libdeps"
+BUILDDIR="`pwd`"
+SRCDIR="$(cd $(dirname $0); pwd)"
+
+LIBDEPSDIR="$BUILDDIR/libdeps"
 if [ -n "$1" ]; then
     if [ x"$1" = "x-h" ] || [ x"$1" = "x--help" ]; then
         echo "./bootstrap.sh [libdeps] [tarballs]"
+        echo
+        echo "[libdeps] optionally specifies location where library dependencies"
+        echo "should be unpacked and built. By default it is '<current directory>/libdeps'."
+        echo
+        echo "[tarballs] optionally specifies a different location to store the"
+        echo "downloaded source tar and zip files.  By default it is assumed"
+        echo "to be '<libdeps>/tarballs'."
+        echo
+        echo "Note: If you specify the <libdeps> path here, you should provide the same"
+        echo "path as an argument to './configure --with-libdeps=<libdeps>'."
+        echo
+        echo "You may find it beneficial to explicitly specify these paths"
+        echo "when doing out-of-source (VPATH) builds, in order to share"
+        echo "pre-compiled dependencies."
         exit 0
     fi
     LIBDEPSDIR="$1"
+fi
+if ! [ -d "$LIBDEPSDIR" ]; then
+    mkdir -p "$LIBDEPSDIR"
 fi
 
 TARBALLSDIR="$LIBDEPSDIR/tarballs"
 if [ -n "$2" ]; then
     TARBALLSDIR="$2"
 fi
+if ! [ -d "$TARBALLSDIR" ]; then
+    mkdir -p "$TARBALLSDIR"
+fi
+
+LIBDEPSDIR="$(cd $LIBDEPSDIR; pwd)"
+TARBALLSDIR="$(cd $TARBALLSDIR; pwd)"
+
+PATCHESDIR="$SRCDIR/libdeps/patches"
 
 liblo() {
 liblo_URL=http://downloads.sourceforge.net/liblo/liblo-0.30.tar.gz
@@ -54,7 +82,7 @@ if [ "${liblo_PATCH}"x != x ]; then
     echo Patching liblo
     mkdir ${liblo_DIR}/patches
     for P in ${liblo_PATCH}; do
-        cp -v $P ${liblo_DIR}/patches/;
+        cp -v ${PATCHESDIR}/$P ${liblo_DIR}/patches/;
         echo $(basename $P) >>${liblo_DIR}/series;
     done
     if !(cd $liblo_DIR; quilt push -a); then
@@ -138,7 +166,7 @@ if [ "${ode_PATCH}"x != x ] && [ -f "${ode_PATCH}" ]; then
     echo Patching ODE
     mkdir ${ode_DIR}/patches
     for P in ${ode_PATCH}; do
-        cp -v $P ${ode_DIR}/patches/;
+        cp -v ${PATCHESDIR}/$P ${ode_DIR}/patches/;
         echo $(basename $P) >>${ode_DIR}/series;
     done
     if !(cd $ode_DIR; quilt push -a); then
@@ -228,7 +256,7 @@ if [ "${chai_PATCH}"x != x ]; then
     echo Patching chai3d
     mkdir ${chai_DIR}/patches
     for P in ${chai_PATCH}; do
-        cp -v $P ${chai_DIR}/patches/;
+        cp -v ${PATCHESDIR}/$P ${chai_DIR}/patches/;
         echo $(basename $P) >>${chai_DIR}/series;
     done
     if !(cd $chai_DIR; quilt push -a); then
@@ -316,7 +344,7 @@ if [ "${freeglut_PATCH}"x != x ]; then
     echo Patching freeglut
     mkdir ${freeglut_DIR}/patches
     for P in ${freeglut_PATCH}; do
-        cp -v $P ${freeglut_DIR}/patches/;
+        cp -v ${PATCHESDIR}/$P ${freeglut_DIR}/patches/;
         echo $(basename $P) >>${freeglut_DIR}/series;
     done
     if !(cd $freeglut_DIR; quilt push -a); then
@@ -402,7 +430,7 @@ if [ "${atomicops_PATCH}"x != x ]; then
     echo Patching atomicops
     mkdir ${atomicops_DIR}/patches
     for P in ${atomicops_PATCH}; do
-        cp -v $P ${atomicops_DIR}/patches/;
+        cp -v ${PATCHESDIR}/$P ${atomicops_DIR}/patches/;
         echo $(basename $P) >>${atomicops_DIR}/series;
     done
     if !(cd $atomicops_DIR; quilt push -a); then
@@ -450,7 +478,7 @@ if [ "${pthreads_PATCH}"x != x ]; then
     echo Patching pthreads
     mkdir ${pthreads_DIR}/patches
     for P in ${pthreads_PATCH}; do
-        cp -v $P ${pthreads_DIR}/patches/;
+        cp -v $P ${PATCHESDIR}/${pthreads_DIR}/patches/;
         echo $(basename $P) >>${pthreads_DIR}/series;
     done
     if !(cd $pthreads_DIR; quilt push -a); then
@@ -533,7 +561,7 @@ if [ "${samplerate_PATCH}"x != x ]; then
     echo Patching samplerate
     mkdir ${samplerate_DIR}/patches
     for P in ${samplerate_PATCH}; do
-        cp -v $P ${samplerate_DIR}/patches/;
+        cp -v $P ${PATCHESDIR}/${samplerate_DIR}/patches/;
         echo $(basename $P) >>${samplerate_DIR}/series;
     done
     if !(cd $samplerate_DIR; quilt push -a); then
@@ -604,7 +632,7 @@ which quilt >/dev/null || ( echo "error: quilt not found."; false ) || exit 1
 which unzip >/dev/null || (echo "error: unzip not found."; false ) || exit 1
 
 # Configs for any system
-chai_PATCH="patches/chai3d-clearFromContact.patch patches/chai3d-force-scale.patch"
+chai_PATCH="chai3d-clearFromContact.patch chai3d-force-scale.patch"
 
 # System-dependant bootstrapping
 case $(uname) in
@@ -615,7 +643,7 @@ case $(uname) in
     liblo_LIBS="-lws2_32 -liphlpapi"
     liblo_CONFIGEXTRA="--disable-ipv6 --with-win32-threads --enable-static --disable-shared"
     chai_DIR=chai3d-3.2.0
-    chai_PATCH="patches/chai3d-clearFromContact.patch patches/chai3d-force-scale.patch patches/chai3d-tdleap-mingw64.patch"
+    chai_PATCH="chai3d-clearFromContact.patch chai3d-force-scale.patch chai3d-tdleap-mingw64.patch"
     CMAKE_GEN='MSYS Makefiles'
     CMAKE_EXTRA=-G
 

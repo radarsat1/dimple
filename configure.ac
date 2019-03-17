@@ -83,6 +83,7 @@ fi
 AC_ARG_WITH(libdeps,
   [AS_HELP_STRING([--with-libdeps],[location of directory containing library dependencies (libdeps)])],
   [LIBDEPSDIR=${withval}], [LIBDEPSDIR=$abs_builddir/libdeps])
+LIBDEPSDIR="$(cd "$LIBDEPSDIR"; pwd)"
 
 # Some simple configurations depending purely on known target systems
 CHAI_ARCH="`uname -m`"
