@@ -16,6 +16,8 @@
 #ifndef _AUDIOSTREAMER_H_
 #define _AUDIOSTREAMER_H_
 
+#include <vector>
+
 #include <samplerate.h>
 #include "CircBuffer.h"
 
@@ -49,7 +51,7 @@ protected:
     bool m_upsampling;
     SRC_DATA m_samplerate_data;
     SRC_STATE *m_samplerate_state;
-    float *m_tmpbuffer;
+    std::vector<float> m_tmpbuffer;
 };
 
 #endif // _AUDIOSTREAMER_H_

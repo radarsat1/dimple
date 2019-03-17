@@ -14,6 +14,7 @@ AM_INIT_AUTOMAKE
 AM_MAINTAINER_MODE
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
+abs_builddir=`pwd`
 abs_srcdir=`cd $srcdir; pwd`
 
 echo "CC is ${CC}"
@@ -78,6 +79,12 @@ if test x$use_queues = xyes; then
     [Define to enable use of message queues for inter-thread communication.])
 fi
 
+# libdeps dir, default to $builddir/libdeps
+AC_ARG_WITH(libdeps,
+  [AS_HELP_STRING([--with-libdeps],[location of directory containing library dependencies (libdeps)])],
+  [LIBDEPSDIR=${withval}], [LIBDEPSDIR=$abs_builddir/libdeps])
+LIBDEPSDIR="$(cd "$LIBDEPSDIR"; pwd)"
+
 # Some simple configurations depending purely on known target systems
 CHAI_ARCH="`uname -m`"
 case "$target" in
@@ -117,17 +124,17 @@ case "$target" in
   *-*-darwin* )
 
 AC_CHECK_HEADER([/System/Library/Frameworks/OpenGL.framework/Headers/gl.h],
-  [if ! test -d ${abs_srcdir}/GL; then
-    if ! mkdir -v ${abs_srcdir}/GL; then
+  [if ! test -d ${abs_builddir}/GL; then
+    if ! mkdir -v ${abs_builddir}/GL; then
 	  AC_MSG_ERROR([Error creating directory for GL framework symlink.])
     fi
    fi
-   if ! test -h ${abs_srcdir}/GL/GL; then
-    if ! ln -vs /System/Library/Frameworks/OpenGL.framework/Headers ${abs_srcdir}/GL/GL; then
+   if ! test -h ${abs_builddir}/GL/GL; then
+    if ! ln -vs /System/Library/Frameworks/OpenGL.framework/Headers ${abs_builddir}/GL/GL; then
 	  AC_MSG_ERROR([Error creating symlink to GL framework.])
     fi
    fi
-   CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/GL"
+   CPPFLAGS="$CPPFLAGS -I${abs_builddir}/GL"
    LIBS="$LIBS -framework OpenGL"],
   [AC_MSG_ERROR([Couldn't find OpenGL framework.])])
 
@@ -135,17 +142,17 @@ AC_CHECK_HEADER([GL/gl.h], [],
   [AC_MSG_ERROR([Error using symlink to OpenGL framework.])])
 
 AC_CHECK_HEADER([/System/Library/Frameworks/GLUT.framework/Headers/glut.h],
-  [if ! test -d ${abs_srcdir}/GLUT; then
-    if ! mkdir -v ${abs_srcdir}/GLUT; then
+  [if ! test -d ${abs_builddir}/GLUT; then
+    if ! mkdir -v ${abs_builddir}/GLUT; then
 	  AC_MSG_ERROR([Error creating directory for GLUT framework symlink.])
     fi
    fi
-   if ! test -h ${abs_srcdir}/GLUT/GL; then
-    if ! ln -vs /System/Library/Frameworks/GLUT.framework/Headers ${abs_srcdir}/GLUT/GL; then
+   if ! test -h ${abs_builddir}/GLUT/GL; then
+    if ! ln -vs /System/Library/Frameworks/GLUT.framework/Headers ${abs_builddir}/GLUT/GL; then
 	  AC_MSG_ERROR([Error creating symlink to GLUT framework.])
     fi
    fi
-   CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/GLUT"
+   CPPFLAGS="$CPPFLAGS -I${abs_builddir}/GLUT"
    LIBS="$LIBS -framework GLUT"],
   [AC_MSG_ERROR([Couldn't find GLUT framework.])])
 
@@ -164,10 +171,10 @@ AC_CHECK_LIB(GL, [glBegin], [],
 
 # GLUT
 AC_CHECK_LIB(glut, [glutInit], [],
-  [LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/freeglut-3.0.0/lib"
+  [LDFLAGS="$LDFLAGS -L${LIBDEPSDIR}/freeglut-3.0.0/lib"
   unset ac_cv_lib_glut_glutInit
   AC_CHECK_LIB(freeglut_static, [glutInit],
-    [CPPFLAGS="$CPPFLAGS -DFREEGLUT_STATIC -I${abs_srcdir}/libdeps/freeglut-3.0.0/include"
+    [CPPFLAGS="$CPPFLAGS -DFREEGLUT_STATIC -I${LIBDEPSDIR}/freeglut-3.0.0/include"
     LIBS="-lfreeglut_static -lgdi32 -lwinmm -luuid -loleaut32 $LIBS"
     need_glu32=yes],
     [AC_CHECK_LIB(glut32, [glutInit], [],
@@ -209,7 +216,7 @@ m4_ifdef([AX_PTHREAD],[AX_PTHREAD(
   [AC_CHECK_LIB(pthread, [pthread_create])])
 
 # CHAI 3D
-CHAI_DIR=${abs_srcdir}/libdeps/chai3d-3.2.0
+CHAI_DIR=${LIBDEPSDIR}/chai3d-3.2.0
 if test -e "$CHAI_DIR"/libchai3d.a; then
   CHAI_LIBDIR="$CHAI_DIR"
 else
@@ -253,7 +260,7 @@ AC_CHECK_LIB(chai3d, [main], [],
 
 # ODE
 save_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/ode-0.13.1/include"
+CPPFLAGS="$CPPFLAGS -I${LIBDEPSDIR}/ode-0.13.1/include"
 AC_CHECK_HEADER(ode/ode.h, [],
   [CPPFLAGS="$save_CPPFLAGS"
   unset ac_cv_header_ode_ode_h
@@ -261,7 +268,7 @@ AC_CHECK_HEADER(ode/ode.h, [],
      [AC_MSG_ERROR([Couldn't find ODE headers.])])])
 
 save_LDFLAGS="$LDFLAGS"
-LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/ode-0.13.1/ode/src/.libs"
+LDFLAGS="$LDFLAGS -L${LIBDEPSDIR}/ode-0.13.1/ode/src/.libs"
 AC_CHECK_LIB(ode, [dBodyCreate], [],
   [LDFLAGS="$save_LDFLAGS"
   unset ac_cv_lib_ode_dBodyCreate
@@ -270,7 +277,7 @@ AC_CHECK_LIB(ode, [dBodyCreate], [],
 
 # libsamplerate
 save_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/libsamplerate-0.1.9/src"
+CPPFLAGS="$CPPFLAGS -I${LIBDEPSDIR}/libsamplerate-0.1.9/src"
 AC_CHECK_HEADER(samplerate.h, [],
   [CPPFLAGS="$save_CPPFLAGS"
   unset ac_cv_header_samplerate_h
@@ -278,7 +285,7 @@ AC_CHECK_HEADER(samplerate.h, [],
      [AC_MSG_ERROR([Couldn't find libsamplerate headers.])])])
 
 save_LDFLAGS="$LDFLAGS"
-LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/libsamplerate-0.1.9/src/.libs"
+LDFLAGS="$LDFLAGS -L${LIBDEPSDIR}/libsamplerate-0.1.9/src/.libs"
 AC_CHECK_LIB(samplerate, [src_new], [],
   [LDFLAGS="$save_LDFLAGS"
   unset ac_cv_lib_samplerate_src_new
@@ -287,7 +294,7 @@ AC_CHECK_LIB(samplerate, [src_new], [],
 
 # liblo
 save_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS -I${abs_srcdir}/libdeps/liblo-0.30"
+CPPFLAGS="$CPPFLAGS -I${LIBDEPSDIR}/liblo-0.30"
 AC_CHECK_HEADER(lo/lo.h, [],
   [CPPFLAGS="$save_CPPFLAGS"
   unset ac_cv_header_lo_lo_h
@@ -296,7 +303,7 @@ AC_CHECK_HEADER(lo/lo.h, [],
 
 save_LIBS="$LIBS"
 save_LDFLAGS="$LDFLAGS"
-LDFLAGS="$LDFLAGS -L${abs_srcdir}/libdeps/liblo-0.30/src/.libs"
+LDFLAGS="$LDFLAGS -L${LIBDEPSDIR}/liblo-0.30/src/.libs"
 AC_CHECK_LIB(lo, [lo_server_new], [],
   [LIBS="-lws2_32 -liphlpapi $LIBS"
   unset ac_cv_lib_lo_lo_server_new
@@ -306,6 +313,19 @@ AC_CHECK_LIB(lo, [lo_server_new], [],
     unset ac_cv_lib_lo_lo_server_new
     AC_CHECK_LIB(lo, [lo_server_new], [],
       AC_MSG_ERROR([Couldn't find liblo library.]))])])
+
+# if we have the mingw32 thread replacement headers, put them on the path
+if test -d ${LIBDEPSDIR}/mingw-std-threads-4e22f33ff3a32a81436582cd0c427893e353516c; then
+save_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS -I${LIBDEPSDIR}/mingw-std-threads-4e22f33ff3a32a81436582cd0c427893e353516c"
+AC_CHECK_HEADER(thread,
+  [CPPFLAGS="$CPPFLAGS -D_WIN32_WINNT=0x0600 -DWINVER=0x0600"
+   LDFLAGS="$LDFLAGS -static-libgcc -static-libstdc++"
+   HAVE_MINGW_STD_THREADS=1
+   AC_DEFINE(HAVE_MINGW_STD_THREADS, [1], [Define to 1 if using mingw.thread.h et al.])],
+  [CPPFLAGS="$save_CPPFLAGS"
+  unset ac_cv_header_thread])
+fi
 
 # Configure
 AC_CONFIG_FILES([

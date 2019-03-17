@@ -19,15 +19,13 @@ AudioStreamer::AudioStreamer(unsigned int input_samplerate_hz,
     if (!m_samplerate_state)
         printf("Error in libsamplerate src_new()\n");
 
-    m_tmpbuffer = new float[m_fifo.getSize()];
+    m_tmpbuffer.resize(m_fifo.getSize());
 }
 
 AudioStreamer::~AudioStreamer()
 {
     if (m_samplerate_state)
         src_delete(m_samplerate_state);
-    if (m_tmpbuffer)
-        delete m_tmpbuffer;
 }
 
 /*! Write samples to the FIFO at the input sample rate. */
@@ -36,7 +34,7 @@ bool AudioStreamer::writeSamples(float *samples, unsigned int len)
     // When downsampling, resampling happens on write.
     if (!m_upsampling) {
         m_samplerate_data.data_in = samples;
-        m_samplerate_data.data_out = m_tmpbuffer;
+        m_samplerate_data.data_out = m_tmpbuffer.data();
         m_samplerate_data.input_frames = len;
         m_samplerate_data.output_frames = m_fifo.getSize();
         m_samplerate_data.src_ratio = m_samplerate_ratio;
@@ -45,7 +43,7 @@ bool AudioStreamer::writeSamples(float *samples, unsigned int len)
         src_process(m_samplerate_state, &m_samplerate_data);
 
         return
-        m_fifo.writeBuffer((const unsigned char*)m_tmpbuffer,
+        m_fifo.writeBuffer((const unsigned char*)m_tmpbuffer.data(),
                            (int)(len * m_samplerate_ratio) * sizeof(float) * m_channels);
     }
     else {
@@ -60,11 +58,11 @@ bool AudioStreamer::readSamples(float *samples, unsigned int len)
 {
     // When upsampling, resampling happens on read.
     if (m_upsampling) {
-        if (!m_fifo.readBuffer((unsigned char*)m_tmpbuffer,
+        if (!m_fifo.readBuffer((unsigned char*)m_tmpbuffer.data(),
                                len * sizeof(float) * m_channels))
             return false;
 
-        m_samplerate_data.data_in = m_tmpbuffer;
+        m_samplerate_data.data_in = m_tmpbuffer.data();
         m_samplerate_data.data_out = samples;
         m_samplerate_data.input_frames = (unsigned int)(len * m_samplerate_ratio);
         m_samplerate_data.output_frames = len;
