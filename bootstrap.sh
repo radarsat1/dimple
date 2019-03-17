@@ -53,6 +53,16 @@ TARBALLSDIR="$(cd $TARBALLSDIR; pwd)"
 
 PATCHESDIR="$SRCDIR/libdeps/patches"
 
+# Uncomment or set environment variable to cross-compile for Windows on Linux
+# MINGW_ON_LINUX=1
+
+if [ x$MINGW_ON_LINUX = x1 ]; then
+    CONFIGURE_ARGS="--host=x86_64-w64-mingw32"
+    CMAKE_ARGS="-DCMAKE_TOOLCHAIN_FILE=${SRCDIR}/libdeps/Toolchain-cross-mingw32-linux.cmake"
+    CHAI_MAKE_ARGS="SYSTEM=fail" # force use of CMake
+fi
+# Then run "./configure --host=x86_64-w64-mingw32 && make"
+
 liblo() {
 liblo_URL=http://downloads.sourceforge.net/liblo/liblo-0.30.tar.gz
 liblo_TAR=$TARBALLSDIR/liblo-0.30.tar.gz
@@ -117,7 +127,7 @@ case $(uname) in
 
    *)
    echo Configuring $liblo_DIR
-   if !(cd $liblo_DIR && env CFLAGS="$liblo_CFLAGS" LDFLAGS="$liblo_LDFLAGS" LIBS="$liblo_LIBS" CXXFLAGS=fail ./configure --disable-shared $liblo_CONFIGEXTRA); then
+   if !(cd $liblo_DIR && env CFLAGS="$liblo_CFLAGS" LDFLAGS="$liblo_LDFLAGS" LIBS="$liblo_LIBS" CXXFLAGS=fail ./configure ${CONFIGURE_ARGS} --disable-shared $liblo_CONFIGEXTRA); then
 	  echo "Error configuring $liblo_DIR"
 	  exit
    fi
@@ -195,7 +205,7 @@ case $(uname) in
 
 	*)
     echo Configuring $ode_DIR
-    if !(cd $ode_DIR && env ./configure --disable-shared --disable-demos); then
+    if !(cd $ode_DIR && env ./configure ${CONFIGURE_ARGS} --disable-shared --disable-demos); then
     	echo "Error configuring $ode_DIR"
 	    exit
     fi
@@ -229,7 +239,7 @@ if [ -n "${DIMPLE_DEBUG}" ]; then
 else
     CHAI_CFG=release
 fi
-CHAI_MAKE_ARGS=CFG=$CHAI_CFG
+CHAI_MAKE_ARGS="$CHAI_MAKE_ARGS CFG=$CHAI_CFG"
 
 if ! [ -d $chai_DIR ]; then
 
@@ -285,7 +295,7 @@ case $(uname) in
 
 	*)
       echo Compiling $chai_DIR
-    if !(cd $chai_DIR && $MAKE $CHAI_MAKE_ARGS || (cmake . $CMAKE_EXTRA "$CMAKE_GEN" && $MAKE)); then
+    if !(cd $chai_DIR && $MAKE $CHAI_MAKE_ARGS || (cmake . $CMAKE_ARGS $CMAKE_EXTRA "$CMAKE_GEN" && $MAKE)); then
         echo "Error compiling $chai_DIR"
         exit
     fi
@@ -379,7 +389,7 @@ case $(uname) in
 
     *)
     echo Configuring $freeglut_DIR
-    if !(cd $freeglut_DIR && cmake . $CMAKE_EXTRA "$CMAKE_GEN" -DFREEGLUT_BUILD_STATIC_LIBS=ON  -DFREEGLUT_BUILD_SHARED_LIBS=OFF); then
+    if !(cd $freeglut_DIR && cmake . $CMAKE_ARGS $CMAKE_EXTRA "$CMAKE_GEN" -DFREEGLUT_BUILD_STATIC_LIBS=ON  -DFREEGLUT_BUILD_SHARED_LIBS=OFF); then
         echo "Error configuring $freeglut_DIR"
         exit
     fi
@@ -590,11 +600,7 @@ case $(uname) in
 
    *)
    echo Configuring $samplerate_DIR
-   case "`uname`" in
-       *MINGW64*) HOSTBUILD= --host=x86_64-w64-mingw32 --build=x86_64-w64-mingw32 ;;
-       *)
-   esac
-   if !(cd $samplerate_DIR && env ./configure --disable-shared $HOSTBUILD); then
+   if !(cd $samplerate_DIR && ./configure ${CONFIGURE_ARGS} --disable-shared --disable-sndfile); then
 	  echo "Error configuring $samplerate_DIR"
 	  exit
    fi
@@ -622,6 +628,61 @@ echo
 echo samplerate Done.
 echo
 }
+
+
+mingw_std_threads() {
+mingw_std_threads_URL="https://github.com/meganz/mingw-std-threads/archive/4e22f33ff3a32a81436582cd0c427893e353516c.tar.gz"
+mingw_std_threads_TAR=$TARBALLSDIR/mingw-std-threads-4e22f33ff3.tar.gz
+mingw_std_threads_DIR=mingw-std-threads-4e22f33ff3a32a81436582cd0c427893e353516c
+mingw_std_threads_MD5=7abcc5c42444f972f721e066a0cff759
+
+if ! [ -d $mingw_std_threads_DIR ]; then
+
+echo $MD5 "$mingw_std_threads_TAR"
+echo $($MD5 "$mingw_std_threads_TAR" | $MD5CUT)x
+$MD5 "$mingw_std_threads_TAR" | $MD5CUT
+$MD5 "$mingw_std_threads_TAR"
+if [ $($MD5 "$mingw_std_threads_TAR" | $MD5CUT)x != ${mingw_std_threads_MD5}x ]; then
+    echo Downloading $mingw_std_threads_TAR ...
+    if [ -e $mingw_std_threads_TAR ]; then rm -v $mingw_std_threads_TAR; fi
+    $DL "$mingw_std_threads_TAR" $mingw_std_threads_URL
+fi
+
+if [ $($MD5 "$mingw_std_threads_TAR" | $MD5CUT)x != ${mingw_std_threads_MD5}x ]; then
+    echo "Error in MD5 checksum for $mingw_std_threads_TAR"
+    exit
+fi
+fi
+
+if ! [ -d $mingw_std_threads_DIR ]; then
+echo Extracting "$mingw_std_threads_TAR" ...
+if !(tar -xzf "$mingw_std_threads_TAR"); then
+    echo "Error in archive.";
+    exit
+fi
+
+if [ "${mingw_std_threads_PATCH}"x != x ]; then
+    echo Patching mingw_std_threads
+    mkdir ${mingw_std_threads_DIR}/patches
+    for P in ${mingw_std_threads_PATCH}; do
+        cp -v $P ${PATCHESDIR}/${mingw_std_threads_DIR}/patches/;
+        echo $(basename $P) >>${mingw_std_threads_DIR}/series;
+    done
+    if !(cd $mingw_std_threads_DIR; quilt push -a); then
+	      echo "Error applying patches for mingw_std_threads."
+	      exit
+    fi
+fi
+
+fi
+
+echo
+echo mingw_std_threads Done.
+echo
+}
+
+# -O mingw-std-threads-4e22f33ff3.tar.gz https://github.com/meganz/mingw-std-threads/archive/4e22f33ff3a32a81436582cd0c427893e353516c.tar.gz
+# 7abcc5c42444f972f721e066a0cff759  4e22f33ff3a32a81436582cd0c427893e353516c.tar.gz
 
 if ! [ -d $LIBDEPSDIR  ]; then mkdir $LIBDEPSDIR  || exit 1; fi
 if ! [ -d $TARBALLSDIR ]; then mkdir $TARBALLSDIR || exit 1; fi
@@ -719,6 +780,11 @@ case $(uname) in
 	liblo
 #    echo For Linux, please get package \"liblo\" from your distribution.
 #    echo Ubuntu and Debian: sudo apt-get install liblo0-dev
+    if [ x$MINGW_ON_LINUX = x1 ]; then
+      freeglut
+      samplerate
+      mingw_std_threads
+    fi
     exit
 	;;
 

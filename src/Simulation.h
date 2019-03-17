@@ -3,9 +3,17 @@
 #ifndef _SIMULATION_H_
 #define _SIMULATION_H_
 
+#include "config.h"
+
+#ifdef HAVE_MINGW_STD_THREADS
+#include <mingw.thread.h>
+#include <mingw.mutex.h>
+#include <mingw.condition_variable.h>
+#else
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#endif
 
 #include "OscValue.h"
 #include "ValueTimer.h"

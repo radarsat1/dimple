@@ -314,6 +314,19 @@ AC_CHECK_LIB(lo, [lo_server_new], [],
     AC_CHECK_LIB(lo, [lo_server_new], [],
       AC_MSG_ERROR([Couldn't find liblo library.]))])])
 
+# if we have the mingw32 thread replacement headers, put them on the path
+if test -d ${LIBDEPSDIR}/mingw-std-threads-4e22f33ff3a32a81436582cd0c427893e353516c; then
+save_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS -I${LIBDEPSDIR}/mingw-std-threads-4e22f33ff3a32a81436582cd0c427893e353516c"
+AC_CHECK_HEADER(thread,
+  [CPPFLAGS="$CPPFLAGS -D_WIN32_WINNT=0x0600 -DWINVER=0x0600"
+   LDFLAGS="$LDFLAGS -static-libgcc -static-libstdc++"
+   HAVE_MINGW_STD_THREADS=1
+   AC_DEFINE(HAVE_MINGW_STD_THREADS, [1], [Define to 1 if using mingw.thread.h et al.])],
+  [CPPFLAGS="$save_CPPFLAGS"
+  unset ac_cv_header_thread])
+fi
+
 # Configure
 AC_CONFIG_FILES([
 	Makefile
