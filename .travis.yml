@@ -1,0 +1,71 @@
+language: cpp
+sudo: false  # docker VM
+git:
+  depth: 99999
+cache:
+  directories:
+  - libdeps
+matrix:
+  include:
+  - os: linux
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+        packages:
+          - g++-8
+          - libusb-dev
+          - freeglut3-dev
+          - autoconf-archive
+          - libsamplerate0-dev
+          - libasound2-dev
+          - libusb-1.0-0-dev
+          - unzip
+          - libasound2-dev
+          - libxcursor-dev
+          - libxrandr-dev
+          - libxinerama-dev
+          - quilt
+    env: HOST="" MATRIX_EVAL="CC=gcc-8 && CXX=g++-8 && echo '--progress=bar:force' >$HOME/.wgetrc"
+    compiler: gcc
+  - os: linux
+    dist: xenial
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+        packages:
+          - g++-mingw-w64
+          - autoconf-archive
+          - unzip
+          - quilt
+    env:
+      - HOST="x86_64-w64-mingw32"
+      - MINGW_ON_LINUX="1"
+      - MATRIX_EVAL="unset CC && unset CXX && echo '--progress=bar:force' >$HOME/.wgetrc"
+  - os: osx
+    osx_image: xcode10
+    env: HOST="" MATRIX_EVAL="brew install freeglut autoconf-archive quilt"
+    compiler: clang
+before_install:
+  - eval "${MATRIX_EVAL}"
+script:  pwd && echo MINGW_ON_LINUX=$MINGW_ON_LINUX && ./bootstrap.sh && ./autogen.sh --host=$HOST --disable-debug --prefix=$PWD/install && make && make check && make install && bash .travis-ghpages.sh || (cat config.log; false)
+after_script:
+- 
+# - make distcheck # will not work without re-bootstrapping, wasteful
+notifications:
+  email:
+    recipients:
+      - radarsat1@gmail.com
+    on_success: never
+    on_failure: change
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  keep-history: false
+  on:
+    branch: travis
+  local-dir: pages
+  target-branch: gh-pages
+  verbose: true
