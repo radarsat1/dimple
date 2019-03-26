@@ -28,6 +28,9 @@ matrix:
           - quilt
     env: HOST="" MATRIX_EVAL="CC=gcc-8 && CXX=g++-8 && echo '--progress=bar:force' >$HOME/.wgetrc"
     compiler: gcc
+    install:
+      - wget -O /tmp/hugo.deb https://github.com/gohugoio/hugo/releases/download/v0.54.0/hugo_0.54.0_Linux-64bit.deb
+      - sudo dpkg -i /tmp/hugo.deb
   - os: linux
     dist: xenial
     addons:
@@ -43,9 +46,12 @@ matrix:
       - HOST="x86_64-w64-mingw32"
       - MINGW_ON_LINUX="1"
       - MATRIX_EVAL="unset CC && unset CXX && echo '--progress=bar:force' >$HOME/.wgetrc"
+    install:
+      - wget -O /tmp/hugo.deb https://github.com/gohugoio/hugo/releases/download/v0.54.0/hugo_0.54.0_Linux-64bit.deb
+      - sudo dpkg -i /tmp/hugo.deb
   - os: osx
     osx_image: xcode10
-    env: HOST="" MATRIX_EVAL="brew install freeglut autoconf-archive quilt"
+    env: HOST="" MATRIX_EVAL="brew install freeglut autoconf-archive quilt hugo"
     compiler: clang
 before_install:
   - eval "${MATRIX_EVAL}"
