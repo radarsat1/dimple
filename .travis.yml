@@ -69,9 +69,9 @@ deploy:
   provider: pages
   skip-cleanup: true
   github-token: $GITHUB_TOKEN
-  keep-history: false
+  keep-history: true
   on:
-    branch: travis
+    branch: master
   local-dir: pages
   target-branch: gh-pages
   verbose: true
