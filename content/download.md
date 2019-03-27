@@ -14,6 +14,11 @@ TODO
 
 ### Nightly binaries:
 
+Please note that these are not guarantee to work.  Also, for now they
+are raw binaries not yet packaged properly, so you will need the
+appropriate libraries installed in the expected places.  If this is
+difficult, please wait for the forthcoming release.
+
 Windows
 [dimple-nightly-placeholder-windows](/dimple/binaries/dimple-nightly-placeholder-windows)
 
