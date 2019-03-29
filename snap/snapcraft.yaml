@@ -1,0 +1,37 @@
+name: test-dimple-radarsat1
+version: "0.0.9-175"
+summary: Dynamically Interactive Musically PhysicaL Environment
+description: |
+  Interactive haptic systems created and controlled via Open Sound Control.
+
+confinement: devmode
+base: core18
+
+parts:
+  dimple:
+    plugin: autotools
+    override-build: |
+      ./bootstrap.sh
+      snapcraftctl build
+    source-type: tar
+    source: https://github.com/radarsat1/dimple/archive/master.tar.gz
+    build-packages:
+      - libasound2-dev
+      - libusb-1.0-0-dev
+      - freeglut3-dev
+      - autoconf-archive
+      - libsamplerate0-dev
+      - unzip
+      - libxcursor-dev
+      - libxrandr-dev
+      - libxinerama-dev
+      - quilt
+    stage-packages:
+      - libusb-1.0-0
+      - freeglut3
+      - libsamplerate0
+      - libasound2
+
+apps:
+  dimple:
+    command: dimple
