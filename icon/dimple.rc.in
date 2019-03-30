@@ -1,0 +1,24 @@
+1 VERSIONINFO
+FILEVERSION     1,0,0,0
+PRODUCTVERSION  1,0,0,0
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904E4"
+    BEGIN
+      VALUE "CompanyName", "@PACKAGE_NAME@"
+      VALUE "FileDescription", "@PACKAGE_NAME@"
+      VALUE "FileVersion", "@PACKAGE_VERSION@"
+      VALUE "InternalName", "@PACKAGE_STRING@"
+      VALUE "LegalCopyright", "@PACKAGE_BUGREPORT@"
+      VALUE "OriginalFilename", "@PACKAGE_NAME@.exe"
+      VALUE "ProductName", "@PACKAGE_NAME@"
+      VALUE "ProductVersion", "@PACKAGE_VERSION@"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 1252
+  END
+END
+2 ICON "@abs_srcdir@/dimple_sphere.ico"

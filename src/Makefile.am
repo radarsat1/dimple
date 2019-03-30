@@ -6,3 +6,12 @@ dimple_SOURCES = AudioStreamer.cpp dimple.cpp	\
    OscValue.cpp PhysicsSim.cpp Simulation.cpp ValueTimer.cpp			\
    VisualSim.cpp
 dimple_LDADD =
+
+if WINDRES
+
+dimple_LDADD += dimple.res
+
+dimple.res: ../icon/dimple.rc
+	$(WINDRES) $^ -O coff $@
+
+endif

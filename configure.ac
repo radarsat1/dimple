@@ -26,6 +26,9 @@ AC_PROG_CXX
 AC_CHECK_PROG(pkgconfig, pkg-config, yes, no)
 AX_CXX_COMPILE_STDCXX_11
 
+AC_CHECK_TOOL(WINDRES, [windres])
+AM_CONDITIONAL([WINDRES], [test x$WINDRES != x])
+
 # Checks for libraries.
 AC_CHECK_FUNC([log], [], [AC_CHECK_LIB([m],[log])])
 AC_CHECK_FUNC([getopt_long], [],
@@ -334,6 +337,7 @@ fi
 # Configure
 AC_CONFIG_FILES([
 	Makefile
-    src/Makefile
+  src/Makefile
+  icon/dimple.rc
 ])
 AC_OUTPUT()
