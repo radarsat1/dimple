@@ -26,6 +26,14 @@ AC_PROG_CXX
 AC_CHECK_PROG(pkgconfig, pkg-config, yes, no)
 AX_CXX_COMPILE_STDCXX_11
 
+AC_MSG_CHECKING([if $CXX supports -mwindows])
+save_LDFLAGS="$LDFLAGS"
+LDFLAGS="$LDFLAGS -mwindows"
+AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])],
+  [ac_cxx_mwindows=1], [LDFLAGS="$save_LDFLAGS"])
+AS_IF([test x$ac_cxx_mwindows = x1],
+  [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
+
 AC_CHECK_TOOL(WINDRES, [windres])
 AM_CONDITIONAL([WINDRES], [test x$WINDRES != x])
 
