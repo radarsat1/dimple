@@ -55,7 +55,7 @@ matrix:
     compiler: clang
 before_install:
   - eval "${MATRIX_EVAL}"
-script:  pwd && echo MINGW_ON_LINUX=$MINGW_ON_LINUX && ./bootstrap.sh && ./autogen.sh --host=$HOST --disable-debug --prefix=$PWD/install && make && make check && make install && bash .travis-ghpages.sh || (cat config.log; false)
+script:  pwd && echo MINGW_ON_LINUX=$MINGW_ON_LINUX && ./bootstrap.sh && ./autogen.sh --host=$HOST --disable-debug --prefix=$PWD/install && make && make check && make install && bash scripts/travis-ghpages.sh || (cat config.log; false)
 after_script:
 - 
 # - make distcheck # will not work without re-bootstrapping, wasteful
