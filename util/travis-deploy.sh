@@ -31,15 +31,15 @@ mv -v pages/binaries/* hugosite/static/binaries/
 
 # Prepare hugo site with current binary
 mkdir -vp pages/static/binaries
-if [ -e install/bin/dimple ]; then
-  cp -rv install/bin/dimple hugosite/static/binaries/$DIMPLE
-elif [ -e install/bin/dimple.exe ]; then
+if [ -e inst/bin/dimple ]; then
+  cp -rv inst/bin/dimple hugosite/static/binaries/$DIMPLE
+elif [ -e inst/bin/dimple.exe ]; then
   DIMPLE=dimple-mingw-`util/version.sh`.exe
   OS=windows
-  cp -rv install/bin/dimple.exe hugosite/static/binaries/$DIMPLE
+  cp -rv inst/bin/dimple.exe hugosite/static/binaries/$DIMPLE
 else
   echo "No installed dimple executable found:"
-  find install
+  find inst
   exit 1
 fi
 
@@ -48,9 +48,9 @@ sed -ie "s/dimple-nightly-placeholder-$OS/$DIMPLE/g" hugosite/content/download.m
 
 # Check binary dependencies
 if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-  if [ -e install/bin/dimple ]; then
-    ldd install/bin/dimple
-  elif [ -e install/bin/dimple.exe ]; then
+  if [ -e inst/bin/dimple ]; then
+    ldd inst/bin/dimple
+  elif [ -e inst/bin/dimple.exe ]; then
     echo -n
   fi
 elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
