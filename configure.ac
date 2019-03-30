@@ -36,6 +36,12 @@ AS_IF([test x$ac_cxx_mwindows = x1],
 
 AC_CHECK_TOOL(WINDRES, [windres])
 AM_CONDITIONAL([WINDRES], [test x$WINDRES != x])
+AC_CHECK_TOOL(CYGPATH, [cygpath])
+abs_win_icon="$abs_srcdir/icon/dimple_sphere.ico"
+if test x$CYGPATH != x; then
+  abs_win_icon="$($CYGPATH -a -w "icon/dimple_sphere.ico")"
+fi
+AC_SUBST(abs_win_icon)
 
 # Checks for libraries.
 AC_CHECK_FUNC([log], [], [AC_CHECK_LIB([m],[log])])

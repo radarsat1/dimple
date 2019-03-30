@@ -21,4 +21,4 @@ BEGIN
     VALUE "Translation", 0x409, 1252
   END
 END
-2 ICON "@abs_srcdir@/dimple_sphere.ico"
+2 ICON "@abs_win_icon@"
