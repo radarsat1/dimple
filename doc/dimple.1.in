@@ -1,0 +1,48 @@
+.TH DIMPLE -H "1" "April 2019" "dimple" "User Commands"
+.SH NAME
+dimple \- manual page for dimple
+.SH SYNOPSIS
+.B dimple
+[\fI\,options\/\fR]\fI\,
+.SH DESCRIPTION
+.PP
+Options are:\/\fR
+.PP
+\fB\-\-send\-url\fR (\fB\-u\fR)
+.IP
+A LibLo\-style URL specifying the address
+to send OSC messages to.
+Example: osc.udp://localhost:9000
+Other protocols may be 'tcp', 'unix'.
+.PP
+\fB\-\-queue\-size\fR (\fB\-q\fR)   Size of the message queues in kB.
+.IP
+Default is 64.
+.PP
+\fB\-\-sim\fR (\fB\-s\fR)  A string specifying which simulations to enable.
+.IP
+`v' for visual, `p' for physics, `h' for haptics.
+May be followed by ',' and a Liblo\-style URL,
+indicating that these components be addressed
+remotely. Multiple \fB\-s\fR flags may be provided for
+different addresses. Defaults to "vph".
+.PP
+\fB\-\-port\fR (\fB\-p\fR)  A local port number for the OSC/UDP interface.
+.IP
+(i.e. where external applications should send
+messages to communicate with DIMPLE.)  Defaults
+to 7774.  Ports for physics, haptics and visual
+simulations are consecutive following this number,
+respectively.
+.PP
+\fB\-\-noforce\fR (\fB\-n\fR)  Disable force output to haptic device.
+.SH "SEE ALSO"
+Open Sound Control messages supported by Dimple are outlined in @prefix@/share/doc/dimple/messages.md.
+.PP
+Mailing list: http://music.mcgill.ca/mailman/listinfo/dimple
+.PP
+Web site: https://radarsat1.github.io/dimple
+.PP
+Source code: https://github.com/radarsat1/dimple
+.SH "AUTHOR"
+Stephen Sinclair <radarsat1@gmail.com>

@@ -353,5 +353,6 @@ AC_CONFIG_FILES([
 	Makefile
   src/Makefile
   icon/dimple.rc
+  doc/dimple.1
 ])
 AC_OUTPUT()
