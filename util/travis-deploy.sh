@@ -19,7 +19,7 @@ git clone https://github.com/radarsat1/dimple.git --depth=1 --branch gh-pages pa
 DIMPLE=dimple-$TRAVIS_OS_NAME-`util/version.sh`
 case $TRAVIS_OS_NAME in
     osx) OS=mac;;
-    linux) OS=linux;;
+    linux) OS=linux; [ -z "$MINGW_ON_LINUX" ] && util/build-appimage.sh;;
 esac
 
 # Prepare hugo site with docs
@@ -31,12 +31,15 @@ mv -v pages/binaries/* hugosite/static/binaries/
 
 # Prepare hugo site with current binary
 mkdir -vp pages/static/binaries
-if [ -e inst/bin/dimple ]; then
-  cp -rv inst/bin/dimple hugosite/static/binaries/$DIMPLE
-elif [ -e inst/bin/dimple.exe ]; then
+if [ -e inst/bin/dimple.exe ]; then
   DIMPLE=dimple-mingw-`util/version.sh`.exe
   OS=windows
   cp -rv inst/bin/dimple.exe hugosite/static/binaries/$DIMPLE
+elif [ -e dimple-`util/version.sh`-x86_64.AppImage ]; then
+  DIMPLE=dimple-`util/version.sh`-x86_64.AppImage
+  cp -rv $DIMPLE hugosite/static/binaries/$DIMPLE
+elif [ -e inst/bin/dimple ]; then
+  cp -rv inst/bin/dimple hugosite/static/binaries/$DIMPLE
 else
   echo "No installed dimple executable found:"
   find inst
