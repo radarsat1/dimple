@@ -8,12 +8,10 @@ cache:
 matrix:
   include:
   - os: linux
+    dist: xenial
     addons:
       apt:
-        sources:
-          - ubuntu-toolchain-r-test
         packages:
-          - g++-8
           - libusb-dev
           - freeglut3-dev
           - autoconf-archive
@@ -27,7 +25,9 @@ matrix:
           - libxinerama-dev
           - imagemagick
           - quilt
-    env: HOST="" MATRIX_EVAL="CC=gcc-8 && CXX=g++-8 && echo '--progress=bar:force' >$HOME/.wgetrc"
+    env:
+      - HOST=""
+      - MATRIX_EVAL="echo '--progress=bar:force' >$HOME/.wgetrc"
     compiler: gcc
     install:
       - wget -O /tmp/hugo.deb https://github.com/gohugoio/hugo/releases/download/v0.54.0/hugo_0.54.0_Linux-64bit.deb
