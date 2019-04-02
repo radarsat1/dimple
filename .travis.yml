@@ -52,7 +52,7 @@ matrix:
       - sudo dpkg -i /tmp/hugo.deb
   - os: osx
     osx_image: xcode10
-    env: HOST="" MATRIX_EVAL="brew install freeglut autoconf-archive quilt hugo"
+    env: HOST="" MATRIX_EVAL="brew install freeglut autoconf-archive quilt hugo markdown"
     compiler: clang
 before_install:
   - eval "${MATRIX_EVAL}"

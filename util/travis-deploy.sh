@@ -18,7 +18,7 @@ git clone https://github.com/radarsat1/dimple.git --depth=1 --branch gh-pages pa
 
 DIMPLE=dimple-$TRAVIS_OS_NAME-`util/version.sh`
 case $TRAVIS_OS_NAME in
-    osx) OS=mac;;
+    osx) OS=mac; util/build-appbundle.sh;;
     linux) OS=linux; [ -z "$MINGW_ON_LINUX" ] && util/build-appimage.sh;;
 esac
 
@@ -38,6 +38,9 @@ if [ -e inst/bin/dimple.exe ]; then
 elif [ -e dimple-`util/version.sh`-x86_64.AppImage ]; then
   DIMPLE=dimple-`util/version.sh`-x86_64.AppImage
   cp -rv $DIMPLE hugosite/static/binaries/$DIMPLE
+elif [ -e dimple-`util/version.sh`-mac-x86_64.dmg ]; then
+  DIMPLE=dimple-`util/version.sh`-mac-x86_64.dmg
+  cp -rv $DIMPLE hugosite/static/binaries/$DIMPLE
 elif [ -e inst/bin/dimple ]; then
   cp -rv inst/bin/dimple hugosite/static/binaries/$DIMPLE
 else
@@ -54,14 +57,10 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
   if [ -e inst/bin/dimple ]; then
     ldd inst/bin/dimple
   elif [ -e inst/bin/dimple.exe ]; then
-    echo -n
+    true
   fi
 elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
-    otool -L hugosite/static/binaries/$DIMPLE
-    ls -l /usr/local/opt/libusb/lib/
-    cp -v /usr/local/opt/libusb/lib/libusb-1.0.0.dylib hugosite/static/binaries/
-    install_name_tool -change /usr/local/opt/libusb/lib/libusb-1.0.0.dylib "@loader_path/libusb-1.0.0.dylib" hugosite/static/binaries/$DIMPLE
-    otool -L hugosite/static/binaries/$DIMPLE
+  otool -L inst/bin/dimple
 fi
 
 # Update hugo site with previous links
@@ -69,7 +68,7 @@ BINARIES=$(grep binaries/dimple pages/download/index.html | sed 's,^.*/binaries/
 for i in $BINARIES; do
   case $i in
     *-linux-*) sed -ie "s/dimple-nightly-placeholder-linux/$i/g" hugosite/content/download.md ;;
-    *-osx-*) sed -ie "s/dimple-nightly-placeholder-mac/$i/g" hugosite/content/download.md ;;
+    *-mac-*) sed -ie "s/dimple-nightly-placeholder-mac/$i/g" hugosite/content/download.md ;;
     *-mingw-*) sed -ie "s/dimple-nightly-placeholder-windows/$i/g" hugosite/content/download.md ;;
   esac
 done
