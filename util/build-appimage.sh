@@ -27,9 +27,16 @@ fi
 # requires imagemagick!
 convert icon/dimple_sphere.png -resize 128 icon/dimple.png
 
+# copy doc files
+mkdir -pv AppDir/usr/share/doc
+cp -rv inst/share/doc/dimple AppDir/usr/share/doc/
+markdown AppDir/usr/share/doc/dimple/README >AppDir/usr/share/doc/dimple/README.html
+
 # copy extra files (tests, examples) into the AppDir
 mkdir -vp AppDir/usr/share/dimple/
 cp -rv test maxmsp textures AppDir/usr/share/dimple/
+
+# TODO: device libraries from chai3d
 
 # remove the man page because it includes a bad path and is not really
 # accessible through man anyways.

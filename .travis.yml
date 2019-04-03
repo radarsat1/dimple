@@ -25,6 +25,7 @@ matrix:
           - libxinerama-dev
           - imagemagick
           - quilt
+          - markdown
     env:
       - HOST=""
       - MATRIX_EVAL="echo '--progress=bar:force' >$HOME/.wgetrc"
