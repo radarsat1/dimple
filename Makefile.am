@@ -4,7 +4,7 @@ dist_doc_DATA = README COPYING doc/messages.md doc/phantom_howto.md
 
 install-data-hook:
 	$(MKDIR_P) $(DESTDIR)$(mandir)/man1
-	gzip -cf9 $(srcdir)/doc/dimple.1 > $(DESTDIR)$(mandir)/man1/dimple.1.gz
+	gzip -cf9 doc/dimple.1 > $(DESTDIR)$(mandir)/man1/dimple.1.gz
 
 EXTRA_DIST = autogen.sh bootstrap.sh
 
