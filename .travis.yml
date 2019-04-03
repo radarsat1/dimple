@@ -44,6 +44,8 @@ matrix:
           - autoconf-archive
           - unzip
           - quilt
+          - wine
+          - markdown
     env:
       - HOST="x86_64-w64-mingw32"
       - MINGW_ON_LINUX="1"

@@ -19,7 +19,7 @@ git clone https://github.com/radarsat1/dimple.git --depth=1 --branch gh-pages pa
 DIMPLE=dimple-$TRAVIS_OS_NAME-`util/version.sh`
 case $TRAVIS_OS_NAME in
     osx) OS=mac; util/build-appbundle.sh;;
-    linux) OS=linux; [ -z "$MINGW_ON_LINUX" ] && util/build-appimage.sh;;
+    linux) OS=linux; [ -z "$MINGW_ON_LINUX" ] && util/build-appimage.sh || util/build-nsis.sh;;
 esac
 
 # Prepare hugo site with docs
@@ -31,16 +31,20 @@ mv -v pages/binaries/* hugosite/static/binaries/
 
 # Prepare hugo site with current binary
 mkdir -vp pages/static/binaries
-if [ -e inst/bin/dimple.exe ]; then
-  DIMPLE=dimple-mingw-`util/version.sh`.exe
+if [ -e nsis/dimple-`util/version.sh`-win64-installer.exe ]; then
+  DIMPLE=dimple-`util/version.sh`-win64-installer.exe
   OS=windows
-  cp -rv inst/bin/dimple.exe hugosite/static/binaries/$DIMPLE
+  cp -rv nsis/$DIMPLE hugosite/static/binaries/$DIMPLE
 elif [ -e dimple-`util/version.sh`-x86_64.AppImage ]; then
   DIMPLE=dimple-`util/version.sh`-x86_64.AppImage
   cp -rv $DIMPLE hugosite/static/binaries/$DIMPLE
 elif [ -e dimple-`util/version.sh`-mac-x86_64.dmg ]; then
   DIMPLE=dimple-`util/version.sh`-mac-x86_64.dmg
   cp -rv $DIMPLE hugosite/static/binaries/$DIMPLE
+elif [ -e inst/bin/dimple.exe ]; then
+  DIMPLE=dimple-mingw-`util/version.sh`.exe
+  OS=windows
+  cp -rv inst/bin/dimple.exe hugosite/static/binaries/$DIMPLE
 elif [ -e inst/bin/dimple ]; then
   cp -rv inst/bin/dimple hugosite/static/binaries/$DIMPLE
 else
@@ -69,7 +73,7 @@ for i in $BINARIES; do
   case $i in
     *-linux-*) sed -ie "s/dimple-nightly-placeholder-linux/$i/g" hugosite/content/download.md ;;
     *-mac-*) sed -ie "s/dimple-nightly-placeholder-mac/$i/g" hugosite/content/download.md ;;
-    *-mingw-*) sed -ie "s/dimple-nightly-placeholder-windows/$i/g" hugosite/content/download.md ;;
+    *-win64-*) sed -ie "s/dimple-nightly-placeholder-windows/$i/g" hugosite/content/download.md ;;
   esac
 done
 
