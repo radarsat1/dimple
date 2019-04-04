@@ -45,7 +45,7 @@ InstallDir \$PROGRAMFILES64\\${NAME}
 DirText "This will install dimple on your computer. Choose a directory."
 
 ; For removing Start Menu shortcut in Windows 7
-RequestExecutionLevel user
+RequestExecutionLevel admin
 
 ; start default section
 Section
