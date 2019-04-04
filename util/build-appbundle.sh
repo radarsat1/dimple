@@ -32,7 +32,7 @@ VERSION=$(util/version.sh)
 MACOSX_DEPLOYMENT_TARGET=10.8
 ICON_FILE=dimple_sphere.icns
 
-cat >dmg/dimple.app/Info.plist <<EOF
+cat >dmg/dimple.app/Contents/Info.plist <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -63,7 +63,7 @@ cat >dmg/dimple.app/Info.plist <<EOF
 </plist>
 EOF
 
-echo -n >dmg/dimple.app/PkgInfo 'APPL????'
+echo -n >dmg/dimple.app/Contents/PkgInfo 'APPL????'
 
 # Build the dmg
 DMG_VOL_NAME=${NAME}-${VERSION}
