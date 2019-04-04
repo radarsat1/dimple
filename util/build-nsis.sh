@@ -63,8 +63,8 @@ cat >>installer.nsi <<EOF
     WriteUninstaller "\$INSTDIR\\uninstall.exe"
 
     ; create a shortcut named "new shortcut" in the start menu programs directory
-    ; point the new shortcut at the program uninstaller
-    CreateShortCut "\$SMPROGRAMS\\dimple.lnk" "\$INSTDIR\\uninstall.exe"
+    ; point the new shortcut at the program
+    CreateShortCut "\$SMPROGRAMS\\dimple.lnk" "\$INSTDIR\\${EXECUTABLE_NAME}"
 SectionEnd
 
 function un.onInit
