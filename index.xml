@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Homepage on Dimple</title>
+    <link>http://radarsat1.github.io/dimple/</link>
+    <description>Recent content in Homepage on Dimple</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+    
+      <atom:link href="http://radarsat1.github.io/dimple/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+      <item>
+        <title></title>
+        <link>http://radarsat1.github.io/dimple/messages/</link>
+        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+        <guid>http://radarsat1.github.io/dimple/messages/</guid>
+        <description>DIMPLE: Documentation This documentation describes the messages received and sent by DIMPLE. The following syntax is used:
+ Square brackets &amp;ldquo;[]&amp;rdquo; for optional parameters Triangle brackets &amp;ldquo;&amp;lt;&amp;gt;&amp;rdquo; for required parameters Parameters are prefixed with a type indicator:  i: 32-bit integer f: 32-bit floating point s: string  DIMPLE coerces types, so integers can be specified for float parameters  Values Any value specified by an OSC address can be set by providing a parameter directly, or retrieved by appending the suffix &amp;ldquo;/get&amp;rdquo;.</description>
+      </item>
+    
+      <item>
+        <title>About</title>
+        <link>http://radarsat1.github.io/dimple/about/</link>
+        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+        <guid>http://radarsat1.github.io/dimple/about/</guid>
+        <description>About Dimple Dimple is the Dynamically Interactive Musically PhysicaL Environment.
+Blank canvas for creating audio-haptic interactive environments.
+Physics by Open Dynamics Engine.
+Haptics and graphics by Chai3d.
+Work with any media software that supports Open Sound Control.
+ Pure Data Max/MSP SuperCollider ChucK  Operating systems:
+ Linux Mac OS X Windows  Haptic devices:
+ Any supported by chai3d including,  Phantom line (Geomagic) Delta line (Force Dimension, Novint) Soon: Haply  Also input devices such a Leap Motion  Open source.</description>
+      </item>
+    
+      <item>
+        <title>Download</title>
+        <link>http://radarsat1.github.io/dimple/download/</link>
+        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+        <guid>http://radarsat1.github.io/dimple/download/</guid>
+        <description>Download Source: http://github.com/radarsat1/dimple
+Stable: TODO
+Nightly binaries: Draft releases currently on github releases.
+Please file any build issues on github.</description>
+      </item>
+    
+  </channel>
+</rss>

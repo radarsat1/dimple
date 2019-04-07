@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en-us" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> - Dimple</title>
+  <meta name="author" content="">
+  <meta name="description" content="">
+
+  <meta name="generator" content="Hugo 0.54.0" />
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/dimple/assets/css/external.min.css" media="screen">
+
+  
+  
+  <link rel="stylesheet" href="/dimple/assets/css/styles.css" media="screen">
+
+  <link href="//fonts.googleapis.com/css?family=Roboto:400" rel="stylesheet">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/dimple/assets/img/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/dimple/assets/img/favicon.ico">
+
+  
+  <link href="/dimple/posts/index.xml" rel="alternate" type="application/rss+xml" title="Dimple" />
+  <link href="/dimple/posts/index.xml" rel="alternate" type="application/rss+xml" title="Dimple" />
+
+  <meta property="og:title" content="" />
+<meta property="og:description" content="DIMPLE: Documentation This documentation describes the messages received and sent by DIMPLE. The following syntax is used:
+ Square brackets &ldquo;[]&rdquo; for optional parameters Triangle brackets &ldquo;&lt;&gt;&rdquo; for required parameters Parameters are prefixed with a type indicator:  i: 32-bit integer f: 32-bit floating point s: string  DIMPLE coerces types, so integers can be specified for float parameters  Values Any value specified by an OSC address can be set by providing a parameter directly, or retrieved by appending the suffix &ldquo;/get&rdquo;." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://radarsat1.github.io/dimple/messages/" />
+
+
+  
+  
+<meta itemprop="name" content="">
+<meta itemprop="description" content="DIMPLE: Documentation This documentation describes the messages received and sent by DIMPLE. The following syntax is used:
+ Square brackets &ldquo;[]&rdquo; for optional parameters Triangle brackets &ldquo;&lt;&gt;&rdquo; for required parameters Parameters are prefixed with a type indicator:  i: 32-bit integer f: 32-bit floating point s: string  DIMPLE coerces types, so integers can be specified for float parameters  Values Any value specified by an OSC address can be set by providing a parameter directly, or retrieved by appending the suffix &ldquo;/get&rdquo;.">
+
+
+
+<meta itemprop="wordCount" content="1261">
+
+
+
+<meta itemprop="keywords" content="" />
+
+  <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content=""/>
+<meta name="twitter:description" content="DIMPLE: Documentation This documentation describes the messages received and sent by DIMPLE. The following syntax is used:
+ Square brackets &ldquo;[]&rdquo; for optional parameters Triangle brackets &ldquo;&lt;&gt;&rdquo; for required parameters Parameters are prefixed with a type indicator:  i: 32-bit integer f: 32-bit floating point s: string  DIMPLE coerces types, so integers can be specified for float parameters  Values Any value specified by an OSC address can be set by providing a parameter directly, or retrieved by appending the suffix &ldquo;/get&rdquo;."/>
+
+</head>
+
+  <body>
+    
+      <nav>
+  <a href="/dimple/" title="Homepage">
+    
+  </a>
+</nav>
+
+    
+    <main class="container">
+      
+  <article>
+    <section>
+      
+
+<h1 id="dimple-documentation">DIMPLE: Documentation</h1>
+
+<p>This documentation describes the messages received and sent by DIMPLE.
+The following syntax is used:</p>
+
+<ul>
+<li>Square brackets &ldquo;[]&rdquo; for optional parameters</li>
+<li>Triangle brackets &ldquo;&lt;&gt;&rdquo; for required parameters</li>
+<li>Parameters are prefixed with a type indicator:
+
+<ul>
+<li>i: 32-bit integer</li>
+<li>f: 32-bit floating point</li>
+<li>s: string</li>
+</ul></li>
+<li>DIMPLE coerces types, so integers can be specified for float parameters</li>
+</ul>
+
+<h2 id="values">Values</h2>
+
+<p>Any value specified by an OSC address can be <strong>set</strong> by providing a
+parameter directly, or <strong>retrieved</strong> by appending the suffix &ldquo;/get&rdquo;.
+The &ldquo;/get&rdquo; suffix with no parameters will return the value exactly
+once.  An optional integer parameter to &ldquo;/get&rdquo; specifies that the
+value should be returned at regular intervals the given number of
+milliseconds apart.  (Currently 10 ms is the lowest interval that can
+be specified.)  These timed messages can be cancelled by specifying
+a parameter of 0 to &ldquo;/get&rdquo;.</p>
+
+<p>With only a few exceptions, values can be either //scalars// or
+//vectors//.  Vectors can be identified by exactly three
+floating-point parameters.  Vectors can also be referenced by
+appending the &ldquo;/magnitude&rdquo; suffix which will set the magnitude of
+the vector, leaving its current direction the same.  &ldquo;/get&rdquo; can also
+be appended to &ldquo;/magnitude&rdquo;.</p>
+
+<p>There are currently some exceptions to these rules, which are detailed
+below.</p>
+
+<h2 id="connecting-to-dimple">Connecting to DIMPLE</h2>
+
+<p>DIMPLE communicates exclusively using
+<a href="http://opensoundcontrol.org/">Open Sound Control</a> over UDP, using
+port 7774 for receiving and port 7775 for sending.  In other words,
+using 7774 as the destination port in your application, and 7775 as
+the receiving port.  DIMPLE is hard-coded to send to localhost, so
+your application must be running on the same computer.  (This will
+be configurable in the future.)</p>
+
+<h2 id="messages">Messages</h2>
+
+<h3 id="creating-objects">Creating objects</h3>
+
+<pre><code>/world/prism/create &lt;s:name&gt; [f:x] [f:y] [f:z]
+/world/sphere/create &lt;s:name&gt; [f:x] [f:y] [f:z]
+/world/mesh/create &lt;s:name&gt; &lt;s:filename.3ds&gt; [f:x] [f:y] [f:z]
+</code></pre>
+
+<p>These messages create a named object as either a prism, sphere, or
+arbitrary mesh, which must be specified in a format supported by CHAI
+3D, currently this includes .3ds, .obj, and .stl file formats.
+Optionally, an initial position can be specified.  The initial size
+will be quite small, so these messages are usually followed up by a
+&ldquo;/size&rdquo; or &ldquo;/radius&rdquo; message.</p>
+
+<h3 id="creating-constraints">Creating constraints</h3>
+
+<pre><code>/world/fixed/create &lt;s:name&gt; &lt;s:object1&gt; &lt;s:object2&gt;
+/world/free/create &lt;s:name&gt; &lt;s:object1&gt; &lt;s:object2&gt;
+/world/ball/create &lt;s:name&gt; &lt;s:object1&gt; &lt;s:object2&gt; &lt;f:anchorx&gt; &lt;f:anchory&gt; &lt;f:anchorz&gt;
+/world/hinge/create &lt;s:name&gt; &lt;s:object1&gt; &lt;s:object2&gt; &lt;f:anchorx&gt; &lt;f:anchory&gt; &lt;f:anchorz&gt; &lt;f:axisx&gt; &lt;f:axisy&gt; &lt;f:axisz&gt;
+/world/hinge2/create &lt;s:name&gt; &lt;s:object1&gt; &lt;s:object2&gt; &lt;f:anchorx&gt; &lt;f:anchory&gt; &lt;f:anchorz&gt; &lt;f:axis1x&gt; &lt;f:axis1y&gt; &lt;f:axis1z&gt; &lt;f:axis2x&gt; &lt;f:axis2y&gt; &lt;f:axis2z&gt;
+/world/universal/create &lt;s:name&gt; &lt;s:object1&gt; &lt;s:object2&gt; &lt;f:anchorx&gt; &lt;f:anchory&gt; &lt;f:anchorz&gt; &lt;f:axis1x&gt; &lt;f:axis1y&gt; &lt;f:axis1z&gt; &lt;f:axis2x&gt; &lt;f:axis2y&gt; &lt;f:axis2z&gt;
+/world/slide/create &lt;s:name&gt; &lt;s:object1&gt; &lt;s:object2&gt; &lt;f:anchorx&gt; &lt;f:anchory&gt; &lt;f:anchorz&gt;
+/world/piston/create &lt;s:name&gt; &lt;s:object1&gt; &lt;s:object2&gt; &lt;f:anchorx&gt; &lt;f:anchory&gt; &lt;f:anchorz&gt;
+</code></pre>
+
+<p>Constraints can be created between two objects, or between an object
+and the <strong>world</strong> coordinate system.  For the latter, specify
+//object2// as &ldquo;world&rdquo;.  Different constraints take different
+numbers of arguments depending on how many points and vectors are
+needed to define them.  Please see the
+<a href="http://ode-wiki.org/wiki/index.php?title=Manual:_Joint_Types_and_Functions">ODE documentation section on Joints</a>
+for more information on each constraint type.</p>
+
+<p>The &ldquo;free&rdquo; constraint is not really a constraint &mdash; all the axes are
+free.  However, it is useful for establishing a response between the
+two specified objects.  It is not possible to specify a free
+constraint between an object and the world, as this already exists by
+default.</p>
+
+<h3 id="object-values">Object values</h3>
+
+<pre><code>/world/&lt;name&gt;/position &lt;f:x&gt; &lt;f:y&gt; &lt;f:z&gt;
+/world/&lt;name&gt;/velocity &lt;f:x&gt; &lt;f:y&gt; &lt;f:z&gt;
+/world/&lt;name&gt;/acceleration &lt;f:x&gt; &lt;f:y&gt; &lt;f:z&gt;
+/world/&lt;name&gt;/rotation &lt;f:r11&gt; &lt;f:r12&gt; &lt;f:r13&gt; &lt;f:r21&gt; &lt;f:r22&gt; &lt;f:r23&gt; &lt;f:r31&gt; &lt;f:r32&gt; &lt;f:r33&gt;
+/world/&lt;name&gt;/force &lt;f:x&gt; &lt;f:y&gt; &lt;f:z&gt;
+/world/&lt;name&gt;/mass &lt;f:mass&gt;
+/world/&lt;name&gt;/density &lt;f:density&gt;
+/world/&lt;name&gt;/color &lt;f:r&gt; &lt;f:g&gt; &lt;f:b&gt;
+/world/&lt;name&gt;/friction/static &lt;f:coefficient&gt;
+/world/&lt;name&gt;/friction/dynamic &lt;f:coefficient&gt;
+/world/&lt;name&gt;/texture/image &lt;s:filename&gt;
+/world/&lt;name&gt;/texture/level &lt;f:coefficient&gt;
+</code></pre>
+
+<p>Note that &ldquo;/rotation&rdquo; takes a 3x3 rotation matrix as argument, in
+the form of 9 floating-point values.  See, for example,
+<a href="http://en.wikipedia.org/wiki/Rotation_matrix">Wikipedia</a>, on how to
+calculate this.</p>
+
+<p>An object&rsquo;s initial density is 100, but be aware that resizing objects
+preserves the density, and therefore changes their mass accordingly.
+The object&rsquo;s mass has an important effect on haptic interaction as
+well the magnitude of force and spring stiffness values to use.  (The
+value 100 has been selected to feel &ldquo;good&rdquo; for haptic interaction, but
+this should be tuned according to the world you are designing.)</p>
+
+<h4 id="values-for-prisms-and-meshes">Values for prisms and meshes</h4>
+
+<pre><code>/world/&lt;name&gt;/size &lt;f:width&gt; &lt;f:depth&gt; &lt;f:height&gt;
+</code></pre>
+
+<h4 id="values-for-spheres">Values for spheres</h4>
+
+<pre><code>/world/&lt;name&gt;/radius &lt;f:radius&gt;
+</code></pre>
+
+<h3 id="other-object-messages">Other object messages</h3>
+
+<pre><code>/world/&lt;name&gt;/collide &lt;i:0,1&gt;
+</code></pre>
+
+<p>A parameter of 1 indicates that collisions for this object are
+requested.  0 indicates not to report collisions for this object.</p>
+
+<pre><code>/world/&lt;name&gt;/collide &lt;s:object&gt; &lt;f:velocity&gt;
+</code></pre>
+
+<p>This is the form of the response generated by DIMPLE when a collision
+occurs.</p>
+
+<pre><code>/world/&lt;name&gt;/grab
+</code></pre>
+
+<p>This message with no parameter indicates that this object should be
+&ldquo;grabbed&rdquo;, i.e., should be attached by virtual coupling to the
+location of the haptic proxy.  Grabbing another object will cause
+the current grabbed object to be dropped.</p>
+
+<pre><code>/world/&lt;name&gt;/visible &lt;i:0,1&gt;
+</code></pre>
+
+<p>Controls the visibility of this object in the visual display.  1 means
+the object is visible, and 0 makes the object not visible.</p>
+
+<pre><code>/world/&lt;name&gt;/destroy
+</code></pre>
+
+<p>Destroys this object.</p>
+
+<h3 id="constraint-responses">Constraint responses</h3>
+
+<pre><code>/world/&lt;name&gt;/response/spring &lt;f:stiffness&gt; &lt;f:damping&gt;
+</code></pre>
+
+<p>Springs are allowed for the following constraints:</p>
+
+<ul>
+<li>Hinge</li>
+<li>Hinge2</li>
+<li>Universal</li>
+<li>Slide</li>
+<li>Piston</li>
+</ul>
+
+<p>Stiffness and damping coefficients can be specified for this spring,
+making it return to its original orientation or position.</p>
+
+<p>For rotational constraints, the torque can be accessed by the
+following:</p>
+
+<pre><code>/world/&lt;name&gt;/response/torque &lt;f:magnitude&gt;
+</code></pre>
+
+<p>Some constraints have two free axes (e.g., universal and hinge2),
+and these must be refered to with a numerical suffix:</p>
+
+<pre><code>/world/&lt;name&gt;/response/torque1 &lt;f:magnitude&gt;
+/world/&lt;name&gt;/response/torque2 &lt;f:magnitude&gt;
+</code></pre>
+
+<p>For linear constraints (e.g., slide), the force can be accessed by:</p>
+
+<pre><code>/world/&lt;name&gt;/response/force &lt;f:magnitude&gt;
+</code></pre>
+
+<h3 id="global-messages">Global messages</h3>
+
+<pre><code>/world/collide &lt;i:0,1&gt;
+</code></pre>
+
+<p>This message with a parameter of 1 specifies that collisions between
+//any// two objects should be reported.  A parameter of 0 disables
+reporting of collisions between any two objects, but specific objects
+can still be enabled for collision reporting.</p>
+
+<pre><code>/world/collide &lt;s:object1&gt; &lt;s:object2&gt; &lt;f:velocity&gt;
+</code></pre>
+
+<p>This is the form of the response generated by DIMPLE when a collision
+occurs.</p>
+
+<pre><code>/world/gravity &lt;f:x&gt; &lt;f:y&gt; &lt;f:z&gt;
+</code></pre>
+
+<p>Sets the world&rsquo;s gravity vector to a given direction and magnitude.</p>
+
+<pre><code>/world/drop
+</code></pre>
+
+<p>Drops a grabbed object.</p>
+
+<pre><code>/world/clear
+</code></pre>
+
+<p>Clears all objects in the world.</p>
+
+<pre><code>/world/stiffness &lt;f:stiffness&gt;
+</code></pre>
+
+<p>Sets a maximum stiffness for all subsequently created objects.</p>
+
+<pre><code>/world/grab/stiffness &lt;f:stiffness&gt;
+/world/grab/damping &lt;f:damping&gt;
+</code></pre>
+
+<p>The stiffness and damping coefficients for the spring constructed
+between physics and haptics simulations when an object is grabbed.</p>
+
+<pre><code>/world/grab/feedback &lt;f:feedback&gt;
+</code></pre>
+
+<p>A further scaling of the grab spring forces for haptic feedback.  This
+can be used to diminish or exaggerate the feedling of the spring as
+displayed on the device.</p>
+
+<pre><code>/workspace/learn
+</code></pre>
+
+<p>On start-up, DIMPLE will automatically learn the input device&rsquo;s
+workspace and adapt to its world dimensions of the range [1,1] for all
+axes.  If this behaviour is stopped by <code>/world/workspace/freeze</code>, it
+can be reset and turned on again by issuing this command.</p>
+
+<pre><code>/workspace/freeze
+</code></pre>
+
+<p>Stop learning the input device&rsquo;s workspace shape and size.</p>
+
+<pre><code>/workspace/standard
+</code></pre>
+
+<p>Set the input workspace to have no scaling or offset, which then
+directly uses whatever input values were provided by the input device
+in CHAI 3D.</p>
+
+<pre><code>/workspace/size &lt;f:x&gt; &lt;f:y&gt; &lt;f:z&gt;
+/workspace/center &lt;f:x&gt; &lt;f:y&gt; &lt;f:z&gt;
+</code></pre>
+
+<p>These vectors allow to manually specify the size and center of the
+input device workspace.</p>
+
+<h3 id="special-objects">Special objects</h3>
+
+<p>There are a couple of predefined special objects in the DIMPLE world.
+These are used to control the camera and get information about the
+haptic cursor.</p>
+
+<h4 id="camera">Camera</h4>
+
+<p>The camera can be addressed by the prefix,</p>
+
+<pre><code>/world/camera
+</code></pre>
+
+<p>It has the following parameters:</p>
+
+<pre><code>/world/camera/position &lt;f:x&gt; &lt;f:y&gt; &lt;f:z&gt;
+/world/camera/lookat &lt;f:x&gt; &lt;f:y&gt; &lt;f:z&gt;
+/world/camera/up &lt;f:x&gt; &lt;f:y&gt; &lt;f:z&gt;
+</code></pre>
+
+<h4 id="cursor">Cursor</h4>
+
+<p>The cursor can be addressed by the prefix,</p>
+
+<pre><code>/world/cursor
+</code></pre>
+
+<p>Note that currently it is necessary to address this particular object
+on UDP port 7772 (the haptic thread&rsquo;s port) to get meaningful
+information.</p>
+
+<p>The cursor has most of the same parameters as other objects in DIMPLE.
+For instance you can query its position and the forces it is applying.</p>
+
+<p>You can also apply forces directly to the cursor by sending it
+<code>/world/cursor/force</code> messages, which allows to create a remote
+feedback loop if so desired.</p>
+
+    </section>
+  </article>
+
+    </main>
+    
+      <footer>
+  <p>
+    &copy; 2019 .
+  </p>
+  <p>
+    Powered by <a href="https://gohugo.io" title="A Fast and Flexible Website Generator">Hugo</a> &amp; <a href="https://github.com/eshlox/simplicity" title="Hugo theme">Simplicity</a>.
+  </p>
+</footer>
+
+    
+    
+    
+    
+    
+    
+    
+    <script src="/dimple/assets/js/scripts.min.js"></script>
+    
+  </body>
+</html>
