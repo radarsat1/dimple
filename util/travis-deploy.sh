@@ -25,12 +25,6 @@ esac
 # Prepare hugo site with docs
 cp -v doc/messages.md hugosite/content/
 
-# Prepare hugo site with previous binaries
-rm -rfv hugosite/static/binaries/*
-mv -v pages/binaries/* hugosite/static/binaries/
-
-# Prepare hugo site with current binary
-mkdir -vp pages/static/binaries
 if [ -e nsis/dimple-`util/version.sh`-win64-installer.exe ]; then
   DIMPLE=dimple-`util/version.sh`-win64-installer.exe
   OS=windows
@@ -44,39 +38,48 @@ elif [ -e dimple-`util/version.sh`-mac-x86_64.dmg ]; then
 elif [ -e inst/bin/dimple.exe ]; then
   DIMPLE=dimple-mingw-`util/version.sh`.exe
   OS=windows
-  cp -rv inst/bin/dimple.exe hugosite/static/binaries/$DIMPLE
+  cp -rv inst/bin/dimple.exe $DIMPLE
 elif [ -e inst/bin/dimple ]; then
-  cp -rv inst/bin/dimple hugosite/static/binaries/$DIMPLE
+  DIMPLE=dimple-mingw-`util/version.sh`
 else
   echo "No installed dimple executable found:"
   find inst
   exit 1
 fi
 
-# Prepare hugo site with current link
-sed -ie "s/dimple-nightly-placeholder-$OS/$DIMPLE/g" hugosite/content/download.md
+SITE_HAS_BINARIES=
+if ! [ -z $SITE_HAS_BINARIES ]; then
+  # Prepare hugo site with current binary
+  mkdir -vp pages/static/binaries
+  cp -rv $DIMPLE hugosite/static/binaries/
 
-# Check binary dependencies
-if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-  if [ -e inst/bin/dimple ]; then
-    ldd inst/bin/dimple
-  elif [ -e inst/bin/dimple.exe ]; then
-    true
+  # Prepare hugo site with current link
+  sed -ie "s/dimple-nightly-placeholder-$OS/$DIMPLE/g" hugosite/content/download.md
+
+  # Check binary dependencies
+  if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+    if [ -e inst/bin/dimple ]; then
+      ldd inst/bin/dimple
+    elif [ -e inst/bin/dimple.exe ]; then
+      true
+    fi
+  elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
+    otool -L inst/bin/dimple
   fi
-elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
-  otool -L inst/bin/dimple
-fi
 
-# Update hugo site with previous links
-BINARIES=$(grep binaries/dimple pages/download/index.html | sed 's,^.*/binaries/\(.*\)">.*$,\1,')
-for i in $BINARIES; do
-  case $i in
-    *-linux-*) sed -ie "s/dimple-nightly-placeholder-linux/$i/g" hugosite/content/download.md ;;
-    *-mac-*) sed -ie "s/dimple-nightly-placeholder-mac/$i/g" hugosite/content/download.md ;;
-    *-win64-*) sed -ie "s/dimple-nightly-placeholder-windows/$i/g" hugosite/content/download.md ;;
-  esac
+  # Update hugo site with previous links
+  BINARIES=$(grep binaries/dimple pages/download/index.html | sed 's,^.*/binaries/\(.*\)">.*$,\1,')
+  for i in $BINARIES; do
+    case $i in
+      *-linux-*) sed -ie "s/dimple-nightly-placeholder-linux/$i/g" hugosite/content/download.md ;;
+      *-mac-*) sed -ie "s/dimple-nightly-placeholder-mac/$i/g" hugosite/content/download.md ;;
+      *-win64-*) sed -ie "s/dimple-nightly-placeholder-windows/$i/g" hugosite/content/download.md ;;
+    esac
+  done
 done
 
 # Empty pages, run hugo, replace contents with static site
-rm -rfv pages/*
-(cd hugosite && $HUGO && mv -v public/* ../pages/)
+if [ $OS = linux ]; then
+    rm -rfv pages/*
+    (cd hugosite && $HUGO && mv -v public/* ../pages/)
+fi
