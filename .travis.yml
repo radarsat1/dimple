@@ -59,7 +59,7 @@ matrix:
     compiler: clang
 before_install:
   - eval "${MATRIX_EVAL}"
-script:  pwd && echo MINGW_ON_LINUX=$MINGW_ON_LINUX && ./bootstrap.sh && ./autogen.sh --host=$HOST --disable-debug --prefix=$PWD/inst && make && make check && make install && bash util/travis-deploy.sh || (cat config.log; false)
+script:  pwd && echo MINGW_ON_LINUX=$MINGW_ON_LINUX && ./bootstrap.sh && (./autogen.sh --host=$HOST --disable-debug --prefix=$PWD/inst || (cat config.log; false)) && make && make check && make install && source util/travis-deploy.sh
 after_script:
 - 
 # - make distcheck # will not work without re-bootstrapping, wasteful
@@ -69,13 +69,26 @@ notifications:
       - radarsat1@gmail.com
     on_success: never
     on_failure: change
+before_deploy:
+  # Set up git user name and tag this commit
+  - git config --local user.name "Stephen Sinclair"
+  - git config --local user.email "radarsat1@gmail.com"
+  - export TRAVIS_TAG=nightly-${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}
+  - git tag -d $TRAVIS_TAG || echo 'No tag to delete.'
+  - git tag $TRAVIS_TAG
 deploy:
-  provider: pages
-  skip-cleanup: true
-  github-token: $GITHUB_TOKEN
-  keep-history: true
-  on:
-    branch: master
-  local-dir: pages
-  target-branch: gh-pages
-  verbose: true
+  - provider: pages
+    skip-cleanup: true
+    github-token: $GITHUB_TOKEN
+    keep-history: true
+    on:
+      branch: master
+    local-dir: pages
+    target-branch: gh-pages
+    verbose: true
+  - provider: releases
+    api_key: $GITHUB_TOKEN
+    file: $FILE_TO_UPLOAD
+    skip_cleanup: true
+    draft: true
+    verbose: true

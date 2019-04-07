@@ -28,19 +28,18 @@ cp -v doc/messages.md hugosite/content/
 if [ -e nsis/dimple-`util/version.sh`-win64-installer.exe ]; then
   DIMPLE=dimple-`util/version.sh`-win64-installer.exe
   OS=windows
-  cp -rv nsis/$DIMPLE hugosite/static/binaries/$DIMPLE
+  cp -rv nsis/$DIMPLE ./
 elif [ -e dimple-`util/version.sh`-x86_64.AppImage ]; then
   DIMPLE=dimple-`util/version.sh`-x86_64.AppImage
-  cp -rv $DIMPLE hugosite/static/binaries/$DIMPLE
 elif [ -e dimple-`util/version.sh`-mac-x86_64.dmg ]; then
   DIMPLE=dimple-`util/version.sh`-mac-x86_64.dmg
-  cp -rv $DIMPLE hugosite/static/binaries/$DIMPLE
 elif [ -e inst/bin/dimple.exe ]; then
   DIMPLE=dimple-mingw-`util/version.sh`.exe
   OS=windows
   cp -rv inst/bin/dimple.exe $DIMPLE
 elif [ -e inst/bin/dimple ]; then
   DIMPLE=dimple-mingw-`util/version.sh`
+  cp -rv inst/bin/dimple $DIMPLE
 else
   echo "No installed dimple executable found:"
   find inst
@@ -76,10 +75,14 @@ if ! [ -z $SITE_HAS_BINARIES ]; then
       *-win64-*) sed -ie "s/dimple-nightly-placeholder-windows/$i/g" hugosite/content/download.md ;;
     esac
   done
-done
+fi
 
 # Empty pages, run hugo, replace contents with static site
 if [ $OS = linux ]; then
     rm -rfv pages/*
     (cd hugosite && $HUGO && mv -v public/* ../pages/)
 fi
+
+export FILE_TO_UPLOAD="$DIMPLE"
+set +e
+set +x
