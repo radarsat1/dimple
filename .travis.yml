@@ -29,6 +29,7 @@ matrix:
     env:
       - HOST=""
       - MATRIX_EVAL="echo '--progress=bar:force' >$HOME/.wgetrc"
+      - DEPLOY_PAGES="1"
     compiler: gcc
     install:
       - wget -O /tmp/hugo.deb https://github.com/gohugoio/hugo/releases/download/v0.54.0/hugo_0.54.0_Linux-64bit.deb
@@ -83,6 +84,7 @@ deploy:
     keep-history: true
     on:
       branch: master
+      condition: "$DEPLOY_PAGES = 1"
     local-dir: pages
     target-branch: gh-pages
     verbose: true

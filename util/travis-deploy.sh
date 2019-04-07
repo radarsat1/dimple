@@ -7,7 +7,40 @@ set -x
 HUGO=hugo
 
 # git fetch --unshallow
-util/version.sh
+VERSION=$(util/version.sh)
+
+DIMPLE=dimple-$TRAVIS_OS_NAME-${VERSION}
+case $TRAVIS_OS_NAME in
+    osx) OS=mac; util/build-appbundle.sh;;
+    linux) OS=linux; [ -z "$MINGW_ON_LINUX" ] && util/build-appimage.sh || util/build-nsis.sh;;
+esac
+
+if [ -e nsis/dimple-${VERSION}-win64-installer.exe ]; then
+  DIMPLE=dimple-${VERSION}-win64-installer.exe
+  OS=windows
+  cp -rv nsis/$DIMPLE ./
+elif [ -e dimple-${VERSION}-x86_64.AppImage ]; then
+  DIMPLE=dimple-${VERSION}-x86_64.AppImage
+elif [ -e dimple-${VERSION}-mac-x86_64.dmg ]; then
+  DIMPLE=dimple-${VERSION}-mac-x86_64.dmg
+elif [ -e inst/bin/dimple.exe ]; then
+  DIMPLE=dimple-mingw-${VERSION}.exe
+  OS=windows
+  cp -rv inst/bin/dimple.exe $DIMPLE
+elif [ -e inst/bin/dimple ]; then
+  DIMPLE=dimple-mingw-${VERSION}
+  cp -rv inst/bin/dimple $DIMPLE
+else
+  echo "No installed dimple executable found:"
+  find inst
+  exit 1
+fi
+
+# Release artifact
+export FILE_TO_UPLOAD="$DIMPLE"
+
+## Hugo site (if linux build)
+if [ $OS = linux ]; then
 
 git clone https://github.com/radarsat1/dimple.git --depth=1 --branch hugosite hugosite
 git clone https://github.com/radarsat1/dimple.git --depth=1 --branch gh-pages pages
@@ -16,35 +49,8 @@ git clone https://github.com/radarsat1/dimple.git --depth=1 --branch gh-pages pa
 
 (cd hugosite && git submodule init && git submodule update)
 
-DIMPLE=dimple-$TRAVIS_OS_NAME-`util/version.sh`
-case $TRAVIS_OS_NAME in
-    osx) OS=mac; util/build-appbundle.sh;;
-    linux) OS=linux; [ -z "$MINGW_ON_LINUX" ] && util/build-appimage.sh || util/build-nsis.sh;;
-esac
-
 # Prepare hugo site with docs
 cp -v doc/messages.md hugosite/content/
-
-if [ -e nsis/dimple-`util/version.sh`-win64-installer.exe ]; then
-  DIMPLE=dimple-`util/version.sh`-win64-installer.exe
-  OS=windows
-  cp -rv nsis/$DIMPLE ./
-elif [ -e dimple-`util/version.sh`-x86_64.AppImage ]; then
-  DIMPLE=dimple-`util/version.sh`-x86_64.AppImage
-elif [ -e dimple-`util/version.sh`-mac-x86_64.dmg ]; then
-  DIMPLE=dimple-`util/version.sh`-mac-x86_64.dmg
-elif [ -e inst/bin/dimple.exe ]; then
-  DIMPLE=dimple-mingw-`util/version.sh`.exe
-  OS=windows
-  cp -rv inst/bin/dimple.exe $DIMPLE
-elif [ -e inst/bin/dimple ]; then
-  DIMPLE=dimple-mingw-`util/version.sh`
-  cp -rv inst/bin/dimple $DIMPLE
-else
-  echo "No installed dimple executable found:"
-  find inst
-  exit 1
-fi
 
 SITE_HAS_BINARIES=
 if ! [ -z $SITE_HAS_BINARIES ]; then
@@ -78,11 +84,11 @@ if ! [ -z $SITE_HAS_BINARIES ]; then
 fi
 
 # Empty pages, run hugo, replace contents with static site
-if [ $OS = linux ]; then
-    rm -rfv pages/*
-    (cd hugosite && $HUGO && mv -v public/* ../pages/)
+rm -rfv pages/*
+(cd hugosite && $HUGO && mv -v public/* ../pages/)
+
+# End OS=linux
 fi
 
-export FILE_TO_UPLOAD="$DIMPLE"
 set +e
 set +x
