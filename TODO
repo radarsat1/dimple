@@ -1,32 +1,19 @@
 
-Development map:
+Development roadmap:
 
 v0.1:
 
-* Finish internal_osc branch, get back basic functionality with new
-  class structure.  Includes:
+  - Working again with chai3d 3.2.
+  - Textures
+
+v1.0:
+
+  - Composite objects
   - Full set of joint types:
      . Prismatic and Rotoide
      . Prismatic - Universal
      . Plane 2D
   - Spring responses for all joints
-
-v0.2:
-
-* Re-implement extra functionality that was lost in the regression:
-  - Textures
-  - Composite objects
-  - Mesh objects
+  - Mesh-mesh collisions
+  - As a 
   - Signal connections for Pd/Max version
-  - More proxy information
-  - Proxy object "grab"
-
-v1.0:
-
-* Allow run-time configuration of simulation synchroneity
-* Embedded implementation of haptics thread for Toro DSP (Ergos)
-* Process-oriented model
-* Implement Introsca library to improve speed of inter-thread
-  communication
-* Support for libnifalcon
-* More examples
