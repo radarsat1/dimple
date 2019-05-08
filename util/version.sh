@@ -14,7 +14,7 @@ else
     BRANCH="$(git branch | grep \* | sed 's,[() *],,g')"
 fi
 
-LASTTAG="$(git tag -l | sort -rn | perl -nle 'print $_  if m/^\d+\.\d+(\.\d+)*$/' | head -n 1)"
+LASTTAG="$(git tag -l | sort -rn | perl -nle 'print $_  if m/^\d+\.\d+(\.\d+)*(-rc)?$/' | head -n 1)"
 if [ "$LASTTAG"x = x ]; then
     LASTTAG="0"
     INCREMENT="-0"
